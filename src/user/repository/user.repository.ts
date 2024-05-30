@@ -11,7 +11,7 @@ export class UserRepository {
     private userRepository: Repository<User>,
   ) {}
 
-  async findOrThrowById(id: number): Promise<User> {
+  async findOneOrThrowById(id: number): Promise<User> {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) throw new UserNotFound();
 

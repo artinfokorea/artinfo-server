@@ -7,6 +7,6 @@ export class UserService {
   ) {}
 
   async getUserById(id: number): Promise<User> {
-    return this.userRepository.findOrThrowById(id);
+    return this.userRepository.findOneOrThrowById(id);
   }
 }

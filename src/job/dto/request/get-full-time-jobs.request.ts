@@ -3,10 +3,13 @@ import { ApiProperty } from '@nestjs/swagger';
 import { FULL_TIME_JOB_TYPE } from '@/job/entity/full-time-job.entity';
 import { GetFullTimeJobsCommand } from '@/job/dto/command/get-full-time-jobs.command';
 import { CountFullTimeJobsCommand } from '@/job/dto/command/count-full-time-jobs.command';
-import { Enum, NotBlank } from '@/common/decorator/validator';
+import { Enum, NotBlank, NumberArray } from '@/common/decorator/validator';
+import { ToNumberArray } from '@/common/decorator/transformer';
 
 export class GetFullTimeJobsRequest extends List {
-  @ApiProperty({ type: [Number], required: false, description: '카테고리 아이디 목록', example: 1 })
+  @ToNumberArray()
+  @NumberArray()
+  @ApiProperty({ type: [Number], required: false, description: '카테고리 아이디 목록', example: [1, 2] })
   categoryIds: number[] = [];
 
   @Enum(FULL_TIME_JOB_TYPE)

@@ -1,55 +1,49 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { FindOptionsWhere, In, Repository } from 'typeorm';
 import { FULL_TIME_JOB_TYPE, FullTimeJob } from '@/job/entity/full-time-job.entity';
 import { Paging } from '@/common/type/type';
-import { FullTimeJobMajorCategory } from '@/job/entity/full-time-job-major-category.entity';
+import { JobNotFound } from '@/job/exception/job.exception';
 
 @Injectable()
 export class FullTimeJobRepository {
   constructor(
     @InjectRepository(FullTimeJob)
     private fullTimeJobRepository: Repository<FullTimeJob>,
-
-    @InjectRepository(FullTimeJobMajorCategory)
-    private fullTimeJobMajorCategoryRepository: Repository<FullTimeJobMajorCategory>,
   ) {}
 
   async findBy(type: FULL_TIME_JOB_TYPE, categoryIds: number[], paging: Paging) {
-    const fullTimeJobMajorCategories = await this.fullTimeJobMajorCategoryRepository.find({
-      where: { majorCategoryId: In(categoryIds) },
-    });
+    const where: FindOptionsWhere<FullTimeJob> = { type: type };
 
-    const fullTimeJobIds = fullTimeJobMajorCategories.map(fullTimeJobMajorCategory => fullTimeJobMajorCategory.fullTimeJobId);
-
-    const qb = this.fullTimeJobRepository
-      .createQueryBuilder('job')
-      .leftJoinAndSelect('job.fullTimeJobMajorCategories', 'jobMajorCategory')
-      .leftJoinAndSelect('jobMajorCategory.majorCategory', 'majorCategory');
-
-    if (fullTimeJobIds.length !== 0) {
-      qb.andWhere('job.id IN (:...ids)', { ids: fullTimeJobIds });
+    if (categoryIds.length) {
+      where.fullTimeJobMajorCategories = { majorCategory: { id: In(categoryIds) } };
     }
 
-    return qb
-      .andWhere('job.type = :type', { type })
-      .skip((paging.page - 1) * paging.size)
-      .take(paging.size)
-      .getMany();
+    return this.fullTimeJobRepository.find({
+      relations: ['fullTimeJobMajorCategories.majorCategory'],
+      where: { type: type },
+      skip: (paging.page - 1) * paging.size,
+      take: paging.size,
+    });
+  }
+
+  async findOneOrThrowById(id: number): Promise<FullTimeJob> {
+    const job = await this.fullTimeJobRepository.findOneBy({ id });
+    if (!job) throw new JobNotFound();
+
+    return job;
   }
 
   async countBy(type: FULL_TIME_JOB_TYPE, categoryIds: number[]) {
-    const fullTimeJobMajorCategories = await this.fullTimeJobMajorCategoryRepository.find({
-      where: { majorCategoryId: In(categoryIds) },
-    });
-    const fullTimeJobIds = fullTimeJobMajorCategories.map(fullTimeJobMajorCategory => fullTimeJobMajorCategory.fullTimeJobId);
-
-    return await this.fullTimeJobRepository
+    const queryBuilder = this.fullTimeJobRepository
       .createQueryBuilder('job')
-      .leftJoinAndSelect('job.fullTimeJobMajorCategories', 'jobMajorCategory')
-      .leftJoinAndSelect('jobMajorCategory.majorCategory', 'majorCategory')
-      .where('job.id IN (:...ids)', { ids: fullTimeJobIds })
-      .andWhere('job.type = :type', { type })
-      .getCount();
+      .leftJoin('job.fullTimeJobMajorCategories', 'jobMajorCategory')
+      .where('job.type = :type', { type });
+
+    if (categoryIds.length) {
+      queryBuilder.andWhere('jobMajorCategory.majorCategoryId IN (:...categoryIds)', { categoryIds });
+    }
+
+    return queryBuilder.getCount();
   }
 }

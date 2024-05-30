@@ -12,6 +12,10 @@ export class FullTimeJobService {
     return this.fullTimeJobRepository.findBy(command.type, command.categoryIds, command.paging);
   }
 
+  async getFullTimeJob(jobId: number): Promise<FullTimeJob> {
+    return this.fullTimeJobRepository.findOneOrThrowById(jobId);
+  }
+
   async countFullTimeJobs(command: CountFullTimeJobsCommand): Promise<number> {
     return this.fullTimeJobRepository.countBy(command.type, command.categoryIds);
   }
