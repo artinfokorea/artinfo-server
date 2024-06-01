@@ -14,7 +14,7 @@ export class FullTimeJobMajorCategory extends BaseEntity {
   @JoinColumn({ name: 'full_time_job_id', referencedColumnName: 'id' })
   fullTimeJob: FullTimeJob;
 
-  @ManyToOne(() => MajorCategory, majorCategory => majorCategory.fullTimeJobMajorCategories, { onDelete: 'CASCADE' })
+  @ManyToOne(() => MajorCategory, majorCategory => majorCategory.fullTimeJobMajorCategories, { eager: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'major_category_id', referencedColumnName: 'id' })
   majorCategory: MajorCategory;
 }

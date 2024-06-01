@@ -16,7 +16,7 @@ export function NumberArray(): PropertyDecorator {
       propertyName: propertyName,
       validator: {
         validate(value: any, _: ValidationArguments) {
-          return Array.isArray(value) && value.every(item => !isNaN(Number(item)));
+          return Array.isArray(value) && value.length > 0 && value.every(item => !isNaN(Number(item)));
         },
         defaultMessage() {
           return '카테고리 아이디 목록의 모든 요소는 숫자여야 합니다.';

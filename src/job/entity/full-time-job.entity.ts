@@ -1,5 +1,6 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { FullTimeJobMajorCategory } from '@/job/entity/full-time-job-major-category.entity';
+import { User } from '@/user/entity/user.entity';
 
 export enum FULL_TIME_JOB_TYPE {
   ART_ORGANIZATION = 'ART_ORGANIZATION',
@@ -44,7 +45,7 @@ export class FullTimeJob extends BaseEntity {
   @Column({ type: 'text', name: 'contents' })
   contents: string;
 
-  @Column({ type: 'enum', enum: PROVINCE_TYPE, name: 'province', nullable: true })
+  @Column({ type: 'enum', enum: PROVINCE_TYPE, name: 'province' })
   province: PROVINCE_TYPE;
 
   @Column({ type: 'varchar', name: 'address', nullable: true })
@@ -56,8 +57,12 @@ export class FullTimeJob extends BaseEntity {
   @Column({ type: 'text', name: 'image_url', nullable: true })
   imageUrl: string | null;
 
-  @OneToMany(() => FullTimeJobMajorCategory, fullTimeJobMajorCategory => fullTimeJobMajorCategory.fullTimeJob)
+  @OneToMany(() => FullTimeJobMajorCategory, fullTimeJobMajorCategory => fullTimeJobMajorCategory.fullTimeJob, { eager: true, cascade: true })
   fullTimeJobMajorCategories: FullTimeJobMajorCategory[];
+
+  @ManyToOne(() => User, user => user.fullTimeJobs)
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
+  user: User;
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;

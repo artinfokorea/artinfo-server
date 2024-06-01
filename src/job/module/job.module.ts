@@ -6,10 +6,11 @@ import { MajorCategory } from '@/job/entity/major-category.entity';
 import { FullTimeJobService } from '@/job/service/full-time-job.service';
 import { FullTimeJobRepository } from '@/job/repository/full-time-job.repository';
 import { JobController } from '@/job/controller/job.controller';
+import { MajorCategoryRepository } from '@/job/repository/major-category.repository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([FullTimeJob, FullTimeJobMajorCategory, MajorCategory])],
-  providers: [FullTimeJobService, FullTimeJobRepository],
+  providers: [FullTimeJobService, FullTimeJobRepository, MajorCategoryRepository],
   controllers: [JobController],
 })
 export class JobModule {}

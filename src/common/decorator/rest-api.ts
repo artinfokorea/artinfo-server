@@ -1,4 +1,4 @@
-import { applyDecorators, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { applyDecorators, Controller, Delete, Get, Post, Put, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Reflector } from '@nestjs/core';
 import { USER_TYPE } from '@/user/entity/user.entity';
@@ -33,6 +33,38 @@ export function RestApiGet<T extends new (...args: any[]) => any>(response: T, {
 export function RestApiPost<T extends new (...args: any[]) => any>(response: T, { path, description, auth }: HttpMethodOption): MethodDecorator {
   const decorators = [
     Post(path),
+    ApiOperation({ summary: description }),
+    ApiOkResponse({
+      type: response,
+    }),
+  ];
+
+  if (auth) {
+    decorators.push(UseGuards(JwtAuthGuard), ApiBearerAuth());
+  }
+
+  return applyDecorators(...decorators);
+}
+
+export function RestApiPut<T extends new (...args: any[]) => any>(response: T, { path, description, auth }: HttpMethodOption): MethodDecorator {
+  const decorators = [
+    Put(path),
+    ApiOperation({ summary: description }),
+    ApiOkResponse({
+      type: response,
+    }),
+  ];
+
+  if (auth) {
+    decorators.push(UseGuards(JwtAuthGuard), ApiBearerAuth());
+  }
+
+  return applyDecorators(...decorators);
+}
+
+export function RestApiDelete<T extends new (...args: any[]) => any>(response: T, { path, description, auth }: HttpMethodOption): MethodDecorator {
+  const decorators = [
+    Delete(path),
     ApiOperation({ summary: description }),
     ApiOkResponse({
       type: response,

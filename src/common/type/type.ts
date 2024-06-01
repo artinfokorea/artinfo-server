@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+export interface UserSignature {
+  id: number;
+  name: string;
+  email: string;
+}
+
 export interface Paging {
   page: number;
   size: number;

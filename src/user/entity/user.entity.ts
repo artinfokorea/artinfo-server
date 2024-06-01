@@ -1,4 +1,5 @@
-import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { FullTimeJob } from '@/job/entity/full-time-job.entity';
 
 export enum USER_TYPE {
   CLIENT = 'CLIENT',
@@ -27,6 +28,9 @@ export class User extends BaseEntity {
 
   @Column({ name: 'password' })
   password: string;
+
+  @OneToMany(() => FullTimeJob, fullTimeJob => fullTimeJob.user)
+  fullTimeJobs: FullTimeJob[];
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
