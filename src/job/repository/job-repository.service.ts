@@ -58,6 +58,7 @@ export class JobRepository {
 
     return this.jobRepository.find({
       relations: ['jobMajorCategories.majorCategory'],
+      where: where,
       skip: (paging.page - 1) * paging.size,
       take: paging.size,
     });
@@ -71,22 +72,25 @@ export class JobRepository {
   }
 
   async count(types: JOB_TYPE[], categoryIds: number[]): Promise<number> {
-    const queryBuilder = this.jobRepository.createQueryBuilder('job').leftJoin('job.jobMajorCategories', 'jobMajorCategory');
+    const where: FindOptionsWhere<Job> = {};
 
-    if (categoryIds.length) {
-      queryBuilder.andWhere('job.type = IN (:...types)', { types });
+    if (types.length) {
+      where.type = In(types);
     }
 
     if (categoryIds.length) {
-      queryBuilder.andWhere('jobMajorCategory.majorCategoryId IN (:...categoryIds)', { categoryIds });
+      where.jobMajorCategories = { majorCategory: { id: In(categoryIds) } };
     }
 
-    return queryBuilder.getCount();
+    return this.jobRepository.count({
+      where: where,
+    });
   }
 
   async deleteOrThrowById(id: number): Promise<void> {
     const job = await this.jobRepository.findOneBy({ id: id });
     if (!job) throw new JobNotFound();
+
     await job.remove();
   }
 }

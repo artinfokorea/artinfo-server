@@ -1,4 +1,5 @@
 import { Transform } from 'class-transformer';
+import { JOB_TYPE } from '@/job/entity/job.entity';
 
 export function ToNumberArray() {
   return Transform(({ value }) => {
@@ -9,5 +10,16 @@ export function ToNumberArray() {
       });
     }
     return value;
+  });
+}
+
+export function ToArray() {
+  return Transform(({ value }) => {
+    const isEnum = Object.values(JOB_TYPE).includes(value);
+    if (typeof value === 'string' && isEnum) {
+      return [value];
+    } else {
+      return value;
+    }
   });
 }
