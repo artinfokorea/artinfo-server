@@ -1,6 +1,6 @@
-import { FULL_TIME_JOB_TYPE, PROVINCE_TYPE } from '@/job/entity/full-time-job.entity';
+import { JOB_TYPE, PROVINCE_TYPE } from '@/job/entity/job.entity';
 
-export class FullTimeJobCreator {
+export class JobCreator {
   userId: number;
   title: string;
   contents: string;
@@ -9,7 +9,7 @@ export class FullTimeJobCreator {
   imageUrl: string | null;
   address: string | null;
   fee: number | null;
-  type: FULL_TIME_JOB_TYPE;
+  type: JOB_TYPE;
 
   constructor({
     userId,
@@ -30,7 +30,7 @@ export class FullTimeJobCreator {
     imageUrl: string | null;
     address: string | null;
     fee: number | null;
-    type: FULL_TIME_JOB_TYPE;
+    type: JOB_TYPE;
   }) {
     this.userId = userId;
     this.title = title;

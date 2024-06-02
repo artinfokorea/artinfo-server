@@ -1,5 +1,5 @@
-import { FULL_TIME_JOB_TYPE, PROVINCE_TYPE } from '@/job/entity/full-time-job.entity';
-import { FullTimeJobCreator } from '@/job/repository/operation/full-time-job.creator';
+import { JOB_TYPE, PROVINCE_TYPE } from '@/job/entity/job.entity';
+import { JobCreator } from '@/job/repository/operation/job.creator';
 
 export class CreateFullTimeJobCommand {
   userId: number;
@@ -11,7 +11,9 @@ export class CreateFullTimeJobCommand {
   address: string | null;
   fee: number | null;
   majorIds: number[];
-  type: FULL_TIME_JOB_TYPE;
+  type: JOB_TYPE;
+  startAt: Date | null;
+  endAt: Date | null;
 
   constructor({
     userId,
@@ -24,6 +26,8 @@ export class CreateFullTimeJobCommand {
     fee,
     majorIds,
     type,
+    startAt,
+    endAt,
   }: {
     userId: number;
     title: string;
@@ -34,7 +38,9 @@ export class CreateFullTimeJobCommand {
     address: string | null;
     fee: number | null;
     majorIds: number[];
-    type: FULL_TIME_JOB_TYPE;
+    type: JOB_TYPE;
+    startAt: Date | null;
+    endAt: Date | null;
   }) {
     this.userId = userId;
     this.title = title;
@@ -46,10 +52,12 @@ export class CreateFullTimeJobCommand {
     this.fee = fee;
     this.majorIds = majorIds;
     this.type = type;
+    this.startAt = startAt;
+    this.endAt = endAt;
   }
 
   toCreator() {
-    return new FullTimeJobCreator({
+    return new JobCreator({
       userId: this.userId,
       title: this.title,
       contents: this.contents,

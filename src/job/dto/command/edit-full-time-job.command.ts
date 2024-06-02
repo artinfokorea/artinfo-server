@@ -1,5 +1,5 @@
-import { PROVINCE_TYPE } from '@/job/entity/full-time-job.entity';
-import { FullTimeJobEditor } from '@/job/repository/operation/full-time-job.editor';
+import { PROVINCE_TYPE } from '@/job/entity/job.entity';
+import { JobEditor } from '@/job/repository/operation/job.editor';
 
 export class EditFullTimeJobCommand {
   jobId: number;
@@ -49,7 +49,7 @@ export class EditFullTimeJobCommand {
   }
 
   toEditor() {
-    return new FullTimeJobEditor({
+    return new JobEditor({
       jobId: this.jobId,
       userId: this.userId,
       title: this.title,

@@ -1,14 +1,14 @@
 import { Paging } from '@/common/type/type';
-import { FULL_TIME_JOB_TYPE } from '@/job/entity/full-time-job.entity';
+import { JOB_TYPE } from '@/job/entity/job.entity';
 
 export class GetFullTimeJobsCommand {
   paging: Paging;
   categoryIds: number[];
-  type: FULL_TIME_JOB_TYPE;
+  types: JOB_TYPE[];
 
-  constructor({ paging, categoryIds, type }: { paging: Paging; categoryIds: number[]; type: FULL_TIME_JOB_TYPE }) {
+  constructor({ paging, categoryIds, types }: { paging: Paging; categoryIds: number[]; types: JOB_TYPE[] }) {
     this.paging = paging;
     this.categoryIds = categoryIds;
-    this.type = type;
+    this.types = types;
   }
 }

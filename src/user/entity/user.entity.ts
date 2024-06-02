@@ -1,5 +1,5 @@
 import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { FullTimeJob } from '@/job/entity/full-time-job.entity';
+import { Job } from '@/job/entity/job.entity';
 
 export enum USER_TYPE {
   CLIENT = 'CLIENT',
@@ -17,7 +17,7 @@ export class User extends BaseEntity {
   @PrimaryGeneratedColumn('increment', { name: 'id' })
   id: number;
 
-  @Column({ type: 'enum', enum: USER_TYPE, name: 'type', default: USER_TYPE.CLIENT })
+  @Column({ name: 'type', default: USER_TYPE.CLIENT })
   type: USER_TYPE;
 
   @Column({ name: 'name' })
@@ -29,8 +29,8 @@ export class User extends BaseEntity {
   @Column({ name: 'password' })
   password: string;
 
-  @OneToMany(() => FullTimeJob, fullTimeJob => fullTimeJob.user)
-  fullTimeJobs: FullTimeJob[];
+  @OneToMany(() => Job, fullTimeJob => fullTimeJob.user)
+  fullTimeJobs: Job[];
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;

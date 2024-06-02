@@ -1,6 +1,6 @@
-import { PROVINCE_TYPE } from '@/job/entity/full-time-job.entity';
+import { PROVINCE_TYPE } from '@/job/entity/job.entity';
 
-export class FullTimeJobEditor {
+export class JobEditor {
   jobId: number;
   userId: number;
   title: string;

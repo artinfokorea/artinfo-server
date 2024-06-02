@@ -8,11 +8,11 @@ import { AdvertisementModule } from '@/system/module/advertisement.module';
 import { JobModule } from '@/job/module/job.module';
 import { Auth } from '@/auth/entity/auth.entity';
 import { Advertisement } from '@/system/entity/advertisement.entity';
-import { FullTimeJob } from '@/job/entity/full-time-job.entity';
-import { FullTimeJobMajorCategory } from '@/job/entity/full-time-job-major-category.entity';
+import { Job } from '@/job/entity/job.entity';
+import { jobMajorCategory } from '@/job/entity/job-major-category.entity';
 import { MajorCategory } from '@/job/entity/major-category.entity';
 
-const entities = [User, Auth, Advertisement, FullTimeJob, FullTimeJobMajorCategory, MajorCategory];
+const entities = [User, Auth, Advertisement, Job, jobMajorCategory, MajorCategory];
 const modules = [AuthModule, UserModule, AdvertisementModule, JobModule];
 
 @Module({

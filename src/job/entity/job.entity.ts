@@ -1,10 +1,12 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { FullTimeJobMajorCategory } from '@/job/entity/full-time-job-major-category.entity';
+import { jobMajorCategory } from '@/job/entity/job-major-category.entity';
 import { User } from '@/user/entity/user.entity';
 
-export enum FULL_TIME_JOB_TYPE {
+export enum JOB_TYPE {
   ART_ORGANIZATION = 'ART_ORGANIZATION',
   RELIGION = 'RELIGION',
+  LECTURER = 'LECTURER',
+  PART_TIME = 'PART_TIME',
 }
 
 export enum PROVINCE_TYPE {
@@ -28,13 +30,13 @@ export enum PROVINCE_TYPE {
   NONE = 'NONE',
 }
 
-@Entity('full_time_jobs')
-export class FullTimeJob extends BaseEntity {
+@Entity('jobs')
+export class Job extends BaseEntity {
   @PrimaryGeneratedColumn('increment', { name: 'id' })
   id: number;
 
-  @Column({ type: 'enum', enum: FULL_TIME_JOB_TYPE, name: 'type' })
-  type: FULL_TIME_JOB_TYPE;
+  @Column({ name: 'type' })
+  type: JOB_TYPE;
 
   @Column({ type: 'varchar', name: 'title' })
   title: string;
@@ -45,7 +47,7 @@ export class FullTimeJob extends BaseEntity {
   @Column({ type: 'text', name: 'contents' })
   contents: string;
 
-  @Column({ type: 'enum', enum: PROVINCE_TYPE, name: 'province' })
+  @Column({ name: 'province' })
   province: PROVINCE_TYPE;
 
   @Column({ type: 'varchar', name: 'address', nullable: true })
@@ -57,16 +59,25 @@ export class FullTimeJob extends BaseEntity {
   @Column({ type: 'text', name: 'image_url', nullable: true })
   imageUrl: string | null;
 
-  @OneToMany(() => FullTimeJobMajorCategory, fullTimeJobMajorCategory => fullTimeJobMajorCategory.fullTimeJob, { eager: true, cascade: true })
-  fullTimeJobMajorCategories: FullTimeJobMajorCategory[];
+  @Column({ type: 'boolean', name: 'is_active', default: true })
+  isActive: boolean;
+
+  @OneToMany(() => jobMajorCategory, jobMajorCategory => jobMajorCategory.job, { eager: true, cascade: true })
+  jobMajorCategories: jobMajorCategory[];
 
   @ManyToOne(() => User, user => user.fullTimeJobs)
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: User;
 
+  @CreateDateColumn({ type: 'timestamp', name: 'start_at', nullable: true })
+  startAt: Date | null;
+
+  @CreateDateColumn({ type: 'timestamp', name: 'end_at', nullable: true })
+  endAt: Date | null;
+
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 
   @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
-  updateAt: Date;
+  updatedAt: Date;
 }

@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { FULL_TIME_JOB_TYPE, PROVINCE_TYPE } from '@/job/entity/full-time-job.entity';
+import { JOB_TYPE, PROVINCE_TYPE } from '@/job/entity/job.entity';
 import { CreateFullTimeJobCommand } from '@/job/dto/command/create-full-time-job.command';
 import { Enum, NotBlank } from '@/common/decorator/validator';
 import { IsNumber } from 'class-validator';
 
-export class CreateFullTimeJobReligionRequest {
+export class CreateJobReligionRequest {
   @NotBlank()
   @ApiProperty({ type: 'string', required: true, description: '채용 제목', example: '춘천시립예술단 단원 모집' })
   title: string;
@@ -46,7 +46,9 @@ export class CreateFullTimeJobReligionRequest {
       address: this.address,
       fee: this.fee,
       majorIds: [this.majorId],
-      type: FULL_TIME_JOB_TYPE.RELIGION,
+      type: JOB_TYPE.RELIGION,
+      startAt: null,
+      endAt: null,
     });
   }
 }

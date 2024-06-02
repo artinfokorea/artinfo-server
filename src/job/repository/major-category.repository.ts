@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { MajorCategory } from '@/job/entity/major-category.entity';
-import { FullTimeJobMajorCategory } from '@/job/entity/full-time-job-major-category.entity';
+import { jobMajorCategory } from '@/job/entity/job-major-category.entity';
 import { MajorNotFound } from '@/job/exception/job.exception';
 
 @Injectable()
@@ -11,12 +11,12 @@ export class MajorCategoryRepository {
     @InjectRepository(MajorCategory)
     private majorCategoryRepository: Repository<MajorCategory>,
 
-    @InjectRepository(FullTimeJobMajorCategory)
-    private fullTimeJobMajorCategoryRepository: Repository<FullTimeJobMajorCategory>,
+    @InjectRepository(jobMajorCategory)
+    private fullTimeJobMajorCategoryRepository: Repository<jobMajorCategory>,
   ) {}
 
   async deleteByJobId(jobId: number): Promise<void> {
-    await this.fullTimeJobMajorCategoryRepository.delete({ fullTimeJobId: jobId });
+    await this.fullTimeJobMajorCategoryRepository.delete({ jobId: jobId });
   }
 
   async linkFullTimeJobToMajorCategoriesOrThrow(jobId: number, majorCategoryIds: number[]): Promise<void> {
@@ -27,7 +27,7 @@ export class MajorCategoryRepository {
     majorCategoryIds.forEach(majorCategoryId => uniqueMajorCategoryIds.add(majorCategoryId));
 
     const FullTimeJobMajorCategories = [...uniqueMajorCategoryIds].map(majorCategoryId => {
-      return this.fullTimeJobMajorCategoryRepository.create({ fullTimeJobId: jobId, majorCategoryId: majorCategoryId });
+      return this.fullTimeJobMajorCategoryRepository.create({ jobId: jobId, majorCategoryId: majorCategoryId });
     });
 
     await this.fullTimeJobMajorCategoryRepository.save(FullTimeJobMajorCategories);

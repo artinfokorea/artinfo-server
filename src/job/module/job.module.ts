@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { FullTimeJob } from '@/job/entity/full-time-job.entity';
-import { FullTimeJobMajorCategory } from '@/job/entity/full-time-job-major-category.entity';
+import { Job } from '@/job/entity/job.entity';
+import { jobMajorCategory } from '@/job/entity/job-major-category.entity';
 import { MajorCategory } from '@/job/entity/major-category.entity';
-import { FullTimeJobService } from '@/job/service/full-time-job.service';
-import { FullTimeJobRepository } from '@/job/repository/full-time-job.repository';
+import { JobService } from '@/job/service/job.service';
+import { JobRepository } from '@/job/repository/job-repository.service';
 import { JobController } from '@/job/controller/job.controller';
 import { MajorCategoryRepository } from '@/job/repository/major-category.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([FullTimeJob, FullTimeJobMajorCategory, MajorCategory])],
-  providers: [FullTimeJobService, FullTimeJobRepository, MajorCategoryRepository],
+  imports: [TypeOrmModule.forFeature([Job, jobMajorCategory, MajorCategory])],
   controllers: [JobController],
+  providers: [JobService, JobRepository, MajorCategoryRepository],
 })
 export class JobModule {}

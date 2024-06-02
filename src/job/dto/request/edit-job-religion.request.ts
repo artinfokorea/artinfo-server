@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PROVINCE_TYPE } from '@/job/entity/full-time-job.entity';
-import { NotBlank, NumberArray } from '@/common/decorator/validator';
+import { PROVINCE_TYPE } from '@/job/entity/job.entity';
+import { Enum, NotBlank } from '@/common/decorator/validator';
 import { IsNumber } from 'class-validator';
 import { EditFullTimeJobCommand } from '@/job/dto/command/edit-full-time-job.command';
 
-export class EditFullTimeJobArtOrganizationRequest {
+export class EditJobReligionRequest {
   @IsNumber()
   @NotBlank()
   @ApiProperty({ type: 'number', required: true, description: '채용 아이디', example: 5 })
@@ -22,12 +22,23 @@ export class EditFullTimeJobArtOrganizationRequest {
   @ApiProperty({ type: 'string', required: true, description: '단체명', example: '춘천시립예술단' })
   companyName: string;
 
-  @ApiProperty({ type: 'string', required: false, description: '회사 대표 이미지', example: 'https://artinfokorea.com' })
-  imageUrl: string | null = null;
+  @Enum(PROVINCE_TYPE)
+  @ApiProperty({ enum: PROVINCE_TYPE, enumName: 'PROVINCE_TYPE', required: true, description: '회사 지역 ( 예숧단체 등록시 NONE )', example: '서울' })
+  province: PROVINCE_TYPE;
 
-  @NumberArray()
-  @ApiProperty({ type: 'number[]', required: true, description: '전공 아이디 목록', example: [5, 6] })
-  majorIds: number[];
+  @NotBlank()
+  @ApiProperty({ type: 'string', required: true, description: '주소', example: '강원도 정선군 정선읍' })
+  address: string;
+
+  @IsNumber()
+  @NotBlank()
+  @ApiProperty({ type: 'number', required: true, description: '사례비', example: 500000 })
+  fee: number;
+
+  @IsNumber()
+  @NotBlank()
+  @ApiProperty({ type: 'number', required: true, description: '전공 아이디', example: 5 })
+  majorId: number;
 
   toCommand(userId: number) {
     return new EditFullTimeJobCommand({
@@ -36,11 +47,11 @@ export class EditFullTimeJobArtOrganizationRequest {
       title: this.title,
       contents: this.contents,
       companyName: this.companyName,
-      province: PROVINCE_TYPE.NONE,
-      imageUrl: this.imageUrl,
-      address: null,
-      fee: null,
-      majorIds: this.majorIds,
+      province: this.province,
+      imageUrl: null,
+      address: this.address,
+      fee: this.fee,
+      majorIds: [this.majorId],
     });
   }
 }
