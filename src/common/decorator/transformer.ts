@@ -18,8 +18,8 @@ export function ToArray() {
     const isEnum = Object.values(JOB_TYPE).includes(value);
     if (typeof value === 'string' && isEnum) {
       return [value];
-    } else {
-      return value;
     }
+
+    return value;
   });
 }

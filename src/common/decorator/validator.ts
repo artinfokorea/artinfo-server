@@ -1,4 +1,4 @@
-import { ValidationArguments, IsEmail, IsNotEmpty, registerDecorator } from 'class-validator';
+import { ValidationArguments, IsEmail, IsNotEmpty, registerDecorator, IsArray } from 'class-validator';
 
 export function NotBlank() {
   return IsNotEmpty({ message: (args: ValidationArguments) => `${args.property}은(는) 필수 값입니다.` });
@@ -6,6 +6,10 @@ export function NotBlank() {
 
 export function Email() {
   return IsEmail({}, { message: '이메일 형식이 올바르지 않습니다.' });
+}
+
+export function ArrayType() {
+  return IsArray({ message: (args: ValidationArguments) => `${args.property}은(는) 배열 값 이어야 합니다.` });
 }
 
 export function NumberArray(): PropertyDecorator {

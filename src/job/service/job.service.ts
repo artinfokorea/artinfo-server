@@ -5,7 +5,9 @@ import { Job } from '@/job/entity/job.entity';
 import { CreateFullTimeJobCommand } from '@/job/dto/command/create-full-time-job.command';
 import { MajorCategoryRepository } from '@/job/repository/major-category.repository';
 import { EditFullTimeJobCommand } from '@/job/dto/command/edit-full-time-job.command';
-import { JobRepository } from '@/job/repository/job-repository.service';
+import { JobRepository } from '@/job/repository/job.repository';
+import { JobFetcher } from '@/job/repository/operation/job.fetcher';
+import { JobCounter } from '@/job/repository/operation/job.counter';
 
 @Injectable()
 export class JobService {
@@ -28,7 +30,8 @@ export class JobService {
   }
 
   async getJobs(command: GetFullTimeJobsCommand): Promise<Job[]> {
-    return this.jobRepository.find(command.types, command.categoryIds, command.paging);
+    const fetcher = new JobFetcher({ keyword: command.keyword, categoryIds: command.categoryIds, types: command.types, paging: command.paging });
+    return this.jobRepository.find(fetcher);
   }
 
   async getJob(jobId: number): Promise<Job> {
@@ -36,7 +39,8 @@ export class JobService {
   }
 
   async countJobs(command: CountFullTimeJobsCommand): Promise<number> {
-    return this.jobRepository.count(command.types, command.categoryIds);
+    const counter = new JobCounter({ keyword: command.keyword, categoryIds: command.categoryIds, types: command.types });
+    return this.jobRepository.count(counter);
   }
 
   async deleteJob(jobId: number): Promise<void> {
