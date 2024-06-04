@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { JOB_TYPE, PROVINCE_TYPE } from '@/job/entity/job.entity';
 import { CreateFullTimeJobCommand } from '@/job/dto/command/create-full-time-job.command';
-import { NotBlank, NumberArray } from '@/common/decorator/validator';
+import { Enum, NotBlank, NumberArray } from '@/common/decorator/validator';
 
 export class CreateFullTimeJobRequest {
   @NotBlank()
@@ -16,6 +16,10 @@ export class CreateFullTimeJobRequest {
   @ApiProperty({ type: 'string', required: true, description: '단체명', example: '춘천시립예술단' })
   companyName: string;
 
+  @Enum(PROVINCE_TYPE)
+  @ApiProperty({ enum: PROVINCE_TYPE, enumName: 'PROVINCE_TYPE', required: true, description: '회사 지역 ( 예숧단체 등록시 NONE )', example: '서울' })
+  province: PROVINCE_TYPE;
+
   @ApiProperty({ type: 'string', required: false, description: '회사 대표 이미지', example: 'https://artinfokorea.com' })
   imageUrl: string | null = null;
 
@@ -29,7 +33,7 @@ export class CreateFullTimeJobRequest {
       title: this.title,
       contents: this.contents,
       companyName: this.companyName,
-      province: PROVINCE_TYPE.NONE,
+      province: this.province,
       imageUrl: this.imageUrl,
       address: null,
       fee: null,

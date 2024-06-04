@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { JOB_TYPE, PROVINCE_TYPE } from '@/job/entity/job.entity';
 import { CreateFullTimeJobCommand } from '@/job/dto/command/create-full-time-job.command';
-import { NotBlank } from '@/common/decorator/validator';
+import { Enum, NotBlank } from '@/common/decorator/validator';
 import { IsNumber } from 'class-validator';
 
 export class CreatePartTimeJobRequest {
@@ -16,6 +16,10 @@ export class CreatePartTimeJobRequest {
   @NotBlank()
   @ApiProperty({ type: 'string', required: true, description: '단체명', example: '춘천시립예술단' })
   companyName: string;
+
+  @Enum(PROVINCE_TYPE)
+  @ApiProperty({ enum: PROVINCE_TYPE, enumName: 'PROVINCE_TYPE', required: true, description: '회사 지역 ( 예숧단체 등록시 NONE )', example: '서울' })
+  province: PROVINCE_TYPE;
 
   @NotBlank()
   @ApiProperty({ type: 'string', required: true, description: '주소', example: '강원도 정선군 정선읍' })
@@ -39,7 +43,7 @@ export class CreatePartTimeJobRequest {
       title: this.title,
       contents: this.contents,
       companyName: this.companyName,
-      province: PROVINCE_TYPE.NONE,
+      province: this.province,
       imageUrl: null,
       address: null,
       fee: null,
