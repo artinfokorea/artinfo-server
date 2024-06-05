@@ -4,16 +4,18 @@ import { JOB_TYPE } from '@/job/entity/job.entity';
 import { GetFullTimeJobsCommand } from '@/job/dto/command/get-full-time-jobs.command';
 import { CountFullTimeJobsCommand } from '@/job/dto/command/count-full-time-jobs.command';
 import { ToArray } from '@/common/decorator/transformer';
-import { ArrayType } from '@/common/decorator/validator';
+import { ArrayType, EnumArray } from "@/common/decorator/validator";
 
 export class GetJobsRequest extends List {
   @ApiProperty({ type: String, required: false, description: '검색 키워드', example: '합창' })
   keyword: string | null = null;
 
+  @ArrayType()
+  @ToArray()
   @ApiProperty({ type: [Number], required: false, description: '카테고리 아이디 목록', example: [1, 2] })
   categoryIds: number[] = [];
 
-  @ArrayType()
+  @EnumArray(JOB_TYPE)
   @ToArray()
   @ApiProperty({
     type: [JOB_TYPE],

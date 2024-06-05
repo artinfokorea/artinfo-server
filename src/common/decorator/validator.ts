@@ -1,4 +1,11 @@
-import { ValidationArguments, IsEmail, IsNotEmpty, registerDecorator, IsArray } from 'class-validator';
+import {
+  ValidationArguments,
+  IsEmail,
+  IsNotEmpty,
+  registerDecorator,
+  IsArray,
+  ValidationOptions
+} from "class-validator";
 
 export function NotBlank() {
   return IsNotEmpty({ message: (args: ValidationArguments) => `${args.property}은(는) 필수 값입니다.` });
@@ -24,6 +31,29 @@ export function NumberArray(): PropertyDecorator {
         },
         defaultMessage() {
           return '카테고리 아이디 목록의 모든 요소는 숫자여야 합니다.';
+        },
+      },
+    });
+  };
+}
+
+export function EnumArray(enumType: object, validationOptions?: ValidationOptions): PropertyDecorator {
+  return function (object: object, propertyName: string) {
+    registerDecorator({
+      name: 'EnumArray',
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      constraints: [enumType],
+      validator: {
+        validate(value: any, args: ValidationArguments) {
+          const [enumType] = args.constraints;
+          return Array.isArray(value) && value.length > 0 && value.every(item => Object.values(enumType).includes(item));
+        },
+        defaultMessage(args: ValidationArguments) {
+          const [enumType] = args.constraints;
+          const enumValues = Object.values(enumType).join(', ');
+          return `${args.property} 필드는 배열 형태로 아래와 같은 값을 포함해야합니다. [${enumValues}]`;
         },
       },
     });

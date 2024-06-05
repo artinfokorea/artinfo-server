@@ -1,5 +1,4 @@
 import { Transform } from 'class-transformer';
-import { JOB_TYPE } from '@/job/entity/job.entity';
 
 export function ToNumberArray() {
   return Transform(({ value }) => {
@@ -15,8 +14,7 @@ export function ToNumberArray() {
 
 export function ToArray() {
   return Transform(({ value }) => {
-    const isEnum = Object.values(JOB_TYPE).includes(value);
-    if (typeof value === 'string' && isEnum) {
+    if (typeof value === 'string') {
       return [value];
     }
 

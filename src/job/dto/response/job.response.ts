@@ -2,6 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { JOB_TYPE, Job } from '@/job/entity/job.entity';
 
 export class JobResponse {
+  @ApiProperty({ type: 'number', required: true, description: '채용 아이디', example: 2 })
+  id: number;
+
   @ApiProperty({ type: 'string', required: true, description: '채용 제목', example: '춘천시립예술단 단원 모집' })
   title: string;
 
@@ -39,6 +42,7 @@ export class JobResponse {
   createdAt: Date;
 
   constructor(job: Job) {
+    this.id = job.id;
     this.title = job.title;
     this.contents = job.contents;
     this.companyName = job.companyName;
