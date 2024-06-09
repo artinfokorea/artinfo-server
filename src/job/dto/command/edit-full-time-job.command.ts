@@ -1,5 +1,5 @@
-import { PROVINCE_TYPE } from '@/job/entity/job.entity';
 import { JobEditor } from '@/job/repository/operation/job.editor';
+import { PROVINCE_TYPE } from '@/system/entity/province';
 
 export class EditFullTimeJobCommand {
   jobId: number;

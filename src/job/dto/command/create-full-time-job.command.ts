@@ -1,5 +1,6 @@
-import { JOB_TYPE, PROVINCE_TYPE } from '@/job/entity/job.entity';
+import { JOB_TYPE } from '@/job/entity/job.entity';
 import { JobCreator } from '@/job/repository/operation/job.creator';
+import { PROVINCE_TYPE } from '@/system/entity/province';
 
 export class CreateFullTimeJobCommand {
   userId: number;

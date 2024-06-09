@@ -21,3 +21,14 @@ export function ToArray() {
     return value;
   });
 }
+
+export function ToNumber() {
+  return Transform(({ value }) => {
+    if (typeof value === 'string') {
+      const parsed = parseFloat(value);
+      return isNaN(parsed) ? value : parsed;
+    }
+
+    return value;
+  });
+}

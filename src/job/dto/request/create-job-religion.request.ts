@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { JOB_TYPE, PROVINCE_TYPE } from '@/job/entity/job.entity';
+import { JOB_TYPE } from '@/job/entity/job.entity';
 import { CreateFullTimeJobCommand } from '@/job/dto/command/create-full-time-job.command';
 import { Enum, NotBlank } from '@/common/decorator/validator';
 import { IsNumber } from 'class-validator';
+import { PROVINCE_TYPE } from '@/system/entity/province';
 
 export class CreateJobReligionRequest {
   @NotBlank()

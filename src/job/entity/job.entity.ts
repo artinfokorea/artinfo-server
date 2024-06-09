@@ -1,5 +1,5 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { jobMajorCategory } from '@/job/entity/job-major-category.entity';
+import { JobMajorCategory } from '@/job/entity/job-major-category.entity';
 import { User } from '@/user/entity/user.entity';
 
 export enum JOB_TYPE {
@@ -7,27 +7,6 @@ export enum JOB_TYPE {
   RELIGION = 'RELIGION',
   LECTURER = 'LECTURER',
   PART_TIME = 'PART_TIME',
-}
-
-export enum PROVINCE_TYPE {
-  SEOUL = 'SEOUL',
-  GYEONGGIDO = 'GYEONGGIDO',
-  INCHEON = 'INCHEON',
-  GANGWONDO = 'GANGWONDO',
-  CHUNGCHEONGBUKDO = 'CHUNGCHEONGBUKDO',
-  CHUNGCHEONGNAMDO = 'CHUNGCHEONGNAMDO',
-  DAEJEON = 'DAEJEON',
-  SEJONG = 'SEJONG',
-  JEOLLABUKDO = 'JEOLLABUKDO',
-  JEOLLANAMDO = 'JEOLLANAMDO',
-  GWANGJU = 'GWANGJU',
-  GYEONGSANGBUKDO = 'GYEONGSANGBUKDO',
-  GYEONGSANGNAMDO = 'GYEONGSANGNAMDO',
-  BUSAN = 'BUSAN',
-  DAEGU = 'DAEGU',
-  ULSAN = 'ULSAN',
-  JEJU = 'JEJU',
-  NONE = 'NONE',
 }
 
 @Entity('jobs')
@@ -44,11 +23,8 @@ export class Job extends BaseEntity {
   @Column({ type: 'varchar', name: 'company_name' })
   companyName: string;
 
-  @Column({ type: 'text', name: 'contents' })
+  @Column({ type: 'varchar', name: 'contents' })
   contents: string;
-
-  @Column({ name: 'province' })
-  province: PROVINCE_TYPE;
 
   @Column({ type: 'varchar', name: 'address', nullable: true })
   address: string | null;
@@ -56,16 +32,16 @@ export class Job extends BaseEntity {
   @Column({ type: 'int', name: 'fee', nullable: true })
   fee: number | null;
 
-  @Column({ type: 'text', name: 'image_url', nullable: true })
+  @Column({ type: 'varchar', name: 'image_url', nullable: true })
   imageUrl: string | null;
 
   @Column({ type: 'boolean', name: 'is_active', default: true })
   isActive: boolean;
 
-  @OneToMany(() => jobMajorCategory, jobMajorCategory => jobMajorCategory.job, { eager: true, cascade: true })
-  jobMajorCategories: jobMajorCategory[];
+  @OneToMany(() => JobMajorCategory, jobMajorCategory => jobMajorCategory.job, { eager: true, cascade: true })
+  jobMajorCategories: JobMajorCategory[];
 
-  @ManyToOne(() => User, user => user.fullTimeJobs)
+  @ManyToOne(() => User, user => user.jobs)
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: User;
 

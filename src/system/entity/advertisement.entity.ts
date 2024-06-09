@@ -12,7 +12,7 @@ export interface AdvertisementCreator {
   redirectUrl: string | null;
 }
 
-@Entity('advertisement')
+@Entity('advertisements')
 export class Advertisement extends BaseEntity {
   @PrimaryGeneratedColumn('increment', { name: 'id' })
   id: number;

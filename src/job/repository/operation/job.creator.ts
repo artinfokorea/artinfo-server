@@ -1,4 +1,5 @@
-import { JOB_TYPE, PROVINCE_TYPE } from '@/job/entity/job.entity';
+import { JOB_TYPE } from '@/job/entity/job.entity';
+import { PROVINCE_TYPE } from '@/system/entity/province';
 
 export class JobCreator {
   userId: number;

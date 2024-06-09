@@ -7,6 +7,7 @@ import { JobCreator } from '@/job/repository/operation/job.creator';
 import { JobEditor } from '@/job/repository/operation/job.editor';
 import { JobFetcher } from '@/job/repository/operation/job.fetcher';
 import { JobCounter } from '@/job/repository/operation/job.counter';
+import { province } from '@/system/entity/province';
 
 @Injectable()
 export class JobRepository {
@@ -39,7 +40,6 @@ export class JobRepository {
       title: editor.title,
       companyName: editor.companyName,
       contents: editor.contents,
-      province: editor.province,
       address: editor.address,
       fee: editor.fee,
       imageUrl: editor.imageUrl,
@@ -51,6 +51,29 @@ export class JobRepository {
       .createQueryBuilder('job')
       .leftJoinAndSelect('job.jobMajorCategories', 'jobMajorCategories')
       .leftJoinAndSelect('jobMajorCategories.majorCategory', 'majorCategory');
+
+    if (fetcher.province.length) {
+      const provinceSearchKeywords: string[] = [];
+
+      province.forEach(provinceItem => {
+        if (fetcher.province.includes(provinceItem.key)) {
+          provinceSearchKeywords.push(provinceItem.search);
+        }
+      });
+
+      const likeConditions = provinceSearchKeywords
+        .map((_, index) => {
+          return `job.address LIKE :keyword${index}`;
+        })
+        .join(' OR ');
+
+      const likeParams = provinceSearchKeywords.reduce((params, keyword, index) => {
+        params[`keyword${index}`] = `%${keyword}%`;
+        return params;
+      }, {});
+      console.log(likeConditions, likeConditions);
+      queryBuilder.andWhere(likeConditions, likeParams);
+    }
 
     if (fetcher.types.length) {
       queryBuilder.andWhere('job.type IN (:...types)', { types: fetcher.types });
@@ -64,6 +87,7 @@ export class JobRepository {
       queryBuilder.andWhere(
         new Brackets(qb => {
           qb.where('job.title LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
+            .orWhere('job.address LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
             .orWhere('job.contents LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
             .orWhere('majorCategory.koName LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
             .orWhere('majorCategory.enName LIKE :keyword', { keyword: `%${fetcher.keyword}%` });

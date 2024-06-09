@@ -3,7 +3,7 @@ import { Job } from '@/job/entity/job.entity';
 import { MajorCategory } from '@/job/entity/major-category.entity';
 
 @Entity('jobs_major_categories')
-export class jobMajorCategory extends BaseEntity {
+export class JobMajorCategory extends BaseEntity {
   @PrimaryColumn({ name: 'job_id' })
   jobId: number;
 

@@ -18,7 +18,7 @@ export class JobService {
 
   async createJob(command: CreateFullTimeJobCommand): Promise<number> {
     const createdJobId = await this.jobRepository.create(command.toCreator());
-    await this.majorCategoryRepository.linkFullTimeJobToMajorCategoriesOrThrow(createdJobId, command.majorIds);
+    await this.majorCategoryRepository.createJobMajorCategoriesOrThrow(createdJobId, command.majorIds);
 
     return createdJobId;
   }
@@ -26,11 +26,17 @@ export class JobService {
   async editJob(command: EditFullTimeJobCommand): Promise<void> {
     await this.jobRepository.editOrThrow(command.toEditor());
     await this.majorCategoryRepository.deleteByJobId(command.jobId);
-    await this.majorCategoryRepository.linkFullTimeJobToMajorCategoriesOrThrow(command.jobId, command.majorIds);
+    await this.majorCategoryRepository.createJobMajorCategoriesOrThrow(command.jobId, command.majorIds);
   }
 
   async getJobs(command: GetFullTimeJobsCommand): Promise<Job[]> {
-    const fetcher = new JobFetcher({ keyword: command.keyword, categoryIds: command.categoryIds, types: command.types, paging: command.paging });
+    const fetcher = new JobFetcher({
+      keyword: command.keyword,
+      categoryIds: command.categoryIds,
+      types: command.types,
+      paging: command.paging,
+      province: command.province,
+    });
     return this.jobRepository.find(fetcher);
   }
 
@@ -39,7 +45,7 @@ export class JobService {
   }
 
   async countJobs(command: CountFullTimeJobsCommand): Promise<number> {
-    const counter = new JobCounter({ keyword: command.keyword, categoryIds: command.categoryIds, types: command.types });
+    const counter = new JobCounter({ keyword: command.keyword, categoryIds: command.categoryIds, types: command.types, province: command.province });
     return this.jobRepository.count(counter);
   }
 

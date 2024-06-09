@@ -3,19 +3,20 @@ import { ApiProperty } from '@nestjs/swagger';
 import { JOB_TYPE } from '@/job/entity/job.entity';
 import { GetFullTimeJobsCommand } from '@/job/dto/command/get-full-time-jobs.command';
 import { CountFullTimeJobsCommand } from '@/job/dto/command/count-full-time-jobs.command';
-import { ToArray } from '@/common/decorator/transformer';
-import { ArrayType, EnumArray } from "@/common/decorator/validator";
+import { ToArray, ToNumberArray } from '@/common/decorator/transformer';
+// import { EnumArray } from '@/common/decorator/validator';
+import { PROVINCE_TYPE } from '@/system/entity/province';
+import { EnumNullableArray } from '@/common/decorator/validator';
 
 export class GetJobsRequest extends List {
   @ApiProperty({ type: String, required: false, description: '검색 키워드', example: '합창' })
   keyword: string | null = null;
 
-  @ArrayType()
-  @ToArray()
+  @ToNumberArray()
   @ApiProperty({ type: [Number], required: false, description: '카테고리 아이디 목록', example: [1, 2] })
   categoryIds: number[] = [];
 
-  @EnumArray(JOB_TYPE)
+  @EnumNullableArray(JOB_TYPE)
   @ToArray()
   @ApiProperty({
     type: [JOB_TYPE],
@@ -27,12 +28,24 @@ export class GetJobsRequest extends List {
   })
   types: JOB_TYPE[] = [];
 
+  @EnumNullableArray(PROVINCE_TYPE)
+  @ToArray()
+  @ApiProperty({
+    type: [PROVINCE_TYPE],
+    enum: PROVINCE_TYPE,
+    enumName: 'PROVINCE_TYPE',
+    required: false,
+    description: '행정 구역',
+    example: [PROVINCE_TYPE.SEJONG],
+  })
+  province: PROVINCE_TYPE[] = [];
+
   toGetCommand() {
     const paging: Paging = { page: this.page, size: this.size };
-    return new GetFullTimeJobsCommand({ keyword: this.keyword, categoryIds: this.categoryIds, types: this.types, paging: paging });
+    return new GetFullTimeJobsCommand({ keyword: this.keyword, categoryIds: this.categoryIds, types: this.types, paging: paging, province: this.province });
   }
 
   toCountCommand() {
-    return new CountFullTimeJobsCommand({ keyword: this.keyword, categoryIds: this.categoryIds, types: this.types });
+    return new CountFullTimeJobsCommand({ keyword: this.keyword, categoryIds: this.categoryIds, types: this.types, province: this.province });
   }
 }

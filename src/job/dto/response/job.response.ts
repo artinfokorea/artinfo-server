@@ -14,8 +14,8 @@ export class JobResponse {
   @ApiProperty({ type: 'string', required: true, description: '단체명', example: '춘천시립예술단' })
   companyName: string;
 
-  @ApiProperty({ type: 'string', required: false, description: '회사 지역', example: '서울' })
-  province: string | null;
+  @ApiProperty({ type: 'string', required: false, description: '주소', example: '강원도 정선군 정선읍 북실리 마루아파트 102동 903호' })
+  address: string | null;
 
   @ApiProperty({ type: 'string', required: false, description: '회사 대표 이미지', example: 'https://artinfokorea.com' })
   imageUrl: string | null;
@@ -46,7 +46,7 @@ export class JobResponse {
     this.title = job.title;
     this.contents = job.contents;
     this.companyName = job.companyName;
-    this.province = job.province;
+    this.address = job.address;
     this.imageUrl = job.imageUrl;
     this.majors = job.jobMajorCategories.map(jobMajorCategory => jobMajorCategory.majorCategory.koName);
     this.type = job.type;

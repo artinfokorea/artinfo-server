@@ -67,6 +67,6 @@ jobs:
       - name: Docker run
         run: |
           docker rm -f ${{ env.CONTAINER_NAME }}
-          docker run -d -p 3000:3000 --name ${{ env.CONTAINER_NAME }} --cpus=1 --restart always ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}
+          docker run -d -p 3000:3000 --name ${{ env.CONTAINER_NAME }} --network artinfo-network --cpus=1 --restart always ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}
 
           docker image prune -af

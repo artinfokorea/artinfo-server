@@ -9,17 +9,29 @@ import { JobModule } from '@/job/module/job.module';
 import { Auth } from '@/auth/entity/auth.entity';
 import { Advertisement } from '@/system/entity/advertisement.entity';
 import { Job } from '@/job/entity/job.entity';
-import { jobMajorCategory } from '@/job/entity/job-major-category.entity';
+import { JobMajorCategory } from '@/job/entity/job-major-category.entity';
 import { MajorCategory } from '@/job/entity/major-category.entity';
+import { SystemModule } from '@/system/module/system.module';
+import { School } from '@/user/entity/school.entity';
+import { UserMajorCategoryEntity } from '@/user/entity/user-major-category.entity';
+import { CacheModule } from '@nestjs/cache-manager';
+import * as redisStore from 'cache-manager-ioredis';
+import { RedisModule } from '@/common/redis/redis.module';
 
-const entities = [User, Auth, Advertisement, Job, jobMajorCategory, MajorCategory];
-const modules = [AuthModule, UserModule, AdvertisementModule, JobModule];
+const entities = [User, School, Auth, Advertisement, Job, JobMajorCategory, MajorCategory, UserMajorCategoryEntity, JobMajorCategory];
+const modules = [SystemModule, RedisModule, AuthModule, UserModule, AdvertisementModule, JobModule];
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       cache: true,
       isGlobal: true,
+    }),
+    CacheModule.register({
+      isGlobal: true,
+      store: redisStore,
+      host: process.env['REDIS_HOST'],
+      port: process.env['REDIS_PORT'],
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { MajorCategory } from '@/job/entity/major-category.entity';
-import { jobMajorCategory } from '@/job/entity/job-major-category.entity';
+import { JobMajorCategory } from '@/job/entity/job-major-category.entity';
 import { MajorNotFound } from '@/job/exception/job.exception';
 
 @Injectable()
@@ -11,15 +11,15 @@ export class MajorCategoryRepository {
     @InjectRepository(MajorCategory)
     private majorCategoryRepository: Repository<MajorCategory>,
 
-    @InjectRepository(jobMajorCategory)
-    private fullTimeJobMajorCategoryRepository: Repository<jobMajorCategory>,
+    @InjectRepository(JobMajorCategory)
+    private fullTimeJobMajorCategoryRepository: Repository<JobMajorCategory>,
   ) {}
 
   async deleteByJobId(jobId: number): Promise<void> {
     await this.fullTimeJobMajorCategoryRepository.delete({ jobId: jobId });
   }
 
-  async linkFullTimeJobToMajorCategoriesOrThrow(jobId: number, majorCategoryIds: number[]): Promise<void> {
+  async createJobMajorCategoriesOrThrow(jobId: number, majorCategoryIds: number[]): Promise<void> {
     const majorCategories = await this.majorCategoryRepository.findBy({ id: In(majorCategoryIds) });
     if (majorCategories.length !== majorCategoryIds.length) throw new MajorNotFound();
 
