@@ -22,6 +22,11 @@ export class CreatePartTimeJobRequest {
   address: string;
 
   @IsNumber()
+  @NotBlank()
+  @ApiProperty({ type: 'number', required: true, description: '페이', example: 50000 })
+  fee: number;
+
+  @IsNumber()
   @ApiProperty({ type: 'number', required: true, description: '전공 아이디', example: 2 })
   majorId: number;
 
@@ -41,7 +46,7 @@ export class CreatePartTimeJobRequest {
       companyName: this.companyName,
       imageUrl: null,
       address: null,
-      fee: null,
+      fee: this.fee,
       majorIds: [this.majorId],
       type: JOB_TYPE.PART_TIME,
       startAt: this.startAt,
