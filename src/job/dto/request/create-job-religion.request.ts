@@ -1,39 +1,34 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { JOB_TYPE } from '@/job/entity/job.entity';
 import { CreateFullTimeJobCommand } from '@/job/dto/command/create-full-time-job.command';
-import { Enum, NotBlank } from '@/common/decorator/validator';
+import { NotBlank } from '@/common/decorator/validator';
 import { IsNumber } from 'class-validator';
-import { PROVINCE_TYPE } from '@/system/entity/province';
 
 export class CreateJobReligionRequest {
   @NotBlank()
-  @ApiProperty({ type: 'string', required: true, description: '채용 제목', example: '춘천시립예술단 단원 모집' })
+  @ApiProperty({ type: 'string', required: true, description: '채용 제목', example: '대전 중부교회 남성 솔리스트' })
   title: string;
 
   @NotBlank()
-  @ApiProperty({ type: 'string', required: true, description: '채용 내용', example: '춘천시립예술단 단원 모집합니다' })
+  @ApiProperty({ type: 'string', required: true, description: '채용 내용', example: '중부교회 솔리스트 모집합니다.' })
   contents: string;
 
   @NotBlank()
-  @ApiProperty({ type: 'string', required: true, description: '단체명', example: '춘천시립예술단' })
+  @ApiProperty({ type: 'string', required: true, description: '단체명', example: '대전 중부교회' })
   companyName: string;
 
-  @Enum(PROVINCE_TYPE)
-  @ApiProperty({ enum: PROVINCE_TYPE, enumName: 'PROVINCE_TYPE', required: true, description: '회사 지역 ( 예숧단체 등록시 NONE )', example: '서울' })
-  province: PROVINCE_TYPE;
-
   @NotBlank()
-  @ApiProperty({ type: 'string', required: true, description: '주소', example: '강원도 정선군 정선읍' })
+  @ApiProperty({ type: 'string', required: true, description: '주소', example: '동구 동서대로 1748번길 40' })
   address: string;
 
   @IsNumber()
   @NotBlank()
-  @ApiProperty({ type: 'number', required: true, description: '사례비', example: 500000 })
+  @ApiProperty({ type: 'number', required: true, description: '사례비', example: 250000 })
   fee: number;
 
   @IsNumber()
   @NotBlank()
-  @ApiProperty({ type: 'number', required: true, description: '전공 아이디', example: 5 })
+  @ApiProperty({ type: 'number', required: true, description: '전공 아이디', example: 3 })
   majorId: number;
 
   toCommand(userId: number) {
@@ -42,7 +37,6 @@ export class CreateJobReligionRequest {
       title: this.title,
       contents: this.contents,
       companyName: this.companyName,
-      province: this.province,
       imageUrl: null,
       address: this.address,
       fee: this.fee,

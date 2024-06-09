@@ -1,33 +1,28 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { JOB_TYPE } from '@/job/entity/job.entity';
 import { CreateFullTimeJobCommand } from '@/job/dto/command/create-full-time-job.command';
-import { Enum, NotBlank } from '@/common/decorator/validator';
+import { NotBlank } from '@/common/decorator/validator';
 import { IsNumber } from 'class-validator';
-import { PROVINCE_TYPE } from '@/system/entity/province';
 
 export class CreatePartTimeJobRequest {
   @NotBlank()
-  @ApiProperty({ type: 'string', required: true, description: '채용 제목', example: '춘천시립예술단 단원 모집' })
+  @ApiProperty({ type: 'string', required: true, description: '채용 제목', example: '교회 11시예배 대타' })
   title: string;
 
   @NotBlank()
-  @ApiProperty({ type: 'string', required: true, description: '채용 내용', example: '춘천시립예술단 단원 모집합니다' })
+  @ApiProperty({ type: 'string', required: true, description: '채용 내용', example: '대타 구합니다~ 간략한프로필(성함,나이,학력)과 함께 문자로 연락주세요 😄' })
   contents: string;
 
   @NotBlank()
-  @ApiProperty({ type: 'string', required: true, description: '단체명', example: '춘천시립예술단' })
+  @ApiProperty({ type: 'string', required: true, description: '단체명', example: '응암교회' })
   companyName: string;
 
-  @Enum(PROVINCE_TYPE)
-  @ApiProperty({ enum: PROVINCE_TYPE, enumName: 'PROVINCE_TYPE', required: true, description: '회사 지역 ( 예숧단체 등록시 NONE )', example: '서울' })
-  province: PROVINCE_TYPE;
-
   @NotBlank()
-  @ApiProperty({ type: 'string', required: true, description: '주소', example: '강원도 정선군 정선읍' })
+  @ApiProperty({ type: 'string', required: true, description: '주소', example: '응암역 응암교회' })
   address: string;
 
   @IsNumber()
-  @ApiProperty({ type: 'number', required: true, description: '전공 아이디', example: 5 })
+  @ApiProperty({ type: 'number', required: true, description: '전공 아이디', example: 2 })
   majorId: number;
 
   @NotBlank()
@@ -44,7 +39,6 @@ export class CreatePartTimeJobRequest {
       title: this.title,
       contents: this.contents,
       companyName: this.companyName,
-      province: this.province,
       imageUrl: null,
       address: null,
       fee: null,

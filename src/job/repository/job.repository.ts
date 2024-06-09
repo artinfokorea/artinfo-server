@@ -23,7 +23,6 @@ export class JobRepository {
       title: creator.title,
       companyName: creator.companyName,
       contents: creator.contents,
-      province: creator.province,
       address: creator.address,
       fee: creator.fee,
       imageUrl: creator.imageUrl,

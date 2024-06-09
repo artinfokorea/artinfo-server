@@ -1,12 +1,10 @@
 import { JOB_TYPE } from '@/job/entity/job.entity';
-import { PROVINCE_TYPE } from '@/system/entity/province';
 
 export class JobCreator {
   userId: number;
   title: string;
   contents: string;
   companyName: string;
-  province: PROVINCE_TYPE;
   imageUrl: string | null;
   address: string | null;
   fee: number | null;
@@ -17,7 +15,6 @@ export class JobCreator {
     title,
     contents,
     companyName,
-    province,
     imageUrl,
     address,
     fee,
@@ -27,7 +24,6 @@ export class JobCreator {
     title: string;
     contents: string;
     companyName: string;
-    province: PROVINCE_TYPE;
     imageUrl: string | null;
     address: string | null;
     fee: number | null;
@@ -37,7 +33,6 @@ export class JobCreator {
     this.title = title;
     this.contents = contents;
     this.companyName = companyName;
-    this.province = province;
     this.imageUrl = imageUrl;
     this.address = address;
     this.fee = fee;
