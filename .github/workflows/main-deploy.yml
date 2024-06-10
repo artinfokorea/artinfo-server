@@ -22,12 +22,21 @@ jobs:
       - name: Create Enviroment File
         run: |
           touch .env
+          echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env
           echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" >> .env
           echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env
           echo "DATABASE_USER_NAME=${{ secrets.DATABASE_USER_NAME }}" >> .env
           echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
           echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
           echo "JWT_TOKEN_KEY=${{ secrets.JWT_TOKEN_KEY }}" >> .env
+          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
+          echo "REDIS_PORT=${{ secrets.REDIS_PORT }}" >> .env
+          echo "COOL_SMS_SENDER_NUMBER=${{ secrets.COOL_SMS_SENDER_NUMBER }}" >> .env
+          echo "COOL_SMS_API_KEY=${{ secrets.COOL_SMS_API_KEY }}" >> .env
+          echo "COOL_SMS_SECRET_KEY=${{ secrets.COOL_SMS_SECRET_KEY }}" >> .env
+          echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
 
       - name: Cache docker layers
         uses: actions/cache@v2
