@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { SignUpCommand } from '@/auth/dto/command/sign-up.command';
 import { UserRepository } from '@/user/repository/user.repository';
-import { EmailAlreadyExist, InvalidLoginInfo } from '@/auth/exception/auth.exception';
+import { EmailAlreadyExist, EmailAuthenticationDoesNotExist, InvalidLoginInfo } from '@/auth/exception/auth.exception';
 import * as bcrypt from 'bcrypt';
 import { User } from '@/user/entity/user.entity';
 import { EmailLoginCommand } from '@/auth/dto/command/email-login.command';
 import { Auth, AUTH_TYPE } from '@/auth/entity/auth.entity';
 import { JwtService } from '@nestjs/jwt';
+import { RedisService } from '@/common/redis/redis.service';
 
 @Injectable()
 export class AuthService {
@@ -15,12 +16,16 @@ export class AuthService {
 
   constructor(
     private readonly userRepository: UserRepository,
+    private readonly redisService: RedisService,
     private readonly jwtService: JwtService,
   ) {}
 
   async signup(command: SignUpCommand): Promise<void> {
     const user = await this.userRepository.findByEmail(command.email);
     if (user) throw new EmailAlreadyExist();
+
+    const verification = await this.redisService.getByKey(command.email);
+    if (!verification) throw new EmailAuthenticationDoesNotExist();
 
     const hashedPassword = await this.getHashedPassword(command.password);
 

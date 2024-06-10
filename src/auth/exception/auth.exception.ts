@@ -36,11 +36,23 @@ export class EmailAlreadyExist extends HttpException {
   }
 }
 
-export class InvalidLoginInfo extends HttpException {
+export class EmailAuthenticationDoesNotExist extends HttpException {
   constructor() {
     super(
       {
         code: 'AUTH-004',
+        message: '해당 이메일에 대한 인증이 존재하지 않습니다.',
+      },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+}
+
+export class InvalidLoginInfo extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'AUTH-005',
         message: '로그인 정보가 올바르지 않습니다.',
       },
       HttpStatus.BAD_REQUEST,

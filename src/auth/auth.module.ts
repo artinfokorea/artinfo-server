@@ -15,10 +15,22 @@ import { RedisService } from '@/common/redis/redis.service';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { ImageRepository } from '@/system/repository/image.repository';
 import { Image } from '@/system/entity/image.entity';
+import { AwsSesService } from '@/aws/ses/aws-ses.service';
 
 @Module({
   imports: [JwtModule.register({}), TypeOrmModule.forFeature([Auth, User, UserMajorCategory, Image])],
   controllers: [AuthController, VerificationController],
-  providers: [JwtService, JwtStrategy, AuthService, UserRepository, VerificationService, SystemService, RedisService, AwsS3Service, ImageRepository],
+  providers: [
+    JwtService,
+    JwtStrategy,
+    AuthService,
+    UserRepository,
+    VerificationService,
+    SystemService,
+    RedisService,
+    AwsS3Service,
+    AwsSesService,
+    ImageRepository,
+  ],
 })
 export class AuthModule {}
