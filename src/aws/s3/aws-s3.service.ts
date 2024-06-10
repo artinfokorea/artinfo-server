@@ -12,7 +12,7 @@ export interface AwsS3UploadResult {
 @Injectable()
 export class AwsS3Service {
   private s3Client: S3Client;
-  private BUCKET = 'dev-econnect';
+  private BUCKET = 'artinfo';
 
   constructor() {
     this.s3Client = new S3Client({

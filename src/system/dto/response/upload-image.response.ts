@@ -23,8 +23,8 @@ export class UploadImageResponse {
   @ApiProperty({ required: true, description: '이미지 크기 (바이트)', example: 1813883 })
   size!: number;
 
-  // @ApiProperty({ required: true, description: '연결된 URL', example: 'https://resource.test.com/aaaa/casc/sample.png' })
-  // url!: string;
+  @ApiProperty({ required: true, description: '연결된 URL', example: 'https://resource.test.com/aaaa/casc/sample.png' })
+  url!: string;
 
   constructor(image: Image) {
     this.id = image.id;
@@ -34,6 +34,6 @@ export class UploadImageResponse {
     this.width = image.width;
     this.height = image.height;
     this.size = image.size;
-    // this.url = new URL(image.savedPath, 'https://dev-econnect.s3.ap-northeast-2.amazonaws.com').toString();
+    this.url = new URL(image.savedPath, 'https://artinfo.s3.ap-northeast-2.amazonaws.com').toString();
   }
 }

@@ -13,13 +13,14 @@ import { JobMajorCategory } from '@/job/entity/job-major-category.entity';
 import { MajorCategory } from '@/job/entity/major-category.entity';
 import { SystemModule } from '@/system/module/system.module';
 import { School } from '@/user/entity/school.entity';
-import { UserMajorCategoryEntity } from '@/user/entity/user-major-category.entity';
+import { UserMajorCategory } from '@/user/entity/user-major.category';
 import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-ioredis';
 import { RedisModule } from '@/common/redis/redis.module';
 import { CommonModule } from '@/common/api/common.module';
+import { Image } from '@/system/entity/image.entity';
 
-const entities = [User, School, Auth, Advertisement, Job, JobMajorCategory, MajorCategory, UserMajorCategoryEntity, JobMajorCategory];
+const entities = [User, School, Auth, Advertisement, Job, JobMajorCategory, MajorCategory, UserMajorCategory, JobMajorCategory, Image];
 const modules = [SystemModule, CommonModule, RedisModule, AuthModule, UserModule, AdvertisementModule, JobModule];
 
 @Module({

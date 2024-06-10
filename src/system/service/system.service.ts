@@ -5,8 +5,11 @@ import { UploadImageIsNotValid } from '@/system/exception/system.exception';
 import { Util } from '@/common/util/util';
 import { UploadFile } from '@/common/type/type';
 import { ImageRepository } from '@/system/repository/image.repository';
-import { CreateImageCommand } from '@/system/dto/command/create-image.command';
+import { CreateImagesCommand } from '@/system/dto/command/create-images.command';
 import { ImageCreator } from '@/system/repository/operation/image.creator';
+import { Image } from '@/system/entity/image.entity';
+import * as moment from 'moment/moment';
+import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 
 export type ImageMeta = {
   hash: string;
@@ -22,15 +25,17 @@ export type ImageMeta = {
 @Injectable()
 export class SystemService {
   private readonly messageService: CoolsmsMessageService;
-  private readonly imageRepository: ImageRepository;
 
-  constructor() {
+  constructor(
+    private readonly awsS3Service: AwsS3Service,
+    private readonly imageRepository: ImageRepository,
+  ) {
     this.messageService = new CoolsmsMessageService(process.env['COOL_SMS_API_KEY']!, process.env['COOL_SMS_SECRET_KEY']!);
   }
 
   async sendVerificationNumber(to: string, verificationNumber: string) {
     await this.messageService.sendOne({
-      from: '01040287451',
+      from: process.env['COOL_SMS_SENDER_NUMBER']!,
       to: to,
       text: `[아트인포] 인증 번호: ${verificationNumber}`,
       autoTypeDetect: true,
@@ -70,7 +75,37 @@ export class SystemService {
     return imageMetas;
   }
 
-  createMany(commands: CreateImageCommand[]) {
-    return this.imageRepository.createMany(commands.map(command => new ImageCreator(command)));
+  async createMany(command: CreateImagesCommand): Promise<Image[]> {
+    const imageMetas = await this.getUploadImageMetasOrThrow(command.files);
+
+    const imageCreators = await Promise.all(
+      imageMetas.map(async imageMeta => {
+        const groupPath = ['upload', command.userId, 'images', moment().format('YYYYMMDD')].join('/');
+        const filename = imageMeta.hash + '.' + Date.now() + '.' + imageMeta.extension;
+        const path = [groupPath, 'original', filename].join('/');
+
+        const result = await this.awsS3Service.uploadStream(imageMeta.buffer, imageMeta.mimeType, path);
+        if (result == null) {
+          throw new UploadImageIsNotValid();
+        }
+
+        return new ImageCreator({
+          userId: command.userId,
+          target: command.target,
+          originalFilename: imageMeta.filename,
+          groupPath: groupPath,
+          savedFilename: filename,
+          savedPath: result.key,
+          mimeType: imageMeta.mimeType,
+          width: imageMeta.width,
+          height: imageMeta.height,
+          size: imageMeta.size,
+        });
+      }),
+    );
+
+    const imageIds = await this.imageRepository.createMany(imageCreators);
+
+    return this.imageRepository.findManyByIds(imageIds);
   }
 }

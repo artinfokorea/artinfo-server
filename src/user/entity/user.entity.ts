@@ -1,7 +1,7 @@
 import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Job } from '@/job/entity/job.entity';
 import { School } from '@/user/entity/school.entity';
-import { UserMajorCategoryEntity } from '@/user/entity/user-major-category.entity';
+import { UserMajorCategory } from '@/user/entity/user-major.category';
 
 export enum USER_TYPE {
   CLIENT = 'CLIENT',
@@ -46,8 +46,8 @@ export class User extends BaseEntity {
   @OneToMany(() => Job, fullTimeJob => fullTimeJob.user)
   jobs: Job[];
 
-  @OneToMany(() => UserMajorCategoryEntity, userMajorCategory => userMajorCategory.user, { eager: true, cascade: true })
-  userMajorCategories: UserMajorCategoryEntity[];
+  @OneToMany(() => UserMajorCategory, userMajorCategory => userMajorCategory.user, { eager: true, cascade: true })
+  userMajorCategories: UserMajorCategory[];
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;

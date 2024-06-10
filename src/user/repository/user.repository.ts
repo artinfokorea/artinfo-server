@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { UserEditor } from '@/user/repository/opertaion/user.editor';
-import { UserMajorCategoryEntity } from '@/user/entity/user-major-category.entity';
+import { UserMajorCategory } from '@/user/entity/user-major.category';
 
 @Injectable()
 export class UserRepository {
@@ -38,10 +38,10 @@ export class UserRepository {
       iconImageUrl: editor.iconImageUrl,
     });
 
-    await transactionManager.delete(UserMajorCategoryEntity, { userId: user.id });
+    await transactionManager.delete(UserMajorCategory, { userId: user.id });
 
     await transactionManager.save(
-      UserMajorCategoryEntity,
+      UserMajorCategory,
       editor.majorIds.map(majorId => ({
         majorCategoryId: majorId,
         userId: user.id,

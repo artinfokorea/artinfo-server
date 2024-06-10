@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Image } from '@/system/entity/image.entity';
 import { ImageCreator } from '@/system/repository/operation/image.creator';
 
@@ -16,6 +16,10 @@ export class ImageRepository {
 
     const images = await this.imageRepository.save(createdImages);
 
-    return images.map(image => image.savedPath);
+    return images.map(image => image.id);
+  }
+
+  async findManyByIds(ids: number[]) {
+    return this.imageRepository.findBy({ id: In(ids) });
   }
 }

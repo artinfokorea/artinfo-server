@@ -1,6 +1,6 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { JobMajorCategory } from '@/job/entity/job-major-category.entity';
-import { UserMajorCategoryEntity } from '@/user/entity/user-major-category.entity';
+import { UserMajorCategory } from '@/user/entity/user-major.category';
 
 export enum MUSIC_MAJOR_ETC {
   CONDUCTOR = 'CONDUCTOR',
@@ -154,8 +154,8 @@ export class MajorCategory extends BaseEntity {
   @OneToMany(() => JobMajorCategory, jobMajorCategory => jobMajorCategory.majorCategory)
   jobMajorCategories: JobMajorCategory[];
 
-  @OneToMany(() => UserMajorCategoryEntity, userMajorCategory => userMajorCategory.majorCategory)
-  userMajorCategories: UserMajorCategoryEntity[];
+  @OneToMany(() => UserMajorCategory, userMajorCategory => userMajorCategory.majorCategory)
+  userMajorCategories: UserMajorCategory[];
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
