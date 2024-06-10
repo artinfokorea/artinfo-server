@@ -14,7 +14,7 @@ export class VerificationController {
   constructor(private readonly verificationService: VerificationService) {}
 
   @RestApiGet(OkResponse, { path: '/email/existence', description: '이메일 중복 확인' })
-  async checkEmailDuplication(@Query() request: EmailVerificationRequest) {
+  async checkEmailExistence(@Query() request: EmailVerificationRequest) {
     const existence = await this.verificationService.checkEmailExistence(request.email);
 
     return new EmailExistenceResponse(existence);
