@@ -32,4 +32,8 @@ export class MajorCategoryRepository {
 
     await this.fullTimeJobMajorCategoryRepository.save(FullTimeJobMajorCategories);
   }
+
+  findAll() {
+    return this.majorCategoryRepository.find();
+  }
 }

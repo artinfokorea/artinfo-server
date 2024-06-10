@@ -24,3 +24,10 @@ export class List {
   @ApiProperty({ type: 'number', required: true, description: '조회 개수', example: 1 })
   size: number;
 }
+
+export interface UploadFile {
+  buffer: Buffer;
+  originalname: string;
+  mimetype: string;
+  size: number;
+}

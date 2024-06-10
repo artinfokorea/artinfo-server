@@ -17,9 +17,10 @@ import { UserMajorCategoryEntity } from '@/user/entity/user-major-category.entit
 import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-ioredis';
 import { RedisModule } from '@/common/redis/redis.module';
+import { CommonModule } from '@/common/api/common.module';
 
 const entities = [User, School, Auth, Advertisement, Job, JobMajorCategory, MajorCategory, UserMajorCategoryEntity, JobMajorCategory];
-const modules = [SystemModule, RedisModule, AuthModule, UserModule, AdvertisementModule, JobModule];
+const modules = [SystemModule, CommonModule, RedisModule, AuthModule, UserModule, AdvertisementModule, JobModule];
 
 @Module({
   imports: [

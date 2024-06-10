@@ -139,14 +139,17 @@ export class MajorCategory extends BaseEntity {
   @PrimaryGeneratedColumn('increment', { name: 'id' })
   id: number;
 
-  @Column({ type: 'enum', enum: MAJOR_CATEGORY, name: 'group' })
-  group: MAJOR_CATEGORY;
+  @Column({ type: 'varchar', name: 'ko_group' })
+  koGroup: string;
+
+  @Column({ type: 'enum', enum: MAJOR_CATEGORY, name: 'en_group' })
+  enGroup: MAJOR_CATEGORY;
 
   @Column({ type: 'varchar', name: 'ko_name' })
   koName: string;
 
-  @Column({ type: 'varchar', name: 'en_name' })
-  enName: string;
+  @Column({ type: 'enum', enum: MAJOR, name: 'en_name' })
+  enName: MAJOR;
 
   @OneToMany(() => JobMajorCategory, jobMajorCategory => jobMajorCategory.majorCategory)
   jobMajorCategories: JobMajorCategory[];
