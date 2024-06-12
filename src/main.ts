@@ -4,7 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ResponseInterceptor } from './common/interceptor/interceptor';
 import { setSwagger } from '@/common/swagger/swagger';
 import { HttpExceptionFilter } from '@/common/exception/http-exception-filter';
-import { urlencoded } from 'express';
+import { json, urlencoded } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,7 +15,9 @@ async function bootstrap() {
     }),
   );
 
+  app.use(json({ limit: '100mb' }));
   app.use(urlencoded({ extended: true, limit: '100mb' }));
+
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.enableCors({
