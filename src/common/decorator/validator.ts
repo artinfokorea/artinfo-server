@@ -40,7 +40,6 @@ export function EnumNullableArray(enumType: object, validationOptions?: Validati
       constraints: [enumType],
       validator: {
         validate(value: any, args: ValidationArguments) {
-          console.log(value.length);
           const [enumType] = args.constraints;
           if (value.length > 0) {
             return Array.isArray(value) && value.every(item => Object.values(enumType).includes(item));

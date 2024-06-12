@@ -70,7 +70,7 @@ export class JobRepository {
         params[`keyword${index}`] = `%${keyword}%`;
         return params;
       }, {});
-      console.log(likeConditions, likeConditions);
+
       queryBuilder.andWhere(likeConditions, likeParams);
     }
 

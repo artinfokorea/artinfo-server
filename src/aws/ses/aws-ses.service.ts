@@ -8,7 +8,6 @@ export class AwsSesService {
   private readonly mailer: Mail;
 
   constructor() {
-    console.log(process.env['AWS_ACCESS_KEY'], process.env['AWS_SECRET_ACCESS_KEY']);
     const ses = new SES({
       region: process.env['AWS_REGION'],
       credentials: {
