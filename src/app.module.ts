@@ -19,9 +19,10 @@ import * as redisStore from 'cache-manager-ioredis';
 import { RedisModule } from '@/common/redis/redis.module';
 import { CommonModule } from '@/common/api/common.module';
 import { Image } from '@/system/entity/image.entity';
+import { LoggerModule } from '@/common/middleware/logger/logger.module';
 
 const entities = [User, School, Auth, Advertisement, Job, JobMajorCategory, MajorCategory, UserMajorCategory, JobMajorCategory, Image];
-const modules = [SystemModule, CommonModule, RedisModule, AuthModule, UserModule, AdvertisementModule, JobModule];
+const modules = [SystemModule, CommonModule, RedisModule, AuthModule, UserModule, AdvertisementModule, JobModule, LoggerModule];
 
 @Module({
   imports: [
@@ -45,7 +46,7 @@ const modules = [SystemModule, CommonModule, RedisModule, AuthModule, UserModule
       entities: entities,
       autoLoadEntities: true,
       synchronize: true,
-      logging: true,
+      logging: false,
     }),
     ...modules,
   ],
