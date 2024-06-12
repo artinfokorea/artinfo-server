@@ -20,9 +20,12 @@ import { RedisModule } from '@/common/redis/redis.module';
 import { CommonModule } from '@/common/api/common.module';
 import { Image } from '@/system/entity/image.entity';
 import { LoggerModule } from '@/common/middleware/logger/logger.module';
+import { LessonModule } from '@/lesson/lesson.module';
+import { Lesson } from '@/lesson/entity/lesson.entity';
+import { Province } from '@/lesson/entity/province.entity';
 
-const entities = [User, School, Auth, Advertisement, Job, JobMajorCategory, MajorCategory, UserMajorCategory, JobMajorCategory, Image];
-const modules = [SystemModule, CommonModule, RedisModule, AuthModule, UserModule, AdvertisementModule, JobModule, LoggerModule];
+const entities = [User, School, Lesson, Province, Auth, Advertisement, Job, JobMajorCategory, MajorCategory, UserMajorCategory, JobMajorCategory, Image];
+const modules = [SystemModule, CommonModule, RedisModule, AuthModule, UserModule, LessonModule, AdvertisementModule, JobModule, LoggerModule];
 
 @Module({
   imports: [

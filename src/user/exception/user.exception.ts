@@ -23,3 +23,15 @@ export class InvalidPhoneNumber extends HttpException {
     );
   }
 }
+
+export class UserPhoneNotFound extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'USER-003',
+        message: '연락처가 존재하지 않습니다.',
+      },
+      HttpStatus.NOT_FOUND,
+    );
+  }
+}
