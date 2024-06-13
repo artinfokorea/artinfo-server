@@ -45,7 +45,7 @@ export class LessonDetailResponse {
     this.phone = lesson.user.phone;
     this.imageUrl = lesson.imageUrl;
     this.schools = lesson.user.schools.map(school => new LessonSchoolResponse(school));
-    this.provinces = lesson.provinces.map(province => province.name);
+    this.provinces = lesson.lessonProvinces.map(lessProvince => lessProvince.province.name);
     this.majors = lesson.user.userMajorCategories.map(userMajorCategory => userMajorCategory.majorCategory.koName);
   }
 }

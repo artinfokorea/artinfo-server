@@ -23,3 +23,15 @@ export class MajorNotFound extends HttpException {
     );
   }
 }
+
+export class JobCreationFailed extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'JOB-003',
+        message: '채용 생성에 실패했습니다.',
+      },
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
+  }
+}

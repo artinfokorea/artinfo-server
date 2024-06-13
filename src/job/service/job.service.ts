@@ -35,8 +35,9 @@ export class JobService {
       categoryIds: command.categoryIds,
       types: command.types,
       paging: command.paging,
-      province: command.province,
+      provinceIds: command.provinceIds,
     });
+
     return this.jobRepository.find(fetcher);
   }
 
@@ -45,7 +46,7 @@ export class JobService {
   }
 
   async countJobs(command: CountFullTimeJobsCommand): Promise<number> {
-    const counter = new JobCounter({ keyword: command.keyword, categoryIds: command.categoryIds, types: command.types, province: command.province });
+    const counter = new JobCounter({ keyword: command.keyword, categoryIds: command.categoryIds, types: command.types, provinceIds: command.provinceIds });
     return this.jobRepository.count(counter);
   }
 

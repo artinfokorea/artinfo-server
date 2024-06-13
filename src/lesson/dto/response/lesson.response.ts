@@ -21,7 +21,7 @@ export class LessonResponse {
     this.id = lesson.id;
     this.name = lesson.user.name;
     this.imageUrl = lesson.imageUrl;
-    this.province = lesson.provinces[0].name;
+    this.province = lesson.lessonProvinces[0].province.name;
     this.major = lesson.user.userMajorCategories[0].majorCategory.koName;
   }
 }

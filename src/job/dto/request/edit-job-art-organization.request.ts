@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { NotBlank, NumberArray } from '@/common/decorator/validator';
 import { IsNumber } from 'class-validator';
 import { EditFullTimeJobCommand } from '@/job/dto/command/edit-full-time-job.command';
-import { PROVINCE_TYPE } from '@/system/entity/province';
 
 export class EditJobArtOrganizationRequest {
   @IsNumber()
@@ -36,7 +35,6 @@ export class EditJobArtOrganizationRequest {
       title: this.title,
       contents: this.contents,
       companyName: this.companyName,
-      province: PROVINCE_TYPE.SEJONG,
       imageUrl: this.imageUrl,
       address: null,
       fee: null,

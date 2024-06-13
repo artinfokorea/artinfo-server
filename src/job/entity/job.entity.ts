@@ -1,6 +1,7 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { JobMajorCategory } from '@/job/entity/job-major-category.entity';
 import { User } from '@/user/entity/user.entity';
+import { JobProvince } from '@/job/entity/job-province.entity';
 
 export enum JOB_TYPE {
   ART_ORGANIZATION = 'ART_ORGANIZATION',
@@ -37,6 +38,9 @@ export class Job extends BaseEntity {
 
   @Column({ type: 'boolean', name: 'is_active', default: true })
   isActive: boolean;
+
+  @OneToMany(() => JobProvince, jobProvince => jobProvince.job, { cascade: true })
+  jobProvinces: JobProvince[];
 
   @OneToMany(() => JobMajorCategory, jobMajorCategory => jobMajorCategory.job, { eager: true, cascade: true })
   jobMajorCategories: JobMajorCategory[];

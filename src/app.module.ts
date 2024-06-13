@@ -17,15 +17,45 @@ import { UserMajorCategory } from '@/user/entity/user-major.category';
 import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-ioredis';
 import { RedisModule } from '@/common/redis/redis.module';
-import { CommonModule } from '@/common/api/common.module';
+import { MajorModule } from '@/major/major.module';
 import { Image } from '@/system/entity/image.entity';
 import { LoggerModule } from '@/common/middleware/logger/logger.module';
 import { LessonModule } from '@/lesson/lesson.module';
 import { Lesson } from '@/lesson/entity/lesson.entity';
 import { Province } from '@/lesson/entity/province.entity';
+import { LessonProvince } from '@/lesson/entity/lesson-province.entity';
+import { JobProvince } from '@/job/entity/job-province.entity';
+import { ProvinceModule } from '@/province/province.module';
 
-const entities = [User, School, Lesson, Province, Auth, Advertisement, Job, JobMajorCategory, MajorCategory, UserMajorCategory, JobMajorCategory, Image];
-const modules = [SystemModule, CommonModule, RedisModule, AuthModule, UserModule, LessonModule, AdvertisementModule, JobModule, LoggerModule];
+const entities = [
+  User,
+  School,
+  Lesson,
+  LessonProvince,
+  Province,
+  Auth,
+  Advertisement,
+  Job,
+  JobMajorCategory,
+  JobProvince,
+  MajorCategory,
+  UserMajorCategory,
+  JobMajorCategory,
+  Image,
+];
+const modules = [
+  SystemModule,
+  MajorModule,
+  RedisModule,
+  AuthModule,
+  UserModule,
+  LessonModule,
+  AdvertisementModule,
+  JobModule,
+  ProvinceModule,
+  MajorModule,
+  LoggerModule,
+];
 
 @Module({
   imports: [

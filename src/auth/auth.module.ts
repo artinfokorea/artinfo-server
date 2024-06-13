@@ -16,9 +16,11 @@ import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { ImageRepository } from '@/system/repository/image.repository';
 import { Image } from '@/system/entity/image.entity';
 import { AwsSesService } from '@/aws/ses/aws-ses.service';
+import { Province } from '@/lesson/entity/province.entity';
+import { ProvinceRepository } from '@/province/province.repository';
 
 @Module({
-  imports: [JwtModule.register({}), TypeOrmModule.forFeature([Auth, User, UserMajorCategory, Image])],
+  imports: [JwtModule.register({}), TypeOrmModule.forFeature([Auth, User, UserMajorCategory, Image, Province])],
   controllers: [AuthController, VerificationController],
   providers: [
     JwtService,
@@ -31,6 +33,7 @@ import { AwsSesService } from '@/aws/ses/aws-ses.service';
     AwsS3Service,
     AwsSesService,
     ImageRepository,
+    ProvinceRepository,
   ],
 })
 export class AuthModule {}

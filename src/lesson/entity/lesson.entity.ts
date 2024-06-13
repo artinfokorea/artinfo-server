@@ -1,6 +1,6 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { Province } from '@/lesson/entity/province.entity';
 import { User } from '@/user/entity/user.entity';
+import { LessonProvince } from '@/lesson/entity/lesson-province.entity';
 
 @Entity('lessons')
 export class Lesson extends BaseEntity {
@@ -22,8 +22,8 @@ export class Lesson extends BaseEntity {
   @OneToOne(() => User, user => user.lesson)
   user: User;
 
-  @OneToMany(() => Province, province => province.lesson)
-  provinces: Province[];
+  @OneToMany(() => LessonProvince, lessonProvince => lessonProvince.lesson)
+  lessonProvinces: LessonProvince[];
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;

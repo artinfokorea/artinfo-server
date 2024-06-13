@@ -1,6 +1,4 @@
-import { RestApiController, RestApiGet, RestApiPost } from '@/common/decorator/rest-api';
-import { province } from '@/system/entity/province';
-import { ProvinceAllResponse } from '@/system/dto/response/province-all.response';
+import { RestApiController, RestApiPost } from '@/common/decorator/rest-api';
 import { ApiConsumes } from '@nestjs/swagger';
 import { Body, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
@@ -14,11 +12,6 @@ import { SystemService } from '@/system/service/system.service';
 @RestApiController('/system', 'System')
 export class SystemController {
   constructor(private readonly systemService: SystemService) {}
-
-  @RestApiGet(ProvinceAllResponse, { path: '/province', description: '행정 구역 조회' })
-  async getProvince() {
-    return new ProvinceAllResponse(province);
-  }
 
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(

@@ -1,5 +1,4 @@
 import { JobEditor } from '@/job/repository/operation/job.editor';
-import { PROVINCE_TYPE } from '@/system/entity/province';
 
 export class EditFullTimeJobCommand {
   jobId: number;
@@ -7,7 +6,6 @@ export class EditFullTimeJobCommand {
   title: string;
   contents: string;
   companyName: string;
-  province: PROVINCE_TYPE;
   imageUrl: string | null;
   address: string | null;
   fee: number | null;
@@ -19,7 +17,6 @@ export class EditFullTimeJobCommand {
     title,
     contents,
     companyName,
-    province,
     imageUrl,
     address,
     fee,
@@ -30,7 +27,6 @@ export class EditFullTimeJobCommand {
     title: string;
     contents: string;
     companyName: string;
-    province: PROVINCE_TYPE;
     imageUrl: string | null;
     address: string | null;
     fee: number | null;
@@ -41,7 +37,6 @@ export class EditFullTimeJobCommand {
     this.title = title;
     this.contents = contents;
     this.companyName = companyName;
-    this.province = province;
     this.imageUrl = imageUrl;
     this.address = address;
     this.fee = fee;
@@ -55,7 +50,6 @@ export class EditFullTimeJobCommand {
       title: this.title,
       contents: this.contents,
       companyName: this.companyName,
-      province: this.province,
       imageUrl: this.imageUrl,
       address: this.address,
       fee: this.fee,

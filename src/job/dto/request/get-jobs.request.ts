@@ -5,7 +5,6 @@ import { GetFullTimeJobsCommand } from '@/job/dto/command/get-full-time-jobs.com
 import { CountFullTimeJobsCommand } from '@/job/dto/command/count-full-time-jobs.command';
 import { ToArray, ToNumberArray } from '@/common/decorator/transformer';
 // import { EnumArray } from '@/common/decorator/validator';
-import { PROVINCE_TYPE } from '@/system/entity/province';
 import { EnumNullableArray } from '@/common/decorator/validator';
 
 export class GetJobsRequest extends List {
@@ -28,24 +27,32 @@ export class GetJobsRequest extends List {
   })
   types: JOB_TYPE[] = [];
 
-  @EnumNullableArray(PROVINCE_TYPE)
-  @ToArray()
+  @ToNumberArray()
   @ApiProperty({
-    type: [PROVINCE_TYPE],
-    enum: PROVINCE_TYPE,
-    enumName: 'PROVINCE_TYPE',
+    type: [Number],
     required: false,
-    description: '행정 구역',
-    example: [PROVINCE_TYPE.SEJONG],
+    description: '행정 구역 아이디 목록',
+    example: [1, 2],
   })
-  province: PROVINCE_TYPE[] = [];
+  provinceIds: number[] = [];
 
   toGetCommand() {
     const paging: Paging = { page: this.page, size: this.size };
-    return new GetFullTimeJobsCommand({ keyword: this.keyword, categoryIds: this.categoryIds, types: this.types, paging: paging, province: this.province });
+    return new GetFullTimeJobsCommand({
+      keyword: this.keyword,
+      categoryIds: this.categoryIds,
+      types: this.types,
+      paging: paging,
+      provinceIds: this.provinceIds,
+    });
   }
 
   toCountCommand() {
-    return new CountFullTimeJobsCommand({ keyword: this.keyword, categoryIds: this.categoryIds, types: this.types, province: this.province });
+    return new CountFullTimeJobsCommand({
+      keyword: this.keyword,
+      categoryIds: this.categoryIds,
+      types: this.types,
+      provinceIds: this.provinceIds,
+    });
   }
 }

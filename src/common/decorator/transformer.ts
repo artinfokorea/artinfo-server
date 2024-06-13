@@ -7,6 +7,8 @@ export function ToNumberArray() {
         const num = Number(item);
         return isNaN(num) ? item : num;
       });
+    } else if (typeof value === 'string' && !isNaN(Number(value))) {
+      return [Number(value)];
     }
     return value;
   });

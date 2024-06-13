@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { MajorCategory } from '@/job/entity/major-category.entity';
-import { MajorResponse } from '@/common/api/dto/response/majors.response';
+import { MajorResponse } from '@/major/dto/response/majors.response';
 
 export class MajorsResponse {
   @ApiProperty({ type: [MajorResponse], required: true, description: '전공 목록' })

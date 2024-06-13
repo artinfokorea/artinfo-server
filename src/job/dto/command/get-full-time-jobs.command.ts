@@ -1,31 +1,30 @@
 import { Paging } from '@/common/type/type';
 import { JOB_TYPE } from '@/job/entity/job.entity';
-import { PROVINCE_TYPE } from '@/system/entity/province';
 
 export class GetFullTimeJobsCommand {
   keyword: string | null;
   paging: Paging;
   categoryIds: number[];
   types: JOB_TYPE[];
-  province: PROVINCE_TYPE[];
+  provinceIds: number[];
 
   constructor({
     keyword,
     paging,
     categoryIds,
     types,
-    province,
+    provinceIds,
   }: {
     keyword: string | null;
     paging: Paging;
     categoryIds: number[];
     types: JOB_TYPE[];
-    province: PROVINCE_TYPE[];
+    provinceIds: number[];
   }) {
     this.keyword = keyword;
     this.paging = paging;
     this.categoryIds = categoryIds;
     this.types = types;
-    this.province = province;
+    this.provinceIds = provinceIds;
   }
 }
