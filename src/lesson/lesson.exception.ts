@@ -11,3 +11,15 @@ export class LessonNotFound extends HttpException {
     );
   }
 }
+
+export class UserDoesNotQualify extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'LESSON-002',
+        message: '레슨 조건을 만족하지 못합니다.',
+      },
+      HttpStatus.FORBIDDEN,
+    );
+  }
+}

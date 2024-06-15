@@ -6,6 +6,8 @@ import { LessonNotFound } from '@/lesson/lesson.exception';
 import { LessonFetcher } from '@/lesson/repository/operation/lesson.fetcher';
 import { LessonCounter } from '@/lesson/repository/operation/lesson.counter';
 import { ProvinceRepository } from '@/province/province.repository';
+import { LessonCreator } from '@/lesson/repository/operation/lesson.creator';
+import { LessonEditor } from '@/lesson/repository/operation/lesson.editor';
 
 @Injectable()
 export class LessonRepository {
@@ -15,6 +17,34 @@ export class LessonRepository {
 
     private readonly provinceRepository: ProvinceRepository,
   ) {}
+
+  async edit(editor: LessonEditor) {
+    await this.lessonRepository.update(
+      { id: editor.lessonId },
+      {
+        imageUrl: editor.imageUrl,
+        pay: editor.pay,
+        introduction: editor.introduction,
+        career: editor.career,
+      },
+    );
+  }
+
+  async remove(lessonId: number) {
+    await this.lessonRepository.delete({ id: lessonId });
+  }
+
+  async create(command: LessonCreator): Promise<number> {
+    const lesson = await this.lessonRepository.save({
+      imageUrl: command.imageUrl,
+      pay: command.pay,
+      introduction: command.introduction,
+      career: command.career,
+      user: { id: command.userId },
+    });
+
+    return lesson.id;
+  }
 
   async findOneOrThrowById(id: number): Promise<Lesson> {
     const lesson = await this.lessonRepository.findOne({

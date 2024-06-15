@@ -1,15 +1,4 @@
-import {
-  BaseEntity,
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  JoinColumn,
-  OneToMany,
-  OneToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { Job } from '@/job/entity/job.entity';
 import { School } from '@/user/entity/school.entity';
 import { UserMajorCategory } from '@/user/entity/user-major-category.entity';
@@ -52,11 +41,10 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', name: 'icon_image_url', nullable: true })
   iconImageUrl: string | null;
 
-  @OneToOne(() => Lesson, lesson => lesson.user)
-  @JoinColumn({ name: 'lesson_id', referencedColumnName: 'id' })
+  @OneToOne(() => Lesson, lesson => lesson.user, { eager: true, cascade: true })
   lesson: Lesson;
 
-  @OneToMany(() => School, school => school.user)
+  @OneToMany(() => School, school => school.user, { eager: true, cascade: true })
   schools: School[];
 
   @OneToMany(() => Job, fullTimeJob => fullTimeJob.user)

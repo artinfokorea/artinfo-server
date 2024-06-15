@@ -9,7 +9,7 @@ export class LessonArea extends BaseEntity {
   @Column({ type: 'varchar', name: 'name' })
   name: string;
 
-  @ManyToOne(() => Lesson, lesson => lesson.areas)
+  @ManyToOne(() => Lesson, lesson => lesson.areas, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'lesson_id', referencedColumnName: 'id' })
   lesson: Lesson;
 

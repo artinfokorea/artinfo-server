@@ -1,4 +1,4 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '@/user/entity/user.entity';
 import { LessonArea } from '@/lesson/entity/lesson-area.entity';
 
@@ -20,9 +20,10 @@ export class Lesson extends BaseEntity {
   imageUrl: string;
 
   @OneToOne(() => User, user => user.lesson)
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: User;
 
-  @OneToMany(() => LessonArea, lessonAreas => lessonAreas.lesson)
+  @OneToMany(() => LessonArea, lessonAreas => lessonAreas.lesson, { eager: true, cascade: true })
   areas: LessonArea[];
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
