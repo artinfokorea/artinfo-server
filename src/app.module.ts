@@ -13,7 +13,7 @@ import { JobMajorCategory } from '@/job/entity/job-major-category.entity';
 import { MajorCategory } from '@/job/entity/major-category.entity';
 import { SystemModule } from '@/system/module/system.module';
 import { School } from '@/user/entity/school.entity';
-import { UserMajorCategory } from '@/user/entity/user-major.category';
+import { UserMajorCategory } from '@/user/entity/user-major-category.entity';
 import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-ioredis';
 import { RedisModule } from '@/common/redis/redis.module';
@@ -23,15 +23,15 @@ import { LoggerModule } from '@/common/middleware/logger/logger.module';
 import { LessonModule } from '@/lesson/lesson.module';
 import { Lesson } from '@/lesson/entity/lesson.entity';
 import { Province } from '@/lesson/entity/province.entity';
-import { LessonProvince } from '@/lesson/entity/lesson-province.entity';
 import { JobProvince } from '@/job/entity/job-province.entity';
 import { ProvinceModule } from '@/province/province.module';
+import { LessonArea } from '@/lesson/entity/lesson-area.entity';
 
 const entities = [
   User,
   School,
   Lesson,
-  LessonProvince,
+  LessonArea,
   Province,
   Auth,
   Advertisement,

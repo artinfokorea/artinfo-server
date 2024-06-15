@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Province } from '@/lesson/entity/province.entity';
-import { IsNull, Repository } from 'typeorm';
+import { In, IsNull, Repository } from 'typeorm';
 import { provinces } from '@/system/entity/provinces';
 import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
 
@@ -21,6 +21,10 @@ export class ProvinceRepository {
     }
 
     return this.provinceRepository.find({ where: filter, order: { name: 'ASC' } });
+  }
+
+  findByIds(ids: number[]) {
+    return this.provinceRepository.findBy({ id: In(ids) });
   }
 
   async createMany(): Promise<void> {

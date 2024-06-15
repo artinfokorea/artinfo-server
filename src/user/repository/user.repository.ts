@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { UserEditor } from '@/user/repository/opertaion/user.editor';
-import { UserMajorCategory } from '@/user/entity/user-major.category';
+import { UserMajorCategory } from '@/user/entity/user-major-category.entity';
 
 @Injectable()
 export class UserRepository {

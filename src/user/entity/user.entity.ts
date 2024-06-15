@@ -12,7 +12,7 @@ import {
 } from 'typeorm';
 import { Job } from '@/job/entity/job.entity';
 import { School } from '@/user/entity/school.entity';
-import { UserMajorCategory } from '@/user/entity/user-major.category';
+import { UserMajorCategory } from '@/user/entity/user-major-category.entity';
 import { Lesson } from '@/lesson/entity/lesson.entity';
 
 export enum USER_TYPE {

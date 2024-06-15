@@ -29,7 +29,7 @@ export class LessonDetailResponse {
   schools: LessonSchoolResponse[];
 
   @ApiProperty({ type: 'string[]', required: true, description: '지역 목록', example: ['서울', '경기'] })
-  provinces: string[];
+  areas: string[];
 
   @ApiProperty({ type: 'string[]', required: true, description: '전공 목록', example: ['바이올린', '비올라'] })
   majors: string[];
@@ -45,7 +45,7 @@ export class LessonDetailResponse {
     this.phone = lesson.user.phone;
     this.imageUrl = lesson.imageUrl;
     this.schools = lesson.user.schools.map(school => new LessonSchoolResponse(school));
-    this.provinces = lesson.lessonProvinces.map(lessProvince => lessProvince.province.name);
+    this.areas = lesson.areas.map(area => area.name);
     this.majors = lesson.user.userMajorCategories.map(userMajorCategory => userMajorCategory.majorCategory.koName);
   }
 }

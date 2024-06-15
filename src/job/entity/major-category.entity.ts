@@ -1,6 +1,6 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { JobMajorCategory } from '@/job/entity/job-major-category.entity';
-import { UserMajorCategory } from '@/user/entity/user-major.category';
+import { UserMajorCategory } from '@/user/entity/user-major-category.entity';
 
 export enum MUSIC_MAJOR_ETC {
   CONDUCTOR = 'CONDUCTOR',

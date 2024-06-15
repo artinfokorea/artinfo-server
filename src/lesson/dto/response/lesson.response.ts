@@ -9,7 +9,7 @@ export class LessonResponse {
   name: string;
 
   @ApiProperty({ type: 'string', required: true, description: '지역', example: '서울' })
-  province: string;
+  area: string;
 
   @ApiProperty({ type: 'string', required: true, description: '전공', example: '전공' })
   major: string;
@@ -21,7 +21,7 @@ export class LessonResponse {
     this.id = lesson.id;
     this.name = lesson.user.name;
     this.imageUrl = lesson.imageUrl;
-    this.province = lesson.lessonProvinces[0].province.name;
+    this.area = lesson.areas[0].name;
     this.major = lesson.user.userMajorCategories[0].majorCategory.koName;
   }
 }
