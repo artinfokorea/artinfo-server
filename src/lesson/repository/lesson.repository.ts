@@ -34,7 +34,7 @@ export class LessonRepository {
       .leftJoinAndSelect('user.userMajorCategories', 'userMajorCategories')
       .leftJoinAndSelect('userMajorCategories.majorCategory', 'majorCategory')
       .leftJoinAndSelect('lesson.areas', 'areas');
-
+    console.log(fetcher);
     if (fetcher.keyword) {
       queryBuilder.andWhere(
         new Brackets(qb => {
@@ -48,7 +48,7 @@ export class LessonRepository {
       );
     }
 
-    if (fetcher.provinceIds) {
+    if (fetcher.provinceIds.length) {
       const provinces = await this.provinceRepository.findByIds(fetcher.provinceIds);
       const provinceNames = provinces.map(province => province.name);
 
@@ -61,7 +61,7 @@ export class LessonRepository {
       );
     }
 
-    if (fetcher.majorIds) {
+    if (fetcher.majorIds.length) {
       queryBuilder.andWhere('userMajorCategories.major_category_id IN (:...majorIds)', { majorIds: fetcher.majorIds });
     }
 
@@ -87,7 +87,7 @@ export class LessonRepository {
         .orWhere('lesson.career LIKE :keyword', { keyword: `%${counter.keyword}%` });
     }
 
-    if (counter.provinceIds) {
+    if (counter.provinceIds.length) {
       const provinces = await this.provinceRepository.findByIds(counter.provinceIds);
       const provinceNames = provinces.map(province => province.name);
 
@@ -100,7 +100,7 @@ export class LessonRepository {
       );
     }
 
-    if (counter.majorIds) {
+    if (counter.majorIds.length) {
       queryBuilder.andWhere('userMajorCategories.major_category_id IN (:...majorIds)', { majorIds: counter.majorIds });
     }
 
