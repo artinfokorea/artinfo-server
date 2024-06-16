@@ -3,8 +3,9 @@ import { SignUpRequest } from '@/auth/dto/request/sign-up.request';
 import { AuthService } from '@/auth/service/auth.service';
 import { OkResponse } from '@/common/response/ok.response';
 import { Body } from '@nestjs/common';
-import { LoginRequest } from '@/auth/dto/request/login.request';
+import { EmailLoginRequest } from '@/auth/dto/request/email-login-request';
 import { LoginResponse } from '@/auth/dto/response/login.response';
+import { SnsLoginRequest } from '@/auth/dto/request/sns-login-request';
 
 @RestApiController('/auths', 'Auth')
 export class AuthController {
@@ -15,9 +16,16 @@ export class AuthController {
     await this.authService.signup(request.toCommand());
   }
 
-  @RestApiPost(LoginResponse, { path: '/login/email', description: '로그인' })
-  async loginByEmail(@Body() request: LoginRequest) {
-    const auth = await this.authService.emailLogin(request.toCommand());
+  @RestApiPost(LoginResponse, { path: '/login/email', description: '이메일 로그인' })
+  async loginByEmail(@Body() request: EmailLoginRequest) {
+    const auth = await this.authService.loginByEmail(request.toCommand());
+
+    return new LoginResponse(auth);
+  }
+
+  @RestApiPost(LoginResponse, { path: '/login/sns', description: '소셜 로그인' })
+  async loginBySnS(@Body() request: SnsLoginRequest) {
+    const auth = await this.authService.loginBySns(request.token, request.type);
 
     return new LoginResponse(auth);
   }

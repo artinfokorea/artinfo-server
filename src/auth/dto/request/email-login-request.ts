@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Email, NotBlank } from '@/common/decorator/validator';
 import { EmailLoginCommand } from '@/auth/dto/command/email-login.command';
 
-export class LoginRequest {
+export class EmailLoginRequest {
   @Email()
   @NotBlank()
   @ApiProperty({ type: String, required: true, description: '사용자 이메일', example: 'artinfokorea2022@gmail.com' })

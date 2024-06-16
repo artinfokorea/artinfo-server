@@ -35,8 +35,8 @@ export class User extends BaseEntity {
   @Column({ type: 'timestamp', name: 'birth', nullable: true })
   birth: Date | null;
 
-  @Column({ name: 'password' })
-  password: string;
+  @Column({ type: 'varchar', name: 'password', nullable: true })
+  password: string | null;
 
   @Column({ type: 'varchar', name: 'icon_image_url', nullable: true })
   iconImageUrl: string | null;
