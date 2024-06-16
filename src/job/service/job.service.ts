@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { GetFullTimeJobsCommand } from '@/job/dto/command/get-full-time-jobs.command';
-import { CountFullTimeJobsCommand } from '@/job/dto/command/count-full-time-jobs.command';
+import { GetJobsCommand } from '@/job/dto/command/get-jobs.command';
+import { CountJobsCommand } from '@/job/dto/command/count-jobs.command';
 import { Job } from '@/job/entity/job.entity';
-import { CreateFullTimeJobCommand } from '@/job/dto/command/create-full-time-job.command';
+import { CreateJobCommand } from '@/job/dto/command/create-job.command';
 import { MajorCategoryRepository } from '@/job/repository/major-category.repository';
-import { EditFullTimeJobCommand } from '@/job/dto/command/edit-full-time-job.command';
+import { EditJobCommand } from '@/job/dto/command/edit-job.command';
 import { JobRepository } from '@/job/repository/job.repository';
 import { JobFetcher } from '@/job/repository/operation/job.fetcher';
 import { JobCounter } from '@/job/repository/operation/job.counter';
@@ -16,20 +16,20 @@ export class JobService {
     private readonly majorCategoryRepository: MajorCategoryRepository,
   ) {}
 
-  async createJob(command: CreateFullTimeJobCommand): Promise<number> {
+  async createJob(command: CreateJobCommand): Promise<number> {
     const createdJobId = await this.jobRepository.create(command.toCreator());
     await this.majorCategoryRepository.createJobMajorCategoriesOrThrow(createdJobId, command.majorIds);
 
     return createdJobId;
   }
 
-  async editJob(command: EditFullTimeJobCommand): Promise<void> {
+  async editJob(command: EditJobCommand): Promise<void> {
     await this.jobRepository.editOrThrow(command.toEditor());
     await this.majorCategoryRepository.deleteByJobId(command.jobId);
     await this.majorCategoryRepository.createJobMajorCategoriesOrThrow(command.jobId, command.majorIds);
   }
 
-  async getJobs(command: GetFullTimeJobsCommand): Promise<Job[]> {
+  async getJobs(command: GetJobsCommand): Promise<Job[]> {
     const fetcher = new JobFetcher({
       keyword: command.keyword,
       categoryIds: command.categoryIds,
@@ -45,7 +45,7 @@ export class JobService {
     return this.jobRepository.findOneOrThrowById(jobId);
   }
 
-  async countJobs(command: CountFullTimeJobsCommand): Promise<number> {
+  async countJobs(command: CountJobsCommand): Promise<number> {
     const counter = new JobCounter({ keyword: command.keyword, categoryIds: command.categoryIds, types: command.types, provinceIds: command.provinceIds });
     return this.jobRepository.count(counter);
   }

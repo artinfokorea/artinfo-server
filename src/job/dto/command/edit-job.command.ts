@@ -1,7 +1,7 @@
-import { JOB_TYPE } from '@/job/entity/job.entity';
-import { JobCreator } from '@/job/repository/operation/job.creator';
+import { JobEditor } from '@/job/repository/operation/job.editor';
 
-export class CreateFullTimeJobCommand {
+export class EditJobCommand {
+  jobId: number;
   userId: number;
   title: string;
   contents: string;
@@ -10,11 +10,9 @@ export class CreateFullTimeJobCommand {
   address: string | null;
   fee: number | null;
   majorIds: number[];
-  type: JOB_TYPE;
-  startAt: Date | null;
-  endAt: Date | null;
 
   constructor({
+    jobId,
     userId,
     title,
     contents,
@@ -23,10 +21,8 @@ export class CreateFullTimeJobCommand {
     address,
     fee,
     majorIds,
-    type,
-    startAt,
-    endAt,
   }: {
+    jobId: number;
     userId: number;
     title: string;
     contents: string;
@@ -35,10 +31,8 @@ export class CreateFullTimeJobCommand {
     address: string | null;
     fee: number | null;
     majorIds: number[];
-    type: JOB_TYPE;
-    startAt: Date | null;
-    endAt: Date | null;
   }) {
+    this.jobId = jobId;
     this.userId = userId;
     this.title = title;
     this.contents = contents;
@@ -47,13 +41,11 @@ export class CreateFullTimeJobCommand {
     this.address = address;
     this.fee = fee;
     this.majorIds = majorIds;
-    this.type = type;
-    this.startAt = startAt;
-    this.endAt = endAt;
   }
 
-  toCreator() {
-    return new JobCreator({
+  toEditor() {
+    return new JobEditor({
+      jobId: this.jobId,
       userId: this.userId,
       title: this.title,
       contents: this.contents,
@@ -61,7 +53,6 @@ export class CreateFullTimeJobCommand {
       imageUrl: this.imageUrl,
       address: this.address,
       fee: this.fee,
-      type: this.type,
     });
   }
 }

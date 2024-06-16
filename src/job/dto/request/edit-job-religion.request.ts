@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { NotBlank } from '@/common/decorator/validator';
 import { IsNumber } from 'class-validator';
-import { EditFullTimeJobCommand } from '@/job/dto/command/edit-full-time-job.command';
+import { EditJobCommand } from '@/job/dto/command/edit-job.command';
 
 export class EditJobReligionRequest {
   @IsNumber()
@@ -36,7 +36,7 @@ export class EditJobReligionRequest {
   majorId: number;
 
   toCommand(userId: number) {
-    return new EditFullTimeJobCommand({
+    return new EditJobCommand({
       jobId: this.jobId,
       userId: userId,
       title: this.title,

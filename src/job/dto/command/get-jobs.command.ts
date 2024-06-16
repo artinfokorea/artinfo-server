@@ -1,7 +1,7 @@
 import { Paging } from '@/common/type/type';
 import { JOB_TYPE } from '@/job/entity/job.entity';
 
-export class GetFullTimeJobsCommand {
+export class GetJobsCommand {
   keyword: string | null;
   paging: Paging;
   categoryIds: number[];

@@ -11,6 +11,8 @@ import { OkResponse } from '@/common/response/ok.response';
 import { CreateResponse } from '@/common/response/createResponse';
 import { CreateLessonRequest } from '@/lesson/dto/request/create-lesson.request';
 import { EditLessonRequest } from '@/lesson/dto/request/edit-lesson.request';
+import { CountLessonsResponse } from '@/lesson/dto/response/count-lessons.response';
+import { CountLessonsCommand } from '@/lesson/dto/command/count-lessons.command';
 
 @RestApiController('/lessons', 'Lesson')
 export class LessonController {
@@ -32,6 +34,18 @@ export class LessonController {
   async createLesson(@Signature() signature: UserSignature, @Body() request: CreateLessonRequest): Promise<CreateResponse> {
     const lessonId = await this.lessonService.create(request.toCommand(signature.id));
     return new CreateResponse(lessonId);
+  }
+
+  @RestApiGet(CountLessonsResponse, { path: '/count', description: '레슨 개수 조회' })
+  async countLessons(): Promise<CountLessonsResponse> {
+    const command = new CountLessonsCommand({
+      keyword: null,
+      majorIds: [],
+      provinceIds: [],
+    });
+
+    const totalCount = await this.lessonService.countLessons(command);
+    return new CountLessonsResponse(totalCount);
   }
 
   @RestApiGet(OkResponse, { path: '/qualification', description: '레슨 생성 자격 확인', auth: [USER_TYPE.CLIENT] })

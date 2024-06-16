@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { NotBlank, NumberArray } from '@/common/decorator/validator';
 import { IsNumber } from 'class-validator';
-import { EditFullTimeJobCommand } from '@/job/dto/command/edit-full-time-job.command';
+import { EditJobCommand } from '@/job/dto/command/edit-job.command';
 
 export class EditJobArtOrganizationRequest {
   @IsNumber()
@@ -29,7 +29,7 @@ export class EditJobArtOrganizationRequest {
   majorIds: number[];
 
   toCommand(userId: number) {
-    return new EditFullTimeJobCommand({
+    return new EditJobCommand({
       jobId: this.jobId,
       userId: userId,
       title: this.title,

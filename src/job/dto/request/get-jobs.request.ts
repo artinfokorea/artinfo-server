@@ -1,8 +1,8 @@
 import { List, Paging } from '@/common/type/type';
 import { ApiProperty } from '@nestjs/swagger';
 import { JOB_TYPE } from '@/job/entity/job.entity';
-import { GetFullTimeJobsCommand } from '@/job/dto/command/get-full-time-jobs.command';
-import { CountFullTimeJobsCommand } from '@/job/dto/command/count-full-time-jobs.command';
+import { GetJobsCommand } from '@/job/dto/command/get-jobs.command';
+import { CountJobsCommand } from '@/job/dto/command/count-jobs.command';
 import { ToArray, ToNumberArray } from '@/common/decorator/transformer';
 // import { EnumArray } from '@/common/decorator/validator';
 import { EnumNullableArray } from '@/common/decorator/validator';
@@ -38,7 +38,7 @@ export class GetJobsRequest extends List {
 
   toGetCommand() {
     const paging: Paging = { page: this.page, size: this.size };
-    return new GetFullTimeJobsCommand({
+    return new GetJobsCommand({
       keyword: this.keyword,
       categoryIds: this.categoryIds,
       types: this.types,
@@ -48,7 +48,7 @@ export class GetJobsRequest extends List {
   }
 
   toCountCommand() {
-    return new CountFullTimeJobsCommand({
+    return new CountJobsCommand({
       keyword: this.keyword,
       categoryIds: this.categoryIds,
       types: this.types,

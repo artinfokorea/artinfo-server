@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { JOB_TYPE } from '@/job/entity/job.entity';
-import { CreateFullTimeJobCommand } from '@/job/dto/command/create-full-time-job.command';
+import { CreateJobCommand } from '@/job/dto/command/create-job.command';
 import { NotBlank } from '@/common/decorator/validator';
 import { IsNumber } from 'class-validator';
 
@@ -39,7 +39,7 @@ export class CreatePartTimeJobRequest {
   endAt: Date;
 
   toCommand(userId: number) {
-    return new CreateFullTimeJobCommand({
+    return new CreateJobCommand({
       userId: userId,
       title: this.title,
       contents: this.contents,

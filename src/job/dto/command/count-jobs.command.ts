@@ -1,6 +1,6 @@
 import { JOB_TYPE } from '@/job/entity/job.entity';
 
-export class CountFullTimeJobsCommand {
+export class CountJobsCommand {
   keyword: string | null;
   categoryIds: number[];
   types: JOB_TYPE[];
