@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { JOB_TYPE, Job } from '@/job/entity/job.entity';
+import { Job, JOB_TYPE } from '@/job/entity/job.entity';
 
 export class JobResponse {
   @ApiProperty({ type: 'number', required: true, description: '채용 아이디', example: 2 })
@@ -42,11 +42,14 @@ export class JobResponse {
   createdAt: Date;
 
   constructor(job: Job) {
+    let address = job.address;
+    if (job.address && job.type === JOB_TYPE.PART_TIME) address = job.address.split(' ')[0];
+
     this.id = job.id;
     this.title = job.title;
     this.contents = job.contents;
     this.companyName = job.companyName;
-    this.address = job.address;
+    this.address = address;
     this.imageUrl = job.imageUrl;
     this.majors = job.jobMajorCategories.map(jobMajorCategory => jobMajorCategory.majorCategory.koName);
     this.type = job.type;
