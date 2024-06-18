@@ -7,6 +7,9 @@ export class LessonDetailResponse {
   @ApiProperty({ type: 'number', required: true, description: '채용 아이디', example: 2 })
   id: number;
 
+  @ApiProperty({ type: 'number', required: true, description: '작성자 아이디', example: 2 })
+  authorId: number;
+
   @ApiProperty({ type: 'string', required: true, description: '이름', example: '임성준' })
   name: string;
 
@@ -38,6 +41,7 @@ export class LessonDetailResponse {
     if (!lesson.user.phone) throw new UserPhoneNotFound();
 
     this.id = lesson.id;
+    this.authorId = lesson.user.id;
     this.name = lesson.user.name;
     this.pay = lesson.pay;
     this.introduction = lesson.introduction;

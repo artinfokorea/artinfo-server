@@ -5,7 +5,6 @@ import { SchoolCreator } from '@/user/repository/opertaion/school.creator';
 
 export class EditUserCommand extends CreateSchoolsCommand {
   userId: number;
-  phone: string | null;
   birth: Date | null;
   majorIds: number[];
   iconImageUrl: string | null;
@@ -13,7 +12,6 @@ export class EditUserCommand extends CreateSchoolsCommand {
   constructor({
     schools,
     userId,
-    phone,
     birth,
     majorIds,
     iconImageUrl,
@@ -23,14 +21,12 @@ export class EditUserCommand extends CreateSchoolsCommand {
       name: string;
     }[];
     userId: number;
-    phone: string | null;
     birth: Date | null;
     majorIds: number[];
     iconImageUrl: string | null;
   }) {
     super(schools);
     this.userId = userId;
-    this.phone = phone;
     this.birth = birth;
     this.majorIds = majorIds;
     this.iconImageUrl = iconImageUrl;
@@ -39,7 +35,6 @@ export class EditUserCommand extends CreateSchoolsCommand {
   toUserEditor() {
     return new UserEditor({
       userId: this.userId,
-      phone: this.phone,
       birth: this.birth,
       majorIds: this.majorIds,
       iconImageUrl: this.iconImageUrl,
@@ -50,6 +45,7 @@ export class EditUserCommand extends CreateSchoolsCommand {
     return this.schools.map(
       school =>
         new SchoolCreator({
+          userId: this.userId,
           type: school.type,
           name: school.name,
         }),

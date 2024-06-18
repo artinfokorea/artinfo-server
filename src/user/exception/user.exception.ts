@@ -17,7 +17,7 @@ export class InvalidPhoneNumber extends HttpException {
     super(
       {
         code: 'USER-002',
-        message: '휴대폰 번호가 올바르지 않습니다.',
+        message: '유효하지 않은 연락처입니다.',
       },
       HttpStatus.NOT_FOUND,
     );

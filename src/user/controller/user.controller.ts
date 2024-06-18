@@ -7,6 +7,7 @@ import { UserResponse } from '@/user/dto/response/user.response';
 import { OkResponse } from '@/common/response/ok.response';
 import { Body } from '@nestjs/common';
 import { EditUserRequest } from '@/user/dto/request/edit-user.request';
+import { EditUserPhoneRequest } from '@/user/dto/request/edit-user-phone.request';
 
 @RestApiController('/users', 'User')
 export class UserController {
@@ -17,6 +18,13 @@ export class UserController {
     const user = await this.userService.getUserById(signature.id);
 
     return new UserResponse(user);
+  }
+
+  @RestApiPut(OkResponse, { path: '/me/phone', description: '내 연락처 수정', auth: [USER_TYPE.CLIENT] })
+  async editUserPhone(@Signature() signature: UserSignature, @Body() request: EditUserPhoneRequest) {
+    await this.userService.editPhone(signature.id, request.phone);
+
+    return new OkResponse();
   }
 
   @RestApiPut(OkResponse, { path: '/me', description: '내 정보 수정', auth: [USER_TYPE.CLIENT] })

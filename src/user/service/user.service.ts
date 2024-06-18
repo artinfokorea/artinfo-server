@@ -20,19 +20,25 @@ export class UserService {
     return this.userRepository.findOneOrThrowById(id);
   }
 
-  async editUser(command: EditUserCommand): Promise<void> {
-    if (command.phone) {
-      const dashDeletedPhoneNumber = command.phone.replace(/-/g, '');
-      const verification = await this.redisService.getByKey(dashDeletedPhoneNumber);
-      if (verification !== true) {
-        throw new InvalidPhoneNumber();
-      } else {
-        await this.redisService.delete(command.phone);
-      }
+  async editPhone(userId: number, phone: string): Promise<void> {
+    const dashDeletedPhoneNumber = phone.replace(/-/g, '');
+    const verification = await this.redisService.getByKey(dashDeletedPhoneNumber);
+    console.log(verification);
+    if (verification !== true) {
+      throw new InvalidPhoneNumber();
     }
 
+    await this.redisService.delete(dashDeletedPhoneNumber);
+
+    await this.dataSource.transaction(async transactionManager => {
+      await this.userRepository.editPhoneOrThrow(userId, phone, transactionManager);
+    });
+  }
+
+  async editUser(command: EditUserCommand): Promise<void> {
     await this.dataSource.transaction(async transactionManager => {
       await this.userRepository.editOrThrow(command.toUserEditor(), transactionManager);
+      await this.schoolRepository.deleteByUserId(command.userId, transactionManager);
       await this.schoolRepository.createMany(command.toSchoolCreators(), transactionManager);
     });
   }

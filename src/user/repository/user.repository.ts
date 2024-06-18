@@ -32,12 +32,20 @@ export class UserRepository {
     return this.userRepository.findOneBy({ email });
   }
 
+  async editPhoneOrThrow(userId: number, phone: string, transactionManager: EntityManager): Promise<void> {
+    const user = await transactionManager.findOne(User, { where: { id: userId } });
+    if (!user) throw new UserNotFound();
+
+    await transactionManager.update(User, userId, {
+      phone: phone,
+    });
+  }
+
   async editOrThrow(editor: UserEditor, transactionManager: EntityManager): Promise<void> {
     const user = await transactionManager.findOne(User, { where: { id: editor.userId } });
     if (!user) throw new UserNotFound();
 
     await transactionManager.update(User, editor.userId, {
-      phone: editor.phone,
       birth: editor.birth,
       iconImageUrl: editor.iconImageUrl,
     });

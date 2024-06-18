@@ -5,6 +5,9 @@ export class JobResponse {
   @ApiProperty({ type: 'number', required: true, description: '채용 아이디', example: 2 })
   id: number;
 
+  @ApiProperty({ type: 'number', required: true, description: '작성자 아이디', example: 2 })
+  authorId: number;
+
   @ApiProperty({ type: 'string', required: true, description: '채용 제목', example: '춘천시립예술단 단원 모집' })
   title: string;
 
@@ -46,6 +49,7 @@ export class JobResponse {
     if (job.address && job.type === JOB_TYPE.PART_TIME) address = job.address.split(' ')[0];
 
     this.id = job.id;
+    this.authorId = job.user.id;
     this.title = job.title;
     this.contents = job.contents;
     this.companyName = job.companyName;

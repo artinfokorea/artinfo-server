@@ -18,7 +18,8 @@ import axios from 'axios';
 
 @Injectable()
 export class AuthService {
-  private ACCESS_TOKEN_EXPIRE_IN = 1 * 60 * 60;
+  // private ACCESS_TOKEN_EXPIRE_IN = 1 * 60 * 60;
+  private ACCESS_TOKEN_EXPIRE_IN = 2 * 30 * 24 * 60 * 60; // 임시 시간
   private REFRESH_TOKEN_EXPIRE_IN = 2 * 30 * 24 * 60 * 60;
 
   constructor(

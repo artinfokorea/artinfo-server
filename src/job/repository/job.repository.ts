@@ -73,6 +73,7 @@ export class JobRepository {
   async find(fetcher: JobFetcher): Promise<Job[]> {
     const queryBuilder = this.jobRepository
       .createQueryBuilder('job')
+      .leftJoinAndSelect('job.user', 'user')
       .leftJoinAndSelect('job.jobMajorCategories', 'jobMajorCategories')
       .leftJoinAndSelect('job.jobProvinces', 'jobProvinces')
       .leftJoinAndSelect('jobMajorCategories.majorCategory', 'majorCategory');
@@ -105,7 +106,7 @@ export class JobRepository {
   }
 
   async findOneOrThrowById(id: number): Promise<Job> {
-    const job = await this.jobRepository.findOneBy({ id });
+    const job = await this.jobRepository.findOne({ relations: ['user'], where: { id } });
     if (!job) throw new JobNotFound();
 
     return job;

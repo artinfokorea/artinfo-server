@@ -5,6 +5,9 @@ export class LessonResponse {
   @ApiProperty({ type: 'number', required: true, description: '채용 아이디', example: 2 })
   id: number;
 
+  @ApiProperty({ type: 'number', required: true, description: '작성자 아이디', example: 2 })
+  authorId: number;
+
   @ApiProperty({ type: 'string', required: true, description: '이름', example: '임성준' })
   name: string;
 
@@ -19,6 +22,7 @@ export class LessonResponse {
 
   constructor(lesson: Lesson) {
     this.id = lesson.id;
+    this.authorId = lesson.user.id;
     this.name = lesson.user.name;
     this.imageUrl = lesson.imageUrl;
     this.area = lesson.areas[0].name;
