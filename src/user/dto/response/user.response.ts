@@ -16,6 +16,9 @@ export class UserResponse {
   @ApiProperty({ type: 'string', required: true, description: '유저 이메일', example: 'artinfokorea@gmail.com' })
   email: string;
 
+  @ApiProperty({ type: 'date | null', required: false, description: '유저 생년월일', example: new Date() })
+  birth: Date | null;
+
   @ApiProperty({ type: 'string | null', required: false, description: '유저 연락처', example: '010-4028-7451' })
   phone: string | null;
 
@@ -32,6 +35,7 @@ export class UserResponse {
     this.id = user.id;
     this.name = user.name;
     this.nickname = user.nickname;
+    this.birth = user.birth;
     this.email = user.email;
     this.phone = user.phone;
     this.iconImageUrl = user.iconImageUrl;
