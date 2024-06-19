@@ -13,11 +13,23 @@ export class LessonNotFound extends HttpException {
 }
 
 export class UserDoesNotQualify extends HttpException {
-  constructor() {
+  constructor(message: string[]) {
     super(
       {
         code: 'LESSON-002',
-        message: '레슨 조건을 만족하지 못합니다.',
+        message: `프로필(${message})을 작성해 주세요.`,
+      },
+      HttpStatus.FORBIDDEN,
+    );
+  }
+}
+
+export class AlreadyLessonExists extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'LESSON-003',
+        message: '유저의 레슨이 이미 존재합니다.',
       },
       HttpStatus.FORBIDDEN,
     );

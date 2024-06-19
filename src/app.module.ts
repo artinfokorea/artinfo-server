@@ -26,6 +26,8 @@ import { Province } from '@/lesson/entity/province.entity';
 import { JobProvince } from '@/job/entity/job-province.entity';
 import { ProvinceModule } from '@/province/province.module';
 import { LessonArea } from '@/lesson/entity/lesson-area.entity';
+import { Inquiry } from '@/system/entity/inquiry.entity';
+import { InquiryModule } from '@/system/module/inquiry.module';
 
 const entities = [
   User,
@@ -42,6 +44,7 @@ const entities = [
   UserMajorCategory,
   JobMajorCategory,
   Image,
+  Inquiry,
 ];
 const modules = [
   SystemModule,
@@ -54,6 +57,7 @@ const modules = [
   JobModule,
   ProvinceModule,
   MajorModule,
+  InquiryModule,
   LoggerModule,
 ];
 

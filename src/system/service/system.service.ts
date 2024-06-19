@@ -75,7 +75,7 @@ export class SystemService {
     return imageMetas;
   }
 
-  async createMany(command: CreateImagesCommand): Promise<Image[]> {
+  async createImageMany(command: CreateImagesCommand): Promise<Image[]> {
     const imageMetas = await this.getUploadImageMetasOrThrow(command.files);
 
     const imageCreators = await Promise.all(
