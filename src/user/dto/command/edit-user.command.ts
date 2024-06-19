@@ -4,18 +4,24 @@ import { UserEditor } from '@/user/repository/opertaion/user.editor';
 import { SchoolCreator } from '@/user/repository/opertaion/school.creator';
 
 export class EditUserCommand extends CreateSchoolsCommand {
+  name: string;
+  nickname: string;
   userId: number;
   birth: Date | null;
   majorIds: number[];
   iconImageUrl: string | null;
 
   constructor({
+    name,
+    nickname,
     schools,
     userId,
     birth,
     majorIds,
     iconImageUrl,
   }: {
+    name: string;
+    nickname: string;
     schools: {
       type: SCHOOL_TYPE;
       name: string;
@@ -26,6 +32,8 @@ export class EditUserCommand extends CreateSchoolsCommand {
     iconImageUrl: string | null;
   }) {
     super(schools);
+    this.name = name;
+    this.nickname = nickname;
     this.userId = userId;
     this.birth = birth;
     this.majorIds = majorIds;
@@ -34,6 +42,8 @@ export class EditUserCommand extends CreateSchoolsCommand {
 
   toUserEditor() {
     return new UserEditor({
+      name: this.name,
+      nickname: this.nickname,
       userId: this.userId,
       birth: this.birth,
       majorIds: this.majorIds,

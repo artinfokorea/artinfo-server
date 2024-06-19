@@ -40,6 +40,7 @@ export class AuthService {
 
     const createdUser = new User({
       name: command.name,
+      nickname: command.nickname,
       email: command.email,
       password: hashedPassword,
     });

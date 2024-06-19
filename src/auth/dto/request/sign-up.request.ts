@@ -6,6 +6,9 @@ export class SignUpRequest {
   @ApiProperty({ type: String, required: true, description: '사용자 이름', example: '임성준' })
   name: string;
 
+  @ApiProperty({ type: String, required: true, description: '사용자 닉네임', example: '임성준준' })
+  nickname: string;
+
   @Email()
   @NotBlank()
   @ApiProperty({ type: String, required: true, description: '사용자 이메일', example: 'artinfokorea2022@gmail.com' })
@@ -18,6 +21,7 @@ export class SignUpRequest {
   toCommand() {
     return new SignUpCommand({
       name: this.name,
+      nickname: this.nickname,
       email: this.email,
       password: this.password,
     });

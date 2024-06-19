@@ -52,7 +52,7 @@ export class VerificationService {
     await this.redisService.setValue({
       key: phone,
       value: true,
-      ttl: 300,
+      ttl: 180,
     });
   }
 

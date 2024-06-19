@@ -5,6 +5,12 @@ import { EditUserCommand } from '@/user/dto/command/edit-user.command';
 import { ArrayMaxSize } from 'class-validator';
 
 export class EditUserRequest {
+  @ApiProperty({ type: String, required: true, description: '사용자 이름', example: '임성준' })
+  name: string;
+
+  @ApiProperty({ type: String, required: true, description: '사용자 닉네임', example: '임성준준' })
+  nickname: string;
+
   @ApiProperty({ type: 'string', required: false, description: '아이콘 이미지 주소', example: 'https://artinfokorea.com' })
   iconImageUrl: string | null = null;
 
@@ -21,6 +27,8 @@ export class EditUserRequest {
 
   toEditUserCommand(userId: number) {
     return new EditUserCommand({
+      name: this.name,
+      nickname: this.nickname,
       schools: this.schools,
       userId: userId,
       birth: this.birth,

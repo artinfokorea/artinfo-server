@@ -46,6 +46,8 @@ export class UserRepository {
     if (!user) throw new UserNotFound();
 
     await transactionManager.update(User, editor.userId, {
+      name: editor.name,
+      nickname: editor.nickname,
       birth: editor.birth,
       iconImageUrl: editor.iconImageUrl,
     });

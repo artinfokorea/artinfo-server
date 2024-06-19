@@ -11,6 +11,7 @@ export enum USER_TYPE {
 
 export interface UserCreator {
   name: string;
+  nickname: string;
   email: string;
   password: string;
 }
@@ -69,6 +70,7 @@ export class User extends BaseEntity {
     super();
     if (creator) {
       this.name = creator.name;
+      this.nickname = creator.nickname;
       this.email = creator.email;
       this.password = creator.password;
     }
