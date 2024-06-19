@@ -16,6 +16,9 @@ export class UserResponse {
   @ApiProperty({ type: 'string', required: true, description: '유저 이메일', example: 'artinfokorea@gmail.com' })
   email: string;
 
+  @ApiProperty({ type: 'string | null', required: false, description: '유저 연락처', example: '010-4028-7451' })
+  phone: string | null;
+
   @ApiProperty({ type: 'string | null', required: false, description: '유저 아이콘 이미지 주소', example: 'https://artinfokorea@gmail.com' })
   iconImageUrl: string | null;
 
@@ -30,6 +33,7 @@ export class UserResponse {
     this.name = user.name;
     this.nickname = user.nickname;
     this.email = user.email;
+    this.phone = user.phone;
     this.iconImageUrl = user.iconImageUrl;
     this.majors = user.userMajorCategories.map(userMajorCategory => new MajorResponse(userMajorCategory.majorCategory));
     this.schools = user.schools.map(school => new UserSchoolResponse(school));
