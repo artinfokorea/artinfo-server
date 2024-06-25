@@ -11,7 +11,7 @@ import { CreateLessonCommand } from '@/lesson/dto/command/create-lesson.command'
 import { LessonCreator } from '@/lesson/repository/operation/lesson.creator';
 import { LessonAreaCreator } from '@/lesson/repository/operation/lesson-area.creator';
 import { LessonAreaRepository } from '@/lesson/repository/lesson-area.repository';
-import { UserDoesNotQualify } from '@/lesson/lesson.exception';
+import { AlreadyLessonExists, LessonNotFound, UserDoesNotQualify } from '@/lesson/lesson.exception';
 import { EditLessonCommand } from '@/lesson/dto/command/edit-lesson.command';
 import { LessonEditor } from '@/lesson/repository/operation/lesson.editor';
 
@@ -25,7 +25,7 @@ export class LessonService {
 
   async editLesson(command: EditLessonCommand) {
     const user = await this.userService.getUserById(command.userId);
-    if (!user.lesson) throw new UserDoesNotQualify();
+    if (!user.lesson) throw new LessonNotFound();
 
     const editor = new LessonEditor({
       lessonId: user.lesson.id,
@@ -77,14 +77,14 @@ export class LessonService {
     const user = await this.userService.getUserById(userId);
     if (!user) throw new UserNotFound();
 
-    if (
-      user.lesson || //
-      !user.userMajorCategories.length ||
-      !user.schools.length ||
-      !user.phone
-    ) {
-      throw new UserDoesNotQualify();
-    }
+    if (user.lesson) throw new AlreadyLessonExists();
+
+    const cases: string[] = [];
+    if (!user.userMajorCategories.length) cases.push('전공');
+    if (!user.schools.length) cases.push('학력');
+    if (!user.phone) cases.push('연락처');
+
+    if (cases.length) throw new UserDoesNotQualify(cases);
   }
 
   getLessonById(id: number): Promise<Lesson> {

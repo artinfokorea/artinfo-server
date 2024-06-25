@@ -30,7 +30,7 @@ export class LessonController {
     return new OkResponse();
   }
 
-  @RestApiPost(CreateResponse, { path: '/', description: '레슨 생성 자격 확인', auth: [USER_TYPE.CLIENT] })
+  @RestApiPost(CreateResponse, { path: '/', description: '레슨 생성', auth: [USER_TYPE.CLIENT] })
   async createLesson(@Signature() signature: UserSignature, @Body() request: CreateLessonRequest): Promise<CreateResponse> {
     const lessonId = await this.lessonService.create(request.toCommand(signature.id));
     return new CreateResponse(lessonId);

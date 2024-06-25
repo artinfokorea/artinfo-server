@@ -1,10 +1,12 @@
 import { User } from '@/user/entity/user.entity';
 import { UserNotFound } from '@/user/exception/user.exception';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, In, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { UserEditor } from '@/user/repository/opertaion/user.editor';
 import { UserMajorCategory } from '@/user/entity/user-major-category.entity';
+import { MajorCategory } from '@/job/entity/major-category.entity';
+import { MajorNotFound } from '@/major/major.exception';
 
 @Injectable()
 export class UserRepository {
@@ -51,6 +53,9 @@ export class UserRepository {
       birth: editor.birth,
       iconImageUrl: editor.iconImageUrl,
     });
+
+    const majors = await transactionManager.findBy(MajorCategory, { id: In(editor.majorIds) });
+    if (majors.length !== editor.majorIds.length) throw new MajorNotFound();
 
     await transactionManager.delete(UserMajorCategory, { userId: user.id });
 

@@ -28,7 +28,7 @@ export class SystemController {
     auth: [USER_TYPE.CLIENT],
   })
   async uploadImages(@Signature() signature: UserSignature, @Body() request: UploadImagesRequest, @UploadedFiles() files: UploadFile[]) {
-    const uploadImages = await this.systemService.createMany(request.toCreateImagesCommand(signature.id, files));
+    const uploadImages = await this.systemService.createImageMany(request.toCreateImagesCommand(signature.id, files));
 
     return new UploadImagesResponse(uploadImages);
   }
