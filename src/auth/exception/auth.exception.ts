@@ -83,3 +83,15 @@ export class KakaoAccessTokenIsNotValid extends HttpException {
     );
   }
 }
+
+export class GoogleAccessTokenIsNotValid extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'AUTH-008',
+        message: '구글 로그인 토큰 정보가 올바르지 않습니다.',
+      },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+}

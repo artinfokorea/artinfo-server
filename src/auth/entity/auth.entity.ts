@@ -7,6 +7,12 @@ export enum AUTH_TYPE {
   GOOGLE = 'GOOGLE',
 }
 
+export enum SNS_TYPE {
+  KAKAO = 'KAKAO',
+  NAVER = 'NAVER',
+  GOOGLE = 'GOOGLE',
+}
+
 export interface AuthCreator {
   type: AUTH_TYPE;
   userId: number;

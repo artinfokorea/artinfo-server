@@ -4,6 +4,7 @@ import { UserRepository } from '@/user/repository/user.repository';
 import {
   EmailAlreadyExist,
   EmailAuthenticationDoesNotExist,
+  GoogleAccessTokenIsNotValid,
   InvalidLoginInfo,
   KakaoAccessTokenIsNotValid,
   PasswordNotFound,
@@ -11,7 +12,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import { User } from '@/user/entity/user.entity';
 import { EmailLoginCommand } from '@/auth/dto/command/email-login.command';
-import { Auth, AUTH_TYPE } from '@/auth/entity/auth.entity';
+import { Auth, AUTH_TYPE, SNS_TYPE } from '@/auth/entity/auth.entity';
 import { JwtService } from '@nestjs/jwt';
 import { RedisService } from '@/common/redis/redis.service';
 import axios from 'axios';
@@ -43,6 +44,7 @@ export class AuthService {
       nickname: command.nickname,
       email: command.email,
       password: hashedPassword,
+      iconImageUrl: null,
     });
 
     await createdUser.save();
@@ -73,14 +75,14 @@ export class AuthService {
     return auth;
   }
 
-  async loginBySns(token: string, type: AUTH_TYPE) {
-    if (type === AUTH_TYPE.KAKAO) {
-      this.getKakaoProfile(token);
-    }
+  async loginBySns(token: string, type: SNS_TYPE): Promise<Auth> {
+    // const user: User | null = null;
+    console.log(type);
+    // user = await this.getUserByKakao(token);
 
-    const user = await this.userRepository.findById(8);
+    await this.getUserByGoogle(token);
+    const user = await this.userRepository.findById(7);
     if (!user) throw new InvalidLoginInfo();
-
     const accessTokenExpiresIn = new Date(Date.now() + this.ACCESS_TOKEN_EXPIRE_IN * 1000);
     const refreshTokenExpiresIn = new Date(Date.now() + this.REFRESH_TOKEN_EXPIRE_IN * 1000);
 
@@ -98,13 +100,7 @@ export class AuthService {
     return auth;
   }
 
-  async getKakaoProfile(accessToken: string) {
-    // const config = {
-    //   method: 'get',
-    //   url: 'https://kapi.kakao.com/v2/user/me',
-    //   headers: { Authorization: 'Bearer ' + accessToken },
-    // };
-    //
+  async getUserByKakao(accessToken: string): Promise<User> {
     let payload: any;
     try {
       const response = await axios({
@@ -121,84 +117,55 @@ export class AuthService {
         throw new KakaoAccessTokenIsNotValid();
       }
 
-      console.log(payload);
+      let user = await this.userRepository.findByEmail(payload.kakao_account.email);
+      if (!user) {
+        const createdUser = new User({
+          name: payload.kakao_account.profile.nickname,
+          nickname: payload.kakao_account.profile.nickname,
+          email: payload.kakao_account.email,
+          password: null,
+          iconImageUrl: null,
+        });
 
-      //   const configToCheckAK = {
-      //     method: 'get',
-      //     url: `https://kapi.kakao.com/v2/user/me?target_id_type=user_id&target_id=${payload.id}&secure_resource=true`,
-      //     headers: { Authorization: 'KakaoAK ' + TheEgoSnsConfig.KAKAO_ADMIN_KEY },
-      //   };
-      //
-      //   const responseToCheck = await axios(configToCheckAK);
-      //   const payloadToCheck = responseToCheck.data;
-      //   if (!payloadToCheck) {
-      //     throw new KakaoAccessTokenIsNotValid();
-      //   }
-      //   if (!payloadToCheck.kakao_account) {
-      //     throw new KakaoAccessTokenIsNotValid();
-      //   }
+        user = await createdUser.save();
+      }
+
+      return user;
     } catch (e) {
       console.log(e.response.data.msg);
       throw new KakaoAccessTokenIsNotValid();
     }
-    //
-    //   if (payload.kakao_account.is_email_verified == false) {
-    //     throw new TheEgoError(TheEgoSnsErrorCodes.KAKAO_EMAIL_IS_NOT_VERIFIED);
-    //   }
-    //
-    //   const uid = String(payload.id);
-    //   const email = payload.kakao_account.email;
-    //   const name = payload.kakao_account.profile?.nickname;
-    //   const iconImageUrl = payload.kakao_account.profile?.profile_image_url;
-    //   const birthYear = payload.kakao_account.birthyear;
-    //   const birthday = payload.kakao_account.birthday;
-    //   const birthdayType = payload.kakao_account.birthday_type;
-    //   const gender = payload.kakao_account.gender?.toUpperCase();
-    //
-    //   if (uid == null) throw new TheEgoError(TheEgoSnsErrorCodes.KAKAO_ID_DOES_NOT_EXIST);
-    //   if (email == null) throw new TheEgoError(TheEgoSnsErrorCodes.KAKAO_EMAIL_DOES_NOT_EXIST);
-    //
-    //   return new TheEgoSnsProfile(TheEgoSnsType.KAKAO, uid, email, name, iconImageUrl, birthYear, birthday, birthdayType, gender);
   }
 
-  // getGoogleProfile = async (token: string, deviceType: TheEgoDeviceType): Promise<TheEgoSnsProfile> => {
-  //   let payload: any;
-  //   if (deviceType === TheEgoDeviceType.WEB) {
-  //     try {
-  //       const res = await axios.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`);
-  //       payload = res.data;
-  //     } catch (e) {
-  //       throw new TheEgoError(TheEgoSnsErrorCodes.GOOGLE_ID_TOKEN_IS_NOT_VALID);
-  //     }
-  //   } else {
-  //     const clientId = this.getGoogleClientIdByDeviceType(deviceType);
-  //
-  //     const client = new OAuth2Client(clientId);
-  //
-  //     try {
-  //       const ticket = await client.verifyIdToken({
-  //         idToken: token,
-  //         // Specify the CLIENT_ID of the app that accesses the backend
-  //         audience: clientId,
-  //         // Or, if multiple clients access the backend:
-  //         //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
-  //       });
-  //       payload = ticket.getPayload();
-  //     } catch (e) {
-  //       throw new TheEgoError(TheEgoSnsErrorCodes.GOOGLE_ID_TOKEN_IS_NOT_VALID);
-  //     }
-  //   }
-  //
-  //   const uid = payload['sub'];
-  //   const email = payload['email'];
-  //   const name = payload['name'];
-  //   const iconImageUrl = payload['picture'];
-  //
-  //   if (uid == null) throw new TheEgoError(TheEgoSnsErrorCodes.GOOGLE_ID_DOES_NOT_EXIST);
-  //   if (email == null) throw new TheEgoError(TheEgoSnsErrorCodes.GOOGLE_EMAIL_DOES_NOT_EXIST);
-  //
-  //   return new TheEgoSnsProfile(TheEgoSnsType.GOOGLE, uid, email, name, iconImageUrl);
-  // };
+  async getUserByGoogle(token: string) {
+    let payload: any;
+    try {
+      const res = await axios.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`);
+      payload = res.data;
+    } catch (e) {
+      throw new GoogleAccessTokenIsNotValid();
+    }
+
+    const email = payload['email'];
+    const name = payload['name'];
+    const nickname = payload['email'].split('@')[0];
+    const iconImageUrl = payload['picture'];
+
+    let user = await this.userRepository.findByEmail(payload.kakao_account.email);
+    if (!user) {
+      const createdUser = new User({
+        name: name,
+        nickname: nickname,
+        email: email,
+        iconImageUrl: iconImageUrl,
+        password: null,
+      });
+
+      user = await createdUser.save();
+    }
+
+    return user;
+  }
 
   // // eslint-disable-next-line @typescript-eslint/no-unused-vars
   // getNaverProfile = async (accessToken: string, _deviceType: TheEgoDeviceType): Promise<TheEgoSnsProfile> => {

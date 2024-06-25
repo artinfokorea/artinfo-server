@@ -13,7 +13,8 @@ export interface UserCreator {
   name: string;
   nickname: string;
   email: string;
-  password: string;
+  password: string | null;
+  iconImageUrl: string | null;
 }
 
 @Entity('users')
@@ -69,6 +70,7 @@ export class User extends BaseEntity {
   constructor(creator: UserCreator) {
     super();
     if (creator) {
+      this.iconImageUrl = creator.iconImageUrl;
       this.name = creator.name;
       this.nickname = creator.nickname;
       this.email = creator.email;

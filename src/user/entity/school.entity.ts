@@ -18,7 +18,7 @@ export class School extends BaseEntity {
   @Column({ name: 'name' })
   name: string;
 
-  @ManyToOne(() => User, user => user.schools)
+  @ManyToOne(() => User, user => user.schools, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: User;
 
