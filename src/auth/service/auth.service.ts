@@ -7,6 +7,7 @@ import {
   GoogleAccessTokenIsNotValid,
   InvalidLoginInfo,
   KakaoAccessTokenIsNotValid,
+  NaverAccessTokenIsNotValid,
   PasswordNotFound,
 } from '@/auth/exception/auth.exception';
 import * as bcrypt from 'bcrypt';
@@ -80,7 +81,7 @@ export class AuthService {
     console.log(type);
     // user = await this.getUserByKakao(token);
 
-    await this.getUserByGoogle(token);
+    await this.getUserByNaver(token);
     const user = await this.userRepository.findById(7);
     if (!user) throw new InvalidLoginInfo();
     const accessTokenExpiresIn = new Date(Date.now() + this.ACCESS_TOKEN_EXPIRE_IN * 1000);
@@ -167,35 +168,44 @@ export class AuthService {
     return user;
   }
 
-  // // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  // getNaverProfile = async (accessToken: string, _deviceType: TheEgoDeviceType): Promise<TheEgoSnsProfile> => {
-  //   const config = {
-  //     method: 'get',
-  //     url: 'https://openapi.naver.com/v1/nid/me',
-  //     headers: { Authorization: 'Bearer ' + accessToken },
-  //   };
-  //
-  //   let payload: any;
-  //   try {
-  //     const response = await axios(config);
-  //     payload = response.data?.response;
-  //     if (payload == null) {
-  //       throw new TheEgoError(TheEgoSnsErrorCodes.NAVER_ACCESS_TOKEN_IS_NOT_VALID);
-  //     }
-  //   } catch (e) {
-  //     throw new TheEgoError(TheEgoSnsErrorCodes.NAVER_ACCESS_TOKEN_IS_NOT_VALID);
-  //   }
-  //
-  //   const uid = payload.id;
-  //   const email = payload.email;
-  //   const name = payload.name;
-  //   const iconImageUrl = payload.profile_image;
-  //
-  //   if (uid == null) throw new TheEgoError(TheEgoSnsErrorCodes.NAVER_ID_DOES_NOT_EXIST);
-  //   if (email == null) throw new TheEgoError(TheEgoSnsErrorCodes.NAVER_EMAIL_DOES_NOT_EXIST);
-  //
-  //   return new TheEgoSnsProfile(TheEgoSnsType.NAVER, uid, email, name, iconImageUrl);
-  // };
+  async getUserByNaver(accessToken: string) {
+    const config = {
+      method: 'get',
+      url: 'https://openapi.naver.com/v1/nid/me',
+      headers: { Authorization: 'Bearer ' + accessToken },
+    };
+
+    let payload: any;
+    try {
+      const response = await axios(config);
+      payload = response.data?.response;
+      if (payload == null) {
+        throw new NaverAccessTokenIsNotValid();
+      }
+    } catch (e) {
+      throw new NaverAccessTokenIsNotValid();
+    }
+
+    const email = payload.email;
+    const name = payload.name;
+    const nickname = payload.nickname;
+    const iconImageUrl = payload.profile_image;
+
+    let user = await this.userRepository.findByEmail(email);
+    if (!user) {
+      const createdUser = new User({
+        name: name,
+        nickname: nickname,
+        email: email,
+        iconImageUrl: iconImageUrl,
+        password: null,
+      });
+
+      user = await createdUser.save();
+    }
+
+    return user;
+  }
 
   private getHashedPassword = async (password: string): Promise<string> => {
     return await bcrypt.hash(password, 10);

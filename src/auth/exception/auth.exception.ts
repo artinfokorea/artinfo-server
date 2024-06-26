@@ -95,3 +95,15 @@ export class GoogleAccessTokenIsNotValid extends HttpException {
     );
   }
 }
+
+export class NaverAccessTokenIsNotValid extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'AUTH-009',
+        message: '네이버 로그인 토큰 정보가 올바르지 않습니다.',
+      },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+}
