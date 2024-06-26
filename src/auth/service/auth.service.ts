@@ -77,13 +77,17 @@ export class AuthService {
   }
 
   async loginBySns(token: string, type: SNS_TYPE): Promise<Auth> {
-    // const user: User | null = null;
-    console.log(type);
-    // user = await this.getUserByKakao(token);
+    let user: User | null = null;
+    if (type === SNS_TYPE.GOOGLE) {
+      user = await this.getUserByGoogle(token);
+    } else if (type === SNS_TYPE.NAVER) {
+      user = await this.getUserByNaver(token);
+    } else if (type === SNS_TYPE.KAKAO) {
+      user = await this.getUserByKakao(token);
+    } else {
+      throw new InvalidLoginInfo();
+    }
 
-    await this.getUserByNaver(token);
-    const user = await this.userRepository.findById(7);
-    if (!user) throw new InvalidLoginInfo();
     const accessTokenExpiresIn = new Date(Date.now() + this.ACCESS_TOKEN_EXPIRE_IN * 1000);
     const refreshTokenExpiresIn = new Date(Date.now() + this.REFRESH_TOKEN_EXPIRE_IN * 1000);
 
