@@ -1,4 +1,5 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { User } from '@/user/entity/user.entity';
 
 export enum AUTH_TYPE {
   EMAIL = 'EMAIL',
@@ -15,11 +16,7 @@ export enum SNS_TYPE {
 
 export interface AuthCreator {
   type: AUTH_TYPE;
-  userId: number;
-  accessToken: string;
-  accessTokenExpiresIn: Date;
-  refreshToken: string;
-  refreshTokenExpiresIn: Date;
+  user: User;
 }
 
 @Entity('auths')
@@ -50,16 +47,4 @@ export class Auth extends BaseEntity {
 
   @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
   updateAt: Date;
-
-  constructor(creator: AuthCreator) {
-    super();
-    if (creator) {
-      this.type = creator.type;
-      this.userId = creator.userId;
-      this.accessToken = creator.accessToken;
-      this.accessTokenExpiresIn = creator.accessTokenExpiresIn;
-      this.refreshToken = creator.refreshToken;
-      this.refreshTokenExpiresIn = creator.refreshTokenExpiresIn;
-    }
-  }
 }

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Auth } from '@/auth/entity/auth.entity';
 
-export class LoginResponse {
+export class AuthTokensResponse {
   @ApiProperty({ type: 'string', required: true, description: 'access token', example: 'dkfjlkf12fF33' })
   accessToken: string;
 

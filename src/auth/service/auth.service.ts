@@ -17,15 +17,14 @@ import { Auth, AUTH_TYPE, SNS_TYPE } from '@/auth/entity/auth.entity';
 import { JwtService } from '@nestjs/jwt';
 import { RedisService } from '@/common/redis/redis.service';
 import axios from 'axios';
+import { RefreshAccessTokenCommand } from '@/auth/dto/command/refresh-access-token.command';
+import { AuthRepository } from '@/auth/repository/auth.repository';
 
 @Injectable()
 export class AuthService {
-  // private ACCESS_TOKEN_EXPIRE_IN = 1 * 60 * 60;
-  private ACCESS_TOKEN_EXPIRE_IN = 2 * 30 * 24 * 60 * 60; // 임시 시간
-  private REFRESH_TOKEN_EXPIRE_IN = 2 * 30 * 24 * 60 * 60;
-
   constructor(
     private readonly userRepository: UserRepository,
+    private readonly authRepository: AuthRepository,
     private readonly redisService: RedisService,
     private readonly jwtService: JwtService,
   ) {}
@@ -59,53 +58,61 @@ export class AuthService {
     const passwordMatching = await bcrypt.compare(command.password, user.password);
     if (!passwordMatching) throw new InvalidLoginInfo();
 
-    const accessTokenExpiresIn = new Date(Date.now() + this.ACCESS_TOKEN_EXPIRE_IN * 1000);
-    const refreshTokenExpiresIn = new Date(Date.now() + this.REFRESH_TOKEN_EXPIRE_IN * 1000);
-
-    const auth = new Auth({
-      type: AUTH_TYPE.EMAIL,
-      userId: user.id,
-      accessToken: this.generateToken(this.ACCESS_TOKEN_EXPIRE_IN, { id: user.id, name: user.name, email: user.email }),
-      accessTokenExpiresIn: accessTokenExpiresIn,
-      refreshToken: this.generateToken(this.REFRESH_TOKEN_EXPIRE_IN),
-      refreshTokenExpiresIn: refreshTokenExpiresIn,
-    });
-
-    await auth.save();
-
-    return auth;
+    return await this.authRepository.create({ type: AUTH_TYPE.EMAIL, user: user });
   }
 
   async loginBySns(token: string, type: SNS_TYPE): Promise<Auth> {
     let user: User | null = null;
+    let authType: AUTH_TYPE | null = null;
+
     if (type === SNS_TYPE.GOOGLE) {
       user = await this.getUserByGoogle(token);
+      authType = AUTH_TYPE.GOOGLE;
     } else if (type === SNS_TYPE.NAVER) {
       user = await this.getUserByNaver(token);
+      authType = AUTH_TYPE.NAVER;
     } else if (type === SNS_TYPE.KAKAO) {
       user = await this.getUserByKakao(token);
+      authType = AUTH_TYPE.KAKAO;
     } else {
       throw new InvalidLoginInfo();
     }
 
-    const accessTokenExpiresIn = new Date(Date.now() + this.ACCESS_TOKEN_EXPIRE_IN * 1000);
-    const refreshTokenExpiresIn = new Date(Date.now() + this.REFRESH_TOKEN_EXPIRE_IN * 1000);
-
-    const auth = new Auth({
-      type: AUTH_TYPE.EMAIL,
-      userId: user.id,
-      accessToken: this.generateToken(this.ACCESS_TOKEN_EXPIRE_IN, { id: user.id, name: user.name, email: user.email }),
-      accessTokenExpiresIn: accessTokenExpiresIn,
-      refreshToken: this.generateToken(this.REFRESH_TOKEN_EXPIRE_IN),
-      refreshTokenExpiresIn: refreshTokenExpiresIn,
-    });
-
-    await auth.save();
-
-    return auth;
+    return await this.authRepository.create({ type: authType, user: user });
   }
 
-  async getUserByKakao(accessToken: string): Promise<User> {
+  async refreshTokens(command: RefreshAccessTokenCommand): Promise<Auth> {
+    const decodedToken = await this.jwtService.verify(command.refreshToken, { secret: process.env.JWT_TOKEN_KEY });
+    const { id, exp } = decodedToken;
+
+    const redisKey = `USER:REFRESH=${id}`;
+    const refetchAuth = await this.redisService.getByKey(redisKey);
+
+    if (!refetchAuth) {
+      const user = await this.userRepository.findOneOrThrowById(id);
+      let auth: Auth | null = null;
+
+      const currentTime = Math.floor(Date.now() / 1000);
+      const oneHourInSeconds = 3600;
+      if (exp - currentTime < oneHourInSeconds) {
+        auth = await this.authRepository.renewTokens(user, command.accessToken, command.refreshToken);
+      } else {
+        auth = await this.authRepository.renewAccessToken(user, command.accessToken, command.refreshToken);
+      }
+
+      await this.redisService.setValue({
+        key: redisKey,
+        value: auth,
+        ttl: 3,
+      });
+
+      return auth;
+    } else {
+      return refetchAuth as Auth;
+    }
+  }
+
+  private async getUserByKakao(accessToken: string): Promise<User> {
     let payload: any;
     try {
       const response = await axios({
@@ -142,7 +149,7 @@ export class AuthService {
     }
   }
 
-  async getUserByGoogle(token: string) {
+  private async getUserByGoogle(token: string) {
     let payload: any;
     try {
       const res = await axios.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${token}`);
@@ -172,7 +179,7 @@ export class AuthService {
     return user;
   }
 
-  async getUserByNaver(accessToken: string) {
+  private async getUserByNaver(accessToken: string) {
     const config = {
       method: 'get',
       url: 'https://openapi.naver.com/v1/nid/me',
@@ -214,11 +221,4 @@ export class AuthService {
   private getHashedPassword = async (password: string): Promise<string> => {
     return await bcrypt.hash(password, 10);
   };
-
-  private generateToken(expiresIn: number, payload?: { id: number; name: string; email: string }): string {
-    return this.jwtService.sign(
-      payload ?? {}, //
-      { privateKey: process.env['JWT_TOKEN_KEY'], expiresIn: expiresIn },
-    );
-  }
 }

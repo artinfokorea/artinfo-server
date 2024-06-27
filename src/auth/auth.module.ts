@@ -18,6 +18,7 @@ import { Image } from '@/system/entity/image.entity';
 import { AwsSesService } from '@/aws/ses/aws-ses.service';
 import { Province } from '@/lesson/entity/province.entity';
 import { ProvinceRepository } from '@/province/province.repository';
+import { AuthRepository } from '@/auth/repository/auth.repository';
 
 @Module({
   imports: [JwtModule.register({}), TypeOrmModule.forFeature([Auth, User, UserMajorCategory, Image, Province])],
@@ -26,6 +27,7 @@ import { ProvinceRepository } from '@/province/province.repository';
     JwtService,
     JwtStrategy,
     AuthService,
+    AuthRepository,
     UserRepository,
     VerificationService,
     SystemService,

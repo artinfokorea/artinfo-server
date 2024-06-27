@@ -107,3 +107,27 @@ export class NaverAccessTokenIsNotValid extends HttpException {
     );
   }
 }
+
+export class FailedToRenewToken extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'AUTH-010',
+        message: '토큰 갱신에 실패했습니다.',
+      },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+}
+
+export class AuthNotFound extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'AUTH-011',
+        message: '로그인 정보가 존재하지 않습니다.',
+      },
+      HttpStatus.NOT_FOUND,
+    );
+  }
+}
