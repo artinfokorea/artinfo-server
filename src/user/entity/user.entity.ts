@@ -31,7 +31,7 @@ export class User extends BaseEntity {
   @Column({ name: 'nickname' })
   nickname: string;
 
-  @Column({ name: 'email' })
+  @Column({ name: 'email', unique: true })
   email: string;
 
   @Column({ type: 'varchar', name: 'phone', nullable: true })
