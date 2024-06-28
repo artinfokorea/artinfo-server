@@ -6,6 +6,7 @@ import { SchoolRepository } from '@/user/repository/school.repository';
 import { DataSource } from 'typeorm';
 import { RedisService } from '@/common/redis/redis.service';
 import { InvalidPhoneNumber } from '@/user/exception/user.exception';
+import { EmailAuthenticationDoesNotExist } from '@/auth/exception/auth.exception';
 
 @Injectable()
 export class UserService {
@@ -20,10 +21,20 @@ export class UserService {
     return this.userRepository.findOneOrThrowById(id);
   }
 
+  async editPassword(email: string, password: string): Promise<void> {
+    const verification = await this.redisService.getByKey(email);
+    if (!verification) throw new EmailAuthenticationDoesNotExist();
+
+    await this.redisService.delete(email);
+
+    await this.dataSource.transaction(async transactionManager => {
+      await this.userRepository.editPasswordOrThrowByEmail(email, password, transactionManager);
+    });
+  }
+
   async editPhone(userId: number, phone: string): Promise<void> {
     const dashDeletedPhoneNumber = phone.replace(/-/g, '');
     const verification = await this.redisService.getByKey(dashDeletedPhoneNumber);
-    console.log(verification);
     if (verification !== true) {
       throw new InvalidPhoneNumber();
     }

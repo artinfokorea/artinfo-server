@@ -7,6 +7,8 @@ import { UserEditor } from '@/user/repository/opertaion/user.editor';
 import { UserMajorCategory } from '@/user/entity/user-major-category.entity';
 import { MajorCategory } from '@/job/entity/major-category.entity';
 import { MajorNotFound } from '@/major/major.exception';
+import * as bcrypt from 'bcrypt';
+import { UserCreator } from '@/user/repository/opertaion/user.creator';
 
 @Injectable()
 export class UserRepository {
@@ -14,6 +16,21 @@ export class UserRepository {
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
+
+  async create(creator: UserCreator): Promise<number> {
+    let hashedPassword: string | null = null;
+    if (creator.password) hashedPassword = await this.getHashedPassword(creator.password);
+
+    const user = await this.userRepository.save({
+      name: creator.name,
+      nickname: creator.nickname,
+      email: creator.email,
+      password: hashedPassword,
+      iconImageUrl: creator.iconImageUrl,
+    });
+
+    return user.id;
+  }
 
   async findOneOrThrowById(id: number): Promise<User> {
     const user = await this.userRepository.findOneBy({ id });
@@ -32,6 +49,21 @@ export class UserRepository {
 
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOneBy({ email });
+  }
+
+  async editPasswordOrThrowByEmail(email: string, password: string, transactionManager: EntityManager): Promise<void> {
+    const user = await transactionManager.findOne(User, { where: { email: email } });
+    if (!user) throw new UserNotFound();
+
+    const hashedPassword = await this.getHashedPassword(password);
+
+    await transactionManager.update(
+      User,
+      { email: email },
+      {
+        password: hashedPassword,
+      },
+    );
   }
 
   async editPhoneOrThrow(userId: number, phone: string, transactionManager: EntityManager): Promise<void> {
@@ -67,4 +99,8 @@ export class UserRepository {
       })),
     );
   }
+
+  private getHashedPassword = async (password: string): Promise<string> => {
+    return await bcrypt.hash(password, 10);
+  };
 }

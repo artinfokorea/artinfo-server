@@ -13,7 +13,7 @@ import { EmailExistenceResponse } from '@/auth/dto/response/email-existence.resp
 export class VerificationController {
   constructor(private readonly verificationService: VerificationService) {}
 
-  @RestApiGet(OkResponse, { path: '/email/existence', description: '이메일 중복 확인' })
+  @RestApiGet(EmailExistenceResponse, { path: '/email/existence', description: '이메일 중복 확인' })
   async checkEmailExistence(@Query() request: EmailVerificationRequest) {
     const existence = await this.verificationService.checkEmailExistence(request.email);
 

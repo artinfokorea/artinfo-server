@@ -9,14 +9,6 @@ export enum USER_TYPE {
   ADMIN = 'ADMIN',
 }
 
-export interface UserCreator {
-  name: string;
-  nickname: string;
-  email: string;
-  password: string | null;
-  iconImageUrl: string | null;
-}
-
 @Entity('users')
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn('increment', { name: 'id' })
@@ -66,15 +58,4 @@ export class User extends BaseEntity {
 
   @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
   deletedAt: Date;
-
-  constructor(creator: UserCreator) {
-    super();
-    if (creator) {
-      this.iconImageUrl = creator.iconImageUrl;
-      this.name = creator.name;
-      this.nickname = creator.nickname;
-      this.email = creator.email;
-      this.password = creator.password;
-    }
-  }
 }

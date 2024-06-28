@@ -19,6 +19,7 @@ import { RedisService } from '@/common/redis/redis.service';
 import axios from 'axios';
 import { RefreshAccessTokenCommand } from '@/auth/dto/command/refresh-access-token.command';
 import { AuthRepository } from '@/auth/repository/auth.repository';
+import { UserCreator } from '@/user/repository/opertaion/user.creator';
 
 @Injectable()
 export class AuthService {
@@ -37,17 +38,16 @@ export class AuthService {
     if (!verification) throw new EmailAuthenticationDoesNotExist();
 
     if (!command.password) throw new PasswordNotFound();
-    const hashedPassword = await this.getHashedPassword(command.password);
 
-    const createdUser = new User({
+    const userCreator = new UserCreator({
       name: command.name,
       nickname: command.nickname,
       email: command.email,
-      password: hashedPassword,
+      password: command.password,
       iconImageUrl: null,
     });
 
-    await createdUser.save();
+    await this.userRepository.create(userCreator);
   }
 
   async loginByEmail(command: EmailLoginCommand): Promise<Auth> {
@@ -131,7 +131,7 @@ export class AuthService {
 
       let user = await this.userRepository.findByEmail(payload.kakao_account.email);
       if (!user) {
-        const createdUser = new User({
+        const userCreator = new UserCreator({
           name: payload.kakao_account.profile.nickname,
           nickname: payload.kakao_account.profile.nickname,
           email: payload.kakao_account.email,
@@ -139,12 +139,12 @@ export class AuthService {
           iconImageUrl: null,
         });
 
-        user = await createdUser.save();
+        const userId = await this.userRepository.create(userCreator);
+        user = await this.userRepository.findOneOrThrowById(userId);
       }
 
       return user;
     } catch (e) {
-      console.log(e.response.data.msg);
       throw new KakaoAccessTokenIsNotValid();
     }
   }
@@ -165,7 +165,7 @@ export class AuthService {
 
     let user = await this.userRepository.findByEmail(payload.kakao_account.email);
     if (!user) {
-      const createdUser = new User({
+      const userCreator = new UserCreator({
         name: name,
         nickname: nickname,
         email: email,
@@ -173,7 +173,8 @@ export class AuthService {
         password: null,
       });
 
-      user = await createdUser.save();
+      const userId = await this.userRepository.create(userCreator);
+      user = await this.userRepository.findOneOrThrowById(userId);
     }
 
     return user;
@@ -204,7 +205,7 @@ export class AuthService {
 
     let user = await this.userRepository.findByEmail(email);
     if (!user) {
-      const createdUser = new User({
+      const userCreator = new UserCreator({
         name: name,
         nickname: nickname,
         email: email,
@@ -212,13 +213,10 @@ export class AuthService {
         password: null,
       });
 
-      user = await createdUser.save();
+      const userId = await this.userRepository.create(userCreator);
+      user = await this.userRepository.findOneOrThrowById(userId);
     }
 
     return user;
   }
-
-  private getHashedPassword = async (password: string): Promise<string> => {
-    return await bcrypt.hash(password, 10);
-  };
 }
