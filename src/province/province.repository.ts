@@ -20,7 +20,7 @@ export class ProvinceRepository {
       filter.parentId = IsNull();
     }
 
-    return this.provinceRepository.find({ where: filter, order: { name: 'ASC' } });
+    return this.provinceRepository.find({ where: filter, order: { sequence: 'ASC', name: 'ASC' } });
   }
 
   findByIds(ids: number[]) {

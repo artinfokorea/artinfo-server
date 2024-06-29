@@ -44,7 +44,7 @@ export class User extends BaseEntity {
   @OneToMany(() => School, school => school.user, { eager: true, cascade: true })
   schools: School[];
 
-  @OneToMany(() => Job, fullTimeJob => fullTimeJob.user)
+  @OneToMany(() => Job, fullTimeJob => fullTimeJob.user, { cascade: true })
   jobs: Job[];
 
   @OneToMany(() => UserMajorCategory, userMajorCategory => userMajorCategory.user, { eager: true, cascade: true })

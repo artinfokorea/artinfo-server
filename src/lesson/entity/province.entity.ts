@@ -15,6 +15,9 @@ export class Province extends BaseEntity {
   @Column({ type: 'int', name: 'parent_id', nullable: true })
   parentId: number | null;
 
+  @Column({ type: 'int', name: 'sequence', nullable: true })
+  sequence: number | null;
+
   @OneToMany(() => JobProvince, jobProvince => jobProvince.province)
   jobProvinces: JobProvince[];
 

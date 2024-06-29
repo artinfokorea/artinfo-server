@@ -35,3 +35,15 @@ export class UserPhoneNotFound extends HttpException {
     );
   }
 }
+
+export class UnableToDeleteMajor extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'USER-004',
+        message: '레슨이 존재하여 전공을 삭제할 수 없습니다.',
+      },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+}

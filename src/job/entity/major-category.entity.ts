@@ -151,10 +151,10 @@ export class MajorCategory extends BaseEntity {
   @Column({ type: 'enum', enum: MAJOR, name: 'en_name' })
   enName: MAJOR;
 
-  @OneToMany(() => JobMajorCategory, jobMajorCategory => jobMajorCategory.majorCategory)
+  @OneToMany(() => JobMajorCategory, jobMajorCategory => jobMajorCategory.majorCategory, { cascade: true })
   jobMajorCategories: JobMajorCategory[];
 
-  @OneToMany(() => UserMajorCategory, userMajorCategory => userMajorCategory.majorCategory)
+  @OneToMany(() => UserMajorCategory, userMajorCategory => userMajorCategory.majorCategory, { cascade: true })
   userMajorCategories: UserMajorCategory[];
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })

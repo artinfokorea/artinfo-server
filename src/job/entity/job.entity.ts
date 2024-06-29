@@ -45,7 +45,7 @@ export class Job extends BaseEntity {
   @OneToMany(() => JobMajorCategory, jobMajorCategory => jobMajorCategory.job, { eager: true, cascade: true })
   jobMajorCategories: JobMajorCategory[];
 
-  @ManyToOne(() => User, user => user.jobs)
+  @ManyToOne(() => User, user => user.jobs, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: User;
 

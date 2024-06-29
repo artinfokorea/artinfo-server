@@ -19,7 +19,7 @@ export class Lesson extends BaseEntity {
   @Column({ type: 'varchar', name: 'image_url' })
   imageUrl: string;
 
-  @OneToOne(() => User, user => user.lesson)
+  @OneToOne(() => User, user => user.lesson, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: User;
 

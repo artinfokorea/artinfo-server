@@ -1,5 +1,5 @@
 import { User } from '@/user/entity/user.entity';
-import { UserNotFound } from '@/user/exception/user.exception';
+import { UnableToDeleteMajor, UserNotFound } from '@/user/exception/user.exception';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, In, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
@@ -78,6 +78,8 @@ export class UserRepository {
   async editOrThrow(editor: UserEditor, transactionManager: EntityManager): Promise<void> {
     const user = await transactionManager.findOne(User, { where: { id: editor.userId } });
     if (!user) throw new UserNotFound();
+    console.log(user.lesson);
+    if (user.lesson && !editor.majorIds.length) throw new UnableToDeleteMajor();
 
     await transactionManager.update(User, editor.userId, {
       name: editor.name,
