@@ -16,14 +16,14 @@ export class MajorController {
     return new MajorsResponse(majors);
   }
 
-  @RestApiGet(MajorGroupsResponse, { path: '/groups/art', description: '예술 분야 목록 조회' })
+  @RestApiGet(MajorGroupsResponse, { path: '/art', description: '예술 분야 목록 조회' })
   async getMajorGroupArt() {
     const majors = await this.commonService.getMajorArt();
 
     return new MajorGroupsResponse(majors);
   }
 
-  @RestApiGet(MajorGroupsResponse, { path: '/groups/fields', description: '전문 분야 조회' })
+  @RestApiGet(MajorGroupsResponse, { path: '/fields', description: '전문 분야 조회' })
   async getMajorGroupFields(@Query() request: MajorFieldsRequest) {
     const majors = await this.commonService.getMajorFields(request.artCategories);
 
