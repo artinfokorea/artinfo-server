@@ -1,12 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { MajorCategoryRepository } from '@/job/repository/major-category.repository';
+import { MajorRepository } from '@/major/repository/major.repository';
+import { ART_CATEGORY } from '@/job/entity/major-category.entity';
 
 @Injectable()
 export class MajorService {
-  constructor(private readonly majorCategoryRepository: MajorCategoryRepository) {}
+  constructor(private readonly majorCategoryRepository: MajorRepository) {}
 
-  getMajors() {
+  getAllMajors() {
     return this.majorCategoryRepository.findAll();
   }
+
+  getMajorGroups(firstCategory: ART_CATEGORY | null) {
+    return this.majorCategoryRepository.findByFirstCategory(firstCategory);
+  }
 }
-``;

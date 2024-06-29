@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '@/user/entity/user.entity';
 import { UserSchoolResponse } from '@/user/dto/response/user-school.response';
-import { MajorResponse } from '@/major/dto/response/majors.response';
+import { MajorResponse } from '@/major/dto/response/major.response';
 
 export class UserResponse {
   @ApiProperty({ type: 'number', required: true, description: '유저 아이디', example: 5 })

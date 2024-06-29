@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { MajorCategory } from '@/job/entity/major-category.entity';
+import { ART_CATEGORY, MajorCategory } from '@/job/entity/major-category.entity';
 import { JobMajorCategory } from '@/job/entity/job-major-category.entity';
 import { MajorNotFound } from '@/job/exception/job.exception';
+import { MajorGroupPayload } from '@/major/repository/payload/major-group.payload';
 
 @Injectable()
-export class MajorCategoryRepository {
+export class MajorRepository {
   constructor(
     @InjectRepository(MajorCategory)
     private majorCategoryRepository: Repository<MajorCategory>,
-
     @InjectRepository(JobMajorCategory)
     private fullTimeJobMajorCategoryRepository: Repository<JobMajorCategory>,
   ) {}
@@ -35,5 +35,24 @@ export class MajorCategoryRepository {
 
   findAll() {
     return this.majorCategoryRepository.find();
+  }
+
+  async findByFirstCategory(firstCategory: ART_CATEGORY | null): Promise<MajorGroupPayload[]> {
+    const qb = this.majorCategoryRepository.createQueryBuilder('majorCategory');
+
+    if (firstCategory) {
+      qb.select('DISTINCT majorCategory.secondGroupEn, majorCategory.secondGroupKo').where('majorCategory.firstGroupEn = :firstGroupEn', {
+        firstGroupEn: firstCategory,
+      });
+
+      const groups: { second_group_ko: string; second_group_en: string }[] = await qb.getRawMany();
+
+      return groups.map(group => new MajorGroupPayload({ nameKo: group.second_group_ko, nameEn: group.second_group_en }));
+    } else {
+      qb.select('DISTINCT majorCategory.firstGroupEn, majorCategory.firstGroupKo');
+      const groups: { first_group_ko: string; first_group_en: string }[] = await qb.getRawMany();
+
+      return groups.map(group => new MajorGroupPayload({ nameKo: group.first_group_ko, nameEn: group.first_group_en }));
+    }
   }
 }

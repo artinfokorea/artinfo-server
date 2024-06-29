@@ -1,15 +1,26 @@
 import { JOB_TYPE } from '@/job/entity/job.entity';
+import { PROFESSIONAL_FIELD_CATEGORY } from '@/job/entity/major-category.entity';
 
 export class JobCounter {
   keyword: string | null;
   types: JOB_TYPE[];
-  categoryIds: number[];
+  professionalFields: PROFESSIONAL_FIELD_CATEGORY[];
   provinceIds: number[];
 
-  constructor({ keyword, types, categoryIds, provinceIds }: { keyword: string | null; types: JOB_TYPE[]; categoryIds: number[]; provinceIds: number[] }) {
+  constructor({
+    keyword,
+    types,
+    professionalFields,
+    provinceIds,
+  }: {
+    keyword: string | null;
+    types: JOB_TYPE[];
+    professionalFields: PROFESSIONAL_FIELD_CATEGORY[];
+    provinceIds: number[];
+  }) {
     this.keyword = keyword;
     this.types = types;
-    this.categoryIds = categoryIds;
+    this.professionalFields = professionalFields;
     this.provinceIds = provinceIds;
   }
 }

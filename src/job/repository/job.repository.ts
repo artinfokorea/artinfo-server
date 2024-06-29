@@ -71,36 +71,51 @@ export class JobRepository {
   }
 
   async find(fetcher: JobFetcher): Promise<Job[]> {
+    const jobIdsQueryBuilder = this.jobRepository
+      .createQueryBuilder('job')
+      .select('job.id')
+      .leftJoin('job.jobProvinces', 'jobProvinces')
+      .leftJoin('job.jobMajorCategories', 'jobMajorCategories')
+      .leftJoin('jobMajorCategories.majorCategory', 'majorCategory');
+
+    if (fetcher.provinceIds.length) {
+      const provinces = await this.provinceRepository.findBy({ id: In(fetcher.provinceIds) });
+      jobIdsQueryBuilder.andWhere('jobProvinces.provinceId IN (:...provinceIds)', { provinceIds: provinces.map(province => province.id) });
+    }
+
+    if (fetcher.types.length) {
+      jobIdsQueryBuilder.andWhere('job.type IN (:...types)', { types: fetcher.types });
+    }
+
+    if (fetcher.professionalFields.length) {
+      jobIdsQueryBuilder.andWhere('majorCategory.secondGroupEn IN (:...professionalFields)', { professionalFields: fetcher.professionalFields });
+    }
+
+    if (fetcher.keyword) {
+      jobIdsQueryBuilder.andWhere(
+        new Brackets(qb => {
+          qb.where('LOWER(job.title) LIKE LOWER(:keyword)', { keyword: `%${fetcher.keyword}%` })
+            .orWhere('LOWER(job.address) LIKE LOWER(:keyword)', { keyword: `%${fetcher.keyword}%` })
+            .orWhere('LOWER(job.contents) LIKE LOWER(:keyword)', { keyword: `%${fetcher.keyword}%` })
+            .orWhere('LOWER(majorCategory.koName) LIKE LOWER(:keyword)', { keyword: `%${fetcher.keyword}%` })
+            .orWhere('LOWER(majorCategory.enName) LIKE LOWER(:keyword)', { keyword: `%${fetcher.keyword}%` });
+        }),
+      );
+    }
+
+    const jobIds = await jobIdsQueryBuilder.getMany();
+
+    if (jobIds.length === 0) {
+      return [];
+    }
+
     const queryBuilder = this.jobRepository
       .createQueryBuilder('job')
       .leftJoinAndSelect('job.user', 'user')
       .leftJoinAndSelect('job.jobMajorCategories', 'jobMajorCategories')
       .leftJoinAndSelect('job.jobProvinces', 'jobProvinces')
-      .leftJoinAndSelect('jobMajorCategories.majorCategory', 'majorCategory');
-
-    if (fetcher.provinceIds.length) {
-      const provinces = await this.provinceRepository.findBy({ id: In(fetcher.provinceIds) });
-      queryBuilder.andWhere('jobProvinces.provinceId IN (:...provinceIds)', { provinceIds: provinces.map(province => province.id) });
-    }
-
-    if (fetcher.types.length) {
-      queryBuilder.andWhere('job.type IN (:...types)', { types: fetcher.types });
-    }
-
-    if (fetcher.categoryIds.length) {
-      queryBuilder.andWhere('majorCategory.id IN (:...categoryIds)', { categoryIds: fetcher.categoryIds });
-    }
-
-    if (fetcher.keyword) {
-      queryBuilder.andWhere(
-        new Brackets(qb => {
-          qb.where('job.title LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
-            .orWhere('job.address LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
-            .orWhere('job.contents LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
-            .orWhere('majorCategory.koName LIKE :keyword', { keyword: `%${fetcher.keyword}%` });
-        }),
-      );
-    }
+      .leftJoinAndSelect('jobMajorCategories.majorCategory', 'majorCategory')
+      .whereInIds(jobIds.map(job => job.id));
 
     return queryBuilder.orderBy('job.createdAt', 'DESC').skip(fetcher.skip).take(fetcher.take).getMany();
   }
@@ -124,20 +139,27 @@ export class JobRepository {
       queryBuilder.andWhere('jobProvinces.provinceId IN (:...provinceIds)', { provinceIds: provinces.map(province => province.id) });
     }
 
+    if (counter.provinceIds.length) {
+      const provinces = await this.provinceRepository.findBy({ id: In(counter.provinceIds) });
+      queryBuilder.andWhere('jobProvinces.provinceId IN (:...provinceIds)', { provinceIds: provinces.map(province => province.id) });
+    }
+
     if (counter.types.length) {
       queryBuilder.andWhere('job.type IN (:...types)', { types: counter.types });
     }
 
-    if (counter.categoryIds.length) {
-      queryBuilder.andWhere('majorCategory.id IN (:...categoryIds)', { categoryIds: counter.categoryIds });
+    if (counter.professionalFields.length) {
+      queryBuilder.andWhere('majorCategory.secondGroupEn IN (:...professionalFields)', { professionalFields: counter.professionalFields });
     }
 
     if (counter.keyword) {
       queryBuilder.andWhere(
         new Brackets(qb => {
-          qb.where('job.title LIKE :keyword', { keyword: `%${counter.keyword}%` })
-            .orWhere('job.contents LIKE :keyword', { keyword: `%${counter.keyword}%` })
-            .orWhere('majorCategory.koName LIKE :keyword', { keyword: `%${counter.keyword}%` });
+          qb.where('LOWER(job.title) LIKE LOWER(:keyword)', { keyword: `%${counter.keyword}%` })
+            .orWhere('LOWER(job.address) LIKE LOWER(:keyword)', { keyword: `%${counter.keyword}%` })
+            .orWhere('LOWER(job.contents) LIKE LOWER(:keyword)', { keyword: `%${counter.keyword}%` })
+            .orWhere('LOWER(majorCategory.koName) LIKE LOWER(:keyword)', { keyword: `%${counter.keyword}%` })
+            .orWhere('LOWER(majorCategory.enName) LIKE LOWER(:keyword)', { keyword: `%${counter.keyword}%` });
         }),
       );
     }

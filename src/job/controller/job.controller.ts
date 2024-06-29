@@ -33,8 +33,8 @@ export class JobController {
   async countJobs(): Promise<CountJobsResponse> {
     const command = new CountJobsCommand({
       keyword: null,
-      categoryIds: [],
       types: [],
+      professionalFields: [],
       provinceIds: [],
     });
 
