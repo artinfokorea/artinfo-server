@@ -10,7 +10,11 @@ export class MajorService {
     return this.majorCategoryRepository.findAll();
   }
 
-  getMajorGroups(firstCategory: ART_CATEGORY | null) {
-    return this.majorCategoryRepository.findByFirstCategory(firstCategory);
+  getMajorArt() {
+    return this.majorCategoryRepository.findMajorArt();
+  }
+
+  getMajorFields(artCategories: ART_CATEGORY[]) {
+    return this.majorCategoryRepository.findMajorFieldByArtCategory(artCategories);
   }
 }

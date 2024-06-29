@@ -37,22 +37,23 @@ export class MajorRepository {
     return this.majorCategoryRepository.find({ order: { koName: 'ASC' } });
   }
 
-  async findByFirstCategory(firstCategory: ART_CATEGORY | null): Promise<MajorGroupPayload[]> {
-    const qb = this.majorCategoryRepository.createQueryBuilder('majorCategory');
+  async findMajorArt(): Promise<MajorGroupPayload[]> {
+    const qb = this.majorCategoryRepository.createQueryBuilder('majorCategory').select('DISTINCT majorCategory.firstGroupEn, majorCategory.firstGroupKo');
+    const groups: { first_group_ko: string; first_group_en: string }[] = await qb.getRawMany();
 
-    if (firstCategory) {
-      qb.select('DISTINCT majorCategory.secondGroupEn, majorCategory.secondGroupKo').where('majorCategory.firstGroupEn = :firstGroupEn', {
-        firstGroupEn: firstCategory,
+    return groups.map(group => new MajorGroupPayload({ nameKo: group.first_group_ko, nameEn: group.first_group_en }));
+  }
+
+  async findMajorFieldByArtCategory(artCategories: ART_CATEGORY[]): Promise<MajorGroupPayload[]> {
+    const qb = this.majorCategoryRepository
+      .createQueryBuilder('majorCategory') //
+      .select('DISTINCT majorCategory.secondGroupEn, majorCategory.secondGroupKo')
+      .where('majorCategory.firstGroupEn IN(:...artCategories)', {
+        artCategories: artCategories,
       });
 
-      const groups: { second_group_ko: string; second_group_en: string }[] = await qb.getRawMany();
+    const groups: { second_group_ko: string; second_group_en: string }[] = await qb.getRawMany();
 
-      return groups.map(group => new MajorGroupPayload({ nameKo: group.second_group_ko, nameEn: group.second_group_en }));
-    } else {
-      qb.select('DISTINCT majorCategory.firstGroupEn, majorCategory.firstGroupKo');
-      const groups: { first_group_ko: string; first_group_en: string }[] = await qb.getRawMany();
-
-      return groups.map(group => new MajorGroupPayload({ nameKo: group.first_group_ko, nameEn: group.first_group_en }));
-    }
+    return groups.map(group => new MajorGroupPayload({ nameKo: group.second_group_ko, nameEn: group.second_group_en }));
   }
 }
