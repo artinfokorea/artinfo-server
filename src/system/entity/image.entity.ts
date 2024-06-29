@@ -2,6 +2,8 @@ import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, U
 
 export enum IMAGE_TARGET {
   USER = 'USER',
+  JOB = 'JOB',
+  LESSON = 'LESSON',
 }
 
 @Entity({ name: 'images' })

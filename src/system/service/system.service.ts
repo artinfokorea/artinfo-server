@@ -10,6 +10,7 @@ import { ImageCreator } from '@/system/repository/operation/image.creator';
 import { Image } from '@/system/entity/image.entity';
 import * as moment from 'moment/moment';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
+import * as convert from 'heic-convert';
 
 export type ImageMeta = {
   hash: string;
@@ -43,27 +44,47 @@ export class SystemService {
   }
 
   async getUploadImageMetaOrThrow(uploadFile: UploadFile): Promise<ImageMeta> {
-    const sharp = await (async (buffer: Buffer) => {
-      try {
-        return Sharp(buffer).metadata();
-      } catch (e) {
-        throw new UploadImageIsNotValid();
-      }
-    })(uploadFile.buffer);
+    let imageBuffer: Buffer;
 
-    if (sharp.width == null || sharp.height == null || sharp.format == null || !['png', 'jpeg', 'jpg', 'webp'].includes(sharp.format)) {
+    const imageMetadata = await Sharp(uploadFile.buffer).metadata();
+
+    try {
+      if (imageMetadata.format === 'heif') {
+        const jpegFormatedArrayBuffer = await convert({
+          buffer: uploadFile.buffer,
+          format: 'JPEG',
+        });
+
+        imageBuffer = await Sharp(jpegFormatedArrayBuffer).toBuffer();
+      } else {
+        imageBuffer = uploadFile.buffer;
+      }
+    } catch (e) {
+      throw new UploadImageIsNotValid();
+    }
+
+    const resizedBuffer = await Sharp(imageBuffer).resize(540, null, { withoutEnlargement: true }).jpeg({ quality: 80 }).withMetadata().toBuffer();
+    const resizedMetaData = await Sharp(resizedBuffer).rotate().metadata();
+
+    if (
+      !resizedMetaData.width ||
+      !resizedMetaData.height ||
+      !resizedMetaData.format ||
+      !resizedMetaData.size ||
+      !['png', 'jpeg', 'jpg', 'webp', 'heif'].includes(resizedMetaData.format)
+    ) {
       throw new UploadImageIsNotValid();
     }
 
     return {
       hash: new Util().generateRandomString(11),
       filename: Buffer.from(uploadFile.originalname, 'ascii').toString('utf8'),
-      mimeType: `image/${sharp.format}`,
-      extension: sharp.format,
-      buffer: uploadFile.buffer,
-      width: sharp.width,
-      height: sharp.height,
-      size: uploadFile.size,
+      mimeType: `image/${resizedMetaData.format}`,
+      extension: resizedMetaData.format,
+      buffer: resizedBuffer,
+      width: resizedMetaData.width,
+      height: resizedMetaData.height,
+      size: resizedMetaData.size,
     };
   }
 
