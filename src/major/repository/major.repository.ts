@@ -34,7 +34,7 @@ export class MajorRepository {
   }
 
   findAll() {
-    return this.majorCategoryRepository.find();
+    return this.majorCategoryRepository.find({ order: { koName: 'ASC' } });
   }
 
   async findByFirstCategory(firstCategory: ART_CATEGORY | null): Promise<MajorGroupPayload[]> {
