@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { EditLessonCommand } from '@/lesson/dto/command/edit-lesson.command';
+import { IsArrayLength } from '@/common/decorator/validator';
 
 export class EditLessonRequest {
   @ApiProperty({ type: 'string', required: true, description: '레슨 대표 이미지', example: 'https://update.artinfokorea.com' })
@@ -8,6 +9,7 @@ export class EditLessonRequest {
   @ApiProperty({ type: 'number', required: true, description: '레슨 사례비', example: 60000 })
   pay: number;
 
+  @IsArrayLength(1, 3)
   @ApiProperty({ type: 'string', required: true, description: '레슨 가능 지역', example: ['서울 서초구'] })
   areas: string[] = [];
 

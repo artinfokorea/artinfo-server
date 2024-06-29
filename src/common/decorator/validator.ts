@@ -97,3 +97,28 @@ export function IsPhone(validationOptions?: ValidationOptions): PropertyDecorato
     });
   };
 }
+
+export function IsArrayLength(min: number, max: number, validationOptions?: ValidationOptions): PropertyDecorator {
+  return function (object: object, propertyName: string) {
+    registerDecorator({
+      name: 'IsArrayLength',
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      constraints: [min, max],
+      validator: {
+        validate(value: any, args: ValidationArguments) {
+          if (!Array.isArray(value)) {
+            return false;
+          }
+          const [min, max] = args.constraints;
+          return value.length >= min && value.length <= max;
+        },
+        defaultMessage(args: ValidationArguments) {
+          const [min, max] = args.constraints;
+          return `${args.property} 배열의 길이는 ${min}에서 ${max} 사이여야 합니다.`;
+        },
+      },
+    });
+  };
+}

@@ -28,7 +28,7 @@ export class UserController {
     return new OkResponse();
   }
 
-  @RestApiPut(OkResponse, { path: '/me/password', description: '내 연락처 수정', auth: [USER_TYPE.CLIENT] })
+  @RestApiPut(OkResponse, { path: '/me/password', description: '내 비밀번호 수정', auth: [USER_TYPE.CLIENT] })
   async editUserPassword(@Signature() signature: UserSignature, @Body() request: EditUserPasswordRequest) {
     await this.userService.editPassword(signature.email, request.password);
 
