@@ -163,7 +163,7 @@ export class AuthService {
     const nickname = payload['email'].split('@')[0];
     const iconImageUrl = payload['picture'];
 
-    let user = await this.userRepository.findByEmail(payload.kakao_account.email);
+    let user = await this.userRepository.findByEmail(email);
     if (!user) {
       const userCreator = new UserCreator({
         name: name,
