@@ -1,15 +1,26 @@
 import { PagingOperation } from '@/common/type/operation';
 import { Paging } from '@/common/type/type';
+import { PROFESSIONAL_FIELD_CATEGORY } from '@/job/entity/major-category.entity';
 
 export class LessonFetcher extends PagingOperation {
   keyword: string | null;
-  majorIds: number[];
+  professionalFields: PROFESSIONAL_FIELD_CATEGORY[];
   provinceIds: number[];
 
-  constructor({ keyword, majorIds, provinceIds, paging }: { keyword: string | null; majorIds: number[]; provinceIds: number[]; paging: Paging }) {
+  constructor({
+    keyword,
+    professionalFields,
+    provinceIds,
+    paging,
+  }: {
+    keyword: string | null;
+    professionalFields: PROFESSIONAL_FIELD_CATEGORY[];
+    provinceIds: number[];
+    paging: Paging;
+  }) {
     super({ page: paging.page, size: paging.size });
     this.keyword = keyword;
-    this.majorIds = majorIds;
+    this.professionalFields = professionalFields;
     this.provinceIds = provinceIds;
   }
 }

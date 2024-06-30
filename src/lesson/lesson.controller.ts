@@ -40,7 +40,7 @@ export class LessonController {
   async countLessons(): Promise<CountLessonsResponse> {
     const command = new CountLessonsCommand({
       keyword: null,
-      majorIds: [],
+      professionalFields: [],
       provinceIds: [],
     });
 

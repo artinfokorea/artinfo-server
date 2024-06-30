@@ -105,7 +105,7 @@ export class JobRepository {
 
     const jobIds = await jobIdsQueryBuilder.getMany();
 
-    if (jobIds.length === 0) {
+    if (!jobIds.length) {
       return [];
     }
 

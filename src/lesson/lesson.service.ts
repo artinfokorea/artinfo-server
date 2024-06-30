@@ -94,7 +94,7 @@ export class LessonService {
   getLessons(command: GetLessonsCommand): Promise<Lesson[]> {
     const fetcher = new LessonFetcher({
       keyword: command.keyword,
-      majorIds: command.majorIds,
+      professionalFields: command.professionalFields,
       provinceIds: command.provinceIds,
       paging: command.paging,
     });
@@ -106,7 +106,7 @@ export class LessonService {
     const counter = new LessonCounter({
       keyword: command.keyword,
       provinceIds: command.provinceIds,
-      majorIds: command.majorIds,
+      professionalFields: command.professionalFields,
     });
 
     return this.lessonRepository.count(counter);

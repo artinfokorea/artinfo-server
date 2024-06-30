@@ -64,12 +64,13 @@ export class LessonRepository {
       .leftJoinAndSelect('user.userMajorCategories', 'userMajorCategories')
       .leftJoinAndSelect('userMajorCategories.majorCategory', 'majorCategory')
       .leftJoinAndSelect('lesson.areas', 'areas');
-    console.log(fetcher);
+
     if (fetcher.keyword) {
       queryBuilder.andWhere(
         new Brackets(qb => {
           qb.orWhere('user.name LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
             .orWhere('majorCategory.koName LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
+            .orWhere('majorCategory.enName LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
             .orWhere('schools.name LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
             .orWhere('areas.name LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
             .orWhere('lesson.introduction LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
@@ -91,8 +92,8 @@ export class LessonRepository {
       );
     }
 
-    if (fetcher.majorIds.length) {
-      queryBuilder.andWhere('userMajorCategories.major_category_id IN (:...majorIds)', { majorIds: fetcher.majorIds });
+    if (fetcher.professionalFields.length) {
+      queryBuilder.andWhere('majorCategory.secondGroupEn IN (:...professionalFields)', { professionalFields: fetcher.professionalFields });
     }
 
     return queryBuilder.skip(fetcher.skip).take(fetcher.take).getMany();
@@ -111,6 +112,7 @@ export class LessonRepository {
       queryBuilder
         .where('user.name LIKE :keyword', { keyword: `%${counter.keyword}%` })
         .orWhere('majorCategory.koName LIKE :keyword', { keyword: `%${counter.keyword}%` })
+        .orWhere('majorCategory.enName LIKE :keyword', { keyword: `%${counter.keyword}%` })
         .orWhere('schools.name LIKE :keyword', { keyword: `%${counter.keyword}%` })
         .orWhere('areas.name LIKE :keyword', { keyword: `%${counter.keyword}%` })
         .orWhere('lesson.introduction LIKE :keyword', { keyword: `%${counter.keyword}%` })
@@ -130,8 +132,8 @@ export class LessonRepository {
       );
     }
 
-    if (counter.majorIds.length) {
-      queryBuilder.andWhere('userMajorCategories.major_category_id IN (:...majorIds)', { majorIds: counter.majorIds });
+    if (counter.professionalFields.length) {
+      queryBuilder.andWhere('majorCategory.secondGroupEn IN (:...professionalFields)', { professionalFields: counter.professionalFields });
     }
 
     return queryBuilder.getCount();
