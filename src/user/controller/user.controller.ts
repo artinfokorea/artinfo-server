@@ -29,8 +29,8 @@ export class UserController {
   }
 
   @RestApiPut(OkResponse, { path: '/me/password', description: '내 비밀번호 수정' })
-  async editUserPassword(@Signature() signature: UserSignature, @Body() request: EditUserPasswordRequest) {
-    await this.userService.editPassword(signature.email, request.password);
+  async editUserPassword(@Body() request: EditUserPasswordRequest) {
+    await this.userService.editPassword(request.email, request.password);
 
     return new OkResponse();
   }
