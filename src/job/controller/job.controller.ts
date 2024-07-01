@@ -43,7 +43,7 @@ export class JobController {
   }
 
   @RestApiGet(JobResponse, { path: '/:jobId', description: '채용 단건 조회' })
-  async getFullTimeJob(@Param('jobId') jobId: number) {
+  async getJob(@Param('jobId') jobId: number) {
     const job = await this.jobService.getJob(jobId);
 
     return new JobResponse(job);

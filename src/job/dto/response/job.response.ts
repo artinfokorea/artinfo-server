@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Job, JOB_TYPE } from '@/job/entity/job.entity';
+import { MajorsResponse } from '@/major/dto/response/majors.response';
 
 export class JobResponse {
   @ApiProperty({ type: 'number', required: true, description: '채용 아이디', example: 2 })
@@ -23,8 +24,8 @@ export class JobResponse {
   @ApiProperty({ type: 'string', required: false, description: '회사 대표 이미지', example: 'https://artinfokorea.com' })
   imageUrl: string | null;
 
-  @ApiProperty({ type: 'string[]', required: true, description: '전공 목록', example: ['PIANO', 'ORGAN'] })
-  majors: string[];
+  @ApiProperty({ required: true, description: '전공 목록', example: ['PIANO', 'ORGAN'] })
+  majors: MajorsResponse;
 
   @ApiProperty({ enum: JOB_TYPE, enumName: 'JOB_TYPE', required: true, description: '채용 타입', example: JOB_TYPE.RELIGION })
   type: JOB_TYPE;
@@ -55,7 +56,7 @@ export class JobResponse {
     this.companyName = job.companyName;
     this.address = address;
     this.imageUrl = job.imageUrl;
-    this.majors = job.jobMajorCategories.map(jobMajorCategory => jobMajorCategory.majorCategory.koName);
+    this.majors = new MajorsResponse([...job.jobMajorCategories.map(jobMajorCategory => jobMajorCategory.majorCategory)]);
     this.type = job.type;
     this.isActive = job.isActive;
     this.fee = job.fee;
