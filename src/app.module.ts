@@ -28,6 +28,7 @@ import { ProvinceModule } from '@/province/province.module';
 import { LessonArea } from '@/lesson/entity/lesson-area.entity';
 import { Inquiry } from '@/system/entity/inquiry.entity';
 import { InquiryModule } from '@/system/module/inquiry.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 const entities = [
   User,
@@ -63,6 +64,7 @@ const modules = [
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot(),
     ConfigModule.forRoot({
       cache: true,
       isGlobal: true,

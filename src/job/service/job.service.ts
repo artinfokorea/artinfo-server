@@ -8,6 +8,7 @@ import { EditJobCommand } from '@/job/dto/command/edit-job.command';
 import { JobRepository } from '@/job/repository/job.repository';
 import { JobFetcher } from '@/job/repository/operation/job.fetcher';
 import { JobCounter } from '@/job/repository/operation/job.counter';
+import { PagingItems } from '@/common/type/type';
 
 @Injectable()
 export class JobService {
@@ -29,7 +30,7 @@ export class JobService {
     await this.majorCategoryRepository.createJobMajorCategoriesOrThrow(command.jobId, command.majorIds);
   }
 
-  async getJobs(command: GetJobsCommand): Promise<Job[]> {
+  async getPagingJobs(command: GetJobsCommand): Promise<PagingItems<Job>> {
     const fetcher = new JobFetcher({
       keyword: command.keyword,
       types: command.types,
@@ -37,8 +38,17 @@ export class JobService {
       paging: command.paging,
       provinceIds: command.provinceIds,
     });
+    const jobs = await this.jobRepository.find(fetcher);
 
-    return this.jobRepository.find(fetcher);
+    const counter = new JobCounter({
+      keyword: command.keyword,
+      professionalFields: command.professionalFields,
+      types: command.types,
+      provinceIds: command.provinceIds,
+    });
+    const totalCount = await this.jobRepository.count(counter);
+
+    return { items: jobs, totalCount: totalCount };
   }
 
   async getJob(jobId: number): Promise<Job> {

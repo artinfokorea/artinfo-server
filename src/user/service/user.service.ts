@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { EditUserCommand } from '@/user/dto/command/edit-user.command';
 import { SchoolRepository } from '@/user/repository/school.repository';
 import { DataSource } from 'typeorm';
-import { RedisService } from '@/common/redis/redis.service';
+import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { InvalidPhoneNumber } from '@/user/exception/user.exception';
 import { EmailAuthenticationDoesNotExist } from '@/auth/exception/auth.exception';
 
@@ -13,7 +13,7 @@ export class UserService {
   constructor(
     private readonly userRepository: UserRepository, //
     private readonly schoolRepository: SchoolRepository,
-    private readonly redisService: RedisService,
+    private readonly redisService: RedisRepository,
     private readonly dataSource: DataSource,
   ) {}
 

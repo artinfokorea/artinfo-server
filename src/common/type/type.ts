@@ -13,6 +13,11 @@ export interface Paging {
   size: number;
 }
 
+export interface PagingItems<T> {
+  items: T[];
+  totalCount: number;
+}
+
 export class List {
   @ToNumber()
   @IsNumber()

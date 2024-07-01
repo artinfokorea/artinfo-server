@@ -1,4 +1,4 @@
-import { RedisService } from '@/common/redis/redis.service';
+import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { SystemService } from '@/system/service/system.service';
 import { Util } from '@/common/util/util';
 import { Injectable } from '@nestjs/common';
@@ -10,7 +10,7 @@ import { UserRepository } from '@/user/repository/user.repository';
 @Injectable()
 export class VerificationService {
   constructor(
-    private readonly redisService: RedisService,
+    private readonly redisService: RedisRepository,
     private readonly systemService: SystemService,
     private readonly awsSesService: AwsSesService,
     private readonly userRepository: UserRepository,

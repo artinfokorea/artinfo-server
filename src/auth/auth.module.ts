@@ -11,7 +11,7 @@ import { UserMajorCategory } from '@/user/entity/user-major-category.entity';
 import { VerificationController } from '@/auth/controller/verification.controller';
 import { VerificationService } from '@/auth/service/verificationService';
 import { SystemService } from '@/system/service/system.service';
-import { RedisService } from '@/common/redis/redis.service';
+import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { ImageRepository } from '@/system/repository/image.repository';
 import { Image } from '@/system/entity/image.entity';
@@ -31,7 +31,7 @@ import { AuthRepository } from '@/auth/repository/auth.repository';
     UserRepository,
     VerificationService,
     SystemService,
-    RedisService,
+    RedisRepository,
     AwsS3Service,
     AwsSesService,
     ImageRepository,

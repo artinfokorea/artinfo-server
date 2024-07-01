@@ -9,10 +9,12 @@ import { JobController } from '@/job/controller/job.controller';
 import { MajorRepository } from '@/major/repository/major.repository';
 import { Province } from '@/lesson/entity/province.entity';
 import { JobProvince } from '@/job/entity/job-province.entity';
+import { RedisRepository } from '@/common/redis/redis-repository.service';
+import { JobListener } from '@/job/event/job.listener';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Job, JobMajorCategory, JobProvince, MajorCategory, Province])],
   controllers: [JobController],
-  providers: [JobService, JobRepository, MajorRepository],
+  providers: [JobService, JobRepository, MajorRepository, RedisRepository, JobListener],
 })
 export class JobModule {}

@@ -15,7 +15,7 @@ import { User } from '@/user/entity/user.entity';
 import { EmailLoginCommand } from '@/auth/dto/command/email-login.command';
 import { Auth, AUTH_TYPE, SNS_TYPE } from '@/auth/entity/auth.entity';
 import { JwtService } from '@nestjs/jwt';
-import { RedisService } from '@/common/redis/redis.service';
+import { RedisRepository } from '@/common/redis/redis-repository.service';
 import axios from 'axios';
 import { RefreshAccessTokenCommand } from '@/auth/dto/command/refresh-access-token.command';
 import { AuthRepository } from '@/auth/repository/auth.repository';
@@ -26,7 +26,7 @@ export class AuthService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly authRepository: AuthRepository,
-    private readonly redisService: RedisService,
+    private readonly redisService: RedisRepository,
     private readonly jwtService: JwtService,
   ) {}
 

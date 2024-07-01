@@ -10,13 +10,13 @@ import { ProvinceRepository } from '@/province/province.repository';
 import { UserService } from '@/user/service/user.service';
 import { UserRepository } from '@/user/repository/user.repository';
 import { SchoolRepository } from '@/user/repository/school.repository';
-import { RedisService } from '@/common/redis/redis.service';
+import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { User } from '@/user/entity/user.entity';
 import { LessonAreaRepository } from '@/lesson/repository/lesson-area.repository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Lesson, LessonArea, Province, User])],
   controllers: [LessonController],
-  providers: [LessonService, UserService, LessonRepository, UserRepository, SchoolRepository, RedisService, ProvinceRepository, LessonAreaRepository],
+  providers: [LessonService, UserService, LessonRepository, UserRepository, SchoolRepository, RedisRepository, ProvinceRepository, LessonAreaRepository],
 })
 export class LessonModule {}

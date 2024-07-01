@@ -11,4 +11,31 @@ export class Util {
     }
     return str;
   }
+
+  getRedisKey(prefix: string, values: any) {
+    let key = prefix;
+    if (typeof values !== 'object') {
+      return (key += values);
+    }
+
+    for (const el of Object.values(values)) {
+      if (Array.isArray(el)) {
+        key += el.reduce((acc, cur) => {
+          if (isNaN(cur)) {
+            return acc + cur[0].toLowerCase();
+          } else {
+            return acc + String(cur).toLowerCase();
+          }
+        }, '');
+
+        continue;
+      }
+
+      if (typeof el !== 'object') {
+        key += String(el).toLowerCase();
+      }
+    }
+
+    return key;
+  }
 }

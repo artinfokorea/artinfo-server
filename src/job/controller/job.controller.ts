@@ -23,10 +23,9 @@ export class JobController {
 
   @RestApiGet(JobsResponse, { path: '/', description: '채용 목록 조회' })
   async getJobs(@Query() request: GetJobsRequest) {
-    const jobs = await this.jobService.getJobs(request.toGetCommand());
-    const totalCount = await this.jobService.countJobs(request.toCountCommand());
+    const pagingItems = await this.jobService.getPagingJobs(request.toGetCommand());
 
-    return new JobsResponse({ jobs: jobs, totalCount: totalCount });
+    return new JobsResponse({ jobs: pagingItems.items, totalCount: pagingItems.totalCount });
   }
 
   @RestApiGet(CountJobsResponse, { path: '/count', description: '채용 개수 조회' })
