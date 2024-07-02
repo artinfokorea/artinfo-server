@@ -8,6 +8,7 @@ export class EditJobCommand {
   companyName: string;
   imageUrl: string | null;
   address: string | null;
+  addressDetail: string | null;
   fee: number | null;
   majorIds: number[];
 
@@ -19,6 +20,7 @@ export class EditJobCommand {
     companyName,
     imageUrl,
     address,
+    addressDetail,
     fee,
     majorIds,
   }: {
@@ -29,6 +31,7 @@ export class EditJobCommand {
     companyName: string;
     imageUrl: string | null;
     address: string | null;
+    addressDetail: string | null;
     fee: number | null;
     majorIds: number[];
   }) {
@@ -39,6 +42,7 @@ export class EditJobCommand {
     this.companyName = companyName;
     this.imageUrl = imageUrl;
     this.address = address;
+    this.addressDetail = addressDetail;
     this.fee = fee;
     this.majorIds = majorIds;
   }
@@ -52,6 +56,7 @@ export class EditJobCommand {
       companyName: this.companyName,
       imageUrl: this.imageUrl,
       address: this.address,
+      addressDetail: this.addressDetail,
       fee: this.fee,
     });
   }

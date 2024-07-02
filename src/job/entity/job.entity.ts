@@ -30,6 +30,9 @@ export class Job extends BaseEntity {
   @Column({ type: 'varchar', name: 'address', nullable: true })
   address: string | null;
 
+  @Column({ type: 'varchar', name: 'address_detail', nullable: true })
+  addressDetail: string | null;
+
   @Column({ type: 'int', name: 'fee', nullable: true })
   fee: number | null;
 

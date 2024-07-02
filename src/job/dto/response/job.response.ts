@@ -21,6 +21,9 @@ export class JobResponse {
   @ApiProperty({ type: 'string', required: false, description: '주소', example: '강원도 정선군 정선읍 북실리 마루아파트 102동 903호' })
   address: string | null;
 
+  @ApiProperty({ type: 'string', required: false, description: '상세 주소', example: '401호' })
+  addressDetail: string | null;
+
   @ApiProperty({ type: 'string', required: false, description: '회사 대표 이미지', example: 'https://artinfokorea.com' })
   imageUrl: string | null;
 
@@ -55,6 +58,7 @@ export class JobResponse {
     this.contents = job.contents;
     this.companyName = job.companyName;
     this.address = address;
+    this.addressDetail = job.addressDetail;
     this.imageUrl = job.imageUrl;
     this.majors = new MajorsResponse([...job.jobMajorCategories.map(jobMajorCategory => jobMajorCategory.majorCategory)]);
     this.type = job.type;

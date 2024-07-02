@@ -1,14 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { NotBlank, NumberArray } from '@/common/decorator/validator';
-import { IsNumber } from 'class-validator';
 import { EditJobCommand } from '@/job/dto/command/edit-job.command';
 
-export class EditJobArtOrganizationRequest {
-  @IsNumber()
-  @NotBlank()
-  @ApiProperty({ type: 'number', required: true, description: '채용 아이디', example: 5 })
-  jobId: number;
-
+export class EditFullTimeJobRequest {
   @NotBlank()
   @ApiProperty({ type: 'string', required: true, description: '채용 제목', example: '춘천시립예술단 단원 모집' })
   title: string;
@@ -21,6 +15,14 @@ export class EditJobArtOrganizationRequest {
   @ApiProperty({ type: 'string', required: true, description: '단체명', example: '춘천시립예술단' })
   companyName: string;
 
+  @NotBlank()
+  @ApiProperty({ type: 'string', required: true, description: '단체 주소', example: '서울 서초구 방배동' })
+  address: string;
+
+  @NotBlank()
+  @ApiProperty({ type: 'string', required: true, description: '단체 상세 주소', example: '401호' })
+  addressDetail: string;
+
   @ApiProperty({ type: 'string', required: false, description: '회사 대표 이미지', example: 'https://artinfokorea.com' })
   imageUrl: string | null = null;
 
@@ -28,15 +30,16 @@ export class EditJobArtOrganizationRequest {
   @ApiProperty({ type: 'number[]', required: true, description: '전공 아이디 목록', example: [5, 6] })
   majorIds: number[];
 
-  toCommand(userId: number) {
+  toCommand(userId: number, jobId: number) {
     return new EditJobCommand({
-      jobId: this.jobId,
+      jobId: jobId,
       userId: userId,
       title: this.title,
       contents: this.contents,
       companyName: this.companyName,
       imageUrl: this.imageUrl,
-      address: null,
+      address: this.address,
+      addressDetail: this.addressDetail,
       fee: null,
       majorIds: this.majorIds,
     });

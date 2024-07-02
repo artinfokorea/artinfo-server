@@ -6,6 +6,7 @@ export class JobEditor {
   companyName: string;
   imageUrl: string | null;
   address: string | null;
+  addressDetail: string | null;
   fee: number | null;
 
   constructor({
@@ -16,6 +17,7 @@ export class JobEditor {
     companyName,
     imageUrl,
     address,
+    addressDetail,
     fee,
   }: {
     jobId: number;
@@ -25,6 +27,7 @@ export class JobEditor {
     companyName: string;
     imageUrl: string | null;
     address: string | null;
+    addressDetail: string | null;
     fee: number | null;
   }) {
     this.jobId = jobId;
@@ -34,6 +37,7 @@ export class JobEditor {
     this.companyName = companyName;
     this.imageUrl = imageUrl;
     this.address = address;
+    this.addressDetail = addressDetail;
     this.fee = fee;
   }
 }

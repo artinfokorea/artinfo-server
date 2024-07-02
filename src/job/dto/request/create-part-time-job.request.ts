@@ -46,6 +46,7 @@ export class CreatePartTimeJobRequest {
       companyName: this.companyName,
       imageUrl: null,
       address: null,
+      addressDetail: null,
       fee: this.fee,
       majorIds: [this.majorId],
       type: JOB_TYPE.PART_TIME,

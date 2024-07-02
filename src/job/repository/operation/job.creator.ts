@@ -7,6 +7,7 @@ export class JobCreator {
   companyName: string;
   imageUrl: string | null;
   address: string | null;
+  addressDetail: string | null;
   fee: number | null;
   type: JOB_TYPE;
 
@@ -17,6 +18,7 @@ export class JobCreator {
     companyName,
     imageUrl,
     address,
+    addressDetail,
     fee,
     type,
   }: {
@@ -26,6 +28,7 @@ export class JobCreator {
     companyName: string;
     imageUrl: string | null;
     address: string | null;
+    addressDetail: string | null;
     fee: number | null;
     type: JOB_TYPE;
   }) {
@@ -35,6 +38,7 @@ export class JobCreator {
     this.companyName = companyName;
     this.imageUrl = imageUrl;
     this.address = address;
+    this.addressDetail = addressDetail;
     this.fee = fee;
     this.type = type;
   }

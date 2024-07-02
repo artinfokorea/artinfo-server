@@ -37,6 +37,7 @@ export class JobRepository {
           companyName: creator.companyName,
           contents: creator.contents,
           address: creator.address,
+          addressDetail: creator.addressDetail,
           fee: creator.fee,
           imageUrl: creator.imageUrl,
         });
@@ -44,7 +45,7 @@ export class JobRepository {
         if (creator.address) {
           const provinceName = creator.address.split(' ')[0];
           const province = await transactionManager.findOneBy(Province, { name: provinceName });
-          console.log(province);
+
           if (province) {
             await transactionManager.save(JobProvince, {
               jobId: job.id,
@@ -71,6 +72,7 @@ export class JobRepository {
       companyName: editor.companyName,
       contents: editor.contents,
       address: editor.address,
+      addressDetail: editor.addressDetail,
       fee: editor.fee,
       imageUrl: editor.imageUrl,
     });

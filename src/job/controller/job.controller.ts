@@ -9,9 +9,7 @@ import { CreateFullTimeJobRequest } from '@/job/dto/request/create-full-time-job
 import { Signature } from '@/common/decorator/signature';
 import { UserSignature } from '@/common/type/type';
 import { USER_TYPE } from '@/user/entity/user.entity';
-import { CreateJobReligionRequest } from '@/job/dto/request/create-job-religion.request';
-import { EditJobArtOrganizationRequest } from '@/job/dto/request/edit-job-art-organization.request';
-import { EditJobReligionRequest } from '@/job/dto/request/edit-job-religion.request';
+import { EditFullTimeJobRequest } from '@/job/dto/request/edit-full-time-job.request';
 import { JobResponse } from '@/job/dto/response/job.response';
 import { CreatePartTimeJobRequest } from '@/job/dto/request/create-part-time-job.request';
 import { CountJobsResponse } from '@/job/dto/response/count-jobs.response';
@@ -54,37 +52,23 @@ export class JobController {
     return new OkResponse();
   }
 
-  @RestApiPost(CreateResponse, { path: '/part-time', description: '오브리 채용 생성', auth: [USER_TYPE.CLIENT] })
+  @RestApiPost(CreateResponse, { path: '/part-time', description: '오브리 구인 생성', auth: [USER_TYPE.CLIENT] })
   async createPartTimeJob(@Signature() signature: UserSignature, @Body() request: CreatePartTimeJobRequest): Promise<CreateResponse> {
     const jobId = await this.jobService.createJob(request.toCommand(signature.id));
 
     return new CreateResponse(jobId);
   }
 
-  @RestApiPost(CreateResponse, { path: '/full-time', description: '(예술 단체 / 강사 ) 채용 생성', auth: [USER_TYPE.CLIENT] })
+  @RestApiPost(CreateResponse, { path: '/full-time', description: '채용 생성', auth: [USER_TYPE.CLIENT] })
   async createFullTimeJob(@Signature() signature: UserSignature, @Body() request: CreateFullTimeJobRequest): Promise<CreateResponse> {
     const jobId = await this.jobService.createJob(request.toCommand(signature.id));
 
     return new CreateResponse(jobId);
   }
 
-  @RestApiPut(OkResponse, { path: '/art-organization/:jobId', description: '예술 단체 채용 수정', auth: [USER_TYPE.CLIENT] })
-  async editFullTimeJobArtOrganization(@Signature() signature: UserSignature, @Body() request: EditJobArtOrganizationRequest): Promise<OkResponse> {
-    await this.jobService.editJob(request.toCommand(signature.id));
-
-    return new OkResponse();
-  }
-
-  @RestApiPost(CreateResponse, { path: '/religion', description: '종교 채용 생성', auth: [USER_TYPE.CLIENT] })
-  async createFullTimeJobReligion(@Signature() signature: UserSignature, @Body() request: CreateJobReligionRequest): Promise<CreateResponse> {
-    const jobId = await this.jobService.createJob(request.toCommand(signature.id));
-
-    return new CreateResponse(jobId);
-  }
-
-  @RestApiPut(OkResponse, { path: '/religion/:jobId', description: '종교 채용 수정', auth: [USER_TYPE.CLIENT] })
-  async editFullTimeJobReligion(@Signature() signature: UserSignature, @Body() request: EditJobReligionRequest): Promise<OkResponse> {
-    await this.jobService.editJob(request.toCommand(signature.id));
+  @RestApiPut(OkResponse, { path: '/full-time/:jobId', description: '예술 단체 채용 수정', auth: [USER_TYPE.CLIENT] })
+  async editFullTimeJob(@Signature() signature: UserSignature, @Param('jobId') jobId: number, @Body() request: EditFullTimeJobRequest): Promise<OkResponse> {
+    await this.jobService.editJob(request.toCommand(signature.id, jobId));
 
     return new OkResponse();
   }

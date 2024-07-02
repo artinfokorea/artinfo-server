@@ -20,6 +20,10 @@ export class CreateFullTimeJobRequest {
   @ApiProperty({ type: 'string', required: true, description: '단체 주소', example: '서울 서초구 방배동' })
   address: string;
 
+  @NotBlank()
+  @ApiProperty({ type: 'string', required: true, description: '단체 상세 주소', example: '401호' })
+  addressDetail: string;
+
   @ApiProperty({ type: 'string', required: false, description: '회사 대표 이미지', example: 'https://artinfokorea.com' })
   imageUrl: string | null = null;
 
@@ -35,6 +39,7 @@ export class CreateFullTimeJobRequest {
       companyName: this.companyName,
       imageUrl: this.imageUrl,
       address: this.address,
+      addressDetail: this.addressDetail,
       fee: null,
       majorIds: this.majorIds,
       type: JOB_TYPE.ART_ORGANIZATION,

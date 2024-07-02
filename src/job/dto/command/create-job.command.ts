@@ -8,6 +8,7 @@ export class CreateJobCommand {
   companyName: string;
   imageUrl: string | null;
   address: string | null;
+  addressDetail: string | null;
   fee: number | null;
   majorIds: number[];
   type: JOB_TYPE;
@@ -21,6 +22,7 @@ export class CreateJobCommand {
     companyName,
     imageUrl,
     address,
+    addressDetail,
     fee,
     majorIds,
     type,
@@ -33,6 +35,7 @@ export class CreateJobCommand {
     companyName: string;
     imageUrl: string | null;
     address: string | null;
+    addressDetail: string | null;
     fee: number | null;
     majorIds: number[];
     type: JOB_TYPE;
@@ -45,6 +48,7 @@ export class CreateJobCommand {
     this.companyName = companyName;
     this.imageUrl = imageUrl;
     this.address = address;
+    this.addressDetail = addressDetail;
     this.fee = fee;
     this.majorIds = majorIds;
     this.type = type;
@@ -60,6 +64,7 @@ export class CreateJobCommand {
       companyName: this.companyName,
       imageUrl: this.imageUrl,
       address: this.address,
+      addressDetail: this.addressDetail,
       fee: this.fee,
       type: this.type,
     });
