@@ -1,9 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { JOB_TYPE } from '@/job/entity/job.entity';
 import { CreateJobCommand } from '@/job/dto/command/create-job.command';
-import { NotBlank, NumberArray } from '@/common/decorator/validator';
+import { Enum, NotBlank, NumberArray } from '@/common/decorator/validator';
 
 export class CreateFullTimeJobRequest {
+  @Enum(JOB_TYPE)
+  @ApiProperty({ enum: JOB_TYPE, enumName: 'JOB_TYPE', required: true, description: '채용 타입', example: JOB_TYPE.ART_ORGANIZATION })
+  type: JOB_TYPE;
+
   @NotBlank()
   @ApiProperty({ type: 'string', required: true, description: '채용 제목', example: '춘천시립예술단 단원 모집' })
   title: string;
@@ -34,6 +38,7 @@ export class CreateFullTimeJobRequest {
   toCommand(userId: number) {
     return new CreateJobCommand({
       userId: userId,
+      type: this.type,
       title: this.title,
       contents: this.contents,
       companyName: this.companyName,
@@ -42,7 +47,6 @@ export class CreateFullTimeJobRequest {
       addressDetail: this.addressDetail,
       fee: null,
       majorIds: this.majorIds,
-      type: JOB_TYPE.ART_ORGANIZATION,
       startAt: null,
       endAt: null,
     });
