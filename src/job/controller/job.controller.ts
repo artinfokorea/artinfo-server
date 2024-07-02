@@ -66,7 +66,7 @@ export class JobController {
     return new CreateResponse(jobId);
   }
 
-  @RestApiPut(OkResponse, { path: '/full-time/:jobId', description: '예술 단체 채용 수정', auth: [USER_TYPE.CLIENT] })
+  @RestApiPut(OkResponse, { path: '/full-time/:jobId', description: '채용 수정', auth: [USER_TYPE.CLIENT] })
   async editFullTimeJob(@Signature() signature: UserSignature, @Param('jobId') jobId: number, @Body() request: EditFullTimeJobRequest): Promise<OkResponse> {
     await this.jobService.editJob(request.toCommand(signature.id, jobId));
 
