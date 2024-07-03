@@ -35,6 +35,9 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', name: 'password', nullable: true })
   password: string | null;
 
+  @Column({ type: 'varchar', name: 'temp_password', nullable: true })
+  tempPassword: string | null;
+
   @Column({ type: 'varchar', name: 'icon_image_url', nullable: true })
   iconImageUrl: string | null;
 

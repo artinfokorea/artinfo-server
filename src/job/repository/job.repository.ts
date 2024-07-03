@@ -64,20 +64,36 @@ export class JobRepository {
   }
 
   async editOrThrow(editor: JobEditor) {
-    const job = await this.jobRepository.findOneBy({ id: editor.jobId, user: { id: editor.userId } });
-    if (!job) throw new JobNotFound();
+    return this.dataSource.transaction(async transactionManager => {
+      const job = await transactionManager.findOneBy(Job, { id: editor.jobId, user: { id: editor.userId } });
+      if (!job) throw new JobNotFound();
 
-    await this.jobRepository.update(editor.jobId, {
-      title: editor.title,
-      companyName: editor.companyName,
-      contents: editor.contents,
-      address: editor.address,
-      addressDetail: editor.addressDetail,
-      fee: editor.fee,
-      imageUrl: editor.imageUrl,
+      if (editor.address) {
+        await transactionManager.delete(JobProvince, { jobId: job.id });
+
+        const provinceName = editor.address.split(' ')[0];
+        const province = await transactionManager.findOneBy(Province, { name: provinceName });
+
+        if (province) {
+          await transactionManager.save(JobProvince, {
+            jobId: job.id,
+            provinceId: province.id,
+          });
+        }
+      }
+
+      await transactionManager.update(Job, editor.jobId, {
+        title: editor.title,
+        companyName: editor.companyName,
+        contents: editor.contents,
+        address: editor.address,
+        addressDetail: editor.addressDetail,
+        fee: editor.fee,
+        imageUrl: editor.imageUrl,
+      });
+
+      await this.redisService.deleteByPattern('jobs:*');
     });
-
-    await this.redisService.deleteByPattern('jobs:*');
   }
 
   async find(fetcher: JobFetcher): Promise<Job[]> {

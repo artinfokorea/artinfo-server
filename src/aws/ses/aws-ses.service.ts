@@ -20,7 +20,7 @@ export class AwsSesService {
     });
   }
 
-  async send(to: string, subject: string, html: string): Promise<void> {
+  async send(to: string | string[], subject: string, html: string): Promise<void> {
     try {
       const params: Mail.Options = {
         from: {

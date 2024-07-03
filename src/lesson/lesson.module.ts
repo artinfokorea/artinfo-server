@@ -13,10 +13,21 @@ import { SchoolRepository } from '@/user/repository/school.repository';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { User } from '@/user/entity/user.entity';
 import { LessonAreaRepository } from '@/lesson/repository/lesson-area.repository';
+import { AwsSesService } from '@/aws/ses/aws-ses.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Lesson, LessonArea, Province, User])],
   controllers: [LessonController],
-  providers: [LessonService, UserService, LessonRepository, UserRepository, SchoolRepository, RedisRepository, ProvinceRepository, LessonAreaRepository],
+  providers: [
+    LessonService,
+    UserService,
+    LessonRepository,
+    UserRepository,
+    SchoolRepository,
+    RedisRepository,
+    ProvinceRepository,
+    LessonAreaRepository,
+    AwsSesService,
+  ],
 })
 export class LessonModule {}

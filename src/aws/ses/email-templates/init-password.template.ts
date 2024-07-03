@@ -1,4 +1,4 @@
-export function verificationEmailCodeTemplate(code: string) {
+export function initPasswordTemplate(password: string) {
   return `<style>
   .logo-stationzeroshop {
     width: 250px;
@@ -71,13 +71,13 @@ background-color: white;">
   font-weight: 600;
   color: black;
   font-family: "NanumSquare", sans-serif;
-  margin-bottom: 30px;">이메일 인증코드</div><br><br>
+  margin-bottom: 30px;">초기화 비밀번호</div><br><br>
   <div style="font-size: 14px;
   color: black;
   font-family: "NanumSquare", sans-serif;
   margin-bottom: 30px;">
-    아트인포의 가입을환영합니다.<br />
-    아래의 인증코드를 입력하시면 가입을 정상적으로 진행하실 수 있습니다.
+    아트인포의 초기화 비밀번호를 보내드립니다.<br />
+    아래의 비밀번호를 통해 로그인을 정상적으로 진행하실 수 있습니다.
   </div><br><br>
   <div style="width: 100%;
   letter-spacing: 2px;
@@ -87,14 +87,8 @@ background-color: white;">
   color: #2e2e2e;
   background-color: #f2f2f2;
   align-items: left;
-  margin-bottom: 30px;">${code}</div>
-  <div style="color: #bdbdbd; font-size: 14px;
-  color: black;
-  font-family: "NanumSquare", sans-serif;
-  margin-bottom: 30px;">
-    인증 코드는 일정시간 내에서만 유효하며, 그 이후 인증코드는 무효화됩니다.<br />인증
-    코드가 무효화되었을 경우, 새롭게 인증 코드를 요청하십시오.
-  </div><br><br>
+  margin-bottom: 30px;">${password}</div>
+ <br><br>
 </div>
 `;
 }

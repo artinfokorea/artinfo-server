@@ -7,6 +7,8 @@ import { DataSource } from 'typeorm';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { InvalidPhoneNumber } from '@/user/exception/user.exception';
 import { EmailAuthenticationDoesNotExist } from '@/auth/exception/auth.exception';
+import { AwsSesService } from '@/aws/ses/aws-ses.service';
+import { initPasswordTemplate } from '@/aws/ses/email-templates/init-password.template';
 
 @Injectable()
 export class UserService {
@@ -15,6 +17,7 @@ export class UserService {
     private readonly schoolRepository: SchoolRepository,
     private readonly redisService: RedisRepository,
     private readonly dataSource: DataSource,
+    private readonly sesService: AwsSesService,
   ) {}
 
   async getUserById(id: number): Promise<User> {
@@ -52,5 +55,9 @@ export class UserService {
       await this.schoolRepository.deleteByUserId(command.userId, transactionManager);
       await this.schoolRepository.createMany(command.toSchoolCreators(), transactionManager);
     });
+  }
+
+  async sendInitMail() {
+    await this.sesService.send(['chorales@naver.com', 'choral7451@gmail.com'], 'ARTINFO 초기화 비밀번호', initPasswordTemplate('a123456!'));
   }
 }
