@@ -4,7 +4,7 @@ export class EditLessonCommand {
   pay: number;
   areaNames: string[];
   introduction: string;
-  career: string;
+  career: string | null;
 
   constructor({
     userId,
@@ -19,7 +19,7 @@ export class EditLessonCommand {
     pay: number;
     areaNames: string[];
     introduction: string;
-    career: string;
+    career: string | null;
   }) {
     this.userId = userId;
     this.imageUrl = imageUrl;

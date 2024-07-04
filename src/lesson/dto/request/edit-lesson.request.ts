@@ -16,8 +16,8 @@ export class EditLessonRequest {
   @ApiProperty({ type: 'string', required: true, description: '강사 소개', example: '수정 안녕하세요' })
   introduction: string;
 
-  @ApiProperty({ type: 'string', required: true, description: '강사 경력', example: '수정 정선 콩쿨 1등' })
-  career: string;
+  @ApiProperty({ type: 'string | null', required: false, description: '강사 경력', example: '수정 정선 콩쿨 1등' })
+  career: string | null;
 
   toCommand(userId: number) {
     return new EditLessonCommand({
