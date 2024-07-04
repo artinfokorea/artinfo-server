@@ -85,8 +85,8 @@ export class LessonRepository {
 
       queryBuilder.andWhere(
         new Brackets(qb => {
-          provinceNames.forEach(provinceName => {
-            qb.orWhere('areas.name LIKE :name', { name: `%${provinceName}%` });
+          provinceNames.forEach((provinceName, idx) => {
+            qb.orWhere('areas.name LIKE :name' + idx, { ['name' + idx]: `%${provinceName}%` });
           });
         }),
       );
@@ -95,6 +95,8 @@ export class LessonRepository {
     if (fetcher.professionalFields.length) {
       queryBuilder.andWhere('majorCategory.secondGroupEn IN (:...professionalFields)', { professionalFields: fetcher.professionalFields });
     }
+
+    queryBuilder.orderBy({ 'lesson.id': 'DESC' });
 
     return queryBuilder.skip(fetcher.skip).take(fetcher.take).getMany();
   }
@@ -125,8 +127,8 @@ export class LessonRepository {
 
       queryBuilder.andWhere(
         new Brackets(qb => {
-          provinceNames.forEach(provinceName => {
-            qb.orWhere('areas.name LIKE :name', { name: `%${provinceName}%` });
+          provinceNames.forEach((provinceName, idx) => {
+            qb.orWhere('areas.name LIKE :name' + idx, { ['name' + idx]: `%${provinceName}%` });
           });
         }),
       );
