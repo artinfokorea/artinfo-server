@@ -10,11 +10,15 @@ export class UploadImagesRequest {
   @ApiProperty({ required: true, description: '이미지 파일', format: 'binary' })
   imageFiles: UploadFile[];
 
+  @ApiProperty({ required: true, description: '압축 여부', example: true, default: true })
+  compress: boolean;
+
   toCreateImagesCommand(userId: number, files: UploadFile[]) {
     return new CreateImagesCommand({
       userId: userId,
       target: this.target,
       files: files,
+      compress: this.compress,
     });
   }
 }

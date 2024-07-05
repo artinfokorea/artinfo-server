@@ -43,10 +43,10 @@ export class SystemService {
     });
   }
 
-  async getUploadImageMetaOrThrow(uploadFile: UploadFile): Promise<ImageMeta> {
+  async getUploadImageMetaOrThrow(uploadFile: UploadFile, compress: boolean): Promise<ImageMeta> {
     let imageBuffer: Buffer;
 
-    const imageMetadata = await Sharp(uploadFile.buffer).metadata();
+    let imageMetadata = await Sharp(uploadFile.buffer).metadata();
 
     try {
       if (imageMetadata.format === 'heif') {
@@ -63,15 +63,17 @@ export class SystemService {
       throw new UploadImageIsNotValid();
     }
 
-    const resizedBuffer = await Sharp(imageBuffer).resize(540, null, { withoutEnlargement: true }).jpeg({ quality: 80 }).withMetadata().toBuffer();
-    const resizedMetaData = await Sharp(resizedBuffer).rotate().metadata();
+    if (compress) {
+      imageBuffer = await Sharp(imageBuffer).resize(540, null, { withoutEnlargement: true }).jpeg({ quality: 80 }).withMetadata().toBuffer();
+      imageMetadata = await Sharp(imageBuffer).rotate().metadata();
+    }
 
     if (
-      !resizedMetaData.width ||
-      !resizedMetaData.height ||
-      !resizedMetaData.format ||
-      !resizedMetaData.size ||
-      !['png', 'jpeg', 'jpg', 'webp', 'heif'].includes(resizedMetaData.format)
+      !imageMetadata.width ||
+      !imageMetadata.height ||
+      !imageMetadata.format ||
+      !imageMetadata.size ||
+      !['png', 'jpeg', 'jpg', 'webp', 'heif', 'gif'].includes(imageMetadata.format)
     ) {
       throw new UploadImageIsNotValid();
     }
@@ -79,25 +81,25 @@ export class SystemService {
     return {
       hash: new Util().generateRandomString(11),
       filename: Buffer.from(uploadFile.originalname, 'ascii').toString('utf8'),
-      mimeType: `image/${resizedMetaData.format}`,
-      extension: resizedMetaData.format,
-      buffer: resizedBuffer,
-      width: resizedMetaData.width,
-      height: resizedMetaData.height,
-      size: resizedMetaData.size,
+      mimeType: `image/${imageMetadata.format}`,
+      extension: imageMetadata.format,
+      buffer: imageBuffer,
+      width: imageMetadata.width,
+      height: imageMetadata.height,
+      size: imageMetadata.size,
     };
   }
 
-  async getUploadImageMetasOrThrow(uploadFiles: UploadFile[]): Promise<ImageMeta[]> {
+  async getUploadImageMetasOrThrow(uploadFiles: UploadFile[], compress: boolean): Promise<ImageMeta[]> {
     const imageMetas: ImageMeta[] = [];
     for (const uploadFile of uploadFiles) {
-      imageMetas.push(await this.getUploadImageMetaOrThrow(uploadFile));
+      imageMetas.push(await this.getUploadImageMetaOrThrow(uploadFile, compress));
     }
     return imageMetas;
   }
 
   async createImageMany(command: CreateImagesCommand): Promise<Image[]> {
-    const imageMetas = await this.getUploadImageMetasOrThrow(command.files);
+    const imageMetas = await this.getUploadImageMetasOrThrow(command.files, command.compress);
 
     const imageCreators = await Promise.all(
       imageMetas.map(async imageMeta => {

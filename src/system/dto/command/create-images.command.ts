@@ -5,10 +5,12 @@ export class CreateImagesCommand {
   userId: number;
   files: UploadFile[];
   target: IMAGE_TARGET;
+  compress: boolean;
 
-  constructor({ userId, files, target }: { userId: number; files: UploadFile[]; target: IMAGE_TARGET }) {
+  constructor({ userId, files, target, compress }: { userId: number; files: UploadFile[]; target: IMAGE_TARGET; compress: boolean }) {
     this.userId = userId;
     this.files = files;
     this.target = target;
+    this.compress = compress;
   }
 }
