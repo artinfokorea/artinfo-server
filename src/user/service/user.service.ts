@@ -7,12 +7,10 @@ import { DataSource } from 'typeorm';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { InvalidPhoneNumber } from '@/user/exception/user.exception';
 import { EmailAuthenticationDoesNotExist } from '@/auth/exception/auth.exception';
-import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User)
     private readonly userRepository: UserRepository, //
     private readonly schoolRepository: SchoolRepository,
     private readonly redisService: RedisRepository,
