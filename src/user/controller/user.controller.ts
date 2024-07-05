@@ -28,13 +28,6 @@ export class UserController {
     return new OkResponse();
   }
 
-  @RestApiGet(OkResponse, { path: '/send/password', description: '' })
-  async sendInitPassword() {
-    await this.userService.sendInitMail();
-
-    return new OkResponse();
-  }
-
   @RestApiPut(OkResponse, { path: '/me/password', description: '내 비밀번호 수정' })
   async editUserPassword(@Body() request: EditUserPasswordRequest) {
     await this.userService.editPassword(request.email, request.password);

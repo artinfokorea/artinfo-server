@@ -3,24 +3,20 @@ import { UserRepository } from '@/user/repository/user.repository';
 import { Injectable } from '@nestjs/common';
 import { EditUserCommand } from '@/user/dto/command/edit-user.command';
 import { SchoolRepository } from '@/user/repository/school.repository';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { InvalidPhoneNumber } from '@/user/exception/user.exception';
 import { EmailAuthenticationDoesNotExist } from '@/auth/exception/auth.exception';
-import { AwsSesService } from '@/aws/ses/aws-ses.service';
-import { initPasswordTemplate } from '@/aws/ses/email-templates/init-password.template';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private readonly tempRepository: Repository<User>,
     private readonly userRepository: UserRepository, //
     private readonly schoolRepository: SchoolRepository,
     private readonly redisService: RedisRepository,
     private readonly dataSource: DataSource,
-    private readonly sesService: AwsSesService,
   ) {}
 
   async getUserById(id: number): Promise<User> {
@@ -58,35 +54,5 @@ export class UserService {
       await this.schoolRepository.deleteByUserId(command.userId, transactionManager);
       await this.schoolRepository.createMany(command.toSchoolCreators(), transactionManager);
     });
-  }
-
-  async sendInitMail() {
-    const batchSize = 300;
-    let offset = 0;
-    let users: User[];
-
-    const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-    do {
-      console.log(offset);
-      users = await this.tempRepository.find({
-        skip: offset,
-        take: batchSize,
-      });
-
-      if (users.length > 0) {
-        await Promise.all(
-          users.map(async user => {
-            await this.sesService.send([user.email], 'ARTINFO 초기화 비밀번호', initPasswordTemplate(user.tempPassword!));
-          }),
-        );
-      }
-
-      offset += batchSize;
-
-      if (users.length === batchSize) {
-        await sleep(3000); // 3초 대기
-      }
-    } while (users.length === batchSize);
   }
 }

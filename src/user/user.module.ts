@@ -8,11 +8,10 @@ import { UserMajorCategory } from '@/user/entity/user-major-category.entity';
 import { School } from '@/user/entity/school.entity';
 import { SchoolRepository } from '@/user/repository/school.repository';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
-import { AwsSesService } from '@/aws/ses/aws-ses.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, School, UserMajorCategory])],
   controllers: [UserController],
-  providers: [UserService, UserRepository, SchoolRepository, RedisRepository, AwsSesService],
+  providers: [UserService, UserRepository, SchoolRepository, RedisRepository],
 })
 export class UserModule {}
