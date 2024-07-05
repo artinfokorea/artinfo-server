@@ -7,7 +7,8 @@ on:
 env:
   DOCKER_IMAGE: ghcr.io/${{ github.repository_owner }}/artinfo-server
   VERSION: ${{ github.sha }}
-  CONTAINER_NAME: artinfo-server
+  CONTAINER_NAME_1: artinfo-server-1
+  CONTAINER_NAME_2: artinfo-server-2
 
 jobs:
   build:
@@ -75,7 +76,13 @@ jobs:
 
       - name: Docker run
         run: |
-          docker rm -f ${{ env.CONTAINER_NAME }}
-          docker run -d -p 3000:3000 --name ${{ env.CONTAINER_NAME }} --network artinfo-network --cpus=1 --restart always ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}
+          docker rm -f ${{ env.CONTAINER_NAME_1 }}
+          docker run -d -p 3000:3000 --name ${{ env.CONTAINER_NAME_1 }} --network artinfo-network --cpus=1 --restart always ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}
+          
+          sleep 10
+
+          docker rm -f ${{ env.CONTAINER_NAME_2 }}
+          docker run -d -p 3000:3000 --name ${{ env.CONTAINER_NAME_2 }} --network artinfo-network --cpus=1 --restart always ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}
 
           docker image prune -af
+          
