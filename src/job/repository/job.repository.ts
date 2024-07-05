@@ -39,6 +39,7 @@ export class JobRepository {
           address: creator.address,
           addressDetail: creator.addressDetail,
           fee: creator.fee,
+          recruitSiteUrl: creator.recruitSiteUrl,
           imageUrl: creator.imageUrl,
         });
 
@@ -89,6 +90,7 @@ export class JobRepository {
         address: editor.address,
         addressDetail: editor.addressDetail,
         fee: editor.fee,
+        recruitSiteUrl: editor.recruitSiteUrl,
         imageUrl: editor.imageUrl,
       });
 

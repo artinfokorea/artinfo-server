@@ -4,6 +4,7 @@ export class JobEditor {
   title: string;
   contents: string;
   companyName: string;
+  recruitSiteUrl: string | null;
   imageUrl: string | null;
   address: string | null;
   addressDetail: string | null;
@@ -15,6 +16,7 @@ export class JobEditor {
     title,
     contents,
     companyName,
+    recruitSiteUrl,
     imageUrl,
     address,
     addressDetail,
@@ -25,6 +27,7 @@ export class JobEditor {
     title: string;
     contents: string;
     companyName: string;
+    recruitSiteUrl: string | null;
     imageUrl: string | null;
     address: string | null;
     addressDetail: string | null;
@@ -35,6 +38,7 @@ export class JobEditor {
     this.title = title;
     this.contents = contents;
     this.companyName = companyName;
+    this.recruitSiteUrl = recruitSiteUrl;
     this.imageUrl = imageUrl;
     this.address = address;
     this.addressDetail = addressDetail;

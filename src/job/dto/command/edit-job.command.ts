@@ -6,6 +6,7 @@ export class EditJobCommand {
   title: string;
   contents: string;
   companyName: string;
+  recruitSiteUrl: string | null;
   imageUrl: string | null;
   address: string | null;
   addressDetail: string | null;
@@ -18,6 +19,7 @@ export class EditJobCommand {
     title,
     contents,
     companyName,
+    recruitSiteUrl,
     imageUrl,
     address,
     addressDetail,
@@ -29,6 +31,7 @@ export class EditJobCommand {
     title: string;
     contents: string;
     companyName: string;
+    recruitSiteUrl: string | null;
     imageUrl: string | null;
     address: string | null;
     addressDetail: string | null;
@@ -40,6 +43,7 @@ export class EditJobCommand {
     this.title = title;
     this.contents = contents;
     this.companyName = companyName;
+    this.recruitSiteUrl = recruitSiteUrl;
     this.imageUrl = imageUrl;
     this.address = address;
     this.addressDetail = addressDetail;
@@ -54,6 +58,7 @@ export class EditJobCommand {
       title: this.title,
       contents: this.contents,
       companyName: this.companyName,
+      recruitSiteUrl: this.recruitSiteUrl,
       imageUrl: this.imageUrl,
       address: this.address,
       addressDetail: this.addressDetail,

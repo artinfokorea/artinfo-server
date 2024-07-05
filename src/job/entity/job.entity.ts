@@ -36,6 +36,9 @@ export class Job extends BaseEntity {
   @Column({ type: 'int', name: 'fee', nullable: true })
   fee: number | null;
 
+  @Column({ type: 'varchar', name: 'recruit_site_url', nullable: true })
+  recruitSiteUrl: string | null;
+
   @Column({ type: 'varchar', name: 'image_url', nullable: true })
   imageUrl: string | null;
 

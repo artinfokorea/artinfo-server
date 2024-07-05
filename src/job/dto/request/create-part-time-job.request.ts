@@ -44,6 +44,7 @@ export class CreatePartTimeJobRequest {
       title: this.title,
       contents: this.contents,
       companyName: this.companyName,
+      recruitSiteUrl: null,
       imageUrl: null,
       address: null,
       addressDetail: null,
