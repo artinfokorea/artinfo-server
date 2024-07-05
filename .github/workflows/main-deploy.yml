@@ -82,7 +82,7 @@ jobs:
           sleep 10
 
           docker rm -f ${{ env.CONTAINER_NAME_2 }}
-          docker run -d -p 3001:3001 --name ${{ env.CONTAINER_NAME_2 }} --network artinfo-network --cpus=1 --restart always ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}
+          docker run -d -p 3001:3000 --name ${{ env.CONTAINER_NAME_2 }} --network artinfo-network --cpus=1 --restart always ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}
 
           docker image prune -af
           
