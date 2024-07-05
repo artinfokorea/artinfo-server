@@ -24,6 +24,9 @@ export class JobResponse {
   @ApiProperty({ type: 'string', required: false, description: '상세 주소', example: '401호' })
   addressDetail: string | null;
 
+  @ApiProperty({ type: 'string', required: false, description: '자사 채용 사이트 주소', example: 'https://artinfokorea.com' })
+  recruitSiteUrl: string | null;
+
   @ApiProperty({ type: 'string', required: false, description: '회사 대표 이미지', example: 'https://artinfokorea.com' })
   imageUrl: string | null;
 
@@ -59,6 +62,7 @@ export class JobResponse {
     this.companyName = job.companyName;
     this.address = address;
     this.addressDetail = job.addressDetail;
+    this.recruitSiteUrl = job.recruitSiteUrl;
     this.imageUrl = job.imageUrl;
     this.majors = new MajorsResponse([...job.jobMajorCategories.map(jobMajorCategory => jobMajorCategory.majorCategory)]);
     this.type = job.type;
