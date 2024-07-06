@@ -4,14 +4,14 @@ import { OnEvent } from '@nestjs/event-emitter';
 import { Job } from '@/job/entity/job.entity';
 
 @Injectable()
-export class JobListener {
+export class JobEvent {
   constructor(private readonly redisService: RedisRepository) {}
 
   @OnEvent('job.fetched')
-  async handleJobFetchedEvent(key: string, jobs: Job) {
+  async handleJobFetchedEvent(key: string, job: Job) {
     await this.redisService.setValue({
       key: key,
-      value: jobs,
+      value: job,
       ttl: 3600,
     });
   }

@@ -35,7 +35,7 @@ export class LessonService {
       career: command.career,
     });
 
-    await this.lessonRepository.edit(editor);
+    await this.lessonRepository.editOrThrow(editor);
 
     await this.lessonAreaRepository.remove(user.lesson.id);
     const lessonAreaCreator = new LessonAreaCreator({
@@ -47,7 +47,7 @@ export class LessonService {
 
   async removeLesson(userId: number) {
     const user = await this.userService.getUserById(userId);
-    await this.lessonRepository.remove(user.lesson.id);
+    await this.lessonRepository.deleteOrThrowById(user.lesson.id);
   }
 
   async create(command: CreateLessonCommand): Promise<number> {

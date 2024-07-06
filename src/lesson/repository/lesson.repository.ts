@@ -8,6 +8,9 @@ import { LessonCounter } from '@/lesson/repository/operation/lesson.counter';
 import { ProvinceRepository } from '@/province/province.repository';
 import { LessonCreator } from '@/lesson/repository/operation/lesson.creator';
 import { LessonEditor } from '@/lesson/repository/operation/lesson.editor';
+import { Util } from '@/common/util/util';
+import { RedisRepository } from '@/common/redis/redis-repository.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class LessonRepository {
@@ -15,10 +18,15 @@ export class LessonRepository {
     @InjectRepository(Lesson)
     private lessonRepository: Repository<Lesson>,
 
+    private readonly redisService: RedisRepository,
+    private eventEmitter: EventEmitter2,
     private readonly provinceRepository: ProvinceRepository,
   ) {}
 
-  async edit(editor: LessonEditor) {
+  async editOrThrow(editor: LessonEditor) {
+    const lesson = await this.lessonRepository.findOneBy({ id: editor.lessonId });
+    if (!lesson) throw new LessonNotFound();
+
     await this.lessonRepository.update(
       { id: editor.lessonId },
       {
@@ -28,10 +36,16 @@ export class LessonRepository {
         career: editor.career,
       },
     );
+
+    await this.redisService.deleteByPattern('lessons:*');
   }
 
-  async remove(lessonId: number) {
-    await this.lessonRepository.delete({ id: lessonId });
+  async deleteOrThrowById(lessonId: number) {
+    const lesson = await this.lessonRepository.findOneBy({ id: lessonId });
+    if (!lesson) throw new LessonNotFound();
+
+    await lesson.remove();
+    await this.redisService.deleteByPattern('lessons:*');
   }
 
   async create(command: LessonCreator): Promise<number> {
@@ -43,101 +57,132 @@ export class LessonRepository {
       user: { id: command.userId },
     });
 
+    await this.redisService.deleteByPattern('lessons:*');
+
     return lesson.id;
   }
 
   async findOneOrThrowById(id: number): Promise<Lesson> {
-    const lesson = await this.lessonRepository.findOne({
-      relations: ['user.schools', 'user.userMajorCategories.majorCategory', 'areas'],
-      where: { id },
-    });
-    if (!lesson) throw new LessonNotFound();
+    const redisKey = new Util().getRedisKey('lessons:single:', id);
+    const lesson = await this.redisService.getByKey(redisKey);
 
-    return lesson;
+    if (lesson) {
+      return lesson as Lesson;
+    } else {
+      const lesson = await this.lessonRepository.findOne({
+        relations: ['user.schools', 'user.userMajorCategories.majorCategory', 'areas'],
+        where: { id },
+      });
+      if (!lesson) throw new LessonNotFound();
+
+      this.eventEmitter.emit('lesson.fetched', redisKey, lesson);
+      return lesson;
+    }
   }
 
   async find(fetcher: LessonFetcher): Promise<Lesson[]> {
-    const queryBuilder = this.lessonRepository
-      .createQueryBuilder('lesson')
-      .leftJoinAndSelect('lesson.user', 'user')
-      .leftJoinAndSelect('user.schools', 'schools')
-      .leftJoinAndSelect('user.userMajorCategories', 'userMajorCategories')
-      .leftJoinAndSelect('userMajorCategories.majorCategory', 'majorCategory')
-      .leftJoinAndSelect('lesson.areas', 'areas');
+    const redisKey = new Util().getRedisKey('lessons:list:', fetcher);
 
-    if (fetcher.keyword) {
-      queryBuilder.andWhere(
-        new Brackets(qb => {
-          qb.orWhere('user.name LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
-            .orWhere('majorCategory.koName LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
-            .orWhere('majorCategory.enName LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
-            .orWhere('schools.name LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
-            .orWhere('areas.name LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
-            .orWhere('lesson.introduction LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
-            .orWhere('lesson.career LIKE :keyword', { keyword: `%${fetcher.keyword}%` });
-        }),
-      );
+    const redisLessons = await this.redisService.getByKey(redisKey);
+    if (redisLessons) {
+      return redisLessons as Lesson[];
+    } else {
+      const queryBuilder = this.lessonRepository
+        .createQueryBuilder('lesson')
+        .leftJoinAndSelect('lesson.user', 'user')
+        .leftJoinAndSelect('user.schools', 'schools')
+        .leftJoinAndSelect('user.userMajorCategories', 'userMajorCategories')
+        .leftJoinAndSelect('userMajorCategories.majorCategory', 'majorCategory')
+        .leftJoinAndSelect('lesson.areas', 'areas');
+
+      if (fetcher.keyword) {
+        queryBuilder.andWhere(
+          new Brackets(qb => {
+            qb.orWhere('user.name LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
+              .orWhere('majorCategory.koName LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
+              .orWhere('majorCategory.enName LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
+              .orWhere('schools.name LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
+              .orWhere('areas.name LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
+              .orWhere('lesson.introduction LIKE :keyword', { keyword: `%${fetcher.keyword}%` })
+              .orWhere('lesson.career LIKE :keyword', { keyword: `%${fetcher.keyword}%` });
+          }),
+        );
+      }
+
+      if (fetcher.provinceIds.length) {
+        const provinces = await this.provinceRepository.findByIds(fetcher.provinceIds);
+        const provinceNames = provinces.map(province => province.name);
+
+        queryBuilder.andWhere(
+          new Brackets(qb => {
+            provinceNames.forEach((provinceName, idx) => {
+              qb.orWhere('areas.name LIKE :name' + idx, { ['name' + idx]: `%${provinceName}%` });
+            });
+          }),
+        );
+      }
+
+      if (fetcher.professionalFields.length) {
+        queryBuilder.andWhere('majorCategory.secondGroupEn IN (:...professionalFields)', { professionalFields: fetcher.professionalFields });
+      }
+
+      queryBuilder.orderBy({ 'lesson.id': 'DESC' });
+
+      const lessons = await queryBuilder.skip(fetcher.skip).take(fetcher.take).getMany();
+
+      this.eventEmitter.emit('lessons.fetched', redisKey, lessons);
+
+      return lessons;
     }
-
-    if (fetcher.provinceIds.length) {
-      const provinces = await this.provinceRepository.findByIds(fetcher.provinceIds);
-      const provinceNames = provinces.map(province => province.name);
-
-      queryBuilder.andWhere(
-        new Brackets(qb => {
-          provinceNames.forEach((provinceName, idx) => {
-            qb.orWhere('areas.name LIKE :name' + idx, { ['name' + idx]: `%${provinceName}%` });
-          });
-        }),
-      );
-    }
-
-    if (fetcher.professionalFields.length) {
-      queryBuilder.andWhere('majorCategory.secondGroupEn IN (:...professionalFields)', { professionalFields: fetcher.professionalFields });
-    }
-
-    queryBuilder.orderBy({ 'lesson.id': 'DESC' });
-
-    return queryBuilder.skip(fetcher.skip).take(fetcher.take).getMany();
   }
 
   async count(counter: LessonCounter): Promise<number> {
-    const queryBuilder = this.lessonRepository
-      .createQueryBuilder('lesson')
-      .leftJoinAndSelect('lesson.user', 'user')
-      .leftJoinAndSelect('user.schools', 'schools')
-      .leftJoinAndSelect('user.userMajorCategories', 'userMajorCategories')
-      .leftJoinAndSelect('userMajorCategories.majorCategory', 'majorCategory')
-      .leftJoinAndSelect('lesson.areas', 'areas');
+    const redisKey = new Util().getRedisKey('lessons:count:', counter);
+    const redisTotalCount = await this.redisService.getByKey(redisKey);
 
-    if (counter.keyword) {
-      queryBuilder
-        .where('user.name LIKE :keyword', { keyword: `%${counter.keyword}%` })
-        .orWhere('majorCategory.koName LIKE :keyword', { keyword: `%${counter.keyword}%` })
-        .orWhere('majorCategory.enName LIKE :keyword', { keyword: `%${counter.keyword}%` })
-        .orWhere('schools.name LIKE :keyword', { keyword: `%${counter.keyword}%` })
-        .orWhere('areas.name LIKE :keyword', { keyword: `%${counter.keyword}%` })
-        .orWhere('lesson.introduction LIKE :keyword', { keyword: `%${counter.keyword}%` })
-        .orWhere('lesson.career LIKE :keyword', { keyword: `%${counter.keyword}%` });
+    if (redisTotalCount !== null) {
+      return redisTotalCount as number;
+    } else {
+      const queryBuilder = this.lessonRepository
+        .createQueryBuilder('lesson')
+        .leftJoinAndSelect('lesson.user', 'user')
+        .leftJoinAndSelect('user.schools', 'schools')
+        .leftJoinAndSelect('user.userMajorCategories', 'userMajorCategories')
+        .leftJoinAndSelect('userMajorCategories.majorCategory', 'majorCategory')
+        .leftJoinAndSelect('lesson.areas', 'areas');
+
+      if (counter.keyword) {
+        queryBuilder
+          .where('user.name LIKE :keyword', { keyword: `%${counter.keyword}%` })
+          .orWhere('majorCategory.koName LIKE :keyword', { keyword: `%${counter.keyword}%` })
+          .orWhere('majorCategory.enName LIKE :keyword', { keyword: `%${counter.keyword}%` })
+          .orWhere('schools.name LIKE :keyword', { keyword: `%${counter.keyword}%` })
+          .orWhere('areas.name LIKE :keyword', { keyword: `%${counter.keyword}%` })
+          .orWhere('lesson.introduction LIKE :keyword', { keyword: `%${counter.keyword}%` })
+          .orWhere('lesson.career LIKE :keyword', { keyword: `%${counter.keyword}%` });
+      }
+
+      if (counter.provinceIds.length) {
+        const provinces = await this.provinceRepository.findByIds(counter.provinceIds);
+        const provinceNames = provinces.map(province => province.name);
+
+        queryBuilder.andWhere(
+          new Brackets(qb => {
+            provinceNames.forEach((provinceName, idx) => {
+              qb.orWhere('areas.name LIKE :name' + idx, { ['name' + idx]: `%${provinceName}%` });
+            });
+          }),
+        );
+      }
+
+      if (counter.professionalFields.length) {
+        queryBuilder.andWhere('majorCategory.secondGroupEn IN (:...professionalFields)', { professionalFields: counter.professionalFields });
+      }
+
+      const totalCount = await queryBuilder.getCount();
+      this.eventEmitter.emit('lessons-count.fetched', redisKey, totalCount);
+
+      return totalCount;
     }
-
-    if (counter.provinceIds.length) {
-      const provinces = await this.provinceRepository.findByIds(counter.provinceIds);
-      const provinceNames = provinces.map(province => province.name);
-
-      queryBuilder.andWhere(
-        new Brackets(qb => {
-          provinceNames.forEach((provinceName, idx) => {
-            qb.orWhere('areas.name LIKE :name' + idx, { ['name' + idx]: `%${provinceName}%` });
-          });
-        }),
-      );
-    }
-
-    if (counter.professionalFields.length) {
-      queryBuilder.andWhere('majorCategory.secondGroupEn IN (:...professionalFields)', { professionalFields: counter.professionalFields });
-    }
-
-    return queryBuilder.getCount();
   }
 }

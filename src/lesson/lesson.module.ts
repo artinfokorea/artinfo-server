@@ -14,6 +14,7 @@ import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { User } from '@/user/entity/user.entity';
 import { LessonAreaRepository } from '@/lesson/repository/lesson-area.repository';
 import { AwsSesService } from '@/aws/ses/aws-ses.service';
+import { LessonEvent } from '@/lesson/lesson.event';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Lesson, LessonArea, Province, User])],
@@ -28,6 +29,7 @@ import { AwsSesService } from '@/aws/ses/aws-ses.service';
     ProvinceRepository,
     LessonAreaRepository,
     AwsSesService,
+    LessonEvent,
   ],
 })
 export class LessonModule {}
