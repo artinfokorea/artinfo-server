@@ -26,7 +26,7 @@ export class AuthService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly authRepository: AuthRepository,
-    private readonly redisService: RedisRepository,
+    private readonly redisRepository: RedisRepository,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -34,7 +34,7 @@ export class AuthService {
     const user = await this.userRepository.findByEmail(command.email);
     if (user) throw new EmailAlreadyExist();
 
-    const verification = await this.redisService.getByKey(command.email);
+    const verification = await this.redisRepository.getByKey(command.email);
     if (!verification) throw new EmailAuthenticationDoesNotExist();
 
     if (!command.password) throw new PasswordNotFound();
@@ -86,7 +86,7 @@ export class AuthService {
     const { id, exp } = decodedToken;
 
     const redisKey = `USER:REFRESH=${id}`;
-    const refetchAuth = await this.redisService.getByKey(redisKey);
+    const refetchAuth = await this.redisRepository.getByKey(redisKey);
 
     if (!refetchAuth) {
       const user = await this.userRepository.findOneOrThrowById(id);
@@ -100,7 +100,7 @@ export class AuthService {
         auth = await this.authRepository.renewAccessToken(user, command.accessToken, command.refreshToken);
       }
 
-      await this.redisService.setValue({
+      await this.redisRepository.setValue({
         key: redisKey,
         value: auth,
         ttl: 3,

@@ -1,4 +1,4 @@
-import { RestApiController, RestApiPost } from '@/common/decorator/rest-api';
+import { RestApiController, RestApiDelete, RestApiPost } from '@/common/decorator/rest-api';
 import { ApiConsumes } from '@nestjs/swagger';
 import { Body, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
@@ -8,6 +8,7 @@ import { Signature } from '@/common/decorator/signature';
 import { UploadFile, UserSignature } from '@/common/type/type';
 import { UploadImagesRequest } from '@/system/dto/request/upload-images.request';
 import { SystemService } from '@/system/service/system.service';
+import { OkResponse } from '@/common/response/ok.response';
 
 @RestApiController('/system', 'System')
 export class SystemController {
@@ -31,5 +32,16 @@ export class SystemController {
     const uploadImages = await this.systemService.createImageMany(request.toCreateImagesCommand(signature.id, files));
 
     return new UploadImagesResponse(uploadImages);
+  }
+
+  @RestApiDelete(OkResponse, {
+    path: '/caching',
+    description: '캐싱 삭제',
+    auth: [USER_TYPE.ADMIN],
+  })
+  async deleteCaching() {
+    await this.systemService.deleteCaching();
+
+    return new OkResponse();
   }
 }

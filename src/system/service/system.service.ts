@@ -11,6 +11,7 @@ import { Image } from '@/system/entity/image.entity';
 import * as moment from 'moment/moment';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import * as convert from 'heic-convert';
+import { RedisRepository } from '@/common/redis/redis-repository.service';
 
 export type ImageMeta = {
   hash: string;
@@ -30,6 +31,7 @@ export class SystemService {
   constructor(
     private readonly awsS3Service: AwsS3Service,
     private readonly imageRepository: ImageRepository,
+    private readonly redisRepository: RedisRepository,
   ) {
     this.messageService = new CoolsmsMessageService(process.env['COOL_SMS_API_KEY']!, process.env['COOL_SMS_SECRET_KEY']!);
   }
@@ -130,5 +132,9 @@ export class SystemService {
     const imageIds = await this.imageRepository.createMany(imageCreators);
 
     return this.imageRepository.findManyByIds(imageIds);
+  }
+
+  async deleteCaching() {
+    await this.redisRepository.deleteAll();
   }
 }

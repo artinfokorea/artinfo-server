@@ -37,4 +37,8 @@ export class RedisRepository {
       await this.redisClient.del(...keys);
     }
   }
+
+  async deleteAll() {
+    await this.redisClient.flushall();
+  }
 }

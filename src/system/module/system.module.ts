@@ -7,10 +7,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Image } from '@/system/entity/image.entity';
 import { Province } from '@/lesson/entity/province.entity';
 import { ProvinceRepository } from '@/province/province.repository';
+import { RedisRepository } from '@/common/redis/redis-repository.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Image, Province])],
   controllers: [SystemController],
-  providers: [SystemService, AwsS3Service, ImageRepository, ProvinceRepository],
+  providers: [SystemService, AwsS3Service, ImageRepository, ProvinceRepository, RedisRepository],
 })
 export class SystemModule {}
