@@ -159,7 +159,7 @@ export class AuthService {
     }
 
     const email = payload['email'];
-    const name = payload['name'];
+    const name = payload['email'].split('@')[0];
     const nickname = payload['email'].split('@')[0];
     const iconImageUrl = payload['picture'];
 
