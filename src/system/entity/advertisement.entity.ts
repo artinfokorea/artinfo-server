@@ -3,6 +3,7 @@ import { BaseEntity, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, U
 export enum ADVERTISEMENT_TYPE {
   BANNER = 'BANNER',
   CONCERT = 'CONCERT',
+  EXHIBITION = 'EXHIBITION',
 }
 
 export interface AdvertisementCreator {
