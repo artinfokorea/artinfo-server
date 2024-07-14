@@ -29,6 +29,7 @@ import { LessonArea } from '@/lesson/entity/lesson-area.entity';
 import { Inquiry } from '@/system/entity/inquiry.entity';
 import { InquiryModule } from '@/system/module/inquiry.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { NewsModule } from '@/news/news.module';
 
 const entities = [
   User,
@@ -54,6 +55,7 @@ const modules = [
   AuthModule,
   UserModule,
   LessonModule,
+  NewsModule,
   AdvertisementModule,
   JobModule,
   ProvinceModule,
