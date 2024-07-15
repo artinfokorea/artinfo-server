@@ -1,4 +1,4 @@
-import { RestApiController, RestApiDelete, RestApiGet, RestApiPost } from '@/common/decorator/rest-api';
+import { RestApiController, RestApiDelete, RestApiGet, RestApiPost, RestApiPut } from '@/common/decorator/rest-api';
 import { NewsResponse } from '@/news/dto/response/news.response';
 import { NewsService } from '@/news/news.service';
 import { Body, Param, Query } from '@nestjs/common';
@@ -35,7 +35,7 @@ export class NewsController {
     return new CreateResponse(newsId);
   }
 
-  @RestApiPost(OkResponse, { path: '/:newsId', description: '뉴스 수정', auth: [USER_TYPE.ADMIN] })
+  @RestApiPut(OkResponse, { path: '/:newsId', description: '뉴스 수정', auth: [USER_TYPE.ADMIN] })
   async editNews(@Param('newsId') newsId: number, @Body() request: EditNewsRequest): Promise<OkResponse> {
     await this.newsService.editNews(request.toCommand(newsId));
 
