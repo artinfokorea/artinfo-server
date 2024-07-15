@@ -1,11 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { User } from '@/user/entity/user.entity';
+import { User, USER_TYPE } from '@/user/entity/user.entity';
 import { UserSchoolResponse } from '@/user/dto/response/user-school.response';
 import { MajorResponse } from '@/major/dto/response/major.response';
 
 export class UserResponse {
   @ApiProperty({ type: 'number', required: true, description: '유저 아이디', example: 5 })
   id: number;
+
+  @ApiProperty({ enum: USER_TYPE, enumName: 'USER_TYPE', required: true, description: '유저 타입', example: USER_TYPE.CLIENT })
+  type: USER_TYPE;
 
   @ApiProperty({ type: 'string', required: true, description: '유저 이름', example: '임성준' })
   name: string;
@@ -33,6 +36,7 @@ export class UserResponse {
 
   constructor(user: User) {
     this.id = user.id;
+    this.type = user.type;
     this.name = user.name;
     this.nickname = user.nickname;
     this.birth = user.birth;
