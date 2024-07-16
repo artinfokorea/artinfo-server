@@ -12,6 +12,7 @@ export enum PROFESSIONAL_FIELD_CATEGORY {
   POPULAR_MUSIC = 'POPULAR_MUSIC',
   TRADITIONAL_MUSIC = 'TRADITIONAL_MUSIC',
   ADMINISTRATION = 'ADMINISTRATION',
+  ART = 'ART',
 }
 
 export enum MAJOR {
@@ -86,6 +87,9 @@ export class MajorCategory extends BaseEntity {
 
   @Column({ type: 'varchar', name: 'en_name' })
   enName: string;
+
+  @Column({ type: 'int', name: 'sequence', default: 1 })
+  sequence: number;
 
   @OneToMany(() => JobMajorCategory, jobMajorCategory => jobMajorCategory.majorCategory, { cascade: true })
   jobMajorCategories: JobMajorCategory[];

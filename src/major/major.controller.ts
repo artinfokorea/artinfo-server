@@ -2,8 +2,6 @@ import { RestApiController, RestApiGet } from '@/common/decorator/rest-api';
 import { MajorsResponse } from '@/major/dto/response/majors.response';
 import { MajorService } from '@/major/major.service';
 import { MajorGroupsResponse } from '@/major/dto/response/major-groups.response';
-import { MajorFieldsRequest } from '@/major/dto/request/major-groups.request';
-import { Query } from '@nestjs/common';
 
 @RestApiController('/majors', 'major')
 export class MajorController {
@@ -24,8 +22,8 @@ export class MajorController {
   }
 
   @RestApiGet(MajorGroupsResponse, { path: '/fields', description: '전문 분야 조회' })
-  async getMajorGroupFields(@Query() request: MajorFieldsRequest) {
-    const majors = await this.commonService.getMajorFields(request.artCategories);
+  async getMajorGroupFields() {
+    const majors = await this.commonService.getMajorFields();
 
     return new MajorGroupsResponse(majors);
   }
