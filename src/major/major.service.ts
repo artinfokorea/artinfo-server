@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { MajorRepository } from '@/major/repository/major.repository';
+import { PROFESSIONAL_FIELD_CATEGORY } from '@/job/entity/major-category.entity';
 
 @Injectable()
 export class MajorService {
@@ -13,7 +14,7 @@ export class MajorService {
     return this.majorCategoryRepository.findMajorArt();
   }
 
-  getMajorFields() {
-    return this.majorCategoryRepository.findMajorFields();
+  getMajorFields(excludeFields: PROFESSIONAL_FIELD_CATEGORY[]) {
+    return this.majorCategoryRepository.findMajorFields(excludeFields);
   }
 }

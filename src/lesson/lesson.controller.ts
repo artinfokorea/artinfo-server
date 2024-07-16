@@ -13,6 +13,7 @@ import { CreateLessonRequest } from '@/lesson/dto/request/create-lesson.request'
 import { EditLessonRequest } from '@/lesson/dto/request/edit-lesson.request';
 import { CountLessonsResponse } from '@/lesson/dto/response/count-lessons.response';
 import { CountLessonsCommand } from '@/lesson/dto/command/count-lessons.command';
+import { MajorGroupsResponse } from '@/major/dto/response/major-groups.response';
 
 @RestApiController('/lessons', 'Lesson')
 export class LessonController {
@@ -22,6 +23,12 @@ export class LessonController {
   async editLesson(@Signature() signature: UserSignature, @Body() request: EditLessonRequest): Promise<OkResponse> {
     await this.lessonService.editLesson(request.toCommand(signature.id));
     return new OkResponse();
+  }
+
+  @RestApiGet(MajorGroupsResponse, { path: '/fields', description: '레슨 분야 조회' })
+  async getLessonFields(): Promise<MajorGroupsResponse> {
+    const majorGroups = await this.lessonService.getLessFields();
+    return new MajorGroupsResponse(majorGroups);
   }
 
   @RestApiDelete(OkResponse, { path: '/', description: '레슨 삭제', auth: [USER_TYPE.CLIENT] })

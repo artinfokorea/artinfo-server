@@ -14,14 +14,21 @@ import { LessonAreaRepository } from '@/lesson/repository/lesson-area.repository
 import { AlreadyLessonExists, LessonNotFound, UserDoesNotQualify } from '@/lesson/lesson.exception';
 import { EditLessonCommand } from '@/lesson/dto/command/edit-lesson.command';
 import { LessonEditor } from '@/lesson/repository/operation/lesson.editor';
+import { MajorService } from '@/major/major.service';
+import { PROFESSIONAL_FIELD_CATEGORY } from '@/job/entity/major-category.entity';
 
 @Injectable()
 export class LessonService {
   constructor(
     private readonly lessonRepository: LessonRepository,
     private readonly lessonAreaRepository: LessonAreaRepository,
+    private readonly majorService: MajorService,
     private readonly userService: UserService,
   ) {}
+
+  async getLessFields() {
+    return this.majorService.getMajorFields([PROFESSIONAL_FIELD_CATEGORY.ADMINISTRATION]);
+  }
 
   async editLesson(command: EditLessonCommand) {
     const user = await this.userService.getUserById(command.userId);

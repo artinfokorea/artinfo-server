@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { MajorCategory } from '@/job/entity/major-category.entity';
+import { MajorCategory, PROFESSIONAL_FIELD_CATEGORY } from '@/job/entity/major-category.entity';
 import { JobMajorCategory } from '@/job/entity/job-major-category.entity';
 import { MajorNotFound } from '@/job/exception/job.exception';
 import { MajorGroupPayload } from '@/major/repository/payload/major-group.payload';
@@ -44,11 +44,16 @@ export class MajorRepository {
     return groups.map(group => new MajorGroupPayload({ nameKo: group.first_group_ko, nameEn: group.first_group_en }));
   }
 
-  async findMajorFields(): Promise<MajorGroupPayload[]> {
+  async findMajorFields(excludeFields: PROFESSIONAL_FIELD_CATEGORY[]): Promise<MajorGroupPayload[]> {
     const qb = this.majorCategoryRepository
       .createQueryBuilder('majorCategory') //
-      .select('DISTINCT majorCategory.secondGroupEn, majorCategory.secondGroupKo, sequence')
-      .orderBy('sequence', 'ASC');
+      .select('DISTINCT majorCategory.secondGroupEn, majorCategory.secondGroupKo, sequence');
+
+    if (excludeFields.length) {
+      qb.where('majorCategory.secondGroupEn NOT IN (:...categories)', { categories: excludeFields });
+    }
+
+    qb.orderBy('sequence', 'ASC');
 
     const groups: { second_group_ko: string; second_group_en: string }[] = await qb.getRawMany();
 
