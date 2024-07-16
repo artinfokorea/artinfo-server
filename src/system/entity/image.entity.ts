@@ -4,6 +4,7 @@ export enum IMAGE_TARGET {
   USER = 'USER',
   JOB = 'JOB',
   LESSON = 'LESSON',
+  NEWS = 'NEWS',
 }
 
 @Entity({ name: 'images' })
