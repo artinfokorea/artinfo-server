@@ -31,6 +31,10 @@ export class NewsService {
     return { items: newsList, totalCount: totalCount };
   }
 
+  async countNews() {
+    return await this.newsRepository.count({ keyword: null });
+  }
+
   async createNews(command: CreateNewsCommand): Promise<number> {
     const creator = new NewsCreator({
       thumbnailImageUrl: command.thumbnailImageUrl,

@@ -9,10 +9,18 @@ import { USER_TYPE } from '@/user/entity/user.entity';
 import { CreateNewsRequest } from '@/news/dto/request/create-news.request';
 import { OkResponse } from '@/common/response/ok.response';
 import { EditNewsRequest } from '@/news/dto/request/edit-news.request';
+import { CountJobsResponse } from '@/job/dto/response/count-jobs.response';
+import { CountNewsResponse } from '@/news/dto/response/count-news.response';
 
 @RestApiController('/news', 'News')
 export class NewsController {
   constructor(private readonly newsService: NewsService) {}
+
+  @RestApiGet(CountNewsResponse, { path: '/count', description: '뉴스 개수 조회' })
+  async countNews(): Promise<CountJobsResponse> {
+    const totalCount = await this.newsService.countNews();
+    return new CountNewsResponse(totalCount);
+  }
 
   @RestApiGet(NewsResponse, { path: '/:newsId', description: '뉴스 단건 조회' })
   async getNews(@Param('newsId') newsId: number) {
