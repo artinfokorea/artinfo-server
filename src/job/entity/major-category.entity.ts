@@ -88,8 +88,11 @@ export class MajorCategory extends BaseEntity {
   @Column({ type: 'varchar', name: 'en_name' })
   enName: string;
 
-  @Column({ type: 'int', name: 'sequence', default: 1 })
-  sequence: number;
+  @Column({ type: 'int', name: 'field_sequence', default: 1 })
+  fieldSequence: number;
+
+  @Column({ type: 'int', name: 'major_sequence', default: 1 })
+  majorSequence: number;
 
   @OneToMany(() => JobMajorCategory, jobMajorCategory => jobMajorCategory.majorCategory, { cascade: true })
   jobMajorCategories: JobMajorCategory[];

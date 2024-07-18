@@ -34,7 +34,7 @@ export class MajorRepository {
   }
 
   findAll() {
-    return this.majorCategoryRepository.find({ order: { koName: 'ASC' } });
+    return this.majorCategoryRepository.find({ order: { fieldSequence: 'ASC', majorSequence: 'ASC' } });
   }
 
   async findMajorArt(): Promise<MajorGroupPayload[]> {
@@ -47,13 +47,13 @@ export class MajorRepository {
   async findMajorFields(excludeFields: PROFESSIONAL_FIELD_CATEGORY[]): Promise<MajorGroupPayload[]> {
     const qb = this.majorCategoryRepository
       .createQueryBuilder('majorCategory') //
-      .select('DISTINCT majorCategory.secondGroupEn, majorCategory.secondGroupKo, sequence');
+      .select('DISTINCT majorCategory.secondGroupEn, majorCategory.secondGroupKo, field_sequence');
 
     if (excludeFields.length) {
       qb.where('majorCategory.secondGroupEn NOT IN (:...categories)', { categories: excludeFields });
     }
 
-    qb.orderBy('sequence', 'ASC');
+    qb.orderBy('field_sequence', 'ASC');
 
     const groups: { second_group_ko: string; second_group_en: string }[] = await qb.getRawMany();
 

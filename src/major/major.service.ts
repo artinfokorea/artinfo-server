@@ -10,10 +10,6 @@ export class MajorService {
     return this.majorCategoryRepository.findAll();
   }
 
-  getMajorArt() {
-    return this.majorCategoryRepository.findMajorArt();
-  }
-
   getMajorFields(excludeFields: PROFESSIONAL_FIELD_CATEGORY[]) {
     return this.majorCategoryRepository.findMajorFields(excludeFields);
   }

@@ -11,6 +11,11 @@ export class AdvertisementRepository {
   ) {}
 
   async findByType(type: ADVERTISEMENT_TYPE) {
-    return this.advertisementRepository.findBy({ type });
+    return this.advertisementRepository
+      .createQueryBuilder('advertisement') //
+      .select()
+      .where('type = :type', { type })
+      .orderBy('RANDOM()')
+      .getMany();
   }
 }
