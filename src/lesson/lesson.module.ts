@@ -28,7 +28,6 @@ import { JobMajorCategory } from '@/job/entity/job-major-category.entity';
     MajorService,
     UserService,
     MajorRepository,
-
     LessonRepository,
     UserRepository,
     SchoolRepository,
