@@ -30,6 +30,7 @@ import { Inquiry } from '@/system/entity/inquiry.entity';
 import { InquiryModule } from '@/system/module/inquiry.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { NewsModule } from '@/news/news.module';
+import { PerformanceModule } from '@/performance/performance.module';
 
 const entities = [
   User,
@@ -61,6 +62,7 @@ const modules = [
   ProvinceModule,
   MajorModule,
   InquiryModule,
+  PerformanceModule,
   LoggerModule,
 ];
 
