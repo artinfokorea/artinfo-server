@@ -3,10 +3,26 @@ import { Job } from '@/job/entity/job.entity';
 import { School } from '@/user/entity/school.entity';
 import { UserMajorCategory } from '@/user/entity/user-major-category.entity';
 import { Lesson } from '@/lesson/entity/lesson.entity';
+import { Comment } from '@/comment/comment.entity';
 
 export enum USER_TYPE {
   CLIENT = 'CLIENT',
   ADMIN = 'ADMIN',
+}
+
+export interface UserRaw {
+  user_id: number;
+  user_type: USER_TYPE;
+  user_name: string;
+  user_nickname: string;
+  user_email: string;
+  user_phone: string | null;
+  user_birth: Date | null;
+  user_password: string | null;
+  user_icon_image_url: string | null;
+  user_created_at: Date;
+  user_updated_at: Date;
+  user_deleted_at: Date | null;
 }
 
 @Entity('users')
@@ -44,6 +60,9 @@ export class User extends BaseEntity {
   @OneToMany(() => School, school => school.user, { eager: true, cascade: true })
   schools: School[];
 
+  @OneToMany(() => Comment, comment => comment.user, { cascade: true })
+  comments: Comment[];
+
   @OneToMany(() => Job, fullTimeJob => fullTimeJob.user, { cascade: true })
   jobs: Job[];
 
@@ -57,5 +76,23 @@ export class User extends BaseEntity {
   updateAt: Date;
 
   @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
-  deletedAt: Date;
+  deletedAt: Date | null;
+
+  fromRaw(userRaw: UserRaw): User {
+    const user = new User();
+    user.id = userRaw.user_id;
+    user.type = userRaw.user_type;
+    user.name = userRaw.user_name;
+    user.nickname = userRaw.user_nickname;
+    user.email = userRaw.user_email;
+    user.phone = userRaw.user_phone;
+    user.birth = userRaw.user_birth;
+    user.password = userRaw.user_password;
+    user.iconImageUrl = userRaw.user_icon_image_url;
+    user.createdAt = userRaw.user_created_at;
+    user.updateAt = userRaw.user_updated_at;
+    user.deletedAt = userRaw.user_deleted_at;
+
+    return user;
+  }
 }

@@ -11,6 +11,7 @@ export class MajorRepository {
   constructor(
     @InjectRepository(MajorCategory)
     private majorCategoryRepository: Repository<MajorCategory>,
+
     @InjectRepository(JobMajorCategory)
     private fullTimeJobMajorCategoryRepository: Repository<JobMajorCategory>,
   ) {}

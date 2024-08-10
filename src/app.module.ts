@@ -30,6 +30,8 @@ import { Inquiry } from '@/system/entity/inquiry.entity';
 import { InquiryModule } from '@/system/module/inquiry.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { NewsModule } from '@/news/news.module';
+import { CommentModule } from '@/comment/comment.module';
+import { Comment } from '@/comment/comment.entity';
 
 const entities = [
   User,
@@ -47,6 +49,7 @@ const entities = [
   JobMajorCategory,
   Image,
   Inquiry,
+  Comment,
 ];
 const modules = [
   SystemModule,
@@ -60,6 +63,7 @@ const modules = [
   JobModule,
   ProvinceModule,
   MajorModule,
+  CommentModule,
   InquiryModule,
   LoggerModule,
 ];
