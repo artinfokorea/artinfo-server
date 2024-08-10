@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Comment } from '@/comment/comment.entity';
+import { Comment, COMMENT_TYPE } from '@/comment/comment.entity';
 import { CommentFetcher } from '@/comment/repository/operation/comment.fetcher';
 import { CommentCounter } from '@/comment/repository/operation/comment.counter';
 import { User } from '@/user/entity/user.entity';
@@ -10,6 +10,7 @@ import { UserRepository } from '@/user/repository/user.repository';
 import { CommentEditor } from '@/comment/repository/operation/comment.editor';
 import { CommentForbidden, CommentNotFound } from '@/comment/comment.exception';
 import { CommentDeleter } from '@/comment/repository/operation/comment.deleter';
+import { NewsRepository } from '@/news/repository/news.repository';
 
 @Injectable()
 export class CommentRepository {
@@ -17,10 +18,14 @@ export class CommentRepository {
     @InjectRepository(Comment)
     private commentRepository: Repository<Comment>,
     private userRepository: UserRepository,
+    private newsRepository: NewsRepository,
   ) {}
 
   async createOrThrow(creator: CommentCreator): Promise<number> {
     const user = await this.userRepository.findOneOrThrowById(creator.userId);
+    if (creator.type === COMMENT_TYPE.NEWS) {
+      await this.newsRepository.findOneOrThrowById(creator.targetId);
+    }
 
     if (creator.parentId) {
       const parentComment = await this.commentRepository.findOneBy({ id: creator.parentId, type: creator.type });
