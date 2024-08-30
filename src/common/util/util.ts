@@ -1,4 +1,9 @@
 export class Util {
+  convertToUTC(koreanDateString: string): Date {
+    const [year, month, day] = koreanDateString.split('.').map(Number);
+    return new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
+  }
+
   generateRandomNumbers(): string {
     return `${Math.floor(Math.random() * 900000) + 100000}`;
   }

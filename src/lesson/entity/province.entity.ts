@@ -1,5 +1,6 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { JobProvince } from '@/job/entity/job-province.entity';
+import { PerformanceArea } from '@/performance/performance-area.entity';
 
 @Entity('provinces')
 export class Province extends BaseEntity {
@@ -20,6 +21,9 @@ export class Province extends BaseEntity {
 
   @OneToMany(() => JobProvince, jobProvince => jobProvince.province)
   jobProvinces: JobProvince[];
+
+  @OneToMany(() => PerformanceArea, performanceArea => performanceArea.province)
+  performanceAreas: PerformanceArea[];
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;

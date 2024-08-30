@@ -32,6 +32,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { NewsModule } from '@/news/news.module';
 import { CommentModule } from '@/comment/comment.module';
 import { Comment } from '@/comment/comment.entity';
+import { Performance } from '@/performance/performance.entity';
+import { PerformanceArea } from '@/performance/performance-area.entity';
 
 const entities = [
   User,
@@ -39,6 +41,8 @@ const entities = [
   Lesson,
   LessonArea,
   Province,
+  Performance,
+  PerformanceArea,
   Auth,
   Advertisement,
   Job,
