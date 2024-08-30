@@ -55,9 +55,9 @@ export class Performance {
   @Column({ type: 'timestamp', name: 'end_at' })
   endAt: Date;
 
-  @ManyToOne(() => PerformanceArea, performanceArea => performanceArea.performances)
+  @ManyToOne(() => PerformanceArea, performanceArea => performanceArea.performances, { nullable: true })
   @JoinColumn({ name: 'performance_area_id' })
-  performanceArea: PerformanceArea;
+  area: PerformanceArea | null;
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;

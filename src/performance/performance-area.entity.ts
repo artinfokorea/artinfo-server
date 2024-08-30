@@ -2,7 +2,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, Pri
 import { Performance } from '@/performance/performance.entity';
 import { Province } from '@/lesson/entity/province.entity';
 
-@Entity('performanceAreas')
+@Entity('performance_areas')
 export class PerformanceArea {
   @PrimaryGeneratedColumn('increment', { name: 'id' })
   id: number;
@@ -22,8 +22,8 @@ export class PerformanceArea {
   @Column({ type: 'int', name: 'seat_scale' })
   seatScale: number;
 
-  @Column({ type: 'varchar', name: 'site_url' })
-  siteUrl: string;
+  @Column({ type: 'varchar', name: 'site_url', nullable: true })
+  siteUrl: string | null;
 
   @Column({ type: 'varchar', name: 'area_type' })
   type: string;
@@ -32,7 +32,7 @@ export class PerformanceArea {
   @JoinColumn({ name: 'province_id' })
   province: Province;
 
-  @OneToMany(() => Performance, performance => performance.performanceArea)
+  @OneToMany(() => Performance, performance => performance.area)
   performances: Performance[];
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })

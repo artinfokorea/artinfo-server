@@ -34,6 +34,7 @@ import { CommentModule } from '@/comment/comment.module';
 import { Comment } from '@/comment/comment.entity';
 import { Performance } from '@/performance/performance.entity';
 import { PerformanceArea } from '@/performance/performance-area.entity';
+import { PerformanceModule } from '@/performance/performance.module';
 
 const entities = [
   User,
@@ -69,6 +70,7 @@ const modules = [
   MajorModule,
   CommentModule,
   InquiryModule,
+  PerformanceModule,
   LoggerModule,
 ];
 
