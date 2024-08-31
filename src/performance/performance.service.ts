@@ -23,6 +23,10 @@ export class PerformanceService {
     return { items: performances, totalCount: totalCount };
   }
 
+  getPerformance(performanceId: number) {
+    return this.performanceRepository.findOneOrThrowById(performanceId);
+  }
+
   async pushPerformances() {
     const kopisPerformances = await axios.get(
       'http://www.kopis.or.kr/openApi/restful/pblprfr?service=734440a5e0584dd3b3d3fd587bafa0b0&stdate=20240901&eddate=20241130&cpage=1&rows=30&newsql=Y&shcate=CCCA',

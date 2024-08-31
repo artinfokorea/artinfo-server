@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository } from 'typeorm';
 import { Performance } from '@/performance/performance.entity';
-import { JobNotFound } from '@/job/exception/job.exception';
 import { PerformanceFetcher } from '@/performance/repository/operation/performance.fetcher';
 import { PerformanceCounter } from '@/performance/repository/operation/performance.counter';
 import { PerformanceCreator } from '@/performance/repository/operation/performance.creator';
+import { PerformanceNotFound } from '@/performance/performance.exception';
 
 @Injectable()
 export class PerformanceRepository {
@@ -15,8 +15,8 @@ export class PerformanceRepository {
   ) {}
 
   async findOneOrThrowById(id: number): Promise<Performance> {
-    const performance = await this.performanceRepository.findOne({ where: { id } });
-    if (!performance) throw new JobNotFound();
+    const performance = await this.performanceRepository.findOne({ relations: ['area'], where: { id } });
+    if (!performance) throw new PerformanceNotFound();
 
     return performance;
   }
