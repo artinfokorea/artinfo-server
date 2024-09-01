@@ -1,4 +1,4 @@
-import { User } from '@/user/entity/user.entity';
+import { User, USER_TYPE } from '@/user/entity/user.entity';
 import { UnableToDeleteMajor, UserNotFound } from '@/user/exception/user.exception';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, In, Repository } from 'typeorm';
@@ -16,6 +16,13 @@ export class UserRepository {
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
+
+  async findAdminOrThrow() {
+    const user = await this.userRepository.findOneBy({ type: USER_TYPE.ADMIN, email: 'artinfokorea2022@gmail.com' });
+    if (!user) throw new UserNotFound();
+
+    return user;
+  }
 
   async create(creator: UserCreator): Promise<number> {
     let hashedPassword: string | null = null;

@@ -6,10 +6,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Performance } from '@/performance/performance.entity';
 import { PerformanceArea } from '@/performance/performance-area.entity';
 import { PerformanceAreaRepository } from '@/performance/repository/performance-area.repository';
+import { UserRepository } from '@/user/repository/user.repository';
+import { User } from '@/user/entity/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Performance, PerformanceArea])],
+  imports: [TypeOrmModule.forFeature([Performance, PerformanceArea, User])],
   controllers: [PerformanceController],
-  providers: [PerformanceService, PerformanceRepository, PerformanceAreaRepository],
+  providers: [PerformanceService, PerformanceRepository, PerformanceAreaRepository, UserRepository],
 })
 export class PerformanceModule {}

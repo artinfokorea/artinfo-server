@@ -1,12 +1,11 @@
-import { PERFORMANCE_CATEGORY } from '@/performance/performance.entity';
 import { PerformanceArea } from '@/performance/performance-area.entity';
-import { User } from '@/user/entity/user.entity';
+import { PerformanceEditor } from '@/performance/repository/operation/performance.editor';
 
-export class PerformanceCreator {
-  kopisId: string | null;
+export class EditPerformanceCommand {
+  userId: number;
+  performanceId: number;
   title: string;
   introduction: string;
-  category: PERFORMANCE_CATEGORY;
   time: string;
   age: string;
   cast: string;
@@ -16,15 +15,14 @@ export class PerformanceCreator {
   posterImageUrl: string;
   startAt: Date;
   endAt: Date;
-  area: PerformanceArea | null;
+  areaId: number | null;
   customAreaName: string | null;
-  user: User;
 
   constructor({
-    kopisId,
+    userId,
+    performanceId,
     title,
     introduction,
-    category,
     time,
     age,
     cast,
@@ -34,14 +32,13 @@ export class PerformanceCreator {
     posterImageUrl,
     startAt,
     endAt,
-    area,
+    areaId,
     customAreaName,
-    user,
   }: {
-    kopisId: string | null;
+    userId: number;
+    performanceId: number;
     title: string;
     introduction: string;
-    category: PERFORMANCE_CATEGORY;
     time: string;
     age: string;
     cast: string;
@@ -51,14 +48,13 @@ export class PerformanceCreator {
     posterImageUrl: string;
     startAt: Date;
     endAt: Date;
-    area: PerformanceArea | null;
+    areaId: number | null;
     customAreaName: string | null;
-    user: User;
   }) {
-    this.kopisId = kopisId;
+    this.userId = userId;
+    this.performanceId = performanceId;
     this.title = title;
     this.introduction = introduction;
-    this.category = category;
     this.time = time;
     this.age = age;
     this.cast = cast;
@@ -68,8 +64,27 @@ export class PerformanceCreator {
     this.posterImageUrl = posterImageUrl;
     this.startAt = startAt;
     this.endAt = endAt;
-    this.area = area;
+    this.areaId = areaId;
     this.customAreaName = customAreaName;
-    this.user = user;
+  }
+
+  toEditor(area: PerformanceArea | null) {
+    return new PerformanceEditor({
+      userId: this.userId,
+      performanceId: this.performanceId,
+      title: this.title,
+      introduction: this.introduction,
+      time: this.time,
+      age: this.age,
+      cast: this.cast,
+      ticketPrice: this.ticketPrice,
+      host: this.host,
+      reservationUrl: this.reservationUrl,
+      posterImageUrl: this.posterImageUrl,
+      startAt: this.startAt,
+      endAt: this.endAt,
+      area: area,
+      customAreaName: this.customAreaName,
+    });
   }
 }

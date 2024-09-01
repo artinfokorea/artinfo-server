@@ -1,12 +1,10 @@
-import { PERFORMANCE_CATEGORY } from '@/performance/performance.entity';
 import { PerformanceArea } from '@/performance/performance-area.entity';
-import { User } from '@/user/entity/user.entity';
 
-export class PerformanceCreator {
-  kopisId: string | null;
+export class PerformanceEditor {
+  userId: number;
+  performanceId: number;
   title: string;
   introduction: string;
-  category: PERFORMANCE_CATEGORY;
   time: string;
   age: string;
   cast: string;
@@ -18,13 +16,12 @@ export class PerformanceCreator {
   endAt: Date;
   area: PerformanceArea | null;
   customAreaName: string | null;
-  user: User;
 
   constructor({
-    kopisId,
+    userId,
+    performanceId,
     title,
     introduction,
-    category,
     time,
     age,
     cast,
@@ -36,12 +33,11 @@ export class PerformanceCreator {
     endAt,
     area,
     customAreaName,
-    user,
   }: {
-    kopisId: string | null;
+    userId: number;
+    performanceId: number;
     title: string;
     introduction: string;
-    category: PERFORMANCE_CATEGORY;
     time: string;
     age: string;
     cast: string;
@@ -53,12 +49,11 @@ export class PerformanceCreator {
     endAt: Date;
     area: PerformanceArea | null;
     customAreaName: string | null;
-    user: User;
   }) {
-    this.kopisId = kopisId;
+    this.userId = userId;
+    this.performanceId = performanceId;
     this.title = title;
     this.introduction = introduction;
-    this.category = category;
     this.time = time;
     this.age = age;
     this.cast = cast;
@@ -70,6 +65,5 @@ export class PerformanceCreator {
     this.endAt = endAt;
     this.area = area;
     this.customAreaName = customAreaName;
-    this.user = user;
   }
 }

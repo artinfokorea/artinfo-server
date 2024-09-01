@@ -6,6 +6,7 @@ import { PerformanceFetcher } from '@/performance/repository/operation/performan
 import { PerformanceCounter } from '@/performance/repository/operation/performance.counter';
 import { PerformanceCreator } from '@/performance/repository/operation/performance.creator';
 import { PerformanceNotFound } from '@/performance/performance.exception';
+import { PerformanceEditor } from '@/performance/repository/operation/performance.editor';
 
 @Injectable()
 export class PerformanceRepository {
@@ -14,11 +15,40 @@ export class PerformanceRepository {
     private readonly performanceRepository: Repository<Performance>,
   ) {}
 
+  async editOrThrow(editor: PerformanceEditor): Promise<void> {
+    const performance = await this.performanceRepository.findOneBy({ id: editor.performanceId, user: { id: editor.userId } });
+    if (!performance) throw new PerformanceNotFound();
+
+    await this.performanceRepository.update(
+      { id: editor.performanceId, user: { id: editor.userId } },
+      {
+        title: editor.title,
+        introduction: editor.introduction,
+        time: editor.time,
+        age: editor.age,
+        cast: editor.cast,
+        ticketPrice: editor.ticketPrice,
+        host: editor.host,
+        reservationUrl: editor.reservationUrl,
+        posterImageUrl: editor.posterImageUrl,
+        startAt: editor.startAt,
+        endAt: editor.endAt,
+        area: editor.area,
+        customAreaName: editor.customAreaName,
+      },
+    );
+  }
+
   async findOneOrThrowById(id: number): Promise<Performance> {
     const performance = await this.performanceRepository.findOne({ relations: ['area'], where: { id } });
     if (!performance) throw new PerformanceNotFound();
 
     return performance;
+  }
+
+  async deleteOrThrow(userId: number, performanceId: number): Promise<void> {
+    const result = await this.performanceRepository.delete({ id: performanceId, user: { id: userId } });
+    if (result.affected === 0) throw new PerformanceNotFound();
   }
 
   async find(fetcher: PerformanceFetcher): Promise<Performance[]> {
@@ -96,6 +126,7 @@ export class PerformanceRepository {
       endAt: creator.endAt,
       area: creator.area,
       customAreaName: creator.customAreaName,
+      user: creator.user,
     });
 
     return performance.id;

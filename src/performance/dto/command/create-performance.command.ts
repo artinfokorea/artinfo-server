@@ -1,9 +1,10 @@
 import { PERFORMANCE_CATEGORY } from '@/performance/performance.entity';
 import { PerformanceArea } from '@/performance/performance-area.entity';
+import { PerformanceCreator } from '@/performance/repository/operation/performance.creator';
 import { User } from '@/user/entity/user.entity';
 
-export class PerformanceCreator {
-  kopisId: string | null;
+export class CreatePerformanceCommand {
+  userId: number;
   title: string;
   introduction: string;
   category: PERFORMANCE_CATEGORY;
@@ -16,12 +17,11 @@ export class PerformanceCreator {
   posterImageUrl: string;
   startAt: Date;
   endAt: Date;
-  area: PerformanceArea | null;
+  areaId: number | null;
   customAreaName: string | null;
-  user: User;
 
   constructor({
-    kopisId,
+    userId,
     title,
     introduction,
     category,
@@ -34,11 +34,10 @@ export class PerformanceCreator {
     posterImageUrl,
     startAt,
     endAt,
-    area,
+    areaId,
     customAreaName,
-    user,
   }: {
-    kopisId: string | null;
+    userId: number;
     title: string;
     introduction: string;
     category: PERFORMANCE_CATEGORY;
@@ -51,11 +50,10 @@ export class PerformanceCreator {
     posterImageUrl: string;
     startAt: Date;
     endAt: Date;
-    area: PerformanceArea | null;
+    areaId: number | null;
     customAreaName: string | null;
-    user: User;
   }) {
-    this.kopisId = kopisId;
+    this.userId = userId;
     this.title = title;
     this.introduction = introduction;
     this.category = category;
@@ -68,8 +66,28 @@ export class PerformanceCreator {
     this.posterImageUrl = posterImageUrl;
     this.startAt = startAt;
     this.endAt = endAt;
-    this.area = area;
+    this.areaId = areaId;
     this.customAreaName = customAreaName;
-    this.user = user;
+  }
+
+  toCreator(user: User, performanceArea: PerformanceArea | null) {
+    return new PerformanceCreator({
+      kopisId: null,
+      title: this.title,
+      introduction: this.introduction,
+      category: this.category,
+      time: this.time,
+      age: this.age,
+      cast: this.cast,
+      ticketPrice: this.ticketPrice,
+      host: this.host,
+      reservationUrl: this.reservationUrl,
+      posterImageUrl: this.posterImageUrl,
+      startAt: this.startAt,
+      endAt: this.endAt,
+      area: performanceArea,
+      customAreaName: this.customAreaName,
+      user: user,
+    });
   }
 }

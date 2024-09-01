@@ -1,5 +1,6 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { PerformanceArea } from '@/performance/performance-area.entity';
+import { User } from '@/user/entity/user.entity';
 
 export enum PERFORMANCE_CATEGORY {
   CLASSIC = 'CLASSIC',
@@ -58,6 +59,10 @@ export class Performance {
   @ManyToOne(() => PerformanceArea, performanceArea => performanceArea.performances, { nullable: true })
   @JoinColumn({ name: 'performance_area_id' })
   area: PerformanceArea | null;
+
+  @ManyToOne(() => User, user => user.performances)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;

@@ -4,6 +4,7 @@ import { School } from '@/user/entity/school.entity';
 import { UserMajorCategory } from '@/user/entity/user-major-category.entity';
 import { Lesson } from '@/lesson/entity/lesson.entity';
 import { Comment } from '@/comment/comment.entity';
+import { Performance } from '@/performance/performance.entity';
 
 export enum USER_TYPE {
   CLIENT = 'CLIENT',
@@ -65,6 +66,9 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Job, fullTimeJob => fullTimeJob.user, { cascade: true })
   jobs: Job[];
+
+  @OneToMany(() => Performance, performance => performance.user)
+  performances: Performance[];
 
   @OneToMany(() => UserMajorCategory, userMajorCategory => userMajorCategory.user, { eager: true, cascade: true })
   userMajorCategories: UserMajorCategory[];

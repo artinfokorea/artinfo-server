@@ -8,13 +8,33 @@ import * as xml2js from 'xml2js';
 import { PerformanceCreator } from '@/performance/repository/operation/performance.creator';
 import { Util } from '@/common/util/util';
 import { PerformanceAreaRepository } from '@/performance/repository/performance-area.repository';
+import { CreatePerformanceCommand } from '@/performance/dto/command/create-performance.command';
+import { PerformanceArea } from '@/performance/performance-area.entity';
+import { UserRepository } from '@/user/repository/user.repository';
+import { EditPerformanceCommand } from '@/performance/dto/command/edit-performance.command';
 
 @Injectable()
 export class PerformanceService {
   constructor(
     private readonly performanceRepository: PerformanceRepository,
     private readonly performanceAreaRepository: PerformanceAreaRepository,
+    private readonly userRepository: UserRepository,
   ) {}
+
+  async editPerformance(command: EditPerformanceCommand): Promise<void> {
+    let area: PerformanceArea | null = null;
+    if (command.areaId) area = await this.performanceAreaRepository.findOneOrThrowById(command.areaId);
+
+    await this.performanceRepository.editOrThrow(command.toEditor(area));
+  }
+
+  async createPerformance(command: CreatePerformanceCommand): Promise<number> {
+    const user = await this.userRepository.findOneOrThrowById(command.userId);
+    let performanceArea: PerformanceArea | null = null;
+    if (command.areaId) performanceArea = await this.performanceAreaRepository.findOneOrThrowById(command.areaId);
+
+    return await this.performanceRepository.create(command.toCreator(user, performanceArea));
+  }
 
   async getPagingPerformances(query: GetPerformancesQuery): Promise<PagingItems<Performance>> {
     const performances = await this.performanceRepository.find(query.toFetcher());
@@ -27,7 +47,12 @@ export class PerformanceService {
     return this.performanceRepository.findOneOrThrowById(performanceId);
   }
 
+  async deletePerformance(userId: number, performanceId: number) {
+    await this.performanceRepository.deleteOrThrow(userId, performanceId);
+  }
+
   async pushPerformances() {
+    const user = await this.userRepository.findAdminOrThrow();
     const kopisPerformances = await axios.get(
       'http://www.kopis.or.kr/openApi/restful/pblprfr?service=734440a5e0584dd3b3d3fd587bafa0b0&stdate=20240901&eddate=20241130&cpage=1&rows=30&newsql=Y&shcate=CCCA',
     );
@@ -100,6 +125,7 @@ export class PerformanceService {
           endAt,
           area,
           customAreaName,
+          user: user,
         });
 
         await this.performanceRepository.create(performanceCreator);
