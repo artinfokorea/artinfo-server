@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PerformanceAreaResponse } from '@/performance/dto/response/performance-area.response';
 import { Performance } from '@/performance/performance.entity';
+import { PerformanceAreaDetailResponse } from '@/performance/dto/response/performance-area-detail.response';
 
 export class PerformanceDetailResponse {
   @ApiProperty({ type: 'number', required: true, description: '공연 아이디', example: 2 })
@@ -21,8 +21,8 @@ export class PerformanceDetailResponse {
   @ApiProperty({ type: 'string | null', required: false, description: '직접 입력한 공연 장소', example: '예술의 전당 콘서트홀' })
   customAreaName: string | null;
 
-  @ApiProperty({ type: PerformanceAreaResponse, required: false, description: '공연장 정보' })
-  area: PerformanceAreaResponse | null;
+  @ApiProperty({ type: PerformanceAreaDetailResponse, required: false, description: '공연장 정보' })
+  area: PerformanceAreaDetailResponse | null;
 
   @ApiProperty({ type: 'string', required: true, description: '공연시간', example: '일요일(17:00)' })
   time: string;
@@ -46,8 +46,8 @@ export class PerformanceDetailResponse {
   introduction: string;
 
   constructor(performance: Performance) {
-    let area: PerformanceAreaResponse | null = null;
-    if (performance.area) area = new PerformanceAreaResponse(performance.area);
+    let area: PerformanceAreaDetailResponse | null = null;
+    if (performance.area) area = new PerformanceAreaDetailResponse(performance.area);
 
     this.id = performance.id;
     this.title = performance.title;
