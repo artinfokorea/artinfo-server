@@ -6,6 +6,9 @@ export class PerformanceDetailResponse {
   @ApiProperty({ type: 'number', required: true, description: '공연 아이디', example: 2 })
   id: number;
 
+  @ApiProperty({ type: 'number', required: true, description: '작성자 아이디', example: 2 })
+  authorId: number;
+
   @ApiProperty({ type: 'string', required: true, description: '공연 제목', example: '국립합창단 제 126회 정기연주회' })
   title: string;
 
@@ -50,6 +53,7 @@ export class PerformanceDetailResponse {
     if (performance.area) area = new PerformanceAreaDetailResponse(performance.area);
 
     this.id = performance.id;
+    this.authorId = performance.user.id;
     this.title = performance.title;
     this.posterImageUrl = performance.posterImageUrl;
     this.startAt = performance.startAt;

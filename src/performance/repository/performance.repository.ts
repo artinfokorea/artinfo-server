@@ -40,7 +40,7 @@ export class PerformanceRepository {
   }
 
   async findOneOrThrowById(id: number): Promise<Performance> {
-    const performance = await this.performanceRepository.findOne({ relations: ['area'], where: { id } });
+    const performance = await this.performanceRepository.findOne({ relations: ['area', 'user'], where: { id } });
     if (!performance) throw new PerformanceNotFound();
 
     return performance;
