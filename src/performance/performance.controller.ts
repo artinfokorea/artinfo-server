@@ -11,10 +11,16 @@ import { USER_TYPE } from '@/user/entity/user.entity';
 import { CreateResponse } from '@/common/response/createResponse';
 import { CreatePerformanceRequest } from '@/performance/dto/request/create-performance.request';
 import { EditPerformanceRequest } from '@/performance/dto/request/edit-performance.request';
+import { PerformanceAreasResponse } from '@/performance/dto/response/performance-areas.response';
+import { PerformanceAreaService } from '@/performance/performance-area.service';
+import { GetPerformanceAreasRequest } from '@/performance/dto/request/get-performance-areas.request';
 
 @RestApiController('/performances', 'Performance')
 export class PerformanceController {
-  constructor(private readonly performanceService: PerformanceService) {}
+  constructor(
+    private readonly performanceService: PerformanceService,
+    private readonly performanceAreaService: PerformanceAreaService,
+  ) {}
 
   @RestApiPost(CreatePerformanceRequest, { path: '/', description: '공연 생성', auth: [USER_TYPE.CLIENT] })
   async createPerformance(@Signature() signature: UserSignature, @Body() request: CreatePerformanceRequest) {
@@ -32,6 +38,12 @@ export class PerformanceController {
   async deletePerformance(@Signature() signature: UserSignature, @Param('performanceId') performanceId: number) {
     await this.performanceService.deletePerformance(signature.id, performanceId);
     return new OkResponse();
+  }
+
+  @RestApiGet(PerformanceAreasResponse, { path: '/areas', description: '공연장 목록 조회' })
+  async getPerformanceAreas(@Query() request: GetPerformanceAreasRequest) {
+    const { items, totalCount } = await this.performanceAreaService.getPagingPerformanceAreas(request.toQuery());
+    return new PerformanceAreasResponse({ performanceAreas: items, totalCount: totalCount });
   }
 
   @RestApiGet(PerformancesResponse, { path: '/', description: '공연 목록 조회' })

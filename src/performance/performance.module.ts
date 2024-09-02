@@ -8,10 +8,11 @@ import { PerformanceArea } from '@/performance/performance-area.entity';
 import { PerformanceAreaRepository } from '@/performance/repository/performance-area.repository';
 import { UserRepository } from '@/user/repository/user.repository';
 import { User } from '@/user/entity/user.entity';
+import { PerformanceAreaService } from '@/performance/performance-area.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Performance, PerformanceArea, User])],
   controllers: [PerformanceController],
-  providers: [PerformanceService, PerformanceRepository, PerformanceAreaRepository, UserRepository],
+  providers: [PerformanceService, PerformanceAreaService, PerformanceRepository, PerformanceAreaRepository, UserRepository],
 })
 export class PerformanceModule {}

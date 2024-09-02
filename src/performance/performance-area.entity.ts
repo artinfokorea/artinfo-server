@@ -28,6 +28,9 @@ export class PerformanceArea {
   @Column({ type: 'varchar', name: 'area_type' })
   type: string;
 
+  @Column({ type: 'int', name: 'sequence', nullable: true })
+  sequence: number | null;
+
   @ManyToOne(() => Province, province => province.performanceAreas)
   @JoinColumn({ name: 'province_id' })
   province: Province;
