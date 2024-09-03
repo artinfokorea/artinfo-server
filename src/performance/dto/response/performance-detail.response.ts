@@ -65,6 +65,7 @@ export class PerformanceDetailResponse {
     this.ticketPrice = performance.ticketPrice;
     this.cast = performance.cast;
     this.host = performance.host;
+    this.reservationUrl = performance.reservationUrl;
     this.introduction = performance.introduction;
   }
 }
