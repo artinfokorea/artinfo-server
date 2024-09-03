@@ -86,6 +86,12 @@ export class PerformanceRepository {
       .leftJoinAndSelect('performance.area', 'area')
       .leftJoinAndSelect('area.province', 'province');
 
+    if (counter.isPreArranged) {
+      const currentKST = new Date();
+      currentKST.setHours(currentKST.getHours() + 9);
+      queryBuilder.andWhere('performance.endAt > :currentKST', { currentKST });
+    }
+
     if (counter.keyword) {
       queryBuilder.andWhere(
         new Brackets(qb => {

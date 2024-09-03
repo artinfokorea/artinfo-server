@@ -40,6 +40,7 @@ export class GetPerformancesQuery {
       keyword: this.keyword,
       categories: this.categories,
       provinceIds: this.provinceIds,
+      isPreArranged: false,
     });
   }
 }

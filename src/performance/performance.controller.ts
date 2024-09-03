@@ -14,6 +14,7 @@ import { EditPerformanceRequest } from '@/performance/dto/request/edit-performan
 import { PerformanceAreasResponse } from '@/performance/dto/response/performance-areas.response';
 import { PerformanceAreaService } from '@/performance/performance-area.service';
 import { GetPerformanceAreasRequest } from '@/performance/dto/request/get-performance-areas.request';
+import { CountPerformancesResponse } from '@/performance/dto/response/count-performances.response';
 
 @RestApiController('/performances', 'Performance')
 export class PerformanceController {
@@ -50,6 +51,12 @@ export class PerformanceController {
   async getPerformances(@Query() request: GetPerformancesRequest) {
     const { items, totalCount } = await this.performanceService.getPagingPerformances(request.toQuery());
     return new PerformancesResponse({ performances: items, totalCount: totalCount });
+  }
+
+  @RestApiGet(CountPerformancesResponse, { path: '/count', description: '예정된 공연 개수 조회' })
+  async countPreArrangedPerformances() {
+    const totalCount = await this.performanceService.countPreArrangedPerformance();
+    return new CountPerformancesResponse(totalCount);
   }
 
   @RestApiGet(PerformanceDetailResponse, { path: '/:performanceId', description: '공연 단건 조회' })

@@ -12,6 +12,7 @@ import { CreatePerformanceCommand } from '@/performance/dto/command/create-perfo
 import { PerformanceArea } from '@/performance/performance-area.entity';
 import { UserRepository } from '@/user/repository/user.repository';
 import { EditPerformanceCommand } from '@/performance/dto/command/edit-performance.command';
+import { PerformanceCounter } from '@/performance/repository/operation/performance.counter';
 
 @Injectable()
 export class PerformanceService {
@@ -20,6 +21,16 @@ export class PerformanceService {
     private readonly performanceAreaRepository: PerformanceAreaRepository,
     private readonly userRepository: UserRepository,
   ) {}
+
+  async countPreArrangedPerformance() {
+    const performanceCounter = new PerformanceCounter({
+      keyword: null,
+      categories: [],
+      provinceIds: [],
+      isPreArranged: true,
+    });
+    return await this.performanceRepository.count(performanceCounter);
+  }
 
   async editPerformance(command: EditPerformanceCommand): Promise<void> {
     let area: PerformanceArea | null = null;
