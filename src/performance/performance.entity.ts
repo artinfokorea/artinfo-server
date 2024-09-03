@@ -14,7 +14,7 @@ export class Performance {
   @PrimaryGeneratedColumn('increment', { name: 'id' })
   id: number;
 
-  @Column({ type: 'varchar', name: 'kopis_id', nullable: true })
+  @Column({ type: 'varchar', name: 'kopis_id', unique: true, nullable: true })
   kopisId: string | null;
 
   @Column({ type: 'varchar', name: 'title' })

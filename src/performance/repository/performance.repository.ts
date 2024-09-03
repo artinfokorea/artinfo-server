@@ -57,6 +57,10 @@ export class PerformanceRepository {
       .leftJoinAndSelect('performance.area', 'area')
       .leftJoinAndSelect('area.province', 'province');
 
+    const currentKST = new Date();
+    currentKST.setHours(currentKST.getHours() + 9);
+    queryBuilder.andWhere('performance.endAt >= :currentKST', { currentKST });
+
     if (fetcher.keyword) {
       queryBuilder.andWhere(
         new Brackets(qb => {
@@ -77,7 +81,7 @@ export class PerformanceRepository {
       queryBuilder.andWhere('performance.category IN (:...categories)', { categories: fetcher.categories });
     }
 
-    return await queryBuilder.orderBy('performance.startAt', 'ASC').skip(fetcher.skip).take(fetcher.take).getMany();
+    return await queryBuilder.orderBy('performance.endAt', 'ASC').skip(fetcher.skip).take(fetcher.take).getMany();
   }
 
   async count(counter: PerformanceCounter): Promise<number> {
