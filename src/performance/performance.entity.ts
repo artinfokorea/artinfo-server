@@ -56,6 +56,9 @@ export class Performance {
   @Column({ type: 'timestamp', name: 'end_at' })
   endAt: Date;
 
+  @Column({ type: 'boolean', name: 'is_ad', default: false })
+  isAd: boolean;
+
   @ManyToOne(() => PerformanceArea, performanceArea => performanceArea.performances, { nullable: true })
   @JoinColumn({ name: 'performance_area_id' })
   area: PerformanceArea | null;

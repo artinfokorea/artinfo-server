@@ -81,7 +81,7 @@ export class PerformanceRepository {
       queryBuilder.andWhere('performance.category IN (:...categories)', { categories: fetcher.categories });
     }
 
-    return await queryBuilder.orderBy('performance.endAt', 'ASC').skip(fetcher.skip).take(fetcher.take).getMany();
+    return await queryBuilder.orderBy('performance.isAd', 'DESC').addOrderBy('performance.endAt', 'ASC').skip(fetcher.skip).take(fetcher.take).getMany();
   }
 
   async count(counter: PerformanceCounter): Promise<number> {
