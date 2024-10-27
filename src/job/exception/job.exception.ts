@@ -35,3 +35,27 @@ export class JobCreationFailed extends HttpException {
     );
   }
 }
+
+export class PartTimeJobScheduleRequired extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'JOB-004',
+        message: '오브리 생성시 일정이 하나이상 필요합니다',
+      },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+}
+
+export class PartTimeJobUserPhoneRequired extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'JOB-005',
+        message: '오브리 생성시 유저 연락처 정보가 필요합니다',
+      },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+}

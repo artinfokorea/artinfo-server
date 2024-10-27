@@ -1,8 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { JOB_TYPE } from '@/job/entity/job.entity';
-import { CreateJobCommand } from '@/job/dto/command/create-job.command';
-import { NotBlank } from '@/common/decorator/validator';
+import { NotBlank, NumberArray } from '@/common/decorator/validator';
 import { IsNumber } from 'class-validator';
+import { CreatePartTimeJobCommand } from '@/job/dto/command/create-part-time-job.command';
+
+export class CreateJobScheduleRequest {
+  @ApiProperty({ type: Date, required: true, description: '일정 시작시간', example: new Date() })
+  startAt: Date;
+
+  @ApiProperty({ type: Date, required: true, description: '일정 종료시간', example: new Date() })
+  endAt: Date;
+}
 
 export class CreatePartTimeJobRequest {
   @NotBlank()
@@ -18,41 +26,39 @@ export class CreatePartTimeJobRequest {
   companyName: string;
 
   @NotBlank()
-  @ApiProperty({ type: 'string', required: true, description: '주소', example: '응암역 응암교회' })
+  @ApiProperty({ type: 'string', required: true, description: '주소', example: '서울 서초구 방배동' })
   address: string;
+
+  @NotBlank()
+  @ApiProperty({ type: 'string', required: true, description: '단체 상세 주소', example: '401호' })
+  addressDetail: string;
 
   @IsNumber()
   @NotBlank()
   @ApiProperty({ type: 'number', required: true, description: '페이', example: 50000 })
   fee: number;
 
-  @IsNumber()
-  @ApiProperty({ type: 'number', required: true, description: '전공 아이디', example: 2 })
-  majorId: number;
+  @NumberArray()
+  @ApiProperty({ type: 'number[]', required: true, description: '전공 아이디 목록', example: [2, 3] })
+  majorIds: number[];
 
-  @NotBlank()
-  @ApiProperty({ type: 'date', required: true, description: '시작 시간', example: new Date() })
-  startAt: Date;
-
-  @NotBlank()
-  @ApiProperty({ type: 'date', required: true, description: '종료 시간', example: new Date() })
-  endAt: Date;
+  @ApiProperty({ type: [CreateJobScheduleRequest], required: true, description: '오브리 일정', example: [{ startAt: new Date(), endAt: new Date() }] })
+  schedules: CreateJobScheduleRequest[];
 
   toCommand(userId: number) {
-    return new CreateJobCommand({
+    return new CreatePartTimeJobCommand({
       userId: userId,
       title: this.title,
       contents: this.contents,
       companyName: this.companyName,
       recruitSiteUrl: null,
       imageUrl: null,
-      address: null,
-      addressDetail: null,
+      address: this.address,
+      addressDetail: this.addressDetail,
       fee: this.fee,
-      majorIds: [this.majorId],
+      majorIds: this.majorIds,
       type: JOB_TYPE.PART_TIME,
-      startAt: this.startAt,
-      endAt: this.endAt,
+      schedules: this.schedules,
     });
   }
 }

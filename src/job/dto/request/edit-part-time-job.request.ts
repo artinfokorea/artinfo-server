@@ -1,8 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { NotBlank, NumberArray } from '@/common/decorator/validator';
 import { EditJobCommand } from '@/job/dto/command/edit-job.command';
+import { IsBoolean, IsNumber } from 'class-validator';
+import { CreateJobScheduleRequest } from '@/job/dto/request/create-part-time-job.request';
 
-export class EditFullTimeJobRequest {
+export class EditPartTimeJobRequest {
   @NotBlank()
   @ApiProperty({ type: 'string', required: true, description: '채용 제목', example: '춘천시립예술단 단원 모집' })
   title: string;
@@ -23,15 +25,21 @@ export class EditFullTimeJobRequest {
   @ApiProperty({ type: 'string', required: true, description: '단체 상세 주소', example: '401호' })
   addressDetail: string;
 
-  @ApiProperty({ type: 'string', required: false, description: '자사 채용 사이트 주소', example: 'https://artinfokorea.com' })
-  recruitSiteUrl: string | null = null;
-
-  @ApiProperty({ type: 'string', required: false, description: '회사 대표 이미지', example: 'https://artinfokorea.com' })
-  imageUrl: string | null = null;
+  @IsNumber()
+  @NotBlank()
+  @ApiProperty({ type: 'number', required: true, description: '페이', example: 50000 })
+  fee: number;
 
   @NumberArray()
   @ApiProperty({ type: 'number[]', required: true, description: '전공 아이디 목록', example: [5, 6] })
   majorIds: number[];
+
+  @IsBoolean()
+  @ApiProperty({ type: 'boolean', required: true, description: '활성화 여부', example: true })
+  isActive: boolean;
+
+  @ApiProperty({ type: [CreateJobScheduleRequest], required: true, description: '오브리 일정', example: [{ startAt: new Date(), endAt: new Date() }] })
+  schedules: CreateJobScheduleRequest[];
 
   toCommand(userId: number, jobId: number) {
     return new EditJobCommand({
@@ -40,14 +48,14 @@ export class EditFullTimeJobRequest {
       title: this.title,
       contents: this.contents,
       companyName: this.companyName,
-      recruitSiteUrl: this.recruitSiteUrl,
-      imageUrl: this.imageUrl,
+      recruitSiteUrl: null,
+      imageUrl: null,
       address: this.address,
       addressDetail: this.addressDetail,
-      fee: null,
+      fee: this.fee,
       majorIds: this.majorIds,
-      schedules: [],
-      isActive: true,
+      schedules: this.schedules,
+      isActive: this.isActive,
     });
   }
 }

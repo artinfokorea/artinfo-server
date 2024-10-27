@@ -2,6 +2,7 @@ import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, On
 import { JobMajorCategory } from '@/job/entity/job-major-category.entity';
 import { User } from '@/user/entity/user.entity';
 import { JobProvince } from '@/job/entity/job-province.entity';
+import { JobSchedule } from '@/job/entity/job-schedule.entity';
 
 export enum JOB_TYPE {
   ART_ORGANIZATION = 'ART_ORGANIZATION',
@@ -60,6 +61,9 @@ export class Job extends BaseEntity {
 
   @CreateDateColumn({ type: 'timestamp', name: 'end_at', nullable: true })
   endAt: Date | null;
+
+  @OneToMany(() => JobSchedule, schedule => schedule.job, { eager: true, cascade: true })
+  schedules: JobSchedule[];
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;

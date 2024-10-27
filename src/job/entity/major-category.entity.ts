@@ -15,6 +15,17 @@ export enum PROFESSIONAL_FIELD_CATEGORY {
   ART = 'ART',
 }
 
+export enum MAJOR_GROUP_CATEGORY {
+  CONDUCTOR = 'CONDUCTOR',
+  KEYBOARD = 'KEYBOARD',
+  STRING = 'STRING',
+  WOOD_WIND = 'WOOD_WIND',
+  BRASS_WIND = 'BRASS_WIND',
+  PERCUSSION = 'PERCUSSION',
+  VOCAL = 'VOCAL',
+  COMPOSER = 'COMPOSER',
+}
+
 export enum MAJOR {
   CONDUCTOR = 'CONDUCTOR',
   COMPOSER = 'COMPOSER',
@@ -81,6 +92,12 @@ export class MajorCategory extends BaseEntity {
 
   @Column({ type: 'enum', enum: PROFESSIONAL_FIELD_CATEGORY, name: 'second_group_en', nullable: true })
   secondGroupEn: PROFESSIONAL_FIELD_CATEGORY;
+
+  @Column({ type: 'varchar', name: 'third_group_ko', nullable: true })
+  thirdGroupKo: string;
+
+  @Column({ type: 'enum', enum: MAJOR_GROUP_CATEGORY, name: 'third_group_en', nullable: true })
+  thirdGroupEn: MAJOR_GROUP_CATEGORY;
 
   @Column({ type: 'varchar', name: 'ko_name' })
   koName: string;

@@ -12,6 +12,8 @@ export class EditJobCommand {
   addressDetail: string | null;
   fee: number | null;
   majorIds: number[];
+  schedules: { startAt: Date; endAt: Date }[];
+  isActive: boolean;
 
   constructor({
     jobId,
@@ -25,6 +27,8 @@ export class EditJobCommand {
     addressDetail,
     fee,
     majorIds,
+    schedules,
+    isActive,
   }: {
     jobId: number;
     userId: number;
@@ -37,6 +41,8 @@ export class EditJobCommand {
     addressDetail: string | null;
     fee: number | null;
     majorIds: number[];
+    schedules: { startAt: Date; endAt: Date }[];
+    isActive: boolean;
   }) {
     this.jobId = jobId;
     this.userId = userId;
@@ -49,6 +55,8 @@ export class EditJobCommand {
     this.addressDetail = addressDetail;
     this.fee = fee;
     this.majorIds = majorIds;
+    this.schedules = schedules;
+    this.isActive = isActive;
   }
 
   toEditor() {
@@ -63,6 +71,8 @@ export class EditJobCommand {
       address: this.address,
       addressDetail: this.addressDetail,
       fee: this.fee,
+      schedules: this.schedules,
+      isActive: this.isActive,
     });
   }
 }

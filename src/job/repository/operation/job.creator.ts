@@ -11,6 +11,7 @@ export class JobCreator {
   addressDetail: string | null;
   fee: number | null;
   type: JOB_TYPE;
+  schedules: { startAt: Date; endAt: Date }[];
 
   constructor({
     userId,
@@ -23,6 +24,7 @@ export class JobCreator {
     addressDetail,
     fee,
     type,
+    schedules,
   }: {
     userId: number;
     title: string;
@@ -34,6 +36,7 @@ export class JobCreator {
     addressDetail: string | null;
     fee: number | null;
     type: JOB_TYPE;
+    schedules: { startAt: Date; endAt: Date }[];
   }) {
     this.userId = userId;
     this.title = title;
@@ -45,5 +48,6 @@ export class JobCreator {
     this.addressDetail = addressDetail;
     this.fee = fee;
     this.type = type;
+    this.schedules = schedules;
   }
 }

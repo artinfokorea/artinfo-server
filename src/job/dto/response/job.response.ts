@@ -2,6 +2,14 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Job, JOB_TYPE } from '@/job/entity/job.entity';
 import { MajorsResponse } from '@/major/dto/response/majors.response';
 
+export class JobSchedule {
+  @ApiProperty({ type: 'date', required: true, description: '시작 일', example: new Date() })
+  startAt: Date;
+
+  @ApiProperty({ type: 'date', required: true, description: '종료 일', example: new Date() })
+  endAt: Date;
+}
+
 export class JobResponse {
   @ApiProperty({ type: 'number', required: true, description: '채용 아이디', example: 2 })
   id: number;
@@ -48,6 +56,9 @@ export class JobResponse {
   @ApiProperty({ type: 'date', required: false, description: '종료 일', example: new Date() })
   endAt: Date | null;
 
+  @ApiProperty({ type: [JobSchedule], required: false, description: '단기직 일정' })
+  schedules: JobSchedule[];
+
   @ApiProperty({ type: 'date', required: true, description: '작성 일', example: new Date() })
   createdAt: Date;
 
@@ -70,6 +81,7 @@ export class JobResponse {
     this.fee = job.fee;
     this.startAt = job.startAt;
     this.endAt = job.endAt;
+    this.schedules = job.schedules ?? null;
     this.createdAt = job.createdAt;
   }
 }

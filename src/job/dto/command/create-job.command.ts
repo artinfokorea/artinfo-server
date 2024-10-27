@@ -72,6 +72,7 @@ export class CreateJobCommand {
       addressDetail: this.addressDetail,
       fee: this.fee,
       type: this.type,
+      schedules: [],
     });
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, DataSource, In, Repository } from 'typeorm';
-import { Job } from '@/job/entity/job.entity';
+import { Job, JOB_TYPE } from '@/job/entity/job.entity';
 import { JobCreationFailed, JobNotFound } from '@/job/exception/job.exception';
 import { JobCreator } from '@/job/repository/operation/job.creator';
 import { JobEditor } from '@/job/repository/operation/job.editor';
@@ -12,12 +12,19 @@ import { JobProvince } from '@/job/entity/job-province.entity';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Util } from '@/common/util/util';
+import { JobSchedule } from '@/job/entity/job-schedule.entity';
+import { PartTimeJobFetcher } from '@/job/repository/operation/part-time-job.fetcher';
+import { PagingItems } from '@/common/type/type';
+import { JobScheduleCreator } from '@/job/repository/operation/job-schedule.creator';
 
 @Injectable()
 export class JobRepository {
   constructor(
     @InjectRepository(Job)
     private jobRepository: Repository<Job>,
+
+    @InjectRepository(JobSchedule)
+    private jobScheduleRepository: Repository<JobSchedule>,
 
     @InjectRepository(Province)
     private provinceRepository: Repository<Province>,
@@ -53,6 +60,18 @@ export class JobRepository {
               provinceId: province.id,
             });
           }
+        }
+
+        if (creator.schedules.length) {
+          const scheduleCreators = creator.schedules.map(schedule => {
+            return transactionManager.create(JobSchedule, {
+              job: job,
+              startAt: schedule.startAt,
+              endAt: schedule.endAt,
+            });
+          });
+
+          await transactionManager.save(scheduleCreators);
         }
 
         await this.redisService.deleteByPattern('jobs:*');
@@ -92,14 +111,77 @@ export class JobRepository {
         fee: editor.fee,
         recruitSiteUrl: editor.recruitSiteUrl,
         imageUrl: editor.imageUrl,
+        isActive: editor.isActive,
       });
 
       await this.redisService.deleteByPattern('jobs:*');
     });
   }
 
-  async find(fetcher: JobFetcher): Promise<Job[]> {
-    const redisKey = new Util().getRedisKey('jobs:list:', fetcher);
+  async findPartTimeJobs(fetcher: PartTimeJobFetcher): Promise<PagingItems<Job>> {
+    const redisKey = new Util().getRedisKey('partTimeJobs:list:', fetcher);
+
+    const redisJobs = await this.redisService.getByKey(redisKey);
+    if (redisJobs) {
+      console.log(redisJobs);
+      return redisJobs as PagingItems<Job>;
+    } else {
+      const jobIdsQueryBuilder = this.jobRepository
+        .createQueryBuilder('job')
+        .select('job.id')
+        .leftJoin('job.jobProvinces', 'jobProvinces')
+        .leftJoin('job.jobMajorCategories', 'jobMajorCategories')
+        .leftJoin('jobMajorCategories.majorCategory', 'majorCategory')
+        .where('job.type = :type', { type: JOB_TYPE.PART_TIME });
+
+      if (fetcher.provinceIds.length) {
+        const provinces = await this.provinceRepository.findBy({ id: In(fetcher.provinceIds) });
+        jobIdsQueryBuilder.andWhere('jobProvinces.provinceId IN (:...provinceIds)', { provinceIds: provinces.map(province => province.id) });
+      }
+
+      if (fetcher.majorGroup.length) {
+        jobIdsQueryBuilder.andWhere('majorCategory.thirdGroupEn IN (:...majorGroup)', { majorGroup: fetcher.majorGroup });
+      }
+
+      if (fetcher.keyword) {
+        jobIdsQueryBuilder.andWhere(
+          new Brackets(qb => {
+            qb.where('LOWER(job.title) LIKE LOWER(:keyword)', { keyword: `%${fetcher.keyword}%` })
+              .orWhere('LOWER(job.companyName) LIKE LOWER(:keyword)', { keyword: `%${fetcher.keyword}%` })
+              .orWhere('LOWER(job.address) LIKE LOWER(:keyword)', { keyword: `%${fetcher.keyword}%` })
+              .orWhere('LOWER(job.contents) LIKE LOWER(:keyword)', { keyword: `%${fetcher.keyword}%` })
+              .orWhere('LOWER(majorCategory.koName) LIKE LOWER(:keyword)', { keyword: `%${fetcher.keyword}%` })
+              .orWhere('LOWER(majorCategory.enName) LIKE LOWER(:keyword)', { keyword: `%${fetcher.keyword}%` });
+          }),
+        );
+      }
+
+      const jobIds = await jobIdsQueryBuilder.getMany();
+
+      if (!jobIds.length) {
+        this.eventEmitter.emit('jobs.fetched', redisKey, []);
+        return { items: [], totalCount: 0 };
+      }
+
+      const queryBuilder = this.jobRepository
+        .createQueryBuilder('job')
+        .leftJoinAndSelect('job.user', 'user')
+        .leftJoinAndSelect('job.jobMajorCategories', 'jobMajorCategories')
+        .leftJoinAndSelect('job.jobProvinces', 'jobProvinces')
+        .leftJoinAndSelect('jobMajorCategories.majorCategory', 'majorCategory')
+        .leftJoinAndSelect('job.schedules', 'schedules')
+        .whereInIds(jobIds.map(job => job.id));
+
+      const [jobs, totalCount] = await queryBuilder.orderBy('job.createdAt', 'DESC').skip(fetcher.skip).take(fetcher.take).getManyAndCount();
+      const pagingJobs = { items: jobs, totalCount: totalCount };
+      this.eventEmitter.emit('jobs.fetched', redisKey, pagingJobs);
+
+      return pagingJobs;
+    }
+  }
+
+  async findFullTimeJobs(fetcher: JobFetcher): Promise<Job[]> {
+    const redisKey = new Util().getRedisKey('fullTimeJobs:list:', fetcher);
 
     const redisJobs = await this.redisService.getByKey(redisKey);
     if (redisJobs) {
@@ -110,7 +192,8 @@ export class JobRepository {
         .select('job.id')
         .leftJoin('job.jobProvinces', 'jobProvinces')
         .leftJoin('job.jobMajorCategories', 'jobMajorCategories')
-        .leftJoin('jobMajorCategories.majorCategory', 'majorCategory');
+        .leftJoin('jobMajorCategories.majorCategory', 'majorCategory')
+        .where('job.type != :type', { type: JOB_TYPE.PART_TIME });
 
       if (fetcher.provinceIds.length) {
         const provinces = await this.provinceRepository.findBy({ id: In(fetcher.provinceIds) });
@@ -231,5 +314,24 @@ export class JobRepository {
 
     await job.remove();
     await this.redisService.deleteByPattern('jobs:*');
+  }
+
+  async deleteJobSchedulesByJobId(id: number): Promise<void> {
+    await this.jobScheduleRepository.delete({ job: { id: id } });
+  }
+
+  async createJobSchedulesOrThrow(creator: JobScheduleCreator) {
+    const job = await this.jobRepository.findOneBy({ id: creator.jobId });
+    if (!job) throw new JobNotFound();
+
+    await this.jobScheduleRepository.save(
+      creator.schedules.map(creator => {
+        return {
+          job: job,
+          startAt: creator.startAt,
+          endAt: creator.endAt,
+        };
+      }),
+    );
   }
 }
