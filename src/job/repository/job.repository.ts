@@ -392,5 +392,6 @@ export class JobRepository {
     if (!job) throw new JobNotFound();
 
     await this.jobRepository.update({ id: jobId, user: { id: userId } }, { isActive: isActive });
+    await this.redisService.deleteByPattern('jobs:*');
   }
 }
