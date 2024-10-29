@@ -36,6 +36,17 @@ export class SystemService {
     this.messageService = new CoolsmsMessageService(process.env['COOL_SMS_API_KEY']!, process.env['COOL_SMS_SECRET_KEY']!);
   }
 
+  async sendApplyJobAlarmSMS(to: string) {
+    await this.messageService.sendOne({
+      from: process.env['COOL_SMS_SENDER_NUMBER']!,
+      to: to,
+      subject: '[ 아트인포 ]',
+      text: `채용 신청이 도착했어요\n신청내역을 확인해주세요.\n\n내 프로필  >  내 활동\n\nhttps://artinfokorea.com\n\n아트인포 드림
+      `,
+      autoTypeDetect: true,
+    });
+  }
+
   async sendVerificationNumber(to: string, verificationNumber: string) {
     await this.messageService.sendOne({
       from: process.env['COOL_SMS_SENDER_NUMBER']!,

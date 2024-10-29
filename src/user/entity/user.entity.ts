@@ -5,6 +5,7 @@ import { UserMajorCategory } from '@/user/entity/user-major-category.entity';
 import { Lesson } from '@/lesson/entity/lesson.entity';
 import { Comment } from '@/comment/comment.entity';
 import { Performance } from '@/performance/performance.entity';
+import { JobUser } from '@/job/entity/job-user.entity';
 
 export enum USER_TYPE {
   CLIENT = 'CLIENT',
@@ -72,6 +73,9 @@ export class User extends BaseEntity {
 
   @OneToMany(() => UserMajorCategory, userMajorCategory => userMajorCategory.user, { eager: true, cascade: true })
   userMajorCategories: UserMajorCategory[];
+
+  @OneToMany(() => JobUser, jobUsers => jobUsers.user, { eager: true, cascade: true })
+  jobUsers: JobUser[];
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;

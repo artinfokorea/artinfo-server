@@ -36,6 +36,7 @@ import { Performance } from '@/performance/performance.entity';
 import { PerformanceArea } from '@/performance/performance-area.entity';
 import { PerformanceModule } from '@/performance/performance.module';
 import { JobSchedule } from '@/job/entity/job-schedule.entity';
+import { JobUser } from '@/job/entity/job-user.entity';
 
 const entities = [
   User,
@@ -51,6 +52,7 @@ const entities = [
   JobMajorCategory,
   JobProvince,
   JobSchedule,
+  JobUser,
   MajorCategory,
   UserMajorCategory,
   JobMajorCategory,

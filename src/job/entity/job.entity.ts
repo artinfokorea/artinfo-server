@@ -3,6 +3,7 @@ import { JobMajorCategory } from '@/job/entity/job-major-category.entity';
 import { User } from '@/user/entity/user.entity';
 import { JobProvince } from '@/job/entity/job-province.entity';
 import { JobSchedule } from '@/job/entity/job-schedule.entity';
+import { JobUser } from '@/job/entity/job-user.entity';
 
 export enum JOB_TYPE {
   ART_ORGANIZATION = 'ART_ORGANIZATION',
@@ -51,6 +52,9 @@ export class Job extends BaseEntity {
 
   @OneToMany(() => JobMajorCategory, jobMajorCategory => jobMajorCategory.job, { eager: true, cascade: true })
   jobMajorCategories: JobMajorCategory[];
+
+  @OneToMany(() => JobUser, jobUsers => jobUsers.job, { eager: true, cascade: true })
+  jobUsers: JobUser[];
 
   @ManyToOne(() => User, user => user.jobs, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })

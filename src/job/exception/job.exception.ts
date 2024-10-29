@@ -59,3 +59,39 @@ export class PartTimeJobUserPhoneRequired extends HttpException {
     );
   }
 }
+
+export class OwnJobApplicationNotAllowed extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'Job-006',
+        message: '본인 소유의 채용에는 신청할 수 없습니다.',
+      },
+      HttpStatus.FORBIDDEN,
+    );
+  }
+}
+
+export class AlreadyAppliedJob extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'Job-007',
+        message: '이미 지원 완료된 연주입니다.',
+      },
+      HttpStatus.CONFLICT,
+    );
+  }
+}
+
+export class JobApplicantsNotAllowed extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'Job-008',
+        message: '연주 신청자를 조회할 수 없습니다.',
+      },
+      HttpStatus.FORBIDDEN,
+    );
+  }
+}

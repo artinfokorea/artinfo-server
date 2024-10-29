@@ -14,10 +14,15 @@ import { JobEvent } from '@/job/event/job.event';
 import { UserRepository } from '@/user/repository/user.repository';
 import { User } from '@/user/entity/user.entity';
 import { JobSchedule } from '@/job/entity/job-schedule.entity';
+import { JobUser } from '@/job/entity/job-user.entity';
+import { SystemService } from '@/system/service/system.service';
+import { AwsS3Service } from '@/aws/s3/aws-s3.service';
+import { Image } from '@/system/entity/image.entity';
+import { ImageRepository } from '@/system/repository/image.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Job, JobMajorCategory, JobProvince, MajorCategory, Province, User, JobSchedule])],
+  imports: [TypeOrmModule.forFeature([Job, JobMajorCategory, JobUser, JobProvince, MajorCategory, Province, User, JobSchedule, Image])],
   controllers: [JobController],
-  providers: [JobService, UserRepository, JobRepository, MajorRepository, RedisRepository, JobEvent],
+  providers: [JobService, UserRepository, JobRepository, MajorRepository, RedisRepository, JobEvent, SystemService, AwsS3Service, ImageRepository],
 })
 export class JobModule {}

@@ -16,6 +16,12 @@ import { CountJobsResponse } from '@/job/dto/response/count-jobs.response';
 import { CountJobsCommand } from '@/job/dto/command/count-jobs.command';
 import { GetPartTimeJobsRequest } from '@/job/dto/request/get-part-time-jobs.request';
 import { EditPartTimeJobRequest } from '@/job/dto/request/edit-part-time-job.request';
+import { ApplyPartTimeJobRequest } from '@/job/dto/request/apply-part-time-job.request';
+import { GetMyPartTimeJobsRequest } from '@/job/dto/request/get-my-part-time-jobs.request';
+import { PartTimeJobsResponse } from '@/job/dto/response/part-time-jobs.response';
+import { JobApplicantsResponse } from '@/job/dto/response/job-applicants.response';
+import { GetMyApplyJobsRequest } from '@/job/dto/request/get-my-apply-jobs.request';
+import { MyApplyJobsResponse } from '@/job/dto/response/my-apply-jobs.response';
 
 @RestApiController('/jobs', 'Job')
 export class JobController {
@@ -87,5 +93,35 @@ export class JobController {
     await this.jobService.editJob(request.toCommand(signature.id, jobId));
 
     return new OkResponse();
+  }
+
+  @RestApiPost(CreateResponse, { path: '/part-time/:jobId/apply', description: '단기직 지원 신청', auth: [USER_TYPE.CLIENT] })
+  async applyPartTimeJob(
+    @Signature() signature: UserSignature,
+    @Param('jobId') jobId: number,
+    @Body() request: ApplyPartTimeJobRequest,
+  ): Promise<CreateResponse> {
+    return new CreateResponse(await this.jobService.applyPartTimeJob(signature.id, jobId, request.profile));
+  }
+
+  @RestApiGet(PartTimeJobsResponse, { path: '/my/part-time', description: '내 활동 조회(내 연주)', auth: [USER_TYPE.CLIENT] })
+  async getMyPartTimeJob(@Signature() signature: UserSignature, @Query() request: GetMyPartTimeJobsRequest) {
+    const pagingJobs = await this.jobService.getMyPartTimeJobs(signature.id, { page: request.page, size: request.size });
+
+    return new PartTimeJobsResponse({ jobs: pagingJobs.items, totalCount: pagingJobs.totalCount });
+  }
+
+  @RestApiGet(JobApplicantsResponse, { path: '/:jobId/applicants', description: '연주 지원자 조회', auth: [USER_TYPE.CLIENT] })
+  async getJobApplicants(@Signature() signature: UserSignature, @Param('jobId') jobId: number) {
+    const jobUsers = await this.jobService.getJobApplicants(signature.id, jobId);
+
+    return new JobApplicantsResponse(jobUsers);
+  }
+
+  @RestApiGet(MyApplyJobsResponse, { path: '/my/apply', description: '연주 지원 목록 조회', auth: [USER_TYPE.CLIENT] })
+  async getMyApplyJobs(@Signature() signature: UserSignature, @Query() request: GetMyApplyJobsRequest) {
+    const pagingJobs = await this.jobService.getMyApplyJobs(signature.id, { page: request.page, size: request.size });
+
+    return new MyApplyJobsResponse({ jobUsers: pagingJobs.items, totalCount: pagingJobs.totalCount });
   }
 }

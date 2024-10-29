@@ -14,14 +14,18 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Util } from '@/common/util/util';
 import { JobSchedule } from '@/job/entity/job-schedule.entity';
 import { PartTimeJobFetcher } from '@/job/repository/operation/part-time-job.fetcher';
-import { PagingItems } from '@/common/type/type';
+import { Paging, PagingItems } from '@/common/type/type';
 import { JobScheduleCreator } from '@/job/repository/operation/job-schedule.creator';
+import { JobUser } from '@/job/entity/job-user.entity';
 
 @Injectable()
 export class JobRepository {
   constructor(
     @InjectRepository(Job)
     private jobRepository: Repository<Job>,
+
+    @InjectRepository(JobUser)
+    private jobUserRepository: Repository<JobUser>,
 
     @InjectRepository(JobSchedule)
     private jobScheduleRepository: Repository<JobSchedule>,
@@ -33,6 +37,14 @@ export class JobRepository {
     private eventEmitter: EventEmitter2,
     private readonly dataSource: DataSource,
   ) {}
+
+  async findJobUserByUserIdAndJobId(userId: number, jobId: number) {
+    return this.jobUserRepository.findOneBy({ userId, jobId });
+  }
+
+  async createJobUser(userId: number, jobId: number, profile: string): Promise<number> {
+    return this.jobUserRepository.save({ userId: userId, jobId: jobId, profile: profile }).then(jobUser => jobUser.id);
+  }
 
   async create(creator: JobCreator): Promise<number> {
     try {
@@ -258,6 +270,21 @@ export class JobRepository {
     }
   }
 
+  async findOnePartTimeJobOrThrowById(id: number): Promise<Job> {
+    const redisKey = new Util().getRedisKey('jobs:single:', id);
+    const job = await this.redisService.getByKey(redisKey);
+
+    if (job) {
+      return job as Job;
+    } else {
+      const job = await this.jobRepository.findOne({ relations: ['user', 'jobUsers.user.userMajorCategories.majorCategory'], where: { id } });
+      if (!job) throw new JobNotFound();
+
+      this.eventEmitter.emit('job.fetched', redisKey, job);
+      return job;
+    }
+  }
+
   async count(counter: JobCounter): Promise<number> {
     const redisKey = new Util().getRedisKey('jobs:count:', counter);
     const redisTotalCount = await this.redisService.getByKey(redisKey);
@@ -333,5 +360,30 @@ export class JobRepository {
         };
       }),
     );
+  }
+
+  async findMyPartTimeJobs(userId: number, paging: Paging): Promise<PagingItems<Job>> {
+    const [jobs, totalCount] = await this.jobRepository
+      .createQueryBuilder('job')
+      .where('job.user_id = :userId AND job.type = :type', { userId: userId, type: JOB_TYPE.PART_TIME })
+      .orderBy('job.createdAt', 'DESC')
+      .skip((paging.page - 1) * paging.size)
+      .take(paging.size)
+      .getManyAndCount();
+
+    return { items: jobs, totalCount: totalCount };
+  }
+
+  async findJobUsersByUserId(userId: number, paging: Paging) {
+    const [jobUsers, totalCount] = await this.jobUserRepository
+      .createQueryBuilder('jobUser')
+      .leftJoinAndSelect('jobUser.job', 'job')
+      .where('jobUser.user_id = :userId', { userId: userId })
+      .orderBy('jobUser.createdAt', 'DESC')
+      .skip((paging.page - 1) * paging.size)
+      .take(paging.size)
+      .getManyAndCount();
+
+    return { items: jobUsers, totalCount: totalCount };
   }
 }
