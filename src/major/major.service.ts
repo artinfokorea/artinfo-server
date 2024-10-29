@@ -13,4 +13,8 @@ export class MajorService {
   getMajorFields(excludeFields: PROFESSIONAL_FIELD_CATEGORY[]) {
     return this.majorCategoryRepository.findMajorFields(excludeFields);
   }
+
+  getMajorGroups() {
+    return this.majorCategoryRepository.findMajorGroups();
+  }
 }

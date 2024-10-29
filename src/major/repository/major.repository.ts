@@ -60,4 +60,16 @@ export class MajorRepository {
 
     return groups.map(group => new MajorGroupPayload({ nameKo: group.second_group_ko, nameEn: group.second_group_en }));
   }
+
+  async findMajorGroups() {
+    const qb = this.majorCategoryRepository
+      .createQueryBuilder('majorCategory') //
+      .select('DISTINCT majorCategory.thirdGroupEn, majorCategory.thirdGroupKo,  field_sequence')
+      .where('majorCategory.thirdGroupEn IS NOT NULL')
+      .orderBy('field_sequence', 'ASC');
+
+    const groups: { third_group_ko: string; third_group_en: string }[] = await qb.getRawMany();
+
+    return groups.map(group => new MajorGroupPayload({ nameKo: group.third_group_ko, nameEn: group.third_group_en }));
+  }
 }
