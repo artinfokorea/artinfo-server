@@ -386,4 +386,11 @@ export class JobRepository {
 
     return { items: jobUsers, totalCount: totalCount };
   }
+
+  async updateJobStatusOrThrow(userId: number, jobId: number, isActive: boolean) {
+    const job = await this.jobRepository.findOneBy({ id: jobId, user: { id: userId } });
+    if (!job) throw new JobNotFound();
+
+    await this.jobRepository.update({ id: jobId, user: { id: userId } }, { isActive: isActive });
+  }
 }

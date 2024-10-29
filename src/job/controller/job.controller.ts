@@ -22,6 +22,7 @@ import { PartTimeJobsResponse } from '@/job/dto/response/part-time-jobs.response
 import { JobApplicantsResponse } from '@/job/dto/response/job-applicants.response';
 import { GetMyApplyJobsRequest } from '@/job/dto/request/get-my-apply-jobs.request';
 import { MyApplyJobsResponse } from '@/job/dto/response/my-apply-jobs.response';
+import { EditJobStatusRequest } from '@/job/dto/request/edit-job-status.request';
 
 @RestApiController('/jobs', 'Job')
 export class JobController {
@@ -123,5 +124,10 @@ export class JobController {
     const pagingJobs = await this.jobService.getMyApplyJobs(signature.id, { page: request.page, size: request.size });
 
     return new MyApplyJobsResponse({ jobUsers: pagingJobs.items, totalCount: pagingJobs.totalCount });
+  }
+
+  @RestApiPut(OkResponse, { path: '/:jobId/status', description: '연주 상태 수정', auth: [USER_TYPE.CLIENT] })
+  async updateJobStatus(@Signature() signature: UserSignature, @Param('jobId') jobId: number, @Body() request: EditJobStatusRequest) {
+    await this.jobService.updateJobStatus(signature.id, jobId, request.isActive);
   }
 }

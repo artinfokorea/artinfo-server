@@ -17,6 +17,7 @@ import {
   OwnJobApplicationNotAllowed,
   PartTimeJobScheduleRequired,
   PartTimeJobUserPhoneRequired,
+  UnableApplyJob,
 } from '@/job/exception/job.exception';
 import { GetPartTimeJobsQuery } from '@/job/dto/query/get-part-time-jobs.query';
 import { PartTimeJobFetcher } from '@/job/repository/operation/part-time-job.fetcher';
@@ -44,7 +45,10 @@ export class JobService {
       throw new JobNotFound();
     } else if (!job.user.phone) {
       throw new UserPhoneNotFound();
+    } else if (!job.isActive) {
+      throw new UnableApplyJob();
     }
+
     const jobUser = await this.jobRepository.findJobUserByUserIdAndJobId(applierId, jobId);
     if (jobUser) throw new AlreadyAppliedJob();
     if (applierId === job.user.id) throw new OwnJobApplicationNotAllowed();
@@ -154,5 +158,9 @@ export class JobService {
     if (job.user.id !== authorId) throw new JobApplicantsNotAllowed();
 
     return job.jobUsers;
+  }
+
+  async updateJobStatus(userId: number, jobId: number, isActive: boolean) {
+    await this.jobRepository.updateJobStatusOrThrow(userId, jobId, isActive);
   }
 }

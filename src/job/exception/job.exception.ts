@@ -95,3 +95,15 @@ export class JobApplicantsNotAllowed extends HttpException {
     );
   }
 }
+
+export class UnableApplyJob extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'Job-009',
+        message: '해당 채용은 연주 신청을 할 수 없습니다.',
+      },
+      HttpStatus.FORBIDDEN,
+    );
+  }
+}
