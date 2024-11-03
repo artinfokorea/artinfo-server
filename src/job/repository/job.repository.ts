@@ -131,11 +131,10 @@ export class JobRepository {
   }
 
   async findPartTimeJobs(fetcher: PartTimeJobFetcher): Promise<PagingItems<Job>> {
-    const redisKey = new Util().getRedisKey('partTimeJobs:list:', fetcher);
+    const redisKey = new Util().getRedisKey('jobs:list:part-time', fetcher);
 
     const redisJobs = await this.redisService.getByKey(redisKey);
     if (redisJobs) {
-      console.log(redisJobs);
       return redisJobs as PagingItems<Job>;
     } else {
       const jobIdsQueryBuilder = this.jobRepository
