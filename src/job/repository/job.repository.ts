@@ -231,7 +231,7 @@ export class JobRepository {
         );
       }
 
-      const [jobIds, totalCount] = await jobIdsQueryBuilder.getManyAndCount();
+      const jobIds = await jobIdsQueryBuilder.getMany();
 
       if (!jobIds.length) {
         this.eventEmitter.emit('jobs.fetched', redisKey, []);
@@ -246,11 +246,12 @@ export class JobRepository {
         .leftJoinAndSelect('jobMajorCategories.majorCategory', 'majorCategory')
         .whereInIds(jobIds.map(job => job.id));
 
-      const jobs = await queryBuilder.orderBy('job.createdAt', 'DESC').skip(fetcher.skip).take(fetcher.take).getMany();
+      const [jobs, totalCount] = await queryBuilder.orderBy('job.createdAt', 'DESC').skip(fetcher.skip).take(fetcher.take).getManyAndCount();
+      const pagingResult = { items: jobs, totalCount: totalCount };
 
-      this.eventEmitter.emit('jobs.fetched', redisKey, jobs);
+      this.eventEmitter.emit('jobs.fetched', redisKey, pagingResult);
 
-      return { items: jobs, totalCount: totalCount };
+      return pagingResult;
     }
   }
 
