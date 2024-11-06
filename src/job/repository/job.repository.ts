@@ -191,12 +191,12 @@ export class JobRepository {
     }
   }
 
-  async findFullTimeJobs(fetcher: JobFetcher): Promise<Job[]> {
-    const redisKey = new Util().getRedisKey('fullTimeJobs:list:', fetcher);
+  async findFullTimeJobs(fetcher: JobFetcher): Promise<PagingItems<Job>> {
+    const redisKey = new Util().getRedisKey('jobs:list:full-time:', fetcher);
 
     const redisJobs = await this.redisService.getByKey(redisKey);
     if (redisJobs) {
-      return redisJobs as Job[];
+      return redisJobs as PagingItems<Job>;
     } else {
       const jobIdsQueryBuilder = this.jobRepository
         .createQueryBuilder('job')
@@ -231,11 +231,11 @@ export class JobRepository {
         );
       }
 
-      const jobIds = await jobIdsQueryBuilder.getMany();
+      const [jobIds, totalCount] = await jobIdsQueryBuilder.getManyAndCount();
 
       if (!jobIds.length) {
         this.eventEmitter.emit('jobs.fetched', redisKey, []);
-        return [];
+        return { items: [], totalCount: 0 };
       }
 
       const queryBuilder = this.jobRepository
@@ -250,7 +250,7 @@ export class JobRepository {
 
       this.eventEmitter.emit('jobs.fetched', redisKey, jobs);
 
-      return jobs;
+      return { items: jobs, totalCount: totalCount };
     }
   }
 

@@ -114,17 +114,7 @@ export class JobService {
       paging: command.paging,
       provinceIds: command.provinceIds,
     });
-    const jobs = await this.jobRepository.findFullTimeJobs(fetcher);
-
-    const counter = new JobCounter({
-      keyword: command.keyword,
-      professionalFields: command.professionalFields,
-      types: command.types,
-      provinceIds: command.provinceIds,
-    });
-    const totalCount = await this.jobRepository.count(counter);
-
-    return { items: jobs, totalCount: totalCount };
+    return this.jobRepository.findFullTimeJobs(fetcher);
   }
 
   async getJob(jobId: number): Promise<Job> {
