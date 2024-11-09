@@ -63,15 +63,12 @@ export class JobResponse {
   createdAt: Date;
 
   constructor(job: Job) {
-    let address = job.address;
-    if (job.address && job.type === JOB_TYPE.PART_TIME) address = job.address.split(' ')[0];
-
     this.id = job.id;
     this.authorId = job.user.id;
     this.title = job.title;
     this.contents = job.contents;
     this.companyName = job.companyName;
-    this.address = address;
+    this.address = job.address;
     this.addressDetail = job.addressDetail;
     this.recruitSiteUrl = job.recruitSiteUrl;
     this.imageUrl = job.imageUrl;
