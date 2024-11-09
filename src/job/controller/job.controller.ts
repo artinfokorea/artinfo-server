@@ -115,14 +115,12 @@ export class JobController {
   @RestApiGet(JobApplicantsResponse, { path: '/:jobId/applicants', description: '연주 지원자 조회', auth: [USER_TYPE.CLIENT] })
   async getJobApplicants(@Signature() signature: UserSignature, @Param('jobId') jobId: number) {
     const jobUsers = await this.jobService.getJobApplicants(signature.id, jobId);
-
     return new JobApplicantsResponse(jobUsers);
   }
 
   @RestApiGet(MyApplyJobsResponse, { path: '/my/apply', description: '연주 지원 목록 조회', auth: [USER_TYPE.CLIENT] })
   async getMyApplyJobs(@Signature() signature: UserSignature, @Query() request: GetMyApplyJobsRequest) {
     const pagingJobs = await this.jobService.getMyApplyJobs(signature.id, { page: request.page, size: request.size });
-
     return new MyApplyJobsResponse({ jobUsers: pagingJobs.items, totalCount: pagingJobs.totalCount });
   }
 

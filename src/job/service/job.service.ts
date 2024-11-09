@@ -57,7 +57,7 @@ export class JobService {
     if (!user.userMajorCategories.length) cases.push('전공');
     if (!user.schools.length) cases.push('학력');
     if (!user.phone) cases.push('연락처');
-    if (!user?.phone) throw new UserDoesNotQualify(cases);
+    if (cases.length) throw new UserDoesNotQualify(cases);
 
     await this.systemService.sendApplyJobAlarmSMS(job.user.phone);
 

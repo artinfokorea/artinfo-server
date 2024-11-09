@@ -271,18 +271,9 @@ export class JobRepository {
   }
 
   async findOnePartTimeJobOrThrowById(id: number): Promise<Job> {
-    const redisKey = new Util().getRedisKey('jobs:single:', id);
-    const job = await this.redisService.getByKey(redisKey);
-
-    if (job) {
-      return job as Job;
-    } else {
-      const job = await this.jobRepository.findOne({ relations: ['user', 'jobUsers.user.userMajorCategories.majorCategory'], where: { id } });
-      if (!job) throw new JobNotFound();
-
-      this.eventEmitter.emit('job.fetched', redisKey, job);
-      return job;
-    }
+    const job = await this.jobRepository.findOne({ relations: ['user', 'jobUsers.user.userMajorCategories.majorCategory'], where: { id } });
+    if (!job) throw new JobNotFound();
+    return job;
   }
 
   async count(counter: JobCounter): Promise<number> {
