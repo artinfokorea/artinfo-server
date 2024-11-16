@@ -183,7 +183,12 @@ export class JobRepository {
         .leftJoinAndSelect('job.schedules', 'schedules')
         .whereInIds(jobIds.map(job => job.id));
 
-      const [jobs, totalCount] = await queryBuilder.orderBy('job.createdAt', 'DESC').skip(fetcher.skip).take(fetcher.take).getManyAndCount();
+      const [jobs, totalCount] = await queryBuilder
+        .orderBy('job.isActive', 'DESC')
+        .addOrderBy('job.createdAt', 'DESC')
+        .skip(fetcher.skip)
+        .take(fetcher.take)
+        .getManyAndCount();
       const pagingJobs = { items: jobs, totalCount: totalCount };
       this.eventEmitter.emit('jobs.fetched', redisKey, pagingJobs);
 
