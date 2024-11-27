@@ -100,7 +100,7 @@ const modules = [
       database: process.env['DATABASE_NAME'],
       entities: entities,
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: false,
       logging: false,
     }),
     ...modules,

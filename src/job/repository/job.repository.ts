@@ -186,6 +186,8 @@ export class JobRepository {
       const [jobs, totalCount] = await queryBuilder
         .orderBy('job.isActive', 'DESC')
         .addOrderBy('job.createdAt', 'DESC')
+        .addOrderBy('schedules.startAt', 'ASC')
+        .addOrderBy('schedules.endAt', 'ASC')
         .skip(fetcher.skip)
         .take(fetcher.take)
         .getManyAndCount();
