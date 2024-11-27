@@ -16,6 +16,9 @@ export class JobSchedule {
   @JoinColumn({ name: 'job_id', referencedColumnName: 'id' })
   job: Job;
 
+  @Column({ name: 'job_id' })
+  jobId: number;
+
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 }

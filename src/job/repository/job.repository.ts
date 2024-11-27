@@ -180,17 +180,32 @@ export class JobRepository {
         .leftJoinAndSelect('job.jobMajorCategories', 'jobMajorCategories')
         .leftJoinAndSelect('job.jobProvinces', 'jobProvinces')
         .leftJoinAndSelect('jobMajorCategories.majorCategory', 'majorCategory')
-        .leftJoinAndSelect('job.schedules', 'schedules')
         .whereInIds(jobIds.map(job => job.id));
 
       const [jobs, totalCount] = await queryBuilder
         .orderBy('job.isActive', 'DESC')
         .addOrderBy('job.createdAt', 'DESC')
-        .addOrderBy('schedules.startAt', 'ASC')
-        .addOrderBy('schedules.endAt', 'ASC')
         .skip(fetcher.skip)
         .take(fetcher.take)
         .getManyAndCount();
+
+      const allSchedules = await this.jobScheduleRepository.find({
+        where: { job: { id: In(jobs.map(job => job.id)) } },
+        order: { startAt: 'ASC', endAt: 'ASC' },
+      });
+
+      const scheduleMap = allSchedules.reduce((map, schedule) => {
+        if (!map[schedule.jobId]) {
+          map[schedule.jobId] = [];
+        }
+        map[schedule.jobId].push(schedule);
+        return map;
+      }, {});
+
+      for (const job of jobs) {
+        job.schedules = scheduleMap[job.id] || [];
+      }
+
       const pagingJobs = { items: jobs, totalCount: totalCount };
       this.eventEmitter.emit('jobs.fetched', redisKey, pagingJobs);
 
