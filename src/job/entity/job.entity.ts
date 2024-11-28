@@ -10,6 +10,8 @@ export enum JOB_TYPE {
   RELIGION = 'RELIGION',
   LECTURER = 'LECTURER',
   PART_TIME = 'PART_TIME',
+  AMATEUR = 'AMATEUR',
+  YOUTH = 'YOUTH',
 }
 
 @Entity('jobs')

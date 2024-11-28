@@ -28,10 +28,9 @@ import { EditJobStatusRequest } from '@/job/dto/request/edit-job-status.request'
 export class JobController {
   constructor(private readonly jobService: JobService) {}
 
-  @RestApiGet(JobsResponse, { path: '/', description: '정규직 채용 목록 조회' })
+  @RestApiGet(JobsResponse, { path: '/', description: '채용 목록 조회' })
   async getJobs(@Query() request: GetJobsRequest) {
     const pagingItems = await this.jobService.getPagingJobs(request.toGetCommand());
-
     return new JobsResponse({ jobs: pagingItems.items, totalCount: pagingItems.totalCount });
   }
 
@@ -82,10 +81,23 @@ export class JobController {
     return new CreateResponse(jobId);
   }
 
+  @RestApiPost(CreateResponse, { path: '/', description: '채용 생성', auth: [USER_TYPE.CLIENT] })
+  async createJob(@Signature() signature: UserSignature, @Body() request: CreateFullTimeJobRequest): Promise<CreateResponse> {
+    const jobId = await this.jobService.createJob(request.toCommand(signature.id));
+
+    return new CreateResponse(jobId);
+  }
+
   @RestApiPut(OkResponse, { path: '/full-time/:jobId', description: '정규직 채용 수정', auth: [USER_TYPE.CLIENT] })
   async editFullTimeJob(@Signature() signature: UserSignature, @Param('jobId') jobId: number, @Body() request: EditFullTimeJobRequest): Promise<OkResponse> {
     await this.jobService.editJob(request.toCommand(signature.id, jobId));
 
+    return new OkResponse();
+  }
+
+  @RestApiPut(OkResponse, { path: '/:jobId', description: '정규직 채용 수정', auth: [USER_TYPE.CLIENT] })
+  async editJob(@Signature() signature: UserSignature, @Param('jobId') jobId: number, @Body() request: EditFullTimeJobRequest): Promise<OkResponse> {
+    await this.jobService.editJob(request.toCommand(signature.id, jobId));
     return new OkResponse();
   }
 
