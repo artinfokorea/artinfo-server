@@ -256,7 +256,7 @@ export class JobRepository {
       const jobIds = await jobIdsQueryBuilder.getMany();
 
       if (!jobIds.length) {
-        this.eventEmitter.emit('jobs.fetched', redisKey, []);
+        this.eventEmitter.emit('jobs.fetched', redisKey, { items: [], totalCount: 0 });
         return { items: [], totalCount: 0 };
       }
 
