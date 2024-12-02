@@ -214,7 +214,7 @@ export class JobRepository {
   }
 
   async findFullTimeJobs(fetcher: JobFetcher): Promise<PagingItems<Job>> {
-    const redisKey = new Util().getRedisKey('jobs:list:full-time:', fetcher);
+    const redisKey = new Util().getRedisKey(`jobs:list:full-time:${fetcher.types.join(':')}:`, fetcher).toLowerCase();
 
     const redisJobs = await this.redisService.getByKey(redisKey);
     if (redisJobs) {
