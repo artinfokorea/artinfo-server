@@ -2,10 +2,9 @@ import { List, Paging } from '@/common/type/type';
 import { ApiProperty } from '@nestjs/swagger';
 import { JOB_TYPE } from '@/job/entity/job.entity';
 import { GetJobsCommand } from '@/job/dto/command/get-jobs.command';
-import { CountJobsCommand } from '@/job/dto/command/count-jobs.command';
 import { ToArray, ToNumberArray } from '@/common/decorator/transformer';
 import { EnumNullableArray } from '@/common/decorator/validator';
-import { PROFESSIONAL_FIELD_CATEGORY } from '@/job/entity/major-category.entity';
+import { MAJOR_GROUP_CATEGORY, PROFESSIONAL_FIELD_CATEGORY } from '@/job/entity/major-category.entity';
 
 export class GetJobsRequest extends List {
   @ApiProperty({ type: String, required: false, description: '검색 키워드', example: '합창' })
@@ -44,6 +43,18 @@ export class GetJobsRequest extends List {
   })
   provinceIds: number[] = [];
 
+  @EnumNullableArray(MAJOR_GROUP_CATEGORY)
+  @ToArray()
+  @ApiProperty({
+    type: [MAJOR_GROUP_CATEGORY],
+    enum: MAJOR_GROUP_CATEGORY,
+    enumName: 'MAJOR_GROUP_CATEGORY',
+    required: false,
+    description: '전공 그룹',
+    example: [MAJOR_GROUP_CATEGORY.BRASS_WIND],
+  })
+  majorGroups: MAJOR_GROUP_CATEGORY[] = [];
+
   toGetCommand() {
     const paging: Paging = { page: this.page, size: this.size };
     return new GetJobsCommand({
@@ -52,15 +63,7 @@ export class GetJobsRequest extends List {
       professionalFields: this.professionalFields,
       paging: paging,
       provinceIds: this.provinceIds,
-    });
-  }
-
-  toCountCommand() {
-    return new CountJobsCommand({
-      keyword: this.keyword,
-      types: this.types,
-      professionalFields: this.professionalFields,
-      provinceIds: this.provinceIds,
+      majorGroups: this.majorGroups,
     });
   }
 }

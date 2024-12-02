@@ -113,6 +113,7 @@ export class JobService {
       professionalFields: command.professionalFields,
       paging: command.paging,
       provinceIds: command.provinceIds,
+      majorGroups: command.majorGroups,
     });
     return this.jobRepository.findFullTimeJobs(fetcher);
   }

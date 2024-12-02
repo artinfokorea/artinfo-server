@@ -253,6 +253,10 @@ export class JobRepository {
         );
       }
 
+      if (fetcher.majorGroups.length) {
+        jobIdsQueryBuilder.andWhere('majorCategory.thirdGroupEn IN (:...majorGroup)', { majorGroup: fetcher.majorGroups });
+      }
+
       const jobIds = await jobIdsQueryBuilder.getMany();
 
       if (!jobIds.length) {
