@@ -37,6 +37,9 @@ import { PerformanceArea } from '@/performance/performance-area.entity';
 import { PerformanceModule } from '@/performance/performance.module';
 import { JobSchedule } from '@/job/entity/job-schedule.entity';
 import { JobUser } from '@/job/entity/job-user.entity';
+import { PostEntity } from '@/post/PostEntity';
+import { PostModule } from '@/post/PostModule';
+import { LikeEntity } from '@/like/LikeEntity';
 
 const entities = [
   User,
@@ -59,6 +62,8 @@ const entities = [
   Image,
   Inquiry,
   Comment,
+  PostEntity,
+  LikeEntity,
 ];
 const modules = [
   SystemModule,
@@ -66,6 +71,7 @@ const modules = [
   RedisModule,
   AuthModule,
   UserModule,
+  PostModule,
   LessonModule,
   NewsModule,
   AdvertisementModule,

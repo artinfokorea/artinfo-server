@@ -6,6 +6,7 @@ import { Lesson } from '@/lesson/entity/lesson.entity';
 import { Comment } from '@/comment/comment.entity';
 import { Performance } from '@/performance/performance.entity';
 import { JobUser } from '@/job/entity/job-user.entity';
+import { PostEntity } from '@/post/PostEntity';
 
 export enum USER_TYPE {
   CLIENT = 'CLIENT',
@@ -67,6 +68,9 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Job, fullTimeJob => fullTimeJob.user, { cascade: true })
   jobs: Job[];
+
+  @OneToMany(() => PostEntity, post => post.user)
+  posts: PostEntity[];
 
   @OneToMany(() => Performance, performance => performance.user)
   performances: Performance[];
