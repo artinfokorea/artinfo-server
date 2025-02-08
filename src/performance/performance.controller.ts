@@ -5,7 +5,7 @@ import { Body, Param, Query } from '@nestjs/common';
 import { GetPerformancesRequest } from '@/performance/dto/request/get-performances.request';
 import { PerformanceDetailResponse } from '@/performance/dto/response/performance-detail.response';
 import { OkResponse } from '@/common/response/ok.response';
-import { Signature } from '@/common/decorator/signature';
+import { AuthSignature } from '@/common/decorator/AuthSignature';
 import { UserSignature } from '@/common/type/type';
 import { USER_TYPE } from '@/user/entity/user.entity';
 import { CreateResponse } from '@/common/response/createResponse';
@@ -24,19 +24,19 @@ export class PerformanceController {
   ) {}
 
   @RestApiPost(CreatePerformanceRequest, { path: '/', description: '공연 생성', auth: [USER_TYPE.CLIENT] })
-  async createPerformance(@Signature() signature: UserSignature, @Body() request: CreatePerformanceRequest) {
+  async createPerformance(@AuthSignature() signature: UserSignature, @Body() request: CreatePerformanceRequest) {
     const performanceId = await this.performanceService.createPerformance(request.toCommand(signature.id));
     return new CreateResponse(performanceId);
   }
 
   @RestApiPut(OkResponse, { path: '/:performanceId', description: '공연 수정', auth: [USER_TYPE.CLIENT] })
-  async editPerformance(@Signature() signature: UserSignature, @Param('performanceId') performanceId: number, @Body() request: EditPerformanceRequest) {
+  async editPerformance(@AuthSignature() signature: UserSignature, @Param('performanceId') performanceId: number, @Body() request: EditPerformanceRequest) {
     await this.performanceService.editPerformance(request.toCommand(signature.id, performanceId));
     return new OkResponse();
   }
 
   @RestApiDelete(OkResponse, { path: '/:performanceId', description: '공연 삭제', auth: [USER_TYPE.CLIENT] })
-  async deletePerformance(@Signature() signature: UserSignature, @Param('performanceId') performanceId: number) {
+  async deletePerformance(@AuthSignature() signature: UserSignature, @Param('performanceId') performanceId: number) {
     await this.performanceService.deletePerformance(signature.id, performanceId);
     return new OkResponse();
   }

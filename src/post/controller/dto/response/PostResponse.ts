@@ -3,6 +3,9 @@ import { PostCategoryEnum } from '@/post/enum/PostCategoryEnum';
 import { PostEntity } from '@/post/PostEntity';
 
 export class PostResponse {
+  @ApiProperty({ type: Number, required: true, description: '글 아이디', example: 2 })
+  id: number;
+
   @ApiProperty({ type: Number, required: true, description: '작성자 아이디', example: 2 })
   authorId: number;
 
@@ -31,6 +34,7 @@ export class PostResponse {
   isLiked: boolean;
 
   constructor(post: PostEntity) {
+    this.id = post.id;
     this.authorId = post.user.id;
     this.authorName = post.user.name;
     this.category = post.category;

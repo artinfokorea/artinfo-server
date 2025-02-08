@@ -4,6 +4,10 @@ import { CreatePostServiceDto } from '@/post/service/dto/CreatePostServiceDto';
 import { PostEntity } from '@/post/PostEntity';
 import { UserRepository } from '@/user/repository/user.repository';
 import { LikeRepository } from '@/like/LikeRepository';
+import { EditPostServiceDto } from '@/post/service/dto/EditPostServiceDto';
+import { PagingItems } from '@/common/type/type';
+import { ScanPostsServiceDto } from '@/post/service/dto/ScanPostsServiceDto';
+import { LikeEntity } from '@/like/LikeEntity';
 
 @Injectable()
 export class PostService {
@@ -33,5 +37,35 @@ export class PostService {
     }
 
     return post;
+  }
+
+  async scanPosts(dto: ScanPostsServiceDto): Promise<PagingItems<PostEntity>> {
+    const pagingItems = await this.postRepository.findManyPaging(dto.toFetcher());
+
+    let likes: LikeEntity[] = [];
+    if (dto.userId) {
+      likes = await this.likeRepository.findManyInTargetIdsAndUserId(
+        pagingItems.items.map(item => item.id),
+        dto.userId,
+      );
+
+      const likesMap: Map<number, boolean> = new Map();
+      likes.forEach(like => {
+        likesMap.set(like.targetId, true);
+      });
+
+      pagingItems.items = pagingItems.items.map(item => {
+        if (likesMap.get(item.id)) item.hasLike();
+        return item;
+      });
+    }
+
+    return { items: pagingItems.items, totalCount: pagingItems.totalCount };
+  }
+
+  async editPost(dto: EditPostServiceDto): Promise<void> {
+    const post = await this.postRepository.findOneByIdAndUserIdOrThrow(dto.postId, dto.userId);
+    post.edit(dto.toEditor());
+    await post.save();
   }
 }

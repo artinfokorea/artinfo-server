@@ -4,7 +4,7 @@ import { LessonDetailResponse } from '@/lesson/dto/response/lesson-detail.respon
 import { Body, Param, Query } from '@nestjs/common';
 import { LessonsResponse } from '@/lesson/dto/response/lessons.response';
 import { GetLessonsRequest } from '@/lesson/dto/request/get-lessons.request';
-import { Signature } from '@/common/decorator/signature';
+import { AuthSignature } from '@/common/decorator/AuthSignature';
 import { UserSignature } from '@/common/type/type';
 import { USER_TYPE } from '@/user/entity/user.entity';
 import { OkResponse } from '@/common/response/ok.response';
@@ -20,7 +20,7 @@ export class LessonController {
   constructor(private readonly lessonService: LessonService) {}
 
   @RestApiPut(OkResponse, { path: '/', description: '레슨 수정', auth: [USER_TYPE.CLIENT] })
-  async editLesson(@Signature() signature: UserSignature, @Body() request: EditLessonRequest): Promise<OkResponse> {
+  async editLesson(@AuthSignature() signature: UserSignature, @Body() request: EditLessonRequest): Promise<OkResponse> {
     await this.lessonService.editLesson(request.toCommand(signature.id));
     return new OkResponse();
   }
@@ -32,13 +32,13 @@ export class LessonController {
   }
 
   @RestApiDelete(OkResponse, { path: '/', description: '레슨 삭제', auth: [USER_TYPE.CLIENT] })
-  async removeLesson(@Signature() signature: UserSignature): Promise<OkResponse> {
+  async removeLesson(@AuthSignature() signature: UserSignature): Promise<OkResponse> {
     await this.lessonService.removeLesson(signature.id);
     return new OkResponse();
   }
 
   @RestApiPost(CreateResponse, { path: '/', description: '레슨 생성', auth: [USER_TYPE.CLIENT] })
-  async createLesson(@Signature() signature: UserSignature, @Body() request: CreateLessonRequest): Promise<CreateResponse> {
+  async createLesson(@AuthSignature() signature: UserSignature, @Body() request: CreateLessonRequest): Promise<CreateResponse> {
     const lessonId = await this.lessonService.create(request.toCommand(signature.id));
     return new CreateResponse(lessonId);
   }
@@ -56,7 +56,7 @@ export class LessonController {
   }
 
   @RestApiGet(OkResponse, { path: '/qualification', description: '레슨 생성 자격 확인', auth: [USER_TYPE.CLIENT] })
-  async checkQualification(@Signature() signature: UserSignature): Promise<OkResponse> {
+  async checkQualification(@AuthSignature() signature: UserSignature): Promise<OkResponse> {
     await this.lessonService.checkQualification(signature.id);
     return new OkResponse();
   }

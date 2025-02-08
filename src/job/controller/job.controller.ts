@@ -6,7 +6,7 @@ import { GetJobsRequest } from '@/job/dto/request/get-jobs.request';
 import { OkResponse } from '@/common/response/ok.response';
 import { CreateResponse } from '@/common/response/createResponse';
 import { CreateFullTimeJobRequest } from '@/job/dto/request/create-full-time-job.request';
-import { Signature } from '@/common/decorator/signature';
+import { AuthSignature } from '@/common/decorator/AuthSignature';
 import { UserSignature } from '@/common/type/type';
 import { USER_TYPE } from '@/user/entity/user.entity';
 import { EditFullTimeJobRequest } from '@/job/dto/request/edit-full-time-job.request';
@@ -68,41 +68,49 @@ export class JobController {
   }
 
   @RestApiPost(CreateResponse, { path: '/part-time', description: '오브리 구인 생성', auth: [USER_TYPE.CLIENT] })
-  async createPartTimeJob(@Signature() signature: UserSignature, @Body() request: CreatePartTimeJobRequest): Promise<CreateResponse> {
+  async createPartTimeJob(@AuthSignature() signature: UserSignature, @Body() request: CreatePartTimeJobRequest): Promise<CreateResponse> {
     const jobId = await this.jobService.createPartTimeJob(request.toCommand(signature.id));
 
     return new CreateResponse(jobId);
   }
 
   @RestApiPost(CreateResponse, { path: '/full-time', description: '채용 생성', auth: [USER_TYPE.CLIENT] })
-  async createFullTimeJob(@Signature() signature: UserSignature, @Body() request: CreateFullTimeJobRequest): Promise<CreateResponse> {
+  async createFullTimeJob(@AuthSignature() signature: UserSignature, @Body() request: CreateFullTimeJobRequest): Promise<CreateResponse> {
     const jobId = await this.jobService.createJob(request.toCommand(signature.id));
 
     return new CreateResponse(jobId);
   }
 
   @RestApiPost(CreateResponse, { path: '/', description: '채용 생성', auth: [USER_TYPE.CLIENT] })
-  async createJob(@Signature() signature: UserSignature, @Body() request: CreateFullTimeJobRequest): Promise<CreateResponse> {
+  async createJob(@AuthSignature() signature: UserSignature, @Body() request: CreateFullTimeJobRequest): Promise<CreateResponse> {
     const jobId = await this.jobService.createJob(request.toCommand(signature.id));
 
     return new CreateResponse(jobId);
   }
 
   @RestApiPut(OkResponse, { path: '/full-time/:jobId', description: '정규직 채용 수정', auth: [USER_TYPE.CLIENT] })
-  async editFullTimeJob(@Signature() signature: UserSignature, @Param('jobId') jobId: number, @Body() request: EditFullTimeJobRequest): Promise<OkResponse> {
+  async editFullTimeJob(
+    @AuthSignature() signature: UserSignature,
+    @Param('jobId') jobId: number,
+    @Body() request: EditFullTimeJobRequest,
+  ): Promise<OkResponse> {
     await this.jobService.editJob(request.toCommand(signature.id, jobId));
 
     return new OkResponse();
   }
 
   @RestApiPut(OkResponse, { path: '/:jobId', description: '정규직 채용 수정', auth: [USER_TYPE.CLIENT] })
-  async editJob(@Signature() signature: UserSignature, @Param('jobId') jobId: number, @Body() request: EditFullTimeJobRequest): Promise<OkResponse> {
+  async editJob(@AuthSignature() signature: UserSignature, @Param('jobId') jobId: number, @Body() request: EditFullTimeJobRequest): Promise<OkResponse> {
     await this.jobService.editJob(request.toCommand(signature.id, jobId));
     return new OkResponse();
   }
 
   @RestApiPut(OkResponse, { path: '/part-time/:jobId', description: '단기직 채용 수정', auth: [USER_TYPE.CLIENT] })
-  async editPartTimeJob(@Signature() signature: UserSignature, @Param('jobId') jobId: number, @Body() request: EditPartTimeJobRequest): Promise<OkResponse> {
+  async editPartTimeJob(
+    @AuthSignature() signature: UserSignature,
+    @Param('jobId') jobId: number,
+    @Body() request: EditPartTimeJobRequest,
+  ): Promise<OkResponse> {
     await this.jobService.editJob(request.toCommand(signature.id, jobId));
 
     return new OkResponse();
@@ -110,7 +118,7 @@ export class JobController {
 
   @RestApiPost(CreateResponse, { path: '/part-time/:jobId/apply', description: '단기직 지원 신청', auth: [USER_TYPE.CLIENT] })
   async applyPartTimeJob(
-    @Signature() signature: UserSignature,
+    @AuthSignature() signature: UserSignature,
     @Param('jobId') jobId: number,
     @Body() request: ApplyPartTimeJobRequest,
   ): Promise<CreateResponse> {
@@ -118,26 +126,26 @@ export class JobController {
   }
 
   @RestApiGet(PartTimeJobsResponse, { path: '/my/part-time', description: '내 활동 조회(내 연주)', auth: [USER_TYPE.CLIENT] })
-  async getMyPartTimeJob(@Signature() signature: UserSignature, @Query() request: GetMyPartTimeJobsRequest) {
+  async getMyPartTimeJob(@AuthSignature() signature: UserSignature, @Query() request: GetMyPartTimeJobsRequest) {
     const pagingJobs = await this.jobService.getMyPartTimeJobs(signature.id, { page: request.page, size: request.size });
 
     return new PartTimeJobsResponse({ jobs: pagingJobs.items, totalCount: pagingJobs.totalCount });
   }
 
   @RestApiGet(JobApplicantsResponse, { path: '/:jobId/applicants', description: '연주 지원자 조회', auth: [USER_TYPE.CLIENT] })
-  async getJobApplicants(@Signature() signature: UserSignature, @Param('jobId') jobId: number) {
+  async getJobApplicants(@AuthSignature() signature: UserSignature, @Param('jobId') jobId: number) {
     const jobUsers = await this.jobService.getJobApplicants(signature.id, jobId);
     return new JobApplicantsResponse(jobUsers);
   }
 
   @RestApiGet(MyApplyJobsResponse, { path: '/my/apply', description: '연주 지원 목록 조회', auth: [USER_TYPE.CLIENT] })
-  async getMyApplyJobs(@Signature() signature: UserSignature, @Query() request: GetMyApplyJobsRequest) {
+  async getMyApplyJobs(@AuthSignature() signature: UserSignature, @Query() request: GetMyApplyJobsRequest) {
     const pagingJobs = await this.jobService.getMyApplyJobs(signature.id, { page: request.page, size: request.size });
     return new MyApplyJobsResponse({ jobUsers: pagingJobs.items, totalCount: pagingJobs.totalCount });
   }
 
   @RestApiPut(OkResponse, { path: '/:jobId/status', description: '연주 상태 수정', auth: [USER_TYPE.CLIENT] })
-  async updateJobStatus(@Signature() signature: UserSignature, @Param('jobId') jobId: number, @Body() request: EditJobStatusRequest) {
+  async updateJobStatus(@AuthSignature() signature: UserSignature, @Param('jobId') jobId: number, @Body() request: EditJobStatusRequest) {
     await this.jobService.updateJobStatus(signature.id, jobId, request.isActive);
   }
 }

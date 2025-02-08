@@ -4,7 +4,7 @@ import { Body, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { UploadImagesResponse } from '@/system/dto/response/upload-images.response';
 import { USER_TYPE } from '@/user/entity/user.entity';
-import { Signature } from '@/common/decorator/signature';
+import { AuthSignature } from '@/common/decorator/AuthSignature';
 import { UploadFile, UserSignature } from '@/common/type/type';
 import { UploadImagesRequest } from '@/system/dto/request/upload-images.request';
 import { SystemService } from '@/system/service/system.service';
@@ -28,7 +28,7 @@ export class SystemController {
     description: '이미지 목록 업로드',
     auth: [USER_TYPE.CLIENT],
   })
-  async uploadImages(@Signature() signature: UserSignature, @Body() request: UploadImagesRequest, @UploadedFiles() files: UploadFile[]) {
+  async uploadImages(@AuthSignature() signature: UserSignature, @Body() request: UploadImagesRequest, @UploadedFiles() files: UploadFile[]) {
     const uploadImages = await this.systemService.createImageMany(request.toCreateImagesCommand(signature.id, files));
 
     return new UploadImagesResponse(uploadImages);

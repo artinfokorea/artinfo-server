@@ -2,6 +2,7 @@ import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, JoinCol
 import { PostCategoryEnum } from '@/post/enum/PostCategoryEnum';
 import { User } from '@/user/entity/user.entity';
 import { PostCreator } from '@/post/repository/dto/PostCreator';
+import { PostEditor } from '@/post/repository/dto/PostEditor';
 
 @Entity('posts')
 export class PostEntity extends BaseEntity {
@@ -63,5 +64,14 @@ export class PostEntity extends BaseEntity {
 
   hasLike() {
     this.isLiked = true;
+  }
+
+  edit(editor: PostEditor) {
+    this.category = editor.category;
+    this.title = editor.title;
+    this.contents = editor.contents;
+    this.thumbnailImageUrl = editor.thumbnailImageUrl;
+
+    return this;
   }
 }
