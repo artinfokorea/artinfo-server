@@ -1,8 +1,21 @@
-import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { PostCategoryEnum } from '@/post/enum/PostCategoryEnum';
 import { User } from '@/user/entity/user.entity';
 import { PostCreator } from '@/post/repository/dto/PostCreator';
 import { PostEditor } from '@/post/repository/dto/PostEditor';
+import { LikeEntity } from '@/like/LikeEntity';
+import { CommentEntity } from '@/comment/comment.entity';
 
 @Entity('posts')
 export class PostEntity extends BaseEntity {
@@ -31,8 +44,11 @@ export class PostEntity extends BaseEntity {
   @Column({ type: 'int', name: 'view_count', default: 0 })
   viewCount: number;
 
-  @Column({ type: 'int', name: 'like_count', default: 0 })
-  likeCount: number;
+  @OneToMany(() => LikeEntity, like => like.post)
+  likes: LikeEntity[];
+
+  @OneToMany(() => CommentEntity, comment => comment.post)
+  comments: CommentEntity[];
 
   isLiked: boolean = false;
 

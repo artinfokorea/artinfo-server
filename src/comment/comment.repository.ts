@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Comment, COMMENT_TYPE } from '@/comment/comment.entity';
+import { CommentEntity, COMMENT_TYPE } from '@/comment/comment.entity';
 import { CommentFetcher } from '@/comment/repository/operation/comment.fetcher';
 import { CommentCounter } from '@/comment/repository/operation/comment.counter';
 import { User } from '@/user/entity/user.entity';
@@ -15,8 +15,8 @@ import { NewsRepository } from '@/news/repository/news.repository';
 @Injectable()
 export class CommentRepository {
   constructor(
-    @InjectRepository(Comment)
-    private commentRepository: Repository<Comment>,
+    @InjectRepository(CommentEntity)
+    private commentRepository: Repository<CommentEntity>,
     private userRepository: UserRepository,
     private newsRepository: NewsRepository,
   ) {}
@@ -70,16 +70,16 @@ export class CommentRepository {
     await this.commentRepository
       .createQueryBuilder()
       .delete()
-      .from(Comment)
+      .from(CommentEntity)
       .where('id = :id OR parentId = :parentId', { id: deleter.commentId, parentId: deleter.commentId })
       .execute();
   }
 
-  async find(fetcher: CommentFetcher): Promise<Comment[]> {
+  async find(fetcher: CommentFetcher): Promise<CommentEntity[]> {
     const qb = this.commentRepository
       .createQueryBuilder('comment')
       .addSelect(subQuery => {
-        return subQuery.select('COUNT(*)', 'childrenCount').from(Comment, 'child').where('child.parentId = comment.id');
+        return subQuery.select('COUNT(*)', 'childrenCount').from(CommentEntity, 'child').where('child.parentId = comment.id');
       }, 'children_count')
       .leftJoinAndSelect('comment.user', 'user')
       .where('comment.targetId = :targetId', { targetId: fetcher.targetId })
@@ -94,7 +94,7 @@ export class CommentRepository {
     const rawComments = await qb.offset(fetcher.skip).limit(fetcher.take).getRawMany();
 
     return rawComments.map((raw: any) => {
-      const comment = new Comment().fromRaw(raw);
+      const comment = new CommentEntity().fromRaw(raw);
       const user = new User().fromRaw(raw);
       comment.setUser(user);
 

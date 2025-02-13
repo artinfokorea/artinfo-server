@@ -30,8 +30,14 @@ export class PostResponse {
   @ApiProperty({ type: Number, required: true, description: '좋아요 수', example: 5 })
   likeCount: number;
 
+  @ApiProperty({ type: Number, required: true, description: '댓글 수', example: 5 })
+  commentCount: number;
+
   @ApiProperty({ type: Boolean, required: true, description: '좋아요 여부', example: 5 })
   isLiked: boolean;
+
+  @ApiProperty({ type: Date, required: true, description: '작성일', example: new Date() })
+  createdAt: Date;
 
   constructor(post: PostEntity) {
     this.id = post.id;
@@ -42,7 +48,9 @@ export class PostResponse {
     this.contents = post.contents;
     this.thumbnailImageUrl = post.thumbnailImageUrl;
     this.viewCount = post.viewCount;
-    this.likeCount = post.likeCount;
+    this.likeCount = post.likes.length;
+    this.commentCount = post.comments.length;
     this.isLiked = post.isLiked;
+    this.createdAt = post.createdAt;
   }
 }

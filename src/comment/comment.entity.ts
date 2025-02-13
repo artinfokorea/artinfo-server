@@ -1,8 +1,10 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { User } from '@/user/entity/user.entity';
+import { PostEntity } from '@/post/PostEntity';
 
 export enum COMMENT_TYPE {
   NEWS = 'NEWS',
+  POST = 'POST',
 }
 export interface CommentRaw {
   comment_id: number;
@@ -16,14 +18,18 @@ export interface CommentRaw {
 }
 
 @Entity('comments')
-export class Comment extends BaseEntity {
+export class CommentEntity extends BaseEntity {
   @PrimaryGeneratedColumn('increment', { name: 'id' })
   id: number;
 
   @Column({ type: 'enum', enum: COMMENT_TYPE, name: 'type' })
   type: COMMENT_TYPE;
 
-  @Column({ type: 'int', name: 'target_id' })
+  @ManyToOne(() => PostEntity, post => post.comments)
+  @JoinColumn({ name: 'target_id' })
+  post: PostEntity;
+
+  @Column({ name: 'target_id' })
   targetId: number;
 
   @Column({ type: 'int', name: 'parent_id', nullable: true })
@@ -45,7 +51,7 @@ export class Comment extends BaseEntity {
   childrenCount: number;
 
   fromRaw(raw: CommentRaw) {
-    const comment = new Comment();
+    const comment = new CommentEntity();
     comment.id = raw.comment_id;
     comment.type = raw.comment_type;
     comment.targetId = raw.comment_target_id;

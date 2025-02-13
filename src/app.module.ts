@@ -31,7 +31,7 @@ import { InquiryModule } from '@/system/module/inquiry.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { NewsModule } from '@/news/news.module';
 import { CommentModule } from '@/comment/comment.module';
-import { Comment } from '@/comment/comment.entity';
+import { CommentEntity } from '@/comment/comment.entity';
 import { Performance } from '@/performance/performance.entity';
 import { PerformanceArea } from '@/performance/performance-area.entity';
 import { PerformanceModule } from '@/performance/performance.module';
@@ -61,7 +61,7 @@ const entities = [
   JobMajorCategory,
   Image,
   Inquiry,
-  Comment,
+  CommentEntity,
   PostEntity,
   LikeEntity,
 ];

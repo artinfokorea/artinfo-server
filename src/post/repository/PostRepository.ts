@@ -10,10 +10,11 @@ export class PostRepository extends Repository<PostEntity> {
   constructor(dataSource: DataSource) {
     super(PostEntity, dataSource.createEntityManager());
   }
-
   async findManyPaging(fetcher: PostPagingFetcher): Promise<PagingItems<PostEntity>> {
     const queryBuilder = this.createQueryBuilder('post') //
-      .leftJoinAndSelect('post.user', 'user');
+      .leftJoinAndSelect('post.user', 'user')
+      .leftJoinAndSelect('post.comments', 'comments')
+      .leftJoinAndSelect('post.likes', 'likes');
 
     if (fetcher.category) {
       queryBuilder.where('post.category = :category', { category: fetcher.category });
@@ -35,6 +36,7 @@ export class PostRepository extends Repository<PostEntity> {
       .skip(fetcher.skip)
       .take(fetcher.take)
       .getManyAndCount();
+
     return { items: posts, totalCount: totalCount };
   }
 
@@ -46,7 +48,7 @@ export class PostRepository extends Repository<PostEntity> {
   }
 
   async findOneByIdWithUserOrThrow(postId: number) {
-    return this.findOne({ relations: ['user'], where: { id: postId } }).then(result => {
+    return this.findOne({ relations: ['user', 'comments', 'likes'], where: { id: postId } }).then(result => {
       if (!result) throw new PostNotFound();
       return result;
     });

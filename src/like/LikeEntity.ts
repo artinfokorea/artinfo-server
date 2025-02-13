@@ -1,5 +1,6 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { LikeTypeEnum } from '@/like/LikeTypeEnum';
+import { PostEntity } from '@/post/PostEntity';
 
 @Entity('likes')
 export class LikeEntity {
@@ -11,6 +12,10 @@ export class LikeEntity {
 
   @Column({ name: 'user_id' })
   userId: number;
+
+  @ManyToOne(() => PostEntity, post => post.likes)
+  @JoinColumn({ name: 'target_id' })
+  post: PostEntity;
 
   @Column({ name: 'target_id' })
   targetId: number;

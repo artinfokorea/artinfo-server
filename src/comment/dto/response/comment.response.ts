@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Comment } from '@/comment/comment.entity';
+import { CommentEntity } from '@/comment/comment.entity';
 
 export class CommentResponse {
   @ApiProperty({ type: 'number', required: true, description: '댓글 아이디', example: 2 })
@@ -23,7 +23,7 @@ export class CommentResponse {
   @ApiProperty({ type: 'date', required: true, description: '생성 시간', example: new Date() })
   createdAt: Date;
 
-  constructor(comment: Comment) {
+  constructor(comment: CommentEntity) {
     this.id = comment.id;
     this.contents = comment.contents;
     this.userId = comment.user.id;

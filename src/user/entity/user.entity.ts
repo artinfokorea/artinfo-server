@@ -3,7 +3,7 @@ import { Job } from '@/job/entity/job.entity';
 import { School } from '@/user/entity/school.entity';
 import { UserMajorCategory } from '@/user/entity/user-major-category.entity';
 import { Lesson } from '@/lesson/entity/lesson.entity';
-import { Comment } from '@/comment/comment.entity';
+import { CommentEntity } from '@/comment/comment.entity';
 import { Performance } from '@/performance/performance.entity';
 import { JobUser } from '@/job/entity/job-user.entity';
 import { PostEntity } from '@/post/PostEntity';
@@ -63,8 +63,8 @@ export class User extends BaseEntity {
   @OneToMany(() => School, school => school.user, { eager: true, cascade: true })
   schools: School[];
 
-  @OneToMany(() => Comment, comment => comment.user, { cascade: true })
-  comments: Comment[];
+  @OneToMany(() => CommentEntity, comment => comment.user, { cascade: true })
+  comments: CommentEntity[];
 
   @OneToMany(() => Job, fullTimeJob => fullTimeJob.user, { cascade: true })
   jobs: Job[];
