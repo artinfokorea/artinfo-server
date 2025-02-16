@@ -16,9 +16,15 @@ import { OkResponse } from '@/common/response/ok.response';
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
-  @RestApiGet(CommentsResponse, { path: '/news/:newsId', description: '댓글 목록 조회' })
-  async getComments(@Param('newsId') newsId: number, @Query() request: GetCommentsRequest) {
+  @RestApiGet(CommentsResponse, { path: '/news/:newsId', description: '뉴스 댓글 목록 조회' })
+  async getNewsComments(@Param('newsId') newsId: number, @Query() request: GetCommentsRequest) {
     const comments = await this.commentService.getCommentList(request.toCommentListQuery(COMMENT_TYPE.NEWS, newsId));
+    return new CommentsResponse(comments.items, comments.totalCount);
+  }
+
+  @RestApiGet(CommentsResponse, { path: '/posts/:postId', description: '게시판 댓글 목록 조회' })
+  async getComments(@Param('postId') newsId: number, @Query() request: GetCommentsRequest) {
+    const comments = await this.commentService.getCommentList(request.toCommentListQuery(COMMENT_TYPE.POST, newsId));
     return new CommentsResponse(comments.items, comments.totalCount);
   }
 
