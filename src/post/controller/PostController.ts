@@ -11,6 +11,7 @@ import { Signature } from '@/common/decorator/Signature';
 import { EditPostRequest } from '@/post/controller/dto/request/EditPostRequest';
 import { ScanPostsRequest } from '@/post/controller/dto/request/ScanPostsRequest';
 import { PostsResponse } from '@/post/controller/dto/response/PostsResponse';
+import { LikePostRequest } from '@/post/controller/dto/request/LikePostRequest';
 
 @RestApiController('/posts', 'Post')
 export class PostController {
@@ -37,6 +38,12 @@ export class PostController {
   @RestApiPost(OkResponse, { path: '/:postId', description: '글 수정', auth: [USER_TYPE.CLIENT] })
   async editPost(@AuthSignature() signature: UserSignature, @Param('postId') postId: number, @Body() request: EditPostRequest): Promise<OkResponse> {
     await this.postService.editPost(request.toServiceDto(signature.id, postId));
+    return new OkResponse();
+  }
+
+  @RestApiPost(OkResponse, { path: '/like/:postId', description: '글 좋아요', auth: [USER_TYPE.CLIENT] })
+  async likePost(@AuthSignature() signature: UserSignature, @Param('postId') postId: number, @Body() request: LikePostRequest): Promise<OkResponse> {
+    await this.postService.likePost(request.toServiceDto(signature.id, postId));
     return new OkResponse();
   }
 
