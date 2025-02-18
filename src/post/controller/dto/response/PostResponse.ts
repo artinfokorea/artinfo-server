@@ -12,6 +12,9 @@ export class PostResponse {
   @ApiProperty({ type: String, required: true, description: '작성자 이름', example: 2 })
   authorName: string;
 
+  @ApiProperty({ type: String, required: false, description: '작성자 아이콘 이미지 주소', example: 'https://artinfokorea.com' })
+  authorIconImageUrl: string | null;
+
   @ApiProperty({ enum: PostCategoryEnum, enumName: 'PostCategoryEnum', required: true, description: '게시글 카테고리', example: PostCategoryEnum.INQUIRY })
   category: PostCategoryEnum;
 
@@ -43,13 +46,14 @@ export class PostResponse {
     this.id = post.id;
     this.authorId = post.user.id;
     this.authorName = post.user.name;
+    this.authorIconImageUrl = post.user.iconImageUrl;
     this.category = post.category;
     this.title = post.title;
     this.contents = post.contents;
     this.thumbnailImageUrl = post.thumbnailImageUrl;
     this.viewCount = post.viewCount;
-    this.likeCount = post.likes.length;
-    this.commentCount = post.comments.length;
+    this.likeCount = post.likeCount;
+    this.commentCount = post.commentCount;
     this.isLiked = post.isLiked;
     this.createdAt = post.createdAt;
   }

@@ -32,6 +32,8 @@ export class PostService {
 
   async scanPostById(postId: number, userId?: number) {
     const post = await this.postRepository.findOneByIdWithUserOrThrow(postId);
+    post.increaseViewCount();
+    await post.save();
 
     if (userId) {
       const like = await this.likeRepository.findBy({ targetId: postId, userId: userId });
@@ -39,6 +41,10 @@ export class PostService {
     }
 
     return post;
+  }
+
+  async scanTopPosts() {
+    return await this.postRepository.findTop();
   }
 
   async scanPosts(dto: ScanPostsServiceDto): Promise<PagingItems<PostEntity>> {
@@ -73,16 +79,21 @@ export class PostService {
 
   async likePost(dto: LikePostServiceDto) {
     await this.userRepository.findOneOrThrowById(dto.userId);
+    const post = await this.postRepository.findOneByIdOrThrow(dto.postId);
 
     const like = await this.likeRepository.findOneBy({ userId: dto.userId, targetId: dto.postId, type: LikeTypeEnum.POST });
     if (!dto.isLike && like) {
       await like.softRemove();
+      post.decreaseLikeCount();
+      await post.save();
     } else if (dto.isLike && !like) {
       await this.likeRepository.save({
         type: LikeTypeEnum.POST,
         userId: dto.userId,
         targetId: dto.postId,
       });
+      post.increaseLikeCount();
+      await post.save();
     }
   }
 }

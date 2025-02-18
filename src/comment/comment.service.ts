@@ -4,27 +4,41 @@ import { PagingItems } from '@/common/type/type';
 import { CommentFetcher } from '@/comment/repository/operation/comment.fetcher';
 import { CommentCounter } from '@/comment/repository/operation/comment.counter';
 import { CommentListQuery } from '@/comment/dto/query/comment-list.query';
-import { CommentEntity } from '@/comment/comment.entity';
+import { COMMENT_TYPE, CommentEntity } from '@/comment/comment.entity';
 import { CreateCommentCommand } from '@/comment/dto/command/create-comment.command';
 import { EditCommentCommand } from '@/comment/dto/command/edit-comment.command';
+import { PostRepository } from '@/post/repository/PostRepository';
 
 @Injectable()
 export class CommentService {
-  constructor(private readonly commentRepository: CommentRepository) {}
+  constructor(
+    private readonly commentRepository: CommentRepository,
+    private readonly postRepository: PostRepository,
+  ) {}
 
   async creat(command: CreateCommentCommand) {
-    return this.commentRepository.createOrThrow(command.toCreator());
+    if (command.type === COMMENT_TYPE.POST) {
+      const post = await this.postRepository.findOneByIdOrThrow(command.targetId);
+      post.increaseCommentCount();
+      await post.save();
+    }
+    return await this.commentRepository.createOrThrow(command.toCreator());
   }
 
   async edit(command: EditCommentCommand) {
-    return this.commentRepository.editOrThrow(command.toEditor());
+    await this.commentRepository.editOrThrow(command.toEditor());
   }
 
   async delete(commentId: number, userId: number) {
-    return this.commentRepository.deleteOrThrow({
-      commentId: commentId,
-      userId: userId,
-    });
+    const comment = await this.commentRepository.findOneByIdAndUserIdOrThrow(commentId, userId);
+
+    if (comment.type === COMMENT_TYPE.POST) {
+      const post = await this.postRepository.findOneByIdOrThrow(comment.targetId);
+      post.decreaseCommentCount();
+      await post.save();
+    }
+
+    await comment.remove();
   }
 
   async getCommentList(query: CommentListQuery): Promise<PagingItems<CommentEntity>> {

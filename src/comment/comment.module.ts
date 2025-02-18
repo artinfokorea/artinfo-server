@@ -8,10 +8,11 @@ import { UserRepository } from '@/user/repository/user.repository';
 import { User } from '@/user/entity/user.entity';
 import { NewsRepository } from '@/news/repository/news.repository';
 import { News } from '@/news/news.entity';
+import { PostRepository } from '@/post/repository/PostRepository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([CommentEntity, User, News])],
   controllers: [CommentController],
-  providers: [CommentService, CommentRepository, UserRepository, NewsRepository],
+  providers: [CommentService, CommentRepository, UserRepository, NewsRepository, PostRepository],
 })
 export class CommentModule {}

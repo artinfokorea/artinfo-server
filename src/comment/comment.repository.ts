@@ -9,7 +9,6 @@ import { CommentCreator } from '@/comment/repository/operation/comment.creator';
 import { UserRepository } from '@/user/repository/user.repository';
 import { CommentEditor } from '@/comment/repository/operation/comment.editor';
 import { CommentForbidden, CommentNotFound } from '@/comment/comment.exception';
-import { CommentDeleter } from '@/comment/repository/operation/comment.deleter';
 import { NewsRepository } from '@/news/repository/news.repository';
 
 @Injectable()
@@ -59,20 +58,11 @@ export class CommentRepository {
     );
   }
 
-  async deleteOrThrow(deleter: CommentDeleter) {
-    const comment = await this.commentRepository.findOne({ relations: ['user'], where: { id: deleter.commentId, user: { id: deleter.userId } } });
-    if (!comment) {
-      throw new CommentNotFound();
-    } else if (comment.user.id !== deleter.userId) {
-      throw new CommentForbidden();
-    }
-
-    await this.commentRepository
-      .createQueryBuilder()
-      .delete()
-      .from(CommentEntity)
-      .where('id = :id OR parentId = :parentId', { id: deleter.commentId, parentId: deleter.commentId })
-      .execute();
+  async findOneByIdAndUserIdOrThrow(commentId: number, userId: number) {
+    return this.commentRepository.findOneBy({ id: commentId, user: { id: userId } }).then(comment => {
+      if (!comment) throw new CommentNotFound();
+      return comment;
+    });
   }
 
   async find(fetcher: CommentFetcher): Promise<CommentEntity[]> {

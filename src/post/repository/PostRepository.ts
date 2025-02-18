@@ -10,11 +10,20 @@ export class PostRepository extends Repository<PostEntity> {
   constructor(dataSource: DataSource) {
     super(PostEntity, dataSource.createEntityManager());
   }
+
+  findTop() {
+    return this.createQueryBuilder('post') //
+      .leftJoinAndSelect('post.user', 'user')
+      .orderBy('post.likeCount', 'DESC')
+      .addOrderBy('post.commentCount', 'DESC')
+      .addOrderBy('post.createdAt', 'DESC')
+      .take(10)
+      .getMany();
+  }
+
   async findManyPaging(fetcher: PostPagingFetcher): Promise<PagingItems<PostEntity>> {
     const queryBuilder = this.createQueryBuilder('post') //
-      .leftJoinAndSelect('post.user', 'user')
-      .leftJoinAndSelect('post.comments', 'comments')
-      .leftJoinAndSelect('post.likes', 'likes');
+      .leftJoinAndSelect('post.user', 'user');
 
     if (fetcher.category) {
       queryBuilder.where('post.category = :category', { category: fetcher.category });
@@ -42,6 +51,13 @@ export class PostRepository extends Repository<PostEntity> {
 
   async findOneByIdAndUserIdOrThrow(postId: number, userId: number) {
     return this.findOneBy({ id: postId, userId: userId }).then(result => {
+      if (!result) throw new PostNotFound();
+      return result;
+    });
+  }
+
+  async findOneByIdOrThrow(postId: number) {
+    return this.findOneBy({ id: postId }).then(result => {
       if (!result) throw new PostNotFound();
       return result;
     });

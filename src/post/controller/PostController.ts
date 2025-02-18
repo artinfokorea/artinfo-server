@@ -12,10 +12,16 @@ import { EditPostRequest } from '@/post/controller/dto/request/EditPostRequest';
 import { ScanPostsRequest } from '@/post/controller/dto/request/ScanPostsRequest';
 import { PostsResponse } from '@/post/controller/dto/response/PostsResponse';
 import { LikePostRequest } from '@/post/controller/dto/request/LikePostRequest';
+import { TopPostsResponse } from '@/post/controller/dto/response/TopPostsResponse';
 
 @RestApiController('/posts', 'Post')
 export class PostController {
   constructor(private readonly postService: PostService) {}
+
+  @RestApiGet(TopPostsResponse, { path: '/top', description: '인기 게시글 조회' })
+  async scanTopPosts(): Promise<TopPostsResponse> {
+    return new TopPostsResponse(await this.postService.scanTopPosts());
+  }
 
   @RestApiGet(PostResponse, { path: '/:postId', description: '글 단건 조회' })
   async scanPost(@Signature() signature: UserSignature, @Param('postId') postId: number): Promise<PostResponse> {
