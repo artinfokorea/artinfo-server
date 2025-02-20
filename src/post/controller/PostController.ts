@@ -1,4 +1,4 @@
-import { RestApiController, RestApiDelete, RestApiGet, RestApiPost } from '@/common/decorator/rest-api';
+import { RestApiController, RestApiDelete, RestApiGet, RestApiPost, RestApiPut } from '@/common/decorator/rest-api';
 import { OkResponse } from '@/common/response/ok.response';
 import { USER_TYPE } from '@/user/entity/user.entity';
 import { AuthSignature } from '@/common/decorator/AuthSignature';
@@ -41,7 +41,7 @@ export class PostController {
     return new OkResponse();
   }
 
-  @RestApiPost(OkResponse, { path: '/:postId', description: '글 수정', auth: [USER_TYPE.CLIENT] })
+  @RestApiPut(OkResponse, { path: '/:postId', description: '글 수정', auth: [USER_TYPE.CLIENT] })
   async editPost(@AuthSignature() signature: UserSignature, @Param('postId') postId: number, @Body() request: EditPostRequest): Promise<OkResponse> {
     await this.postService.editPost(request.toServiceDto(signature.id, postId));
     return new OkResponse();
