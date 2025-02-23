@@ -52,8 +52,8 @@ export class PostResponse {
     this.contents = post.contents;
     this.thumbnailImageUrl = post.thumbnailImageUrl;
     this.viewCount = post.viewCount;
-    this.likeCount = post.likeCount;
-    this.commentCount = post.commentCount;
+    this.likeCount = post.likes.length;
+    this.commentCount = post.comments.length;
     this.isLiked = post.isLiked;
     this.createdAt = post.createdAt;
   }

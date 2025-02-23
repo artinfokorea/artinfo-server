@@ -84,7 +84,6 @@ export class PostService {
     const like = await this.likeRepository.findOneBy({ userId: dto.userId, targetId: dto.postId, type: LikeTypeEnum.POST });
     if (!dto.isLike && like) {
       await like.softRemove();
-      post.decreaseLikeCount();
       await post.save();
     } else if (dto.isLike && !like) {
       await this.likeRepository.save({
@@ -92,7 +91,6 @@ export class PostService {
         userId: dto.userId,
         targetId: dto.postId,
       });
-      post.increaseLikeCount();
       await post.save();
     }
   }

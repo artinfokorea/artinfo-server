@@ -22,7 +22,9 @@ export class PostRepository extends Repository<PostEntity> {
   }
 
   async findManyPaging(fetcher: PostPagingFetcher): Promise<PagingItems<PostEntity>> {
-    const queryBuilder = this.createQueryBuilder('post') //
+    const queryBuilder = this.createQueryBuilder('post')
+      .leftJoinAndSelect('post.comments', 'comments') //
+      .leftJoinAndSelect('post.likes', 'likes')
       .leftJoinAndSelect('post.user', 'user');
 
     if (fetcher.category) {

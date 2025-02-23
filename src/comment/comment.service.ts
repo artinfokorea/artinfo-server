@@ -19,7 +19,6 @@ export class CommentService {
   async creat(command: CreateCommentCommand) {
     if (command.type === COMMENT_TYPE.POST) {
       const post = await this.postRepository.findOneByIdOrThrow(command.targetId);
-      post.increaseCommentCount();
       await post.save();
     }
     return await this.commentRepository.createOrThrow(command.toCreator());
@@ -34,7 +33,6 @@ export class CommentService {
 
     if (comment.type === COMMENT_TYPE.POST) {
       const post = await this.postRepository.findOneByIdOrThrow(comment.targetId);
-      post.decreaseCommentCount();
       await post.save();
     }
 

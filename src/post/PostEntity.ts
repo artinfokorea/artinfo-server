@@ -44,12 +44,6 @@ export class PostEntity extends BaseEntity {
   @Column({ type: 'int', name: 'view_count', default: 0 })
   viewCount: number;
 
-  @Column({ type: 'int', name: 'like_count', default: 0 })
-  likeCount: number;
-
-  @Column({ type: 'int', name: 'comment_count', default: 0 })
-  commentCount: number;
-
   @OneToMany(() => LikeEntity, like => like.post)
   likes: LikeEntity[];
 
@@ -86,26 +80,6 @@ export class PostEntity extends BaseEntity {
 
   increaseViewCount() {
     this.viewCount += 1;
-    return this;
-  }
-
-  increaseCommentCount() {
-    this.commentCount += 1;
-    return this;
-  }
-
-  decreaseCommentCount() {
-    if (this.commentCount > 0) this.commentCount -= 1;
-    return this;
-  }
-
-  increaseLikeCount() {
-    this.likeCount += 1;
-    return this;
-  }
-
-  decreaseLikeCount() {
-    if (this.likeCount > 0) this.commentCount -= 1;
     return this;
   }
 
