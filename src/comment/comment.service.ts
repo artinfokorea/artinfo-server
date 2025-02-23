@@ -29,14 +29,7 @@ export class CommentService {
   }
 
   async delete(commentId: number, userId: number) {
-    const comment = await this.commentRepository.findOneByIdAndUserIdOrThrow(commentId, userId);
-
-    if (comment.type === COMMENT_TYPE.POST) {
-      const post = await this.postRepository.findOneByIdOrThrow(comment.targetId);
-      await post.save();
-    }
-
-    await comment.remove();
+    await this.commentRepository.delete(commentId, userId);
   }
 
   async getCommentList(query: CommentListQuery): Promise<PagingItems<CommentEntity>> {

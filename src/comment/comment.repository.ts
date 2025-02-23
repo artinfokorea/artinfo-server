@@ -20,6 +20,19 @@ export class CommentRepository {
     private newsRepository: NewsRepository,
   ) {}
 
+  async delete(commentId: number, userId: number) {
+    await this.commentRepository
+      .createQueryBuilder()
+      .delete()
+      .from('comments')
+      .where('comments.user_id = :userId', { userId })
+      .andWhere('id = :commentId OR parent_id = :parentId', {
+        commentId,
+        parentId: commentId,
+      })
+      .execute();
+  }
+
   async createOrThrow(creator: CommentCreator): Promise<number> {
     const user = await this.userRepository.findOneOrThrowById(creator.userId);
     if (creator.type === COMMENT_TYPE.NEWS) {
