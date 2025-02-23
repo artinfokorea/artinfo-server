@@ -79,6 +79,9 @@ export class PostRepository extends Repository<PostEntity> {
           qb.where('LOWER(post.title) LIKE LOWER(:keyword)', { keyword: `%${fetcher.keyword}%` }) //
             .orWhere('LOWER(post.contents) LIKE LOWER(:keyword)', {
               keyword: `%${fetcher.keyword}%`,
+            })
+            .orWhere('LOWER(user.name) LIKE LOWER(:keyword)', {
+              keyword: `%${fetcher.keyword}%`,
             });
         }),
       );
