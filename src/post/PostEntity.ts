@@ -61,6 +61,9 @@ export class PostEntity extends BaseEntity {
   @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
   deletedAt: Date | null;
 
+  likesCount: number = 0;
+  commentsCount: number = 0;
+
   constructor(init?: Partial<PostEntity>) {
     super();
     if (init) {
