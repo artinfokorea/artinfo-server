@@ -36,7 +36,7 @@ export class PostService {
     await post.save();
 
     if (userId) {
-      const like = await this.likeRepository.findBy({ targetId: postId, userId: userId });
+      const like = await this.likeRepository.findOneBy({ type: LikeTypeEnum.POST, targetId: postId, userId: userId });
       if (like) post.hasLike();
     }
 
