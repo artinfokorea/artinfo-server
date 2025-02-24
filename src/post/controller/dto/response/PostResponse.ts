@@ -45,7 +45,7 @@ export class PostResponse {
   constructor(post: PostEntity) {
     this.id = post.id;
     this.authorId = post.user.id;
-    this.authorName = post.user.name;
+    this.authorName = post.user.nickname;
     this.authorIconImageUrl = post.user.iconImageUrl;
     this.category = post.category;
     this.title = post.title;
