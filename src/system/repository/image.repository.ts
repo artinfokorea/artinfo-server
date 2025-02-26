@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { Image } from '@/system/entity/image.entity';
+import { ImageEntity } from '@/system/entity/image.entity';
 import { ImageCreator } from '@/system/repository/operation/image.creator';
 
 @Injectable()
 export class ImageRepository {
   constructor(
-    @InjectRepository(Image)
-    private imageRepository: Repository<Image>,
+    @InjectRepository(ImageEntity)
+    private imageRepository: Repository<ImageEntity>,
   ) {}
 
   async createMany(creators: ImageCreator[]) {

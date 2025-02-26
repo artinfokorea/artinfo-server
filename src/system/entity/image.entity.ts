@@ -9,7 +9,7 @@ export enum IMAGE_TARGET {
 }
 
 @Entity({ name: 'images' })
-export class Image extends BaseEntity {
+export class ImageEntity extends BaseEntity {
   @PrimaryGeneratedColumn('increment')
   id!: number;
 

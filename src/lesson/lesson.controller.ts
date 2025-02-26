@@ -14,6 +14,7 @@ import { EditLessonRequest } from '@/lesson/dto/request/edit-lesson.request';
 import { CountLessonsResponse } from '@/lesson/dto/response/count-lessons.response';
 import { CountLessonsCommand } from '@/lesson/dto/command/count-lessons.command';
 import { MajorGroupsResponse } from '@/major/dto/response/major-groups.response';
+import { ApplyLessonRequest } from '@/lesson/dto/request/ApplyLessonRequest';
 
 @RestApiController('/lessons', 'Lesson')
 export class LessonController {
@@ -74,5 +75,11 @@ export class LessonController {
     const totalCount = await this.lessonService.countLessons(request.toCountCommand());
 
     return new LessonsResponse({ lessons: lessons, totalCount: totalCount });
+  }
+
+  @RestApiPost(OkResponse, { path: '/apply', description: '레슨 신청', auth: [USER_TYPE.CLIENT] })
+  async applyLesson(@AuthSignature() signature: UserSignature, @Body() request: ApplyLessonRequest): Promise<OkResponse> {
+    await this.lessonService.applyLesson(request.toCommand(signature.id));
+    return new OkResponse();
   }
 }

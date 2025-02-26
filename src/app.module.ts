@@ -18,7 +18,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-ioredis';
 import { RedisModule } from '@/common/redis/redis.module';
 import { MajorModule } from '@/major/major.module';
-import { Image } from '@/system/entity/image.entity';
+import { ImageEntity } from '@/system/entity/image.entity';
 import { LoggerModule } from '@/common/middleware/logger/logger.module';
 import { LessonModule } from '@/lesson/lesson.module';
 import { Lesson } from '@/lesson/entity/lesson.entity';
@@ -40,12 +40,14 @@ import { JobUser } from '@/job/entity/job-user.entity';
 import { PostEntity } from '@/post/PostEntity';
 import { PostModule } from '@/post/PostModule';
 import { LikeEntity } from '@/like/LikeEntity';
+import { LessonApplicationEntity } from '@/lesson/entity/lesson-application.entity';
 
 const entities = [
   User,
   School,
   Lesson,
   LessonArea,
+  LessonApplicationEntity,
   Province,
   Performance,
   PerformanceArea,
@@ -59,7 +61,7 @@ const entities = [
   MajorCategory,
   UserMajorCategory,
   JobMajorCategory,
-  Image,
+  ImageEntity,
   Inquiry,
   CommentEntity,
   PostEntity,

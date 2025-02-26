@@ -7,7 +7,7 @@ import { UploadFile } from '@/common/type/type';
 import { ImageRepository } from '@/system/repository/image.repository';
 import { CreateImagesCommand } from '@/system/dto/command/create-images.command';
 import { ImageCreator } from '@/system/repository/operation/image.creator';
-import { Image } from '@/system/entity/image.entity';
+import { ImageEntity } from '@/system/entity/image.entity';
 import * as moment from 'moment/moment';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import * as convert from 'heic-convert';
@@ -43,6 +43,17 @@ export class SystemService {
       subject: '[ 아트인포 ]',
       text: `채용 신청이 도착했어요\n신청내역을 확인해주세요.\n\n내 프로필  >  내 활동\n\nhttps://artinfokorea.com\n\n아트인포 드림
       `,
+      autoTypeDetect: true,
+    });
+  }
+
+  async sendSMS(to: string, text: string) {
+    console.log(process.env['COOL_SMS_SENDER_NUMBER']);
+    await this.messageService.sendOne({
+      from: process.env['COOL_SMS_SENDER_NUMBER']!,
+      to: to,
+      subject: '[ 아트인포 - 레슨 신청 ]',
+      text: text,
       autoTypeDetect: true,
     });
   }
@@ -111,7 +122,7 @@ export class SystemService {
     return imageMetas;
   }
 
-  async createImageMany(command: CreateImagesCommand): Promise<Image[]> {
+  async createImageMany(command: CreateImagesCommand): Promise<ImageEntity[]> {
     const imageMetas = await this.getUploadImageMetasOrThrow(command.files, command.compress);
 
     const imageCreators = await Promise.all(

@@ -14,14 +14,14 @@ import { SystemService } from '@/system/service/system.service';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { ImageRepository } from '@/system/repository/image.repository';
-import { Image } from '@/system/entity/image.entity';
+import { ImageEntity } from '@/system/entity/image.entity';
 import { AwsSesService } from '@/aws/ses/aws-ses.service';
 import { Province } from '@/lesson/entity/province.entity';
 import { ProvinceRepository } from '@/province/province.repository';
 import { AuthRepository } from '@/auth/repository/auth.repository';
 
 @Module({
-  imports: [JwtModule.register({}), TypeOrmModule.forFeature([Auth, User, UserMajorCategory, Image, Province])],
+  imports: [JwtModule.register({}), TypeOrmModule.forFeature([Auth, User, UserMajorCategory, ImageEntity, Province])],
   controllers: [AuthController, VerificationController],
   providers: [
     JwtService,

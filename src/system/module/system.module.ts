@@ -4,13 +4,13 @@ import { SystemService } from '@/system/service/system.service';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { ImageRepository } from '@/system/repository/image.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Image } from '@/system/entity/image.entity';
+import { ImageEntity } from '@/system/entity/image.entity';
 import { Province } from '@/lesson/entity/province.entity';
 import { ProvinceRepository } from '@/province/province.repository';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Image, Province])],
+  imports: [TypeOrmModule.forFeature([ImageEntity, Province])],
   controllers: [SystemController],
   providers: [SystemService, AwsS3Service, ImageRepository, ProvinceRepository, RedisRepository],
 })

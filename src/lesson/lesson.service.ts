@@ -11,19 +11,32 @@ import { CreateLessonCommand } from '@/lesson/dto/command/create-lesson.command'
 import { LessonCreator } from '@/lesson/repository/operation/lesson.creator';
 import { LessonAreaCreator } from '@/lesson/repository/operation/lesson-area.creator';
 import { LessonAreaRepository } from '@/lesson/repository/lesson-area.repository';
-import { AlreadyLessonExists, LessonNotFound, UserDoesNotQualify } from '@/lesson/lesson.exception';
+import {
+  AlreadyLessonExists,
+  ApplicantUserDoesNotRegisterPhone,
+  LessonNotFound,
+  TeacherUserPhoneNotFound,
+  UserDoesNotQualify,
+} from '@/lesson/lesson.exception';
 import { EditLessonCommand } from '@/lesson/dto/command/edit-lesson.command';
 import { LessonEditor } from '@/lesson/repository/operation/lesson.editor';
 import { MajorService } from '@/major/major.service';
 import { PROFESSIONAL_FIELD_CATEGORY } from '@/job/entity/major-category.entity';
+import { SystemService } from '@/system/service/system.service';
+import { ApplyLessonCommand } from '@/lesson/dto/command/ApplyLessonCommand';
+import { UserRepository } from '@/user/repository/user.repository';
+import { LessonApplicationRepository } from '@/lesson/repository/LessonApplicationRepository';
 
 @Injectable()
 export class LessonService {
   constructor(
     private readonly lessonRepository: LessonRepository,
+    private readonly lessonApplicationRepository: LessonApplicationRepository,
     private readonly lessonAreaRepository: LessonAreaRepository,
     private readonly majorService: MajorService,
     private readonly userService: UserService,
+    private readonly userRepository: UserRepository,
+    private readonly systemService: SystemService,
   ) {}
 
   async getLessFields() {
@@ -117,5 +130,23 @@ export class LessonService {
     });
 
     return this.lessonRepository.count(counter);
+  }
+
+  async applyLesson(command: ApplyLessonCommand) {
+    const applicant = await this.userRepository.findOneOrThrowById(command.applicantId);
+    if (!applicant.phone) throw new ApplicantUserDoesNotRegisterPhone();
+
+    const teacher = await this.userRepository.findOneOrThrowById(command.teacherId);
+    if (!teacher.phone) throw new TeacherUserPhoneNotFound();
+
+    const contents = `${command.contents}\n\n${applicant.name} ${applicant.phone}`;
+
+    await this.systemService.sendSMS('01040287451', contents);
+
+    await this.lessonApplicationRepository.save({
+      applicantId: applicant.id,
+      teacherId: teacher.id,
+      contents: command.contents,
+    });
   }
 }

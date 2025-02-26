@@ -1,4 +1,4 @@
-import { Image, IMAGE_TARGET } from '@/system/entity/image.entity';
+import { ImageEntity, IMAGE_TARGET } from '@/system/entity/image.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UploadImageResponse {
@@ -26,7 +26,7 @@ export class UploadImageResponse {
   @ApiProperty({ required: true, description: '연결된 URL', example: 'https://resource.test.com/aaaa/casc/sample.png' })
   url!: string;
 
-  constructor(image: Image) {
+  constructor(image: ImageEntity) {
     this.id = image.id;
     this.target = image.target;
     this.originalFilename = image.originalFilename;

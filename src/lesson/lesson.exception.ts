@@ -35,3 +35,27 @@ export class AlreadyLessonExists extends HttpException {
     );
   }
 }
+
+export class ApplicantUserDoesNotRegisterPhone extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'LESSON-004',
+        message: '신청자의 연락처가 존재하지 않습니다',
+      },
+      HttpStatus.FORBIDDEN,
+    );
+  }
+}
+
+export class TeacherUserPhoneNotFound extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'LESSON-004',
+        message: '레슨 선생님 연락처가 존재하지 않습니다.',
+      },
+      HttpStatus.NOT_FOUND,
+    );
+  }
+}
