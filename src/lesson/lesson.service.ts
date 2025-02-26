@@ -141,7 +141,7 @@ export class LessonService {
 
     const contents = `${command.contents}\n\n${applicant.name} ${applicant.phone}`;
 
-    await this.systemService.sendSMS('01040287451', contents);
+    await this.systemService.sendSMS(teacher.phone, contents);
 
     await this.lessonApplicationRepository.save({
       applicantId: applicant.id,
