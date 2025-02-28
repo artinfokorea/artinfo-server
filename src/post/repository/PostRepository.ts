@@ -5,6 +5,7 @@ import { PostNotFound } from '@/post/PostException';
 import { PostPagingFetcher } from '@/post/repository/dto/PostPagingFetcher';
 import { PagingItems } from '@/common/type/type';
 import { User } from '@/user/entity/user.entity';
+import { COMMENT_TYPE } from '@/comment/comment.entity';
 
 @Injectable()
 export class PostRepository extends Repository<PostEntity> {
@@ -65,7 +66,7 @@ export class PostRepository extends Repository<PostEntity> {
 
   async findManyPaging(fetcher: PostPagingFetcher): Promise<PagingItems<PostEntity>> {
     const queryBuilder = this.createQueryBuilder('post')
-      .leftJoinAndSelect('post.comments', 'comments') //
+      .leftJoinAndSelect('post.comments', 'comments', 'comments.type = :type', { type: COMMENT_TYPE.POST })
       .leftJoinAndSelect('post.likes', 'likes')
       .leftJoinAndSelect('post.user', 'user');
 
