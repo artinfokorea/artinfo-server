@@ -17,7 +17,7 @@ export class PostRepository extends Repository<PostEntity> {
     return this.createQueryBuilder('post')
       .leftJoinAndSelect('post.user', 'user')
       .leftJoin('post.likes', 'likes')
-      .leftJoin('post.comments', 'comments')
+      .leftJoin('post.comments', 'comments', 'comments.type = :type', { type: COMMENT_TYPE.POST })
       .addSelect('COUNT(likes.id)', 'likesCount')
       .addSelect('COUNT(comments.id)', 'commentsCount')
       .groupBy('post.id')
