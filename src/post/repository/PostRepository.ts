@@ -6,6 +6,7 @@ import { PostPagingFetcher } from '@/post/repository/dto/PostPagingFetcher';
 import { PagingItems } from '@/common/type/type';
 import { User } from '@/user/entity/user.entity';
 import { COMMENT_TYPE } from '@/comment/comment.entity';
+import { LikeTypeEnum } from '@/like/LikeTypeEnum';
 
 @Injectable()
 export class PostRepository extends Repository<PostEntity> {
@@ -112,9 +113,14 @@ export class PostRepository extends Repository<PostEntity> {
   }
 
   async findOneByIdWithUserOrThrow(postId: number) {
-    return this.findOne({ relations: ['user', 'comments', 'likes'], where: { id: postId } }).then(result => {
-      if (!result) throw new PostNotFound();
-      return result;
-    });
+    const post = await this.createQueryBuilder('post')
+      .leftJoinAndSelect('post.user', 'user')
+      .leftJoinAndSelect('post.comments', 'comments', 'comments.type = :type', { type: COMMENT_TYPE.POST })
+      .leftJoinAndSelect('post.likes', 'likes', 'likes.type = :type', { type: LikeTypeEnum.POST })
+      .where('post.id = :id', { id: postId })
+      .getOne();
+
+    if (!post) throw new PostNotFound();
+    return post;
   }
 }
