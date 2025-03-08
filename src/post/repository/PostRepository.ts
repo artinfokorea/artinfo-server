@@ -25,7 +25,7 @@ export class PostRepository extends Repository<PostEntity> {
       .addGroupBy('user.id')
       .orderBy('COUNT(likes.id) + COUNT(comments.id)', 'DESC')
       .addOrderBy('post.createdAt', 'DESC')
-      .take(10)
+      .limit(10)
       .getRawMany()
       .then(result => {
         return result.map(rawPost => {
