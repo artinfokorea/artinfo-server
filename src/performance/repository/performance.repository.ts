@@ -59,8 +59,9 @@ export class PerformanceRepository {
 
     const currentKST = new Date();
     currentKST.setHours(currentKST.getHours() + 9);
-    queryBuilder.andWhere('performance.endAt >= :currentKST', { currentKST });
+    currentKST.setUTCHours(0, 0, 0, 0);
 
+    queryBuilder.andWhere('performance.endAt >= :currentKST', { currentKST });
     if (fetcher.keyword) {
       queryBuilder.andWhere(
         new Brackets(qb => {
