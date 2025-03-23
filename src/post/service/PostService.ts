@@ -32,8 +32,8 @@ export class PostService {
 
   async scanPostById(postId: number, userId?: number) {
     const post = await this.postRepository.findOneByIdWithUserOrThrow(postId);
-    post.increaseViewCount();
-    await post.save();
+
+    await this.postRepository.update({ id: postId }, { viewCount: post.viewCount + 1 });
 
     if (userId) {
       const like = await this.likeRepository.findOneBy({ type: LikeTypeEnum.POST, targetId: postId, userId: userId });
