@@ -50,6 +50,13 @@ export class UserRepository {
     return this.userRepository.findOneBy({ email: email });
   }
 
+  async findOneOrThrowByEmail(email: string): Promise<User> {
+    const user = await this.userRepository.findOneBy({ email: email });
+    if (!user) throw new UserNotFound();
+
+    return user;
+  }
+
   async findById(id: number): Promise<User | null> {
     return this.userRepository.findOneBy({ id });
   }

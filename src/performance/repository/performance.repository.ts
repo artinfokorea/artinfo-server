@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Brackets, Repository } from 'typeorm';
+import { Brackets, DataSource, Repository } from 'typeorm';
 import { Performance } from '@/performance/performance.entity';
 import { PerformanceFetcher } from '@/performance/repository/operation/performance.fetcher';
 import { PerformanceCounter } from '@/performance/repository/operation/performance.counter';
@@ -9,17 +8,16 @@ import { PerformanceNotFound } from '@/performance/performance.exception';
 import { PerformanceEditor } from '@/performance/repository/operation/performance.editor';
 
 @Injectable()
-export class PerformanceRepository {
-  constructor(
-    @InjectRepository(Performance)
-    private readonly performanceRepository: Repository<Performance>,
-  ) {}
+export class PerformanceRepository extends Repository<Performance> {
+  constructor(dataSource: DataSource) {
+    super(Performance, dataSource.createEntityManager());
+  }
 
   async editOrThrow(editor: PerformanceEditor): Promise<void> {
-    const performance = await this.performanceRepository.findOneBy({ id: editor.performanceId, user: { id: editor.userId } });
+    const performance = await this.findOneBy({ id: editor.performanceId, user: { id: editor.userId } });
     if (!performance) throw new PerformanceNotFound();
 
-    await this.performanceRepository.update(
+    await this.update(
       { id: editor.performanceId, user: { id: editor.userId } },
       {
         title: editor.title,
@@ -40,22 +38,19 @@ export class PerformanceRepository {
   }
 
   async findOneOrThrowById(id: number): Promise<Performance> {
-    const performance = await this.performanceRepository.findOne({ relations: ['area', 'user'], where: { id } });
+    const performance = await this.findOne({ relations: ['area', 'user'], where: { id } });
     if (!performance) throw new PerformanceNotFound();
 
     return performance;
   }
 
   async deleteOrThrow(userId: number, performanceId: number): Promise<void> {
-    const result = await this.performanceRepository.delete({ id: performanceId, user: { id: userId } });
+    const result = await this.delete({ id: performanceId, user: { id: userId } });
     if (result.affected === 0) throw new PerformanceNotFound();
   }
 
   async find(fetcher: PerformanceFetcher): Promise<Performance[]> {
-    const queryBuilder = this.performanceRepository
-      .createQueryBuilder('performance')
-      .leftJoinAndSelect('performance.area', 'area')
-      .leftJoinAndSelect('area.province', 'province');
+    const queryBuilder = this.createQueryBuilder('performance').leftJoinAndSelect('performance.area', 'area').leftJoinAndSelect('area.province', 'province');
 
     const currentKST = new Date();
     currentKST.setHours(currentKST.getHours() + 9);
@@ -85,10 +80,9 @@ export class PerformanceRepository {
     return await queryBuilder.orderBy('performance.isAd', 'DESC').addOrderBy('performance.endAt', 'ASC').skip(fetcher.skip).take(fetcher.take).getMany();
   }
 
-  async count(counter: PerformanceCounter): Promise<number> {
-    const queryBuilder = this.performanceRepository
-      .createQueryBuilder('performance')
-      .leftJoinAndSelect('performance.area', 'area')
+  async countPerformances(counter: PerformanceCounter): Promise<number> {
+    const queryBuilder = this.createQueryBuilder('performance')
+      .leftJoinAndSelect('performance.area', 'area') //
       .leftJoinAndSelect('area.province', 'province');
 
     if (counter.isPreArranged) {
@@ -120,8 +114,8 @@ export class PerformanceRepository {
     return await queryBuilder.getCount();
   }
 
-  async create(creator: PerformanceCreator): Promise<number> {
-    const performance = await this.performanceRepository.save({
+  async createPerformance(creator: PerformanceCreator): Promise<number> {
+    const performance = await this.save({
       kopisId: creator.kopisId,
       title: creator.title,
       introduction: creator.introduction,

@@ -41,6 +41,8 @@ import { PostEntity } from '@/post/PostEntity';
 import { PostModule } from '@/post/PostModule';
 import { LikeEntity } from '@/like/LikeEntity';
 import { LessonApplicationEntity } from '@/lesson/entity/lesson-application.entity';
+import { ScheduleModule } from '@nestjs/schedule';
+import { SchedulerModule } from '@/common/scheduler/SchedulerModule';
 
 const entities = [
   User,
@@ -68,6 +70,7 @@ const entities = [
   LikeEntity,
 ];
 const modules = [
+  SchedulerModule,
   SystemModule,
   MajorModule,
   RedisModule,
@@ -88,6 +91,7 @@ const modules = [
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     EventEmitterModule.forRoot(),
     ConfigModule.forRoot({
       cache: true,
@@ -113,7 +117,5 @@ const modules = [
     }),
     ...modules,
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}

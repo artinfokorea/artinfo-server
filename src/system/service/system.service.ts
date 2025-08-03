@@ -10,7 +10,6 @@ import { ImageCreator } from '@/system/repository/operation/image.creator';
 import { ImageEntity } from '@/system/entity/image.entity';
 import * as moment from 'moment/moment';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
-import * as convert from 'heic-convert';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 
 export type ImageMeta = {
@@ -41,7 +40,8 @@ export class SystemService {
       from: process.env['COOL_SMS_SENDER_NUMBER']!,
       to: to,
       subject: '[ 아트인포 ]',
-      text: `채용 신청이 도착했어요\n신청내역을 확인해주세요.\n\n내 프로필  >  내 활동\n\nhttps://artinfokorea.com\n\n아트인포 드림
+      text: `채용 신청이 도착했어요\n신청내역을 확인해주세요.
+      내 프로필  >  내 활동\n\nhttps://artinfokorea.com\n\n아트인포 드림
       `,
       autoTypeDetect: true,
     });
@@ -73,16 +73,7 @@ export class SystemService {
     let imageMetadata = await Sharp(uploadFile.buffer).metadata();
 
     try {
-      if (imageMetadata.format === 'heif') {
-        const jpegFormatedArrayBuffer = await convert({
-          buffer: uploadFile.buffer,
-          format: 'JPEG',
-        });
-
-        imageBuffer = await Sharp(jpegFormatedArrayBuffer).toBuffer();
-      } else {
-        imageBuffer = uploadFile.buffer;
-      }
+      imageBuffer = uploadFile.buffer;
     } catch (e) {
       throw new UploadImageIsNotValid();
     }

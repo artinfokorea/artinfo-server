@@ -59,6 +59,12 @@ export class PerformanceController {
     return new CountPerformancesResponse(totalCount);
   }
 
+  @RestApiGet(OkResponse, { path: '/test', description: '테스트' })
+  async test() {
+    await this.performanceService.scrapPerformances();
+    return new OkResponse();
+  }
+
   @RestApiGet(PerformanceDetailResponse, { path: '/:performanceId', description: '공연 단건 조회' })
   async getPerformance(@Param('performanceId') performanceId: number) {
     const performance = await this.performanceService.getPerformance(performanceId);
