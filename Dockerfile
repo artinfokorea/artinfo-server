@@ -10,7 +10,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 
-RUN npm install
+RUN npm install --verbose
 RUN npm run build
 
 CMD npm run start
