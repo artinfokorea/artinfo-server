@@ -10,7 +10,9 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 
-RUN npm install --verbose
-RUN npm run build
+RUN npm install -g pnpm
 
-CMD npm run start
+RUN pnpm install --verbose
+RUN pnpm run build
+
+CMD pnpm run start
