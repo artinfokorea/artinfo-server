@@ -1,40 +1,37 @@
 import { Injectable } from '@nestjs/common';
 import { SES, SendRawEmailCommand } from '@aws-sdk/client-ses';
-import * as nodemailer from 'nodemailer';
-import * as Mail from 'nodemailer/lib/mailer';
 
 @Injectable()
 export class AwsSesService {
-  private readonly mailer: Mail;
+  private readonly ses: SES;
 
   constructor() {
-    const ses = new SES({
-      region: process.env['AWS_REGION'],
+    this.ses = new SES({
+      region: process.env.AWS_REGION,
       credentials: {
-        accessKeyId: process.env['AWS_ACCESS_KEY']!,
-        secretAccessKey: process.env['AWS_SECRET_ACCESS_KEY']!,
+        accessKeyId: process.env.AWS_ACCESS_KEY!,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
       },
-    });
-    this.mailer = nodemailer.createTransport({
-      SES: { ses, aws: { SendRawEmailCommand } },
     });
   }
 
   async send(to: string | string[], subject: string, html: string): Promise<void> {
-    try {
-      const params: Mail.Options = {
-        from: {
-          name: 'ARTINFO',
-          address: 'artinfokorea2022@gmail.com',
-        },
-        to: to,
-        subject: subject,
-        html: html,
-      };
+    const recipients = Array.isArray(to) ? to.join(',') : to;
 
-      return await this.mailer.sendMail(params);
-    } catch (error) {
-      throw error;
-    }
+    const rawEmail = [
+      `From: ARTINFO <artinfokorea2022@gmail.com>`,
+      `To: ${recipients}`,
+      `Subject: ${subject}`,
+      `MIME-Version: 1.0`,
+      `Content-Type: text/html; charset=UTF-8`,
+      '',
+      html,
+    ].join('\r\n');
+
+    const command = new SendRawEmailCommand({
+      RawMessage: { Data: Buffer.from(rawEmail) },
+    });
+
+    await this.ses.send(command);
   }
 }
