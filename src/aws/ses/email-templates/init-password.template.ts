@@ -65,7 +65,7 @@ background-color: white;">
     style="width: 250px;
     height: auto;
     margin-bottom: 60px;"
-    src="https://ycuajmirzlqpgzuonzca.supabase.co/storage/v1/object/public/artinfo/system/artinfo_logo.PNG"
+    src="https://artinfo.s3.ap-northeast-2.amazonaws.com/ART.png"
   />
   <div style="font-size: 28px;
   font-weight: 600;
