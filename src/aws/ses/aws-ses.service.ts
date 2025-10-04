@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { SES, SendRawEmailCommand } from '@aws-sdk/client-ses';
+import { SES } from '@aws-sdk/client-ses';
 import * as nodemailer from 'nodemailer';
 import * as Mail from 'nodemailer/lib/mailer';
+import sesTransport from 'nodemailer-ses-transport';
 
 @Injectable()
 export class AwsSesService {
@@ -15,9 +16,12 @@ export class AwsSesService {
         secretAccessKey: process.env['AWS_SECRET_ACCESS_KEY']!,
       },
     });
-    this.mailer = nodemailer.createTransport({
-      SES: { ses, aws: { SendRawEmailCommand } },
-    });
+
+    this.mailer = nodemailer.createTransport(
+      sesTransport({
+        SES: ses as any,
+      }),
+    );
   }
 
   async send(to: string | string[], subject: string, html: string): Promise<void> {
