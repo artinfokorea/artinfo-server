@@ -2,7 +2,7 @@ FROM node:18
 
 WORKDIR /server/
 
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 
 RUN npm install -g pnpm
 ENV CI=true
