@@ -24,9 +24,12 @@ import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { ImageRepository } from '@/system/repository/image.repository';
 import { ImageEntity } from '@/system/entity/image.entity';
 import { LessonApplicationRepository } from '@/lesson/repository/LessonApplicationRepository';
+import { Auth } from '@/auth/entity/auth.entity';
+import { AuthRepository } from '@/auth/repository/auth.repository';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Lesson, LessonArea, Province, User, MajorCategory, JobMajorCategory, ImageEntity])],
+  imports: [JwtModule.register({}), TypeOrmModule.forFeature([Lesson, LessonArea, Province, User, MajorCategory, JobMajorCategory, ImageEntity, Auth])],
   controllers: [LessonController],
   providers: [
     LessonService,
@@ -46,6 +49,8 @@ import { LessonApplicationRepository } from '@/lesson/repository/LessonApplicati
     AwsS3Service,
     AwsSesService,
     LessonEvent,
+    AuthRepository,
+    JwtService,
   ],
 })
 export class LessonModule {}
