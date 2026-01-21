@@ -10,10 +10,11 @@ import { SchoolRepository } from '@/user/repository/school.repository';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { Auth } from '@/auth/entity/auth.entity';
 import { AuthRepository } from '@/auth/repository/auth.repository';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, School, UserMajorCategory, Auth])],
+  imports: [JwtModule.register({}), TypeOrmModule.forFeature([User, School, UserMajorCategory, Auth])],
   controllers: [UserController],
-  providers: [UserService, UserRepository, SchoolRepository, RedisRepository, AuthRepository],
+  providers: [UserService, UserRepository, SchoolRepository, RedisRepository, AuthRepository, JwtService],
 })
 export class UserModule {}
