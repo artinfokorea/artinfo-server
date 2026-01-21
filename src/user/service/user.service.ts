@@ -7,14 +7,18 @@ import { DataSource } from 'typeorm';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { InvalidPhoneNumber } from '@/user/exception/user.exception';
 import { EmailAuthenticationDoesNotExist } from '@/auth/exception/auth.exception';
+import { UserCreator } from '@/user/repository/opertaion/user.creator';
+import { AuthRepository } from '@/auth/repository/auth.repository';
+import { Auth, AUTH_TYPE } from '@/auth/entity/auth.entity';
 
 @Injectable()
 export class UserService {
   constructor(
-    private readonly userRepository: UserRepository, //
+    private readonly userRepository: UserRepository,
     private readonly schoolRepository: SchoolRepository,
     private readonly redisService: RedisRepository,
     private readonly dataSource: DataSource,
+    private readonly authRepository: AuthRepository,
   ) {}
 
   async getUserById(id: number): Promise<User> {
@@ -52,5 +56,21 @@ export class UserService {
       await this.schoolRepository.deleteByUserId(command.userId, transactionManager);
       await this.schoolRepository.createMany(command.toSchoolCreators(), transactionManager);
     });
+  }
+
+  async createDummyUser(nickname: string): Promise<Auth> {
+    const uniqueId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    const creator = new UserCreator({
+      name: nickname,
+      nickname: nickname,
+      email: `dummy-${uniqueId}@artinfo.dummy`,
+      password: null,
+      iconImageUrl: null,
+    });
+
+    const userId = await this.userRepository.create(creator);
+    const user = await this.userRepository.findOneOrThrowById(userId);
+
+    return this.authRepository.create({ type: AUTH_TYPE.EMAIL, user });
   }
 }

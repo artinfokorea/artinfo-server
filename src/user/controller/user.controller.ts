@@ -1,4 +1,4 @@
-import { RestApiController, RestApiGet, RestApiPut } from '@/common/decorator/rest-api';
+import { RestApiController, RestApiGet, RestApiPost, RestApiPut } from '@/common/decorator/rest-api';
 import { UserService } from '@/user/service/user.service';
 import { USER_TYPE } from '@/user/entity/user.entity';
 import { AuthSignature } from '@/common/decorator/AuthSignature';
@@ -9,6 +9,8 @@ import { Body } from '@nestjs/common';
 import { EditUserRequest } from '@/user/dto/request/edit-user.request';
 import { EditUserPhoneRequest } from '@/user/dto/request/edit-user-phone.request';
 import { EditUserPasswordRequest } from '@/user/dto/request/edit-user-password.request';
+import { CreateDummyUserRequest } from '@/user/dto/request/create-dummy-user.request';
+import { AuthTokensResponse } from '@/auth/dto/response/auth-tokens.response';
 
 @RestApiController('/users', 'User')
 export class UserController {
@@ -40,5 +42,12 @@ export class UserController {
     await this.userService.editUser(request.toEditUserCommand(signature.id));
 
     return new OkResponse();
+  }
+
+  @RestApiPost(AuthTokensResponse, { path: '/dummy', description: '더미 유저 생성', auth: [USER_TYPE.ADMIN] })
+  async createDummyUser(@Body() request: CreateDummyUserRequest) {
+    const auth = await this.userService.createDummyUser(request.nickname);
+
+    return new AuthTokensResponse(auth);
   }
 }

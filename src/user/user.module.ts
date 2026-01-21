@@ -8,10 +8,12 @@ import { UserMajorCategory } from '@/user/entity/user-major-category.entity';
 import { School } from '@/user/entity/school.entity';
 import { SchoolRepository } from '@/user/repository/school.repository';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
+import { Auth } from '@/auth/entity/auth.entity';
+import { AuthRepository } from '@/auth/repository/auth.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, School, UserMajorCategory])],
+  imports: [TypeOrmModule.forFeature([User, School, UserMajorCategory, Auth])],
   controllers: [UserController],
-  providers: [UserService, UserRepository, SchoolRepository, RedisRepository],
+  providers: [UserService, UserRepository, SchoolRepository, RedisRepository, AuthRepository],
 })
 export class UserModule {}
