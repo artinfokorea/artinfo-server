@@ -1,4 +1,4 @@
-import { RestApiController, RestApiDelete, RestApiPost } from '@/common/decorator/rest-api';
+import { RestApiController, RestApiDelete, RestApiGet, RestApiPost } from '@/common/decorator/rest-api';
 import { ApiConsumes } from '@nestjs/swagger';
 import { Body, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
@@ -13,6 +13,11 @@ import { OkResponse } from '@/common/response/ok.response';
 @RestApiController('/system', 'System')
 export class SystemController {
   constructor(private readonly systemService: SystemService) {}
+
+  @RestApiGet(OkResponse, { path: '/health', description: '헬스체크' })
+  async healthCheck() {
+    return new OkResponse();
+  }
 
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
