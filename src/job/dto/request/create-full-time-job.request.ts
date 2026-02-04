@@ -3,6 +3,7 @@ import { JOB_TYPE } from '@/job/entity/job.entity';
 import { CreateJobCommand } from '@/job/dto/command/create-job.command';
 import { Enum, NotBlank, NumberArray } from '@/common/decorator/validator';
 import { IsOptional } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreateFullTimeJobRequest {
   @Enum(JOB_TYPE)
@@ -44,6 +45,10 @@ export class CreateFullTimeJobRequest {
   @ApiProperty({ type: 'string', required: false, description: '회사 대표 이미지', example: 'https://artinfokorea.com' })
   imageUrl: string | null = null;
 
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) return value.map(Number);
+    return [Number(value)];
+  })
   @NumberArray()
   @ApiProperty({ type: 'number[]', required: true, description: '전공 아이디 목록', example: [2, 3] })
   majorIds: number[];
