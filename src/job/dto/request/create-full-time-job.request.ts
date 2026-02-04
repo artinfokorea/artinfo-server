@@ -23,7 +23,7 @@ export class CreateFullTimeJobRequest {
     type: 'array',
     items: { type: 'string', format: 'binary' },
     required: false,
-    description: '첨부 파일 (HWP, PDF, 이미지)',
+    description: '첨부 파일 (PDF, 이미지)',
   })
   attachmentFiles?: any[];
 

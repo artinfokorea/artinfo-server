@@ -5,7 +5,6 @@ import { Util } from '@/common/util/util';
 import * as moment from 'moment';
 import { ConvertedImage } from '../dto/converted-image.dto';
 import { PdfConverterService } from './pdf-converter.service';
-import { HwpConverterService } from './hwp-converter.service';
 import { ImageProcessorService } from './image-processor.service';
 import { UnsupportedFileType } from '../exception/file-converter.exception';
 
@@ -19,12 +18,10 @@ export interface UploadedImageInfo {
 export class FileConverterService {
   private readonly SUPPORTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
   private readonly PDF_TYPES = ['application/pdf'];
-  private readonly HWP_EXTENSIONS = ['.hwp', '.hwpx'];
 
   constructor(
     private readonly awsS3Service: AwsS3Service,
     private readonly pdfConverterService: PdfConverterService,
-    private readonly hwpConverterService: HwpConverterService,
     private readonly imageProcessorService: ImageProcessorService,
   ) {}
 
@@ -45,10 +42,6 @@ export class FileConverterService {
 
   private async convertFile(file: UploadFile): Promise<ConvertedImage[]> {
     const fileExtension = this.getFileExtension(file.originalname).toLowerCase();
-
-    if (this.HWP_EXTENSIONS.includes(fileExtension)) {
-      return this.hwpConverterService.convertToImages(file.buffer, file.originalname);
-    }
 
     if (this.PDF_TYPES.includes(file.mimetype) || fileExtension === '.pdf') {
       return this.pdfConverterService.convertToImages(file.buffer, file.originalname);

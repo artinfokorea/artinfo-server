@@ -1,10 +1,7 @@
 FROM node:18
 
-# LibreOffice, Poppler, GraphicsMagick 설치 (HWP/PDF 변환용)
+# Poppler, GraphicsMagick 설치 (PDF 변환용)
 RUN apt-get update && apt-get install -y \
-    libreoffice \
-    libreoffice-writer \
-    libreoffice-l10n-ko \
     poppler-utils \
     graphicsmagick \
     ghostscript \
