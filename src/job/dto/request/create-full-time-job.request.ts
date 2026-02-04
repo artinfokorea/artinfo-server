@@ -1,7 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { JOB_TYPE } from '@/job/entity/job.entity';
 import { CreateJobCommand } from '@/job/dto/command/create-job.command';
 import { Enum, NotBlank, NumberArray } from '@/common/decorator/validator';
+import { IsOptional } from 'class-validator';
 
 export class CreateFullTimeJobRequest {
   @Enum(JOB_TYPE)
@@ -12,9 +13,18 @@ export class CreateFullTimeJobRequest {
   @ApiProperty({ type: 'string', required: true, description: '채용 제목', example: '춘천시립예술단 단원 모집' })
   title: string;
 
-  @NotBlank()
-  @ApiProperty({ type: 'string', required: true, description: '채용 내용', example: '춘천시립예술단 단원 모집합니다' })
-  contents: string;
+  @IsOptional()
+  @ApiPropertyOptional({ type: 'string', required: false, description: '채용 내용', example: '춘천시립예술단 단원 모집합니다' })
+  contents: string = '';
+
+  @IsOptional()
+  @ApiPropertyOptional({
+    type: 'array',
+    items: { type: 'string', format: 'binary' },
+    required: false,
+    description: '첨부 파일 (HWP, PDF, 이미지)',
+  })
+  attachmentFiles?: any[];
 
   @NotBlank()
   @ApiProperty({ type: 'string', required: true, description: '단체명', example: '춘천시립예술단' })

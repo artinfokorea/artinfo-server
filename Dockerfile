@@ -1,5 +1,18 @@
 FROM node:18
 
+# LibreOffice, Poppler, GraphicsMagick 설치 (HWP/PDF 변환용)
+RUN apt-get update && apt-get install -y \
+    libreoffice \
+    libreoffice-writer \
+    poppler-utils \
+    graphicsmagick \
+    ghostscript \
+    fonts-nanum \
+    fonts-nanum-coding \
+    fonts-nanum-extra \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /server/
 
 COPY package.json ./
