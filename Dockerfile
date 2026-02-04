@@ -4,6 +4,7 @@ FROM node:18
 RUN apt-get update && apt-get install -y \
     libreoffice \
     libreoffice-writer \
+    libreoffice-l10n-ko \
     poppler-utils \
     graphicsmagick \
     ghostscript \
