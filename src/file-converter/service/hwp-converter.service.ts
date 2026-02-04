@@ -24,12 +24,13 @@ export class HwpConverterService {
       await fs.mkdir(tempDir, { recursive: true });
       await fs.writeFile(inputPath, buffer);
 
-      await execAsync(`libreoffice --headless --convert-to pdf --outdir "${tempDir}" "${inputPath}"`, { timeout: 60000 });
+      const { stdout, stderr } = await execAsync(`libreoffice --headless --convert-to pdf --outdir "${tempDir}" "${inputPath}"`, { timeout: 60000 });
 
       const files = await fs.readdir(tempDir);
       const pdfFile = files.find(f => f.endsWith('.pdf'));
 
       if (!pdfFile) {
+        console.error('LibreOffice 변환 실패:', { stdout, stderr, files, tempDir, inputPath });
         throw new FileConversionFailed('HWP를 PDF로 변환하지 못했습니다.');
       }
 
