@@ -8,7 +8,7 @@ import { EditJobCommand } from '@/job/dto/command/edit-job.command';
 import { JobRepository } from '@/job/repository/job.repository';
 import { JobFetcher } from '@/job/repository/operation/job.fetcher';
 import { JobCounter } from '@/job/repository/operation/job.counter';
-import { Paging, PagingItems, UploadFile } from '@/common/type/type';
+import { Paging, PagingItems } from '@/common/type/type';
 import { CreatePartTimeJobCommand } from '@/job/dto/command/create-part-time-job.command';
 import {
   AlreadyAppliedJob,
@@ -26,7 +26,6 @@ import { UserNotFound, UserPhoneNotFound } from '@/user/exception/user.exception
 import { UserDoesNotQualify } from '@/lesson/lesson.exception';
 import { SystemService } from '@/system/service/system.service';
 import { JobUser } from '@/job/entity/job-user.entity';
-import { FileConverterService } from '@/file-converter/service/file-converter.service';
 
 @Injectable()
 export class JobService {
@@ -35,7 +34,6 @@ export class JobService {
     private readonly jobRepository: JobRepository,
     private readonly majorCategoryRepository: MajorRepository,
     private readonly systemService: SystemService,
-    private readonly fileConverterService: FileConverterService,
   ) {}
 
   async applyPartTimeJob(applierId: number, jobId: number, profile: string): Promise<number> {
@@ -68,36 +66,6 @@ export class JobService {
 
   async createJob(command: CreateJobCommand): Promise<number> {
     const createdJobId = await this.jobRepository.create(command.toCreator());
-    await this.majorCategoryRepository.createJobMajorCategoriesOrThrow(createdJobId, command.majorIds);
-
-    return createdJobId;
-  }
-
-  async createJobWithFiles(command: CreateJobCommand, userId: number, files: UploadFile[]): Promise<number> {
-    let finalContents = command.contents;
-
-    if (files && files.length > 0) {
-      const uploadedImages = await this.fileConverterService.convertAndUploadFiles(userId, files);
-      finalContents = this.fileConverterService.generateContentsHtml(command.contents, uploadedImages);
-    }
-
-    const updatedCommand = new CreateJobCommand({
-      userId: command.userId,
-      type: command.type,
-      title: command.title,
-      contents: finalContents,
-      companyName: command.companyName,
-      recruitSiteUrl: command.recruitSiteUrl,
-      imageUrl: command.imageUrl,
-      address: command.address,
-      addressDetail: command.addressDetail,
-      fee: command.fee,
-      majorIds: command.majorIds,
-      startAt: command.startAt,
-      endAt: command.endAt,
-    });
-
-    const createdJobId = await this.jobRepository.create(updatedCommand.toCreator());
     await this.majorCategoryRepository.createJobMajorCategoriesOrThrow(createdJobId, command.majorIds);
 
     return createdJobId;

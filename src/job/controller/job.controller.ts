@@ -1,10 +1,7 @@
 import { RestApiController, RestApiDelete, RestApiGet, RestApiPost, RestApiPut } from '@/common/decorator/rest-api';
 import { JobService } from '@/job/service/job.service';
 import { JobsResponse } from '@/job/dto/response/jobs.response';
-import { Body, Param, Query, UploadedFiles, UseInterceptors } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
-import { ApiConsumes } from '@nestjs/swagger';
-import { UploadFile } from '@/common/type/type';
+import { Body, Param, Query } from '@nestjs/common';
 import { GetJobsRequest } from '@/job/dto/request/get-jobs.request';
 import { OkResponse } from '@/common/response/ok.response';
 import { CreateResponse } from '@/common/response/createResponse';
@@ -80,27 +77,12 @@ export class JobController {
   @RestApiPost(CreateResponse, { path: '/full-time', description: '채용 생성', auth: [USER_TYPE.CLIENT] })
   async createFullTimeJob(@AuthSignature() signature: UserSignature, @Body() request: CreateFullTimeJobRequest): Promise<CreateResponse> {
     const jobId = await this.jobService.createJob(request.toCommand(signature.id));
-
     return new CreateResponse(jobId);
   }
 
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(
-    FilesInterceptor('attachmentFiles', 20, {
-      limits: {
-        fileSize: 50 * 1024 * 1024,
-        files: 20,
-      },
-    }),
-  )
   @RestApiPost(CreateResponse, { path: '/', description: '채용 생성', auth: [USER_TYPE.CLIENT] })
-  async createJob(
-    @AuthSignature() signature: UserSignature,
-    @Body() request: CreateFullTimeJobRequest,
-    @UploadedFiles() files?: UploadFile[],
-  ): Promise<CreateResponse> {
-    const jobId = await this.jobService.createJobWithFiles(request.toCommand(signature.id), signature.id, files || []);
-
+  async createJob(@AuthSignature() signature: UserSignature, @Body() request: CreateFullTimeJobRequest): Promise<CreateResponse> {
+    const jobId = await this.jobService.createJob(request.toCommand(signature.id));
     return new CreateResponse(jobId);
   }
 
