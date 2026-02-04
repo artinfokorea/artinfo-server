@@ -17,7 +17,8 @@ export class HwpConverterService {
 
   async convertToImages(buffer: Buffer, filename: string): Promise<ConvertedImage[]> {
     const tempDir = path.join(os.tmpdir(), new Util().generateRandomString(16));
-    const inputPath = path.join(tempDir, filename);
+    const ext = path.extname(filename) || '.hwp';
+    const inputPath = path.join(tempDir, `input${ext}`);
 
     try {
       await fs.mkdir(tempDir, { recursive: true });
