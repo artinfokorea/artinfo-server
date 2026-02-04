@@ -74,15 +74,42 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GHCR_TOKEN }}
 
-      - name: Docker run
+      - name: Deploy Container 1
         run: |
-          docker rm -f ${{ env.CONTAINER_NAME_1 }}
+          docker rm -f ${{ env.CONTAINER_NAME_1 }} || true
           docker run -d -p 3000:3000 --name ${{ env.CONTAINER_NAME_1 }} --network artinfo-network --cpus=1 --restart always ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}
-          
-          sleep 10
 
-          docker rm -f ${{ env.CONTAINER_NAME_2 }}
+      - name: Health Check Container 1
+        run: |
+          for i in {1..100}; do
+            if curl -s http://localhost:3000/system/health | grep -q "ok"; then
+              echo "Container 1 is healthy"
+              exit 0
+            fi
+            echo "Waiting for container 1... ($i/100)"
+            sleep 2
+          done
+          echo "Container 1 health check failed"
+          exit 1
+
+      - name: Deploy Container 2
+        run: |
+          docker rm -f ${{ env.CONTAINER_NAME_2 }} || true
           docker run -d -p 3001:3000 --name ${{ env.CONTAINER_NAME_2 }} --network artinfo-network --cpus=1 --restart always ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}
 
-          docker image prune -af
+      - name: Health Check Container 2
+        run: |
+          for i in {1..100}; do
+            if curl -s http://localhost:3001/system/health | grep -q "ok"; then
+              echo "Container 2 is healthy"
+              exit 0
+            fi
+            echo "Waiting for container 2... ($i/100)"
+            sleep 2
+          done
+          echo "Container 2 health check failed"
+          exit 1
+
+      - name: Cleanup old images
+        run: docker image prune -af
           
