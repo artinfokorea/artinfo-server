@@ -36,58 +36,61 @@ export interface ExtractedAdmissionResponse {
   admissions: ExtractedAdmissionData[];
 }
 
-const MAJOR_LIST_PROMPT = `당신은 음악대학 입시 요강 PDF를 분석하는 전문가입니다.
-이 PDF에서 언급된 모든 음악 세부 전공(악기/분야)을 빠짐없이 추출해주세요.
-
-반드시 아래 JSON 형식으로 반환해주세요:
-{
-  "majors": ["피아노", "바이올린", "성악", ...]
-}
-
-규칙:
-- "음악원", "음악학부", "기악과" 같은 상위 카테고리가 아닌, 구체적인 세부 전공명만 추출
-- 성악의 경우 성부(소프라노, 메조소프라노, 테너 등)가 구분되어 있으면 각각 분리, 구분이 없으면 "성악"으로 통합
-- 같은 전공이 여러 번 나와도 중복 없이 한 번만 포함
-- JSON만 반환하고 다른 텍스트는 포함하지 마세요`;
-
-function buildDetailPrompt(targetMajors: string[], knownMajorNames: string[]): string {
-  const knownNamesSection =
-    knownMajorNames.length > 0
-      ? `\nDB에 등록된 전공명 목록: ${knownMajorNames.join(', ')}\nmajorKeyword는 가능하면 위 목록의 이름과 정확히 일치하도록 설정해주세요.\n`
-      : '';
-
+function buildPrompt(targetMajors: string[]): string {
   return `당신은 음악대학 입시 요강 PDF에서 정보를 추출하는 전문가입니다.
-이 PDF에서 다음 전공들의 입시 정보를 추출해주세요: ${targetMajors.join(', ')}
-${knownNamesSection}
-반드시 아래 JSON 스키마를 따라주세요:
+
+## 작업 순서 (반드시 이 순서대로 수행)
+
+### 1단계: 실기고사 일정 먼저 찾기
+PDF 전체를 훑어서 실기고사/실기시험 일정을 먼저 찾으세요.
+- "실기고사", "실기시험", "고사일정", "시험일정", "전형일정", "고사일", "시험일" 등의 키워드를 찾으세요.
+- 보통 "전형 일정표", "모집 일정", "고사 일정" 등의 표(테이블)에 있습니다.
+- 1차 실기, 2차 실기 등 차수별 날짜를 모두 파악하세요.
+- 전공 공통 일정이면 모든 전공에 동일하게 적용합니다.
+
+### 2단계: 전공별 실기 과제 찾기
+각 전공별 실기 시험 내용(과제곡, 연주곡, 시험 방법)을 찾으세요.
+
+### 3단계: 원서접수/서류제출/합격발표 일정 찾기
+원서접수 기간, 서류제출 기간, 합격자 발표일을 찾으세요.
+
+### 4단계: JSON 조합
+위에서 찾은 정보를 전공별로 조합하여 JSON을 생성하세요.
+
+## 추출 대상 전공
+${targetMajors.join(', ')}
+위 목록에 없는 전공(국악, 실용음악 등)은 무시하세요.
+majorKeyword는 반드시 위 목록의 이름과 정확히 일치하도록 설정해주세요.
+
+## JSON 스키마
 {
   "admissions": [
     {
       "schoolName": "학교명",
-      "admissionType": "GENERAL 또는 SPECIAL",
-      "year": 입시년도 (숫자),
-      "majorKeyword": "세부 전공명 (예: 피아노, 바이올린, 성악, 작곡, 플루트 등)",
+      "admissionType": "GENERAL(정시/일반전형) 또는 SPECIAL(수시/특별전형)",
+      "year": 입시년도,
+      "majorKeyword": "전공명 — 반드시 위 목록과 동일",
       "applicationStartAt": "원서접수 시작일 (ISO 8601)",
       "applicationEndAt": "원서접수 마감일 (ISO 8601)",
-      "applicationNote": "원서접수 관련 비고 또는 null",
+      "applicationNote": "원서접수 비고 또는 null",
       "documentStartAt": "서류제출 시작일 또는 null",
       "documentEndAt": "서류제출 마감일 또는 null",
-      "documentNote": "서류제출 관련 비고 또는 null",
+      "documentNote": "서류제출 비고 또는 null",
       "finalResultAt": "최종 합격자 발표일 또는 null",
       "rounds": [
         {
           "roundNumber": 1,
-          "examStartAt": "시험 시작일 (ISO 8601)",
-          "examEndAt": "시험 종료일 (ISO 8601)",
-          "resultAt": "합격자 발표일 또는 null",
-          "registrationStartAt": "해당 차수 접수 시작일 또는 null",
-          "registrationEndAt": "해당 차수 접수 마감일 또는 null",
-          "note": "비고 또는 null",
+          "examStartAt": "실기고사 시작일 (ISO 8601)",
+          "examEndAt": "실기고사 종료일 (ISO 8601, 1일이면 시작일과 동일)",
+          "resultAt": "해당 차수 합격자 발표일 또는 null",
+          "registrationStartAt": null,
+          "registrationEndAt": null,
+          "note": "실기고사 장소/시간 등 부가정보 또는 null",
           "tasks": [
             {
-              "description": "실기 과제 설명",
+              "description": "실기 과제 상세 (곡목, 조건, 시간제한 등)",
               "sequence": 1,
-              "note": "과제 관련 비고 또는 null"
+              "note": null
             }
           ]
         }
@@ -96,19 +99,16 @@ ${knownNamesSection}
   ]
 }
 
-규칙:
-- 위에 지정된 전공들의 정보만 추출 (다른 전공은 무시)
-- 전공별로 별도의 객체로 분리 (같은 일정이라도 실기 과제가 다르면 별도 객체)
-- majorKeyword는 반드시 구체적인 악기/전공명
-- 날짜는 반드시 ISO 8601 형식 (예: 2025-09-18T00:00:00)
-- 시간 정보가 있으면 포함, 없으면 T00:00:00
-- 실기 차수(rounds)는 1차, 2차 순서대로
-- 각 차수의 과제(tasks)는 순서대로 sequence 부여 (1부터)
-- 정보가 없는 필드는 null
+## 핵심 규칙
+- rounds 배열은 절대 비워두지 마세요. 모든 전공에 최소 1개의 round가 있어야 합니다.
+- examStartAt, examEndAt은 절대 null이면 안 됩니다. PDF 어딘가에 실기고사 일정이 반드시 있습니다.
+- 전공별 개별 실기 일정이 없으면, 전체 공통 실기고사 일정을 사용하세요.
+- PDF에 존재하는 전공만 추출 (목록에 있더라도 PDF에 없으면 생략)
+- 날짜는 ISO 8601 (예: 2025-09-18T00:00:00)
 - JSON만 반환하고 다른 텍스트는 포함하지 마세요`;
 }
 
-const BATCH_SIZE = 8;
+const BATCH_SIZE = 6;
 
 @Injectable()
 export class AdmissionGptService {
@@ -124,102 +124,39 @@ export class AdmissionGptService {
   async extractFromPdf(buffer: Buffer, filename: string, knownMajorNames: string[] = []): Promise<ExtractedAdmissionData[]> {
     const base64 = buffer.toString('base64');
 
-    // Phase 1: 전공 목록 추출
-    console.log('[AdmissionGpt] Phase 1: 전공 목록 추출 시작');
-    const majorList = await this.extractMajorList(base64, filename);
-    console.log(`[AdmissionGpt] Phase 1 완료: ${majorList.length}개 전공 — ${majorList.join(', ')}`);
-
-    if (majorList.length === 0) {
-      throw new AdmissionGptExtractionFailed('PDF에서 음악 전공을 찾지 못했습니다.');
-    }
-
-    // Phase 2: 배치별 상세 추출
     const batches: string[][] = [];
-    for (let i = 0; i < majorList.length; i += BATCH_SIZE) {
-      batches.push(majorList.slice(i, i + BATCH_SIZE));
+    for (let i = 0; i < knownMajorNames.length; i += BATCH_SIZE) {
+      batches.push(knownMajorNames.slice(i, i + BATCH_SIZE));
     }
 
-    const results: ExtractedAdmissionData[] = [];
-    for (let i = 0; i < batches.length; i++) {
-      if (i > 0) {
-        console.log(`[AdmissionGpt] Rate limit 대기 60초...`);
-        await this.sleep(60_000);
-      }
-      const batch = batches[i];
-      console.log(`[AdmissionGpt] Phase 2: 배치 ${i + 1}/${batches.length} — ${batch.join(', ')}`);
-      const batchResults = await this.extractDetailsForMajors(base64, filename, batch, knownMajorNames);
-      results.push(...batchResults);
-      console.log(`[AdmissionGpt] 배치 ${i + 1} 완료: ${batchResults.length}개 전공 추출`);
-    }
+    console.log(`[AdmissionGpt] 추출 시작 — 대상 전공 ${knownMajorNames.length}개, ${batches.length}배치 (병렬)`);
 
-    console.log(`[AdmissionGpt] 전체 추출 완료: ${results.length}개 전공`);
+    const batchPromises = batches.map((batch, i) => {
+      console.log(`[AdmissionGpt] 배치 ${i + 1}/${batches.length} 요청 — ${batch.join(', ')}`);
+      return this.extractBatch(base64, filename, batch).then(results => {
+        console.log(`[AdmissionGpt] 배치 ${i + 1} 완료: ${results.length}개 전공 추출`);
+        return results;
+      });
+    });
+
+    const batchResults = await Promise.all(batchPromises);
+    const results = batchResults.flat();
+
+    console.log(`[AdmissionGpt] 전체 추출 완료: ${results.length}개 전공 — ${results.map(a => a.majorKeyword).join(', ')}`);
     return results;
   }
 
-  private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  private async extractMajorList(base64: string, filename: string): Promise<string[]> {
-    try {
-      const response = await this.openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        response_format: { type: 'json_object' },
-        messages: [
-          { role: 'system', content: MAJOR_LIST_PROMPT },
-          {
-            role: 'user',
-            content: [
-              { type: 'text', text: '이 입시 요강 PDF에서 언급된 모든 음악 세부 전공을 빠짐없이 추출해주세요.' },
-              {
-                type: 'file',
-                file: {
-                  file_data: `data:application/pdf;base64,${base64}`,
-                  filename,
-                },
-              },
-            ],
-          },
-        ],
-        max_tokens: 4096,
-      });
-
-      const content = response.choices[0]?.message?.content;
-      if (!content) {
-        throw new AdmissionGptExtractionFailed('GPT 전공 목록 응답이 비어있습니다.');
-      }
-
-      const parsed = JSON.parse(content) as { majors: string[] };
-      if (!parsed.majors || !Array.isArray(parsed.majors)) {
-        throw new AdmissionGptExtractionFailed('전공 목록 형식이 올바르지 않습니다.');
-      }
-
-      return parsed.majors;
-    } catch (e) {
-      if (e instanceof AdmissionGptExtractionFailed) throw e;
-      console.log('GPT major list extraction error:', e);
-      throw new AdmissionGptExtractionFailed(`전공 목록 추출 실패: ${(e as Error).message}`);
-    }
-  }
-
-  private async extractDetailsForMajors(
-    base64: string,
-    filename: string,
-    targetMajors: string[],
-    knownMajorNames: string[],
-  ): Promise<ExtractedAdmissionData[]> {
-    const prompt = buildDetailPrompt(targetMajors, knownMajorNames);
-
+  private async extractBatch(base64: string, filename: string, targetMajors: string[]): Promise<ExtractedAdmissionData[]> {
     try {
       const response = await this.openai.chat.completions.create({
         model: 'gpt-4o',
         response_format: { type: 'json_object' },
         messages: [
-          { role: 'system', content: prompt },
+          { role: 'system', content: buildPrompt(targetMajors) },
           {
             role: 'user',
             content: [
-              { type: 'text', text: `다음 전공들의 입시 정보를 추출해주세요: ${targetMajors.join(', ')}` },
+              { type: 'text', text: 'PDF에서 클래식 전공별 입시 정보를 모두 추출해주세요. 실기고사 날짜와 실기 과제를 반드시 포함해주세요.' },
               {
                 type: 'file',
                 file: {
@@ -243,8 +180,8 @@ export class AdmissionGptService {
       return parsed.admissions || [];
     } catch (e) {
       if (e instanceof AdmissionGptExtractionFailed) throw e;
-      console.log(`GPT detail extraction error for [${targetMajors.join(', ')}]:`, e);
-      throw new AdmissionGptExtractionFailed(`상세 추출 실패 (${targetMajors.join(', ')}): ${(e as Error).message}`);
+      console.log(`GPT extraction error for [${targetMajors.join(', ')}]:`, e);
+      throw new AdmissionGptExtractionFailed(`추출 실패 (${targetMajors.join(', ')}): ${(e as Error).message}`);
     }
   }
 }
