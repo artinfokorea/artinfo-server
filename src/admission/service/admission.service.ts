@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ART_CATEGORY, MajorCategory } from '@/job/entity/major-category.entity';
+import { MajorCategory, PROFESSIONAL_FIELD_CATEGORY } from '@/job/entity/major-category.entity';
 import { AdmissionGptService, ExtractedAdmissionData } from '@/admission/service/admission-gpt.service';
 import { AdmissionRepository } from '@/admission/repository/admission.repository';
 import { Admission, ADMISSION_TYPE } from '@/admission/entity/admission.entity';
@@ -25,12 +25,12 @@ export class AdmissionService {
   }
 
   async extractAndCreateFromPdf(buffer: Buffer, filename: string): Promise<number> {
-    // 1. DB에서 음악 전공 목록 로드
+    // 1. DB에서 클래식 전공 목록 로드
     const musicMajors = await this.majorCategoryRepository.find({
-      where: { firstGroupEn: ART_CATEGORY.MUSIC },
+      where: { secondGroupEn: PROFESSIONAL_FIELD_CATEGORY.CLASSIC },
     });
     const knownMajorNames = [...new Set(musicMajors.map(m => m.koName))];
-    console.log(`[Admission] DB 음악 전공 ${musicMajors.length}개 로드`);
+    console.log(`[Admission] DB 클래식 전공 ${musicMajors.length}개 로드`);
 
     // 2. GPT 2단계 추출 (Phase 1: 전공 목록 → Phase 2: 배치별 상세)
     const extractedList = await this.admissionGptService.extractFromPdf(buffer, filename, knownMajorNames);

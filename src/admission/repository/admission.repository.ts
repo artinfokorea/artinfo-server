@@ -34,12 +34,14 @@ export class AdmissionRepository {
       qb.andWhere('admission.year = :year', { year: fetcher.year });
     }
 
+    qb.andWhere('majorCategory.secondGroupEn = :classicField', { classicField: 'CLASSIC' });
+
     if (fetcher.majorCategoryIds.length) {
       qb.andWhere('admission.majorCategoryId IN (:...majorCategoryIds)', { majorCategoryIds: fetcher.majorCategoryIds });
     }
 
-    if (fetcher.majorGroups.length) {
-      qb.andWhere('majorCategory.thirdGroupEn IN (:...majorGroups)', { majorGroups: fetcher.majorGroups });
+    if (fetcher.majors.length) {
+      qb.andWhere('majorCategory.enName IN (:...majors)', { majors: fetcher.majors });
     }
 
     const [items, totalCount] = await qb

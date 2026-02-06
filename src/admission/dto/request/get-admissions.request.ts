@@ -2,7 +2,7 @@ import { List, Paging } from '@/common/type/type';
 import { ApiProperty } from '@nestjs/swagger';
 import { ToArray, ToNumber, ToNumberArray } from '@/common/decorator/transformer';
 import { EnumNullableArray } from '@/common/decorator/validator';
-import { MAJOR_GROUP_CATEGORY } from '@/job/entity/major-category.entity';
+import { MAJOR } from '@/job/entity/major-category.entity';
 import { AdmissionFetcher } from '@/admission/repository/operation/admission.fetcher';
 
 export class GetAdmissionsRequest extends List {
@@ -17,17 +17,17 @@ export class GetAdmissionsRequest extends List {
   @ApiProperty({ type: [Number], required: false, description: '전공 카테고리 ID 목록', example: [1, 2] })
   majorCategoryIds: number[] = [];
 
-  @EnumNullableArray(MAJOR_GROUP_CATEGORY)
+  @EnumNullableArray(MAJOR)
   @ToArray()
   @ApiProperty({
-    type: [MAJOR_GROUP_CATEGORY],
-    enum: MAJOR_GROUP_CATEGORY,
-    enumName: 'MAJOR_GROUP_CATEGORY',
+    type: [MAJOR],
+    enum: MAJOR,
+    enumName: 'MAJOR',
     required: false,
-    description: '전공 그룹 (악기군)',
-    example: [MAJOR_GROUP_CATEGORY.KEYBOARD],
+    description: '전공',
+    example: [MAJOR.PIANO],
   })
-  majorGroups: MAJOR_GROUP_CATEGORY[] = [];
+  majors: MAJOR[] = [];
 
   toFetcher(): AdmissionFetcher {
     const paging: Paging = { page: this.page, size: this.size };
@@ -35,7 +35,7 @@ export class GetAdmissionsRequest extends List {
       keyword: this.keyword,
       year: this.year,
       majorCategoryIds: this.majorCategoryIds,
-      majorGroups: this.majorGroups,
+      majors: this.majors,
       paging,
     });
   }
