@@ -43,6 +43,10 @@ import { LikeEntity } from '@/like/LikeEntity';
 import { LessonApplicationEntity } from '@/lesson/entity/lesson-application.entity';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SchedulerModule } from '@/common/scheduler/SchedulerModule';
+import { Admission } from '@/admission/entity/admission.entity';
+import { AdmissionRound } from '@/admission/entity/admission-round.entity';
+import { AdmissionRoundTask } from '@/admission/entity/admission-round-task.entity';
+import { AdmissionModule } from '@/admission/admission.module';
 
 const entities = [
   User,
@@ -68,6 +72,9 @@ const entities = [
   CommentEntity,
   PostEntity,
   LikeEntity,
+  Admission,
+  AdmissionRound,
+  AdmissionRoundTask,
 ];
 const modules = [
   SchedulerModule,
@@ -87,6 +94,7 @@ const modules = [
   InquiryModule,
   PerformanceModule,
   LoggerModule,
+  AdmissionModule,
 ];
 
 @Module({
