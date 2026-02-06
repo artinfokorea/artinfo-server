@@ -149,7 +149,7 @@ export class AdmissionGptService {
   private async extractBatch(base64: string, filename: string, targetMajors: string[]): Promise<ExtractedAdmissionData[]> {
     try {
       const response = await this.openai.chat.completions.create({
-        model: 'gpt-4o',
+        model: 'gpt-5',
         response_format: { type: 'json_object' },
         messages: [
           { role: 'system', content: buildPrompt(targetMajors) },
@@ -167,7 +167,7 @@ export class AdmissionGptService {
             ],
           },
         ],
-        max_tokens: 16384,
+        max_completion_tokens: 100000,
       });
 
       const content = response.choices[0]?.message?.content;
