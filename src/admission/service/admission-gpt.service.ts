@@ -108,7 +108,7 @@ majorKeyword는 반드시 위 목록의 이름과 정확히 일치하도록 설�
 - JSON만 반환하고 다른 텍스트는 포함하지 마세요`;
 }
 
-const BATCH_SIZE = 6;
+const BATCH_SIZE = 3;
 
 @Injectable()
 export class AdmissionGptService {
