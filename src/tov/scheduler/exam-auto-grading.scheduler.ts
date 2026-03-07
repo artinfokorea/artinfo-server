@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Interval } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { TovRepository } from '@/tov/repository/tov.repository';
 import { ExamGradingService } from '@/tov/service/exam-grading.service';
 
@@ -14,7 +14,7 @@ export class ExamAutoGradingScheduler {
     private readonly examGradingService: ExamGradingService,
   ) {}
 
-  @Interval(60000)
+  @Cron('* * * * *', { name: 'examAutoGrading', timeZone: 'Asia/Seoul' })
   async gradeExpiredExams(): Promise<void> {
     const expiredExams = await this.tovRepository.findExpiredInProgressExams(EXAM_EXPIRED_MINUTES);
 
