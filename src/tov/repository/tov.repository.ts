@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, In, Between } from 'typeorm';
+import { ExamGradingService } from '@/tov/service/exam-grading.service';
 import { VlUser } from '@/tov/entity/vl-user.entity';
 import { VlExam } from '@/tov/entity/vl-exam.entity';
 import { VlExamQuestion } from '@/tov/entity/vl-exam-question.entity';
@@ -75,6 +76,42 @@ export class TovRepository {
         .filter(e => e.masterWordId === word.id)
         .map(e => ({ sentenceWithBlank: e.sentenceWithBlank, blankAnswer: e.blankAnswer })),
     }));
+  }
+
+  async findExpiredInProgressExams(expiredMinutes: number): Promise<VlExam[]> {
+    const expiredTime = new Date(Date.now() - expiredMinutes * 60 * 1000).toISOString();
+
+    return this.dataSource.getRepository(VlExam)
+      .createQueryBuilder('exam')
+      .where('exam.status = :status', { status: 'in_progress' })
+      .andWhere('exam.started_at IS NOT NULL')
+      .andWhere('exam.started_at < :expiredTime', { expiredTime })
+      .andWhere('exam.deleted_at IS NULL')
+      .getMany();
+  }
+
+  async gradeExam(examId: string, gradingService: ExamGradingService): Promise<void> {
+    await this.dataSource.transaction(async manager => {
+      const exam = await manager.findOneOrFail(VlExam, { where: { id: examId } });
+      const questions = await manager.find(VlExamQuestion, {
+        where: { examId, deletedAt: null as any },
+      });
+      const wordGroup = await manager.findOneOrFail(VlWordGroup, {
+        where: { id: exam.wordGroupId },
+      });
+
+      gradingService.gradeQuestions(questions);
+      await manager.save(VlExamQuestion, questions);
+
+      const correctAnswers = gradingService.countCorrectAnswers(questions);
+      const passStatus = gradingService.calculatePassStatus(questions, wordGroup);
+
+      exam.correctAnswers = correctAnswers;
+      exam.passStatus = passStatus;
+      exam.status = 'completed';
+      exam.completedAt = new Date();
+      await manager.save(VlExam, exam);
+    });
   }
 
   async saveExamWithQuestions(

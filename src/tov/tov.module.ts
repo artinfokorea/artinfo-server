@@ -4,6 +4,8 @@ import { TovController } from '@/tov/controller/tov.controller';
 import { TovService } from '@/tov/service/tov.service';
 import { TovRepository } from '@/tov/repository/tov.repository';
 import { ExamQuestionGenerator } from '@/tov/service/exam-question.generator';
+import { ExamGradingService } from '@/tov/service/exam-grading.service';
+import { ExamAutoGradingScheduler } from '@/tov/scheduler/exam-auto-grading.scheduler';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { VlExam } from '@/tov/entity/vl-exam.entity';
 import { VlExamQuestion } from '@/tov/entity/vl-exam-question.entity';
@@ -32,6 +34,6 @@ import { VlWordExampleSentence } from '@/tov/entity/vl-word-example-sentence.ent
     ]),
   ],
   controllers: [TovController],
-  providers: [TovService, TovRepository, ExamQuestionGenerator, RedisRepository],
+  providers: [TovService, TovRepository, ExamQuestionGenerator, ExamGradingService, ExamAutoGradingScheduler, RedisRepository],
 })
 export class TovModule {}
