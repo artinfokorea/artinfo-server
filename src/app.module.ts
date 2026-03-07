@@ -47,6 +47,7 @@ import { Admission } from '@/admission/entity/admission.entity';
 import { AdmissionRound } from '@/admission/entity/admission-round.entity';
 import { AdmissionRoundTask } from '@/admission/entity/admission-round-task.entity';
 import { AdmissionModule } from '@/admission/admission.module';
+import { TovModule } from '@/tov/tov.module';
 
 const entities = [
   User,
@@ -95,6 +96,7 @@ const modules = [
   PerformanceModule,
   LoggerModule,
   AdmissionModule,
+  TovModule,
 ];
 
 @Module({
