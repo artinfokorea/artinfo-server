@@ -9,8 +9,10 @@ import { USER_TYPE } from '@/user/entity/user.entity';
 import { AdmissionService } from '@/admission/service/admission.service';
 import { AdmissionPdfRequired } from '@/admission/exception/admission.exception';
 import { ExtractAdmissionRequest } from '@/admission/dto/request/extract-admission.request';
+import { CreateAdmissionsRequest } from '@/admission/dto/request/create-admission.request';
 import { GetAdmissionsRequest } from '@/admission/dto/request/get-admissions.request';
 import { AdmissionsResponse } from '@/admission/dto/response/admissions.response';
+import { CreateIdsResponse } from '@/admission/dto/response/create-ids.response';
 
 @RestApiController('/admissions', 'Admission')
 export class AdmissionController {
@@ -20,6 +22,19 @@ export class AdmissionController {
   async getAdmissions(@Query() request: GetAdmissionsRequest): Promise<AdmissionsResponse> {
     const pagingItems = await this.admissionService.getAdmissions(request.toFetcher());
     return new AdmissionsResponse({ admissions: pagingItems.items, totalCount: pagingItems.totalCount });
+  }
+
+  @RestApiPost(CreateIdsResponse, {
+    path: '/',
+    description: '입시 데이터 직접 생성 (관리자 전용)',
+    auth: [USER_TYPE.ADMIN],
+  })
+  async createAdmissions(
+    @AuthSignature() _signature: UserSignature,
+    @Body() request: CreateAdmissionsRequest,
+  ): Promise<CreateIdsResponse> {
+    const ids = await this.admissionService.createFromExtractedData(request.admissions);
+    return new CreateIdsResponse(ids);
   }
 
   @ApiConsumes('multipart/form-data')

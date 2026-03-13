@@ -9,6 +9,7 @@ import { AdmissionCreator, AdmissionRoundCreator, AdmissionRoundTaskCreator } fr
 import { AdmissionGptExtractionFailed } from '@/admission/exception/admission.exception';
 import { AdmissionFetcher } from '@/admission/repository/operation/admission.fetcher';
 import { PagingItems } from '@/common/type/type';
+import { CreateAdmissionItemRequest } from '@/admission/dto/request/create-admission.request';
 
 @Injectable()
 export class AdmissionService {
@@ -65,6 +66,45 @@ export class AdmissionService {
     }
 
     return savedIds[0];
+  }
+
+  async createFromExtractedData(items: CreateAdmissionItemRequest[]): Promise<number[]> {
+    const musicMajors = await this.majorCategoryRepository.find({
+      where: { secondGroupEn: PROFESSIONAL_FIELD_CATEGORY.CLASSIC },
+    });
+
+    const savedIds: number[] = [];
+    const skipped: string[] = [];
+
+    for (const item of items) {
+      const majorCategory = this.findMatchingMajor(item.majorKeyword, musicMajors);
+
+      if (!majorCategory) {
+        console.log(`[Admission] 전공 매칭 실패 (스킵): "${item.majorKeyword}"`);
+        skipped.push(item.majorKeyword);
+        continue;
+      }
+
+      const creator = this.buildCreator(majorCategory.id, {
+        ...item,
+        majorKeyword: item.majorKeyword,
+      });
+      const id = await this.admissionRepository.createWithRoundsAndTasks(creator);
+      console.log(`[Admission] 저장 완료: "${item.majorKeyword}" → ${majorCategory.koName} (admissionId: ${id})`);
+      savedIds.push(id);
+    }
+
+    if (skipped.length) {
+      console.log(`[Admission] 매칭 실패 전공 목록: ${skipped.join(', ')}`);
+    }
+
+    console.log(`[Admission] 총 ${items.length}개 전공 중 ${savedIds.length}개 저장, ${skipped.length}개 스킵`);
+
+    if (savedIds.length === 0) {
+      throw new AdmissionGptExtractionFailed(`매칭되는 전공이 없습니다. 전공: ${items.map(e => e.majorKeyword).join(', ')}`);
+    }
+
+    return savedIds;
   }
 
   private findMatchingMajor(keyword: string, musicMajors: MajorCategory[]): MajorCategory | null {

@@ -46,6 +46,9 @@ lerna-debug.log*
 .temp
 .tmp
 
+# PDF files for extraction
+/pdfs
+
 # Runtime data
 pids
 *.pid

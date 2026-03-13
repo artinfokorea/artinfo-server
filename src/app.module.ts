@@ -14,8 +14,6 @@ import { MajorCategory } from '@/job/entity/major-category.entity';
 import { SystemModule } from '@/system/module/system.module';
 import { School } from '@/user/entity/school.entity';
 import { UserMajorCategory } from '@/user/entity/user-major-category.entity';
-import { CacheModule } from '@nestjs/cache-manager';
-import * as redisStore from 'cache-manager-ioredis';
 import { RedisModule } from '@/common/redis/redis.module';
 import { MajorModule } from '@/major/major.module';
 import { ImageEntity } from '@/system/entity/image.entity';
@@ -106,12 +104,6 @@ const modules = [
     ConfigModule.forRoot({
       cache: true,
       isGlobal: true,
-    }),
-    CacheModule.register({
-      isGlobal: true,
-      store: redisStore,
-      host: process.env['REDIS_HOST'],
-      port: process.env['REDIS_PORT'],
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
