@@ -46,6 +46,9 @@ import { AdmissionRound } from '@/admission/entity/admission-round.entity';
 import { AdmissionRoundTask } from '@/admission/entity/admission-round-task.entity';
 import { AdmissionModule } from '@/admission/admission.module';
 import { TovModule } from '@/tov/tov.module';
+import { AzeyoModule } from '@/azeyo/azeyo.module';
+import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
+import { AzeyoAuth } from '@/azeyo/auth/domain/entity/azeyo-auth.entity';
 
 const entities = [
   User,
@@ -74,6 +77,8 @@ const entities = [
   Admission,
   AdmissionRound,
   AdmissionRoundTask,
+  AzeyoUser,
+  AzeyoAuth,
 ];
 const modules = [
   SchedulerModule,
@@ -95,6 +100,7 @@ const modules = [
   LoggerModule,
   AdmissionModule,
   TovModule,
+  AzeyoModule,
 ];
 
 @Module({
