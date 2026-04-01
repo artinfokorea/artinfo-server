@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { S3Client, PutObjectCommand, PutObjectCommandOutput, ObjectCannedACL } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, PutObjectCommandOutput } from '@aws-sdk/client-s3';
 import * as path from 'path';
 import { UploadImageIsNotValid } from '@/system/exception/system.exception';
 
@@ -30,7 +30,6 @@ export class AzeyoS3Service {
       Body: buffer,
       ContentType: mimetype,
       Key: path.posix.join(process.env['NODE_ENV']!, uploadFilePath),
-      ACL: ObjectCannedACL.public_read,
     };
 
     const command = new PutObjectCommand(uploadParams);
