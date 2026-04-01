@@ -41,7 +41,7 @@ export class AwsS3Service {
       return {
         key: uploadParams.Key,
         tag: data.ETag ?? '',
-        location: `https://${this.BUCKET}.s3.${process.env['AWS_S3_REGION']}.amazonaws.com/${uploadParams.Key}`,
+        location: `https://${this.BUCKET}.s3.${process.env['AWS_REGION']}.amazonaws.com/${uploadParams.Key}`,
       };
     } catch (err) {
       console.error('Error uploading to S3:', err);
