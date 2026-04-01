@@ -49,6 +49,10 @@ import { TovModule } from '@/tov/tov.module';
 import { AzeyoModule } from '@/azeyo/azeyo.module';
 import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
 import { AzeyoAuth } from '@/azeyo/auth/domain/entity/azeyo-auth.entity';
+import { AzeyoCommunityPost } from '@/azeyo/community/domain/entity/azeyo-community-post.entity';
+import { AzeyoCommunityVote } from '@/azeyo/community/domain/entity/azeyo-community-vote.entity';
+import { AzeyoCommunityLike } from '@/azeyo/community/domain/entity/azeyo-community-like.entity';
+import { AzeyoCommunityComment } from '@/azeyo/community/domain/entity/azeyo-community-comment.entity';
 
 const entities = [
   User,
@@ -79,6 +83,10 @@ const entities = [
   AdmissionRoundTask,
   AzeyoUser,
   AzeyoAuth,
+  AzeyoCommunityPost,
+  AzeyoCommunityVote,
+  AzeyoCommunityLike,
+  AzeyoCommunityComment,
 ];
 const modules = [
   SchedulerModule,
