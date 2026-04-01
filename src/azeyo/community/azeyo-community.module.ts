@@ -24,7 +24,7 @@ import { AzeyoUploadCommunityImagesUseCase } from '@/azeyo/community/application
 import { AzeyoCreateCommunityCommentUseCase } from '@/azeyo/community/application/usecase/azeyo-create-community-comment.usecase';
 import { AzeyoScanCommunityCommentsUseCase } from '@/azeyo/community/application/usecase/azeyo-scan-community-comments.usecase';
 import { AzeyoDeleteCommunityCommentUseCase } from '@/azeyo/community/application/usecase/azeyo-delete-community-comment.usecase';
-import { AwsS3Service } from '@/aws/s3/aws-s3.service';
+import { AzeyoS3Service } from '@/azeyo/common/azeyo-s3.service';
 import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
 
 @Module({
@@ -49,7 +49,7 @@ import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
     { provide: AZEYO_COMMUNITY_LIKE_REPOSITORY, useClass: AzeyoCommunityLikeRepository },
     { provide: AZEYO_COMMUNITY_COMMENT_REPOSITORY, useClass: AzeyoCommunityCommentRepository },
     // External
-    AwsS3Service,
+    AzeyoS3Service,
   ],
 })
 export class AzeyoCommunityModule {}
