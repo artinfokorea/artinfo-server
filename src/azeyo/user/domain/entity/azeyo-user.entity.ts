@@ -41,6 +41,9 @@ export class AzeyoUser extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
   updatedAt: Date;
 
+  @Column({ type: 'boolean', name: 'marketing_consent', default: false })
+  marketingConsent: boolean;
+
   @Column({ type: 'boolean', name: 'is_online', default: false })
   isOnline: boolean;
 

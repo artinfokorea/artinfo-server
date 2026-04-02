@@ -22,6 +22,9 @@ export class AzeyoSignupRequest {
   @ApiProperty({ enum: AZEYO_SNS_TYPE, required: true, description: 'SNS 타입', example: AZEYO_SNS_TYPE.KAKAO })
   snsType: AZEYO_SNS_TYPE;
 
+  @ApiProperty({ type: Boolean, required: false, description: '마케팅 정보 수신 동의', example: false, default: false })
+  marketingConsent: boolean;
+
   toCommand() {
     return new AzeyoSignupCommand({
       nickname: this.nickname,
@@ -29,6 +32,7 @@ export class AzeyoSignupRequest {
       children: this.children,
       snsToken: this.snsToken,
       snsType: this.snsType,
+      marketingConsent: this.marketingConsent ?? false,
     });
   }
 }

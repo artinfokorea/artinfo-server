@@ -41,6 +41,7 @@ export class AzeyoSignupUseCase {
       snsType: command.snsType,
       snsId: snsUserInfo.snsId,
       iconImageUrl: defaultIconUrl,
+      marketingConsent: command.marketingConsent,
     });
 
     const user = await this.userRepository.findOneOrThrowById(userId);

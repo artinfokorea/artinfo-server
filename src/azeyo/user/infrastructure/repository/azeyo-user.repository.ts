@@ -20,6 +20,7 @@ export class AzeyoUserRepository implements IAzeyoUserRepository {
     snsType: string | null;
     snsId: string | null;
     iconImageUrl: string | null;
+    marketingConsent: boolean;
   }): Promise<number> {
     const user = await this.userRepository.save({
       nickname: params.nickname,
@@ -29,6 +30,7 @@ export class AzeyoUserRepository implements IAzeyoUserRepository {
       snsType: params.snsType,
       snsId: params.snsId,
       iconImageUrl: params.iconImageUrl,
+      marketingConsent: params.marketingConsent,
     });
 
     return user.id;

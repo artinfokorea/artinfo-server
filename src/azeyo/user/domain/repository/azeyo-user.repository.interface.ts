@@ -11,6 +11,7 @@ export interface IAzeyoUserRepository {
     snsType: string | null;
     snsId: string | null;
     iconImageUrl: string | null;
+    marketingConsent: boolean;
   }): Promise<number>;
   findOneOrThrowById(id: number): Promise<AzeyoUser>;
   findBySnsId(snsType: string, snsId: string): Promise<AzeyoUser | null>;
