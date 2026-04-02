@@ -17,6 +17,10 @@ export class AzeyoLikeJokboTemplateUseCase {
 
     if (!isLike && like) {
       await this.likeRepository.softRemove(like);
+      await this.activityPointsService.removePoints(userId, AZEYO_ACTIVITY_ACTION.GIVE_LIKE);
+      if (template.userId !== userId) {
+        await this.activityPointsService.removePoints(template.userId, AZEYO_ACTIVITY_ACTION.RECEIVE_LIKE);
+      }
     } else if (isLike && !like) {
       await this.likeRepository.save({ userId, templateId });
       await this.activityPointsService.addPoints(userId, AZEYO_ACTIVITY_ACTION.GIVE_LIKE);

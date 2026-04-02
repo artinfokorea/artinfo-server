@@ -20,6 +20,10 @@ export class AzeyoLikeCommunityPostUseCase {
 
     if (!isLike && like) {
       await this.likeRepository.softRemove(like);
+      await this.activityPointsService.removePoints(userId, AZEYO_ACTIVITY_ACTION.GIVE_LIKE);
+      if (post.userId !== userId) {
+        await this.activityPointsService.removePoints(post.userId, AZEYO_ACTIVITY_ACTION.RECEIVE_LIKE);
+      }
     } else if (isLike && !like) {
       await this.likeRepository.save({ userId, targetId: postId });
       await this.activityPointsService.addPoints(userId, AZEYO_ACTIVITY_ACTION.GIVE_LIKE);

@@ -27,4 +27,17 @@ export class AzeyoActivityPointsService implements IAzeyoActivityPointsService {
     await this.userRepository.increment({ id: userId }, 'activityPoints', points);
     await this.userRepository.increment({ id: userId }, 'monthlyPoints', points);
   }
+
+  async removePoints(userId: number, action: AZEYO_ACTIVITY_ACTION): Promise<void> {
+    const points = POINTS_MAP[action];
+    await this.userRepository
+      .createQueryBuilder()
+      .update()
+      .set({
+        activityPoints: () => `GREATEST(activity_points - ${points}, 0)`,
+        monthlyPoints: () => `GREATEST(monthly_points - ${points}, 0)`,
+      })
+      .where('id = :userId', { userId })
+      .execute();
+  }
 }

@@ -13,4 +13,5 @@ export enum AZEYO_ACTIVITY_ACTION {
 
 export interface IAzeyoActivityPointsService {
   addPoints(userId: number, action: AZEYO_ACTIVITY_ACTION): Promise<void>;
+  removePoints(userId: number, action: AZEYO_ACTIVITY_ACTION): Promise<void>;
 }
