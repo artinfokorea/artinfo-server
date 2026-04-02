@@ -757,4 +757,160 @@ WHERE u.sns_id LIKE 'seed_%'
   AND random() < 0.6
 ON CONFLICT DO NOTHING;
 
+-- ============================================================
+-- 7. 일정 태그 (시스템 태그 11개)
+-- ============================================================
+
+INSERT INTO azeyo_schedule_tags (name, color, is_system, user_id) VALUES
+('아내 생일', '#E8637A', true, NULL),
+('결혼기념일', '#D4785C', true, NULL),
+('장모님 생신', '#8B7EC8', true, NULL),
+('장인어른 생신', '#6B8EC4', true, NULL),
+('어머니 생신', '#C47DB5', true, NULL),
+('아버지 생신', '#5D9B8A', true, NULL),
+('아이 생일', '#F5A623', true, NULL),
+('발렌타인/화이트데이', '#FF8FA3', true, NULL),
+('크리스마스', '#D45555', true, NULL),
+('명절', '#B8860B', true, NULL),
+('기타 기념일', '#7EAAB5', true, NULL);
+
+-- ============================================================
+-- 8. 일정 태그별 추천 (선물/행동)
+-- ============================================================
+
+INSERT INTO azeyo_schedule_recommendations (tag_id, title, items)
+SELECT t.id, r.title, r.items::jsonb
+FROM (VALUES
+  ('아내 생일', '아내 생일 선물 추천', '[
+    {"rank":1,"name":"향수","description":"조말론, 딥티크 등 고급 향수. 취향 모르면 플로럴 계열이 무난","emoji":"🌸"},
+    {"rank":2,"name":"호텔 스파 이용권","description":"하루쯤 쉬게 해주는 게 최고의 선물. 반나절 스파 패키지 추천","emoji":"🧖‍♀️"},
+    {"rank":3,"name":"명품 소품","description":"지갑, 카드케이스, 키링 등 실용적인 명품 소품","emoji":"👜"},
+    {"rank":4,"name":"꽃다발 + 손편지","description":"거창하지 않아도 진심이 담긴 꽃과 편지. 효과 200%","emoji":"💐"},
+    {"rank":5,"name":"레스토랑 디너","description":"분위기 좋은 레스토랑 예약. 아이들은 친정에 맡기기","emoji":"🍽️"}
+  ]'),
+  ('결혼기념일', '결혼기념일 추천', '[
+    {"rank":1,"name":"커플 여행","description":"1박 2일 근교 여행. 호캉스도 좋고, 펜션도 좋고","emoji":"✈️"},
+    {"rank":2,"name":"레스토랑 디너","description":"처음 데이트했던 곳이나 프로포즈 장소 재방문도 감동적","emoji":"🥂"},
+    {"rank":3,"name":"주얼리","description":"반지, 목걸이, 팔찌 등. 매년 하나씩 모으는 것도 의미 있음","emoji":"💍"},
+    {"rank":4,"name":"커플 사진 촬영","description":"웨딩 스냅 다시 찍기. 세월이 담긴 사진이 더 아름다움","emoji":"📸"},
+    {"rank":5,"name":"영상 편지","description":"연애 시절~현재 사진으로 영상 만들어 선물하기","emoji":"🎬"}
+  ]'),
+  ('장모님 생신', '장모님 생신 선물 추천', '[
+    {"rank":1,"name":"건강검진 상품권","description":"종합건강검진 쿠폰. 건강이 최고라는 마음을 담아","emoji":"🏥"},
+    {"rank":2,"name":"안마의자/안마기","description":"어깨·목 안마기도 좋고, 여유 있으면 안마의자도 효자 선물","emoji":"💆"},
+    {"rank":3,"name":"맛집 식사 대접","description":"온 가족 모시고 좋은 식당에서 식사. 예약은 필수","emoji":"🍲"},
+    {"rank":4,"name":"금 선물","description":"돌반지, 금목걸이 등. 환갑·칠순이면 더 의미 있음","emoji":"✨"},
+    {"rank":5,"name":"효도 관광","description":"부모님과 함께하는 1박 2일 여행. 온천 여행 추천","emoji":"🚗"}
+  ]'),
+  ('장인어른 생신', '장인어른 생신 선물 추천', '[
+    {"rank":1,"name":"건강식품 세트","description":"홍삼, 녹용 등 건강식품. 정관장 세트가 무난","emoji":"💊"},
+    {"rank":2,"name":"골프 용품","description":"골프 치시는 분이면 골프공, 장갑, 모자 등","emoji":"⛳"},
+    {"rank":3,"name":"용돈 + 식사 대접","description":"현금이 최고라는 분도 많음. 식사 자리를 마련하는 게 핵심","emoji":"💰"},
+    {"rank":4,"name":"등산/운동 용품","description":"등산화, 등산 스틱, 운동복 등 취미에 맞는 선물","emoji":"🥾"},
+    {"rank":5,"name":"전자기기","description":"태블릿, 블루투스 스피커 등. 요즘 어르신들도 IT 기기 좋아하심","emoji":"📱"}
+  ]'),
+  ('어머니 생신', '어머니(시어머니) 생신 선물 추천', '[
+    {"rank":1,"name":"금 선물","description":"금반지, 금팔찌 등. 어머니 세대에는 금이 최고의 선물","emoji":"✨"},
+    {"rank":2,"name":"건강검진 상품권","description":"종합건강검진. 건강 챙겨드리는 마음이 전해짐","emoji":"🏥"},
+    {"rank":3,"name":"백화점 상품권","description":"직접 고르시게 상품권도 좋은 선택. 금액은 넉넉하게","emoji":"🎁"},
+    {"rank":4,"name":"한복/외출복","description":"좋은 옷 한 벌. 생신 잔치에 입으실 수 있게","emoji":"👗"},
+    {"rank":5,"name":"효도 여행","description":"온천, 크루즈, 해외여행 등. 아버지와 함께 보내드리기","emoji":"🌴"}
+  ]'),
+  ('아버지 생신', '아버지(시아버지) 생신 선물 추천', '[
+    {"rank":1,"name":"건강식품","description":"홍삼, 비타민 세트 등. 실용적이고 건강 챙기는 선물","emoji":"💊"},
+    {"rank":2,"name":"전동 안마기","description":"목·어깨 안마기, 발 마사지기 등. 피로 회복에 도움","emoji":"💆‍♂️"},
+    {"rank":3,"name":"양주/와인","description":"술 좋아하시는 분이면 고급 양주. 함께 한잔하는 시간이 선물","emoji":"🥃"},
+    {"rank":4,"name":"운동 용품","description":"골프, 등산, 낚시 등 취미에 맞는 용품","emoji":"🎣"},
+    {"rank":5,"name":"식사 대접 + 용돈","description":"맛집 모시기 + 용돈 봉투. 어른들은 현금을 제일 좋아하심","emoji":"🍽️"}
+  ]'),
+  ('아이 생일', '아이 생일 선물/이벤트 추천', '[
+    {"rank":1,"name":"레고/장난감","description":"나이에 맞는 레고 세트나 인기 장난감. 요즘 트렌드 확인 필수","emoji":"🧱"},
+    {"rank":2,"name":"키즈카페/테마파크","description":"에버랜드, 롯데월드 등 놀이공원 데이트. 아빠와 특별한 하루","emoji":"🎡"},
+    {"rank":3,"name":"자전거/킥보드","description":"야외 활동 좋아하는 아이에게. 헬멧·보호대 함께 선물","emoji":"🚲"},
+    {"rank":4,"name":"책 세트","description":"연령별 추천 도서 세트. 독서 습관 잡아주기","emoji":"📚"},
+    {"rank":5,"name":"생일 파티","description":"친구들 초대해서 홈파티. 케이크+풍선+게임 준비하기","emoji":"🎈"}
+  ]'),
+  ('발렌타인/화이트데이', '발렌타인/화이트데이 추천', '[
+    {"rank":1,"name":"마카롱/초콜릿 세트","description":"고급 마카롱이나 수제 초콜릿. 예쁜 패키지가 포인트","emoji":"🍫"},
+    {"rank":2,"name":"꽃다발","description":"장미, 튤립 등 시즌 꽃다발. 사무실로 배달 보내기도 센스","emoji":"🌹"},
+    {"rank":3,"name":"쿠킹 클래스","description":"커플 쿠킹 클래스 수업. 함께 요리하며 데이트","emoji":"👨‍🍳"},
+    {"rank":4,"name":"액세서리","description":"목걸이, 팔찌 등 부담 없는 선물. 이니셜 각인 추천","emoji":"📿"},
+    {"rank":5,"name":"편지 + 작은 선물","description":"손편지가 제일 감동적. 핸드크림이나 립밤 같은 소소한 선물 곁들이기","emoji":"💌"}
+  ]'),
+  ('크리스마스', '크리스마스 선물/이벤트 추천', '[
+    {"rank":1,"name":"호캉스","description":"크리스마스 패키지 호텔 예약. 도심 야경 보이는 곳 추천","emoji":"🏨"},
+    {"rank":2,"name":"어그부츠/겨울 아이템","description":"겨울 패션 아이템. 따뜻한 머플러, 장갑, 부츠 등","emoji":"🧤"},
+    {"rank":3,"name":"커플 파자마","description":"크리스마스 테마 커플 파자마. 가족 파자마도 인기","emoji":"🎄"},
+    {"rank":4,"name":"전자기기","description":"에어팟, 태블릿, 스마트워치 등. 연말 할인 시즌 활용","emoji":"🎧"},
+    {"rank":5,"name":"홈파티","description":"치킨+케이크+영화. 아이들과 함께하는 집콕 크리스마스","emoji":"🍗"}
+  ]'),
+  ('명절', '명절 준비/선물 추천', '[
+    {"rank":1,"name":"양가 선물 세트","description":"한우, 과일, 건강식품 세트 등. 양가 균형 맞추기","emoji":"🎁"},
+    {"rank":2,"name":"장모님 용돈","description":"명절 인사와 함께 용돈 봉투. 금액은 상황에 맞게","emoji":"💰"},
+    {"rank":3,"name":"차례/제사 분담","description":"아내와 역할 분담. 전 부치기, 설거지 등 적극 참여하기","emoji":"🍳"},
+    {"rank":4,"name":"귀성길 간식","description":"장거리 운전 대비 간식+음료. 아이들 놀이감도 챙기기","emoji":"🚙"},
+    {"rank":5,"name":"명절 후 아내 위로","description":"명절 끝나면 아내 수고 인정하기. 외식이나 작은 선물로 보답","emoji":"❤️"}
+  ]'),
+  ('기타 기념일', '기타 기념일 추천', '[
+    {"rank":1,"name":"꽃 배달","description":"기념일엔 꽃이 빠질 수 없음. 사무실 배달도 좋은 서프라이즈","emoji":"💐"},
+    {"rank":2,"name":"케이크","description":"디자인 케이크 주문. 레터링으로 메시지 넣기","emoji":"🎂"},
+    {"rank":3,"name":"외식","description":"분위기 좋은 레스토랑. 평소 안 가던 곳으로 예약","emoji":"🍷"},
+    {"rank":4,"name":"편지/카드","description":"짧더라도 손글씨로 진심 전하기. 카카오톡보다 100배 감동","emoji":"✉️"},
+    {"rank":5,"name":"깜짝 이벤트","description":"퇴근 후 집에 풍선+캔들 세팅. 소소하지만 잊지 못할 추억","emoji":"🎉"}
+  ]')
+) AS r(tag_name, title, items)
+JOIN azeyo_schedule_tags t ON t.name = r.tag_name AND t.is_system = true;
+
+-- ============================================================
+-- 9. 시드 유저 일정 (샘플)
+-- ============================================================
+
+INSERT INTO azeyo_schedules (user_id, title, date, memo, created_at)
+SELECT u.id, s.title, s.date::date, s.memo, NOW()
+FROM (VALUES
+  ('seed_1', '아내 생일', '2026-05-15', '올해는 호텔 스파 이용권 + 꽃다발 준비'),
+  ('seed_1', '결혼기념일', '2026-08-22', '8주년! 레스토랑 예약하기'),
+  ('seed_1', '장모님 생신', '2026-09-10', '건강검진 상품권 준비'),
+  ('seed_2', '아내 생일', '2026-04-20', '향수 사기 — 조말론?'),
+  ('seed_2', '어머니 생신', '2026-06-05', '형이랑 상의해서 준비'),
+  ('seed_3', '첫째 생일', '2026-04-12', '키즈카페 파티 예약'),
+  ('seed_3', '둘째 생일', '2026-07-30', '장난감 리서치 시작'),
+  ('seed_3', '결혼기념일', '2026-11-11', '빼빼로데이겸 기념일'),
+  ('seed_4', '아내 생일', '2026-06-01', '올해는 커플 사진 촬영 해볼까'),
+  ('seed_4', '장인어른 생신', '2026-10-15', '골프공 세트 준비'),
+  ('seed_5', '결혼기념일', '2026-04-28', '5주년! 여행 가자'),
+  ('seed_5', '아이 생일', '2026-08-10', '자전거 사주기로 약속함'),
+  ('seed_7', '크리스마스', '2026-12-25', '가족 파자마 + 홈파티'),
+  ('seed_7', '명절 (추석)', '2026-09-25', '양가 선물 미리 준비'),
+  ('seed_10', '아내 생일', '2026-05-03', '첫째 데리고 케이크 만들기'),
+  ('seed_10', '어머니 생신', '2026-07-20', '금팔찌 알아보기'),
+  ('seed_14', '장모님 생신', '2026-04-18', '효도관광 알아보기 — 온천?'),
+  ('seed_14', '장인어른 생신', '2026-08-08', '건강식품 세트 준비'),
+  ('seed_21', '발렌타인데이', '2027-02-14', '마카롱+편지 준비'),
+  ('seed_21', '아내 생일', '2026-06-22', '깜짝 이벤트 계획')
+) AS s(sns_id, title, date, memo)
+JOIN azeyo_users u ON u.sns_id = s.sns_id;
+
+-- 일정-태그 연결
+INSERT INTO azeyo_schedule_tag_map (schedule_id, tag_id)
+SELECT sc.id, t.id
+FROM azeyo_schedules sc
+JOIN azeyo_users u ON u.id = sc.user_id
+JOIN azeyo_schedule_tags t ON t.is_system = true
+  AND (
+    (sc.title LIKE '%아내 생일%' AND t.name = '아내 생일')
+    OR (sc.title LIKE '%결혼기념일%' AND t.name = '결혼기념일')
+    OR (sc.title LIKE '%장모님%' AND t.name = '장모님 생신')
+    OR (sc.title LIKE '%장인어른%' AND t.name = '장인어른 생신')
+    OR (sc.title LIKE '%어머니%' AND t.name = '어머니 생신')
+    OR (sc.title LIKE '%아버지%' AND t.name = '아버지 생신')
+    OR (sc.title LIKE '%아이 생일%' AND t.name = '아이 생일')
+    OR (sc.title LIKE '%첫째 생일%' AND t.name = '아이 생일')
+    OR (sc.title LIKE '%둘째 생일%' AND t.name = '아이 생일')
+    OR (sc.title LIKE '%발렌타인%' AND t.name = '발렌타인/화이트데이')
+    OR (sc.title LIKE '%크리스마스%' AND t.name = '크리스마스')
+    OR (sc.title LIKE '%명절%' AND t.name = '명절')
+  )
+WHERE u.sns_id LIKE 'seed_%';
+
 COMMIT;
