@@ -27,10 +27,7 @@ export class AzeyoSignupUseCase {
 
     const existingUser = await this.userRepository.findBySnsId(command.snsType, snsUserInfo.snsId);
     if (existingUser) {
-      return await this.authRepository.create(
-        { type: command.snsType as AZEYO_AUTH_TYPE, userId: existingUser.id },
-        existingUser,
-      );
+      return await this.authRepository.create({ type: command.snsType as AZEYO_AUTH_TYPE, userId: existingUser.id }, existingUser);
     }
 
     const randomProfileNumber = Math.floor(Math.random() * 12) + 1;
@@ -48,9 +45,6 @@ export class AzeyoSignupUseCase {
 
     const user = await this.userRepository.findOneOrThrowById(userId);
 
-    return await this.authRepository.create(
-      { type: command.snsType as AZEYO_AUTH_TYPE, userId: user.id },
-      user,
-    );
+    return await this.authRepository.create({ type: command.snsType as AZEYO_AUTH_TYPE, userId: user.id }, user);
   }
 }

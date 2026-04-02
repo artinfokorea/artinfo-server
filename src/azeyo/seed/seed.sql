@@ -27,106 +27,106 @@ TRUNCATE TABLE azeyo_users CASCADE;
 -- 1. 유저 100명
 -- ============================================================
 INSERT INTO azeyo_users (nickname, subtitle, marriage_year, children, email, icon_image_url, sns_type, sns_id, activity_points, monthly_points, is_online, created_at, updated_at) VALUES
-('든든한남편', '결혼 8년차 · 아이 2명', 2018, '2', 'seed1@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=든든한남편', 'KAKAO', 'seed_1', 320, 85, false, NOW() - INTERVAL '90 days', NOW()),
-('살림왕아재', '결혼 12년차 · 아이 1명', 2014, '1', 'seed2@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=살림왕아재', 'KAKAO', 'seed_2', 890, 210, false, NOW() - INTERVAL '85 days', NOW()),
-('딸바보파파', '결혼 6년차 · 딸 2명', 2020, '2', 'seed3@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=딸바보파파', 'NAVER', 'seed_3', 450, 120, false, NOW() - INTERVAL '80 days', NOW()),
-('로맨틱가이', '결혼 15년차', 2011, '3+', 'seed4@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=로맨틱가이', 'GOOGLE', 'seed_4', 1560, 340, false, NOW() - INTERVAL '75 days', NOW()),
-('워킹대디', '결혼 5년차 · 아이 1명', 2021, '1', 'seed5@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=워킹대디', 'KAKAO', 'seed_5', 280, 95, false, NOW() - INTERVAL '70 days', NOW()),
-('야근전사', '결혼 7년차 · 아이 2명', 2019, '2', 'seed6@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=야근전사', 'NAVER', 'seed_6', 510, 145, false, NOW() - INTERVAL '65 days', NOW()),
-('주말아빠', '결혼 10년차 · 아이 3명', 2016, '3+', 'seed7@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=주말아빠', 'KAKAO', 'seed_7', 720, 190, false, NOW() - INTERVAL '60 days', NOW()),
-('요리하는남편', '결혼 4년차', 2022, '0', 'seed8@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=요리하는남편', 'GOOGLE', 'seed_8', 180, 60, false, NOW() - INTERVAL '55 days', NOW()),
-('센스있는사위', '결혼 9년차 · 아이 1명', 2017, '1', 'seed9@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=센스있는사위', 'KAKAO', 'seed_9', 640, 170, false, NOW() - INTERVAL '50 days', NOW()),
-('육아고수', '결혼 11년차 · 아이 2명', 2015, '2', 'seed10@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=육아고수', 'NAVER', 'seed_10', 980, 250, false, NOW() - INTERVAL '45 days', NOW()),
-('결혼3년차', '신혼 끝자락', 2023, '0', 'seed11@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=결혼3년차', 'KAKAO', 'seed_11', 90, 40, false, NOW() - INTERVAL '40 days', NOW()),
-('치킨아빠', '결혼 7년차 · 아이 1명', 2019, '1', 'seed12@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=치킨아빠', 'NAVER', 'seed_12', 350, 100, false, NOW() - INTERVAL '38 days', NOW()),
-('캠핑족장', '결혼 8년차 · 아이 2명', 2018, '2', 'seed13@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=캠핑족장', 'GOOGLE', 'seed_13', 420, 110, false, NOW() - INTERVAL '36 days', NOW()),
-('효도왕사위', '결혼 13년차 · 아이 1명', 2013, '1', 'seed14@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=효도왕사위', 'KAKAO', 'seed_14', 1100, 280, false, NOW() - INTERVAL '34 days', NOW()),
-('새내기남편', '결혼 1년차', 2025, '0', 'seed15@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=새내기남편', 'NAVER', 'seed_15', 30, 20, false, NOW() - INTERVAL '32 days', NOW()),
-('운동하는아빠', '결혼 6년차 · 아이 1명', 2020, '1', 'seed16@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=운동하는아빠', 'KAKAO', 'seed_16', 290, 80, false, NOW() - INTERVAL '30 days', NOW()),
-('장인사랑꾼', '결혼 14년차 · 아이 2명', 2012, '2', 'seed17@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=장인사랑꾼', 'GOOGLE', 'seed_17', 1340, 310, false, NOW() - INTERVAL '28 days', NOW()),
-('퇴근후요리사', '결혼 5년차', 2021, '1', 'seed18@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=퇴근후요리사', 'NAVER', 'seed_18', 210, 70, false, NOW() - INTERVAL '26 days', NOW()),
-('아이둘아빠', '결혼 9년차 · 아이 2명', 2017, '2', 'seed19@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=아이둘아빠', 'KAKAO', 'seed_19', 580, 155, false, NOW() - INTERVAL '24 days', NOW()),
-('주말등산러', '결혼 11년차 · 아이 1명', 2015, '1', 'seed20@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=주말등산러', 'NAVER', 'seed_20', 760, 200, false, NOW() - INTERVAL '22 days', NOW()),
-('감성아재', '결혼 10년차 · 아이 2명', 2016, '2', 'seed21@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=감성아재', 'KAKAO', 'seed_21', 670, 175, false, NOW() - INTERVAL '21 days', NOW()),
-('유머왕남편', '결혼 7년차 · 아이 1명', 2019, '1', 'seed22@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=유머왕남편', 'GOOGLE', 'seed_22', 430, 115, false, NOW() - INTERVAL '20 days', NOW()),
-('집순이남편', '결혼 4년차', 2022, '0', 'seed23@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=집순이남편', 'KAKAO', 'seed_23', 150, 50, false, NOW() - INTERVAL '19 days', NOW()),
-('낚시아재', '결혼 12년차 · 아이 2명', 2014, '2', 'seed24@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=낚시아재', 'NAVER', 'seed_24', 920, 230, false, NOW() - INTERVAL '18 days', NOW()),
-('커피아빠', '결혼 6년차 · 아이 1명', 2020, '1', 'seed25@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=커피아빠', 'KAKAO', 'seed_25', 310, 90, false, NOW() - INTERVAL '17 days', NOW()),
-('게임하는남편', '결혼 3년차', 2023, '0', 'seed26@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=게임하는남편', 'GOOGLE', 'seed_26', 120, 45, false, NOW() - INTERVAL '16 days', NOW()),
-('자전거아빠', '결혼 8년차 · 아이 2명', 2018, '2', 'seed27@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=자전거아빠', 'NAVER', 'seed_27', 480, 130, false, NOW() - INTERVAL '15 days', NOW()),
-('독서하는아재', '결혼 10년차 · 아이 1명', 2016, '1', 'seed28@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=독서하는아재', 'KAKAO', 'seed_28', 700, 185, false, NOW() - INTERVAL '14 days', NOW()),
-('베이킹아빠', '결혼 5년차 · 아이 1명', 2021, '1', 'seed29@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=베이킹아빠', 'NAVER', 'seed_29', 250, 75, false, NOW() - INTERVAL '13 days', NOW()),
-('골프초보남편', '결혼 9년차 · 아이 2명', 2017, '2', 'seed30@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=골프초보남편', 'GOOGLE', 'seed_30', 550, 150, false, NOW() - INTERVAL '12 days', NOW()),
-('다정한사위', '결혼 7년차 · 아이 1명', 2019, '1', 'seed31@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=다정한사위', 'KAKAO', 'seed_31', 380, 105, false, NOW() - INTERVAL '11 days', NOW()),
-('설거지마스터', '결혼 6년차', 2020, '1', 'seed32@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=설거지마스터', 'NAVER', 'seed_32', 340, 95, false, NOW() - INTERVAL '10 days', NOW()),
-('아침형아빠', '결혼 8년차 · 아이 2명', 2018, '2', 'seed33@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=아침형아빠', 'KAKAO', 'seed_33', 460, 125, false, NOW() - INTERVAL '9 days', NOW()),
-('택배수령인', '결혼 4년차', 2022, '0', 'seed34@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=택배수령인', 'GOOGLE', 'seed_34', 160, 55, false, NOW() - INTERVAL '8 days', NOW()),
-('장보기달인', '결혼 11년차 · 아이 2명', 2015, '2', 'seed35@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=장보기달인', 'NAVER', 'seed_35', 810, 205, false, NOW() - INTERVAL '7 days', NOW()),
-('빨래접기왕', '결혼 5년차 · 아이 1명', 2021, '1', 'seed36@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=빨래접기왕', 'KAKAO', 'seed_36', 230, 70, false, NOW() - INTERVAL '6 days', NOW()),
-('청소기아빠', '결혼 7년차 · 아이 1명', 2019, '1', 'seed37@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=청소기아빠', 'NAVER', 'seed_37', 400, 108, false, NOW() - INTERVAL '5 days', NOW()),
-('분리수거맨', '결혼 9년차 · 아이 2명', 2017, '2', 'seed38@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=분리수거맨', 'GOOGLE', 'seed_38', 560, 148, false, NOW() - INTERVAL '4 days', NOW()),
-('아이돌봄이', '결혼 6년차 · 아이 2명', 2020, '2', 'seed39@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=아이돌봄이', 'KAKAO', 'seed_39', 370, 100, false, NOW() - INTERVAL '3 days', NOW()),
-('새벽기상러', '결혼 10년차 · 아이 1명', 2016, '1', 'seed40@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=새벽기상러', 'NAVER', 'seed_40', 690, 180, false, NOW() - INTERVAL '2 days', NOW()),
-('반찬만들기', '결혼 8년차', 2018, '2', 'seed41@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=반찬만들기', 'KAKAO', 'seed_41', 440, 118, false, NOW() - INTERVAL '1 day', NOW()),
-('피아노아빠', '결혼 12년차 · 아이 1명', 2014, '1', 'seed42@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=피아노아빠', 'GOOGLE', 'seed_42', 950, 240, false, NOW(), NOW()),
-('텃밭아재', '결혼 15년차 · 아이 3명', 2011, '3+', 'seed43@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=텃밭아재', 'NAVER', 'seed_43', 1480, 330, false, NOW(), NOW()),
-('미니밴아빠', '결혼 7년차 · 아이 2명', 2019, '2', 'seed44@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=미니밴아빠', 'KAKAO', 'seed_44', 410, 112, false, NOW(), NOW()),
-('와인남편', '결혼 10년차', 2016, '1', 'seed45@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=와인남편', 'NAVER', 'seed_45', 680, 178, false, NOW(), NOW()),
-('홈카페남편', '결혼 3년차', 2023, '0', 'seed46@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=홈카페남편', 'GOOGLE', 'seed_46', 100, 38, false, NOW(), NOW()),
-('조깅아빠', '결혼 6년차 · 아이 1명', 2020, '1', 'seed47@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=조깅아빠', 'KAKAO', 'seed_47', 300, 88, false, NOW(), NOW()),
-('수영하는남편', '결혼 5년차', 2021, '0', 'seed48@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=수영하는남편', 'NAVER', 'seed_48', 220, 68, false, NOW(), NOW()),
-('등산마니아', '결혼 13년차 · 아이 2명', 2013, '2', 'seed49@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=등산마니아', 'KAKAO', 'seed_49', 1150, 290, false, NOW(), NOW()),
-('바베큐아재', '결혼 9년차 · 아이 1명', 2017, '1', 'seed50@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=바베큐아재', 'GOOGLE', 'seed_50', 530, 142, false, NOW(), NOW()),
-('DIY아빠', '결혼 8년차 · 아이 2명', 2018, '2', 'seed51@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=DIY아빠', 'NAVER', 'seed_51', 470, 128, false, NOW(), NOW()),
-('영화남편', '결혼 4년차', 2022, '0', 'seed52@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=영화남편', 'KAKAO', 'seed_52', 170, 58, false, NOW(), NOW()),
-('사진찍는아빠', '결혼 7년차 · 아이 1명', 2019, '1', 'seed53@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=사진찍는아빠', 'NAVER', 'seed_53', 390, 106, false, NOW(), NOW()),
-('노래방남편', '결혼 11년차 · 아이 2명', 2015, '2', 'seed54@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=노래방남편', 'GOOGLE', 'seed_54', 830, 215, false, NOW(), NOW()),
-('볼링아재', '결혼 6년차 · 아이 1명', 2020, '1', 'seed55@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=볼링아재', 'KAKAO', 'seed_55', 330, 92, false, NOW(), NOW()),
-('보드게임아빠', '결혼 5년차 · 아이 1명', 2021, '1', 'seed56@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=보드게임아빠', 'NAVER', 'seed_56', 240, 72, false, NOW(), NOW()),
-('드라이브남편', '결혼 9년차 · 아이 2명', 2017, '2', 'seed57@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=드라이브남편', 'KAKAO', 'seed_57', 570, 152, false, NOW(), NOW()),
-('맥주아재', '결혼 10년차 · 아이 1명', 2016, '1', 'seed58@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=맥주아재', 'GOOGLE', 'seed_58', 710, 188, false, NOW(), NOW()),
-('손편지남편', '결혼 8년차', 2018, '2', 'seed59@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=손편지남편', 'NAVER', 'seed_59', 450, 122, false, NOW(), NOW()),
-('꽃배달남편', '결혼 3년차', 2023, '0', 'seed60@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=꽃배달남편', 'KAKAO', 'seed_60', 110, 42, false, NOW(), NOW()),
-('가구조립왕', '결혼 7년차 · 아이 2명', 2019, '2', 'seed61@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=가구조립왕', 'NAVER', 'seed_61', 420, 114, false, NOW(), NOW()),
-('아이숙제도우미', '결혼 12년차 · 아이 2명', 2014, '2', 'seed62@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=아이숙제도우미', 'GOOGLE', 'seed_62', 960, 245, false, NOW(), NOW()),
-('산책남편', '결혼 5년차 · 아이 1명', 2021, '1', 'seed63@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=산책남편', 'KAKAO', 'seed_63', 260, 78, false, NOW(), NOW()),
-('요가하는아빠', '결혼 6년차', 2020, '1', 'seed64@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=요가하는아빠', 'NAVER', 'seed_64', 320, 90, false, NOW(), NOW()),
-('레고아빠', '결혼 8년차 · 아이 2명', 2018, '2', 'seed65@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=레고아빠', 'KAKAO', 'seed_65', 490, 132, false, NOW(), NOW()),
-('농구아재', '결혼 11년차 · 아이 1명', 2015, '1', 'seed66@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=농구아재', 'GOOGLE', 'seed_66', 840, 218, false, NOW(), NOW()),
-('탁구남편', '결혼 4년차', 2022, '0', 'seed67@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=탁구남편', 'NAVER', 'seed_67', 140, 48, false, NOW(), NOW()),
-('라면마스터', '결혼 7년차 · 아이 1명', 2019, '1', 'seed68@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=라면마스터', 'KAKAO', 'seed_68', 360, 98, false, NOW(), NOW()),
-('빵굽는아빠', '결혼 9년차 · 아이 2명', 2017, '2', 'seed69@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=빵굽는아빠', 'NAVER', 'seed_69', 590, 158, false, NOW(), NOW()),
-('축구코치아빠', '결혼 10년차 · 아이 2명', 2016, '2', 'seed70@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=축구코치아빠', 'GOOGLE', 'seed_70', 730, 195, false, NOW(), NOW()),
-('기타치는남편', '결혼 6년차', 2020, '1', 'seed71@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=기타치는남편', 'KAKAO', 'seed_71', 310, 88, false, NOW(), NOW()),
-('밤산책남편', '결혼 5년차 · 아이 1명', 2021, '1', 'seed72@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=밤산책남편', 'NAVER', 'seed_72', 250, 75, false, NOW(), NOW()),
-('주차달인', '결혼 8년차 · 아이 2명', 2018, '2', 'seed73@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=주차달인', 'KAKAO', 'seed_73', 460, 125, false, NOW(), NOW()),
-('마트남편', '결혼 13년차 · 아이 1명', 2013, '1', 'seed74@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=마트남편', 'GOOGLE', 'seed_74', 1170, 295, false, NOW(), NOW()),
-('도시락아빠', '결혼 7년차 · 아이 2명', 2019, '2', 'seed75@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=도시락아빠', 'NAVER', 'seed_75', 430, 116, false, NOW(), NOW()),
-('운전대남편', '결혼 4년차', 2022, '0', 'seed76@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=운전대남편', 'KAKAO', 'seed_76', 130, 44, false, NOW(), NOW()),
-('반려견아빠', '결혼 6년차 · 아이 1명', 2020, '1', 'seed77@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=반려견아빠', 'NAVER', 'seed_77', 340, 94, false, NOW(), NOW()),
-('통기타남편', '결혼 9년차', 2017, '1', 'seed78@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=통기타남편', 'GOOGLE', 'seed_78', 600, 160, false, NOW(), NOW()),
-('헬스남편', '결혼 5년차', 2021, '0', 'seed79@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=헬스남편', 'KAKAO', 'seed_79', 200, 65, false, NOW(), NOW()),
-('정원사아빠', '결혼 14년차 · 아이 2명', 2012, '2', 'seed80@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=정원사아빠', 'NAVER', 'seed_80', 1380, 315, false, NOW(), NOW()),
-('음악아재', '결혼 10년차 · 아이 1명', 2016, '1', 'seed81@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=음악아재', 'KAKAO', 'seed_81', 690, 182, false, NOW(), NOW()),
-('당근마켓남편', '결혼 3년차', 2023, '0', 'seed82@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=당근마켓남편', 'GOOGLE', 'seed_82', 80, 35, false, NOW(), NOW()),
-('퍼즐아빠', '결혼 8년차 · 아이 2명', 2018, '2', 'seed83@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=퍼즐아빠', 'NAVER', 'seed_83', 480, 130, false, NOW(), NOW()),
-('명상남편', '결혼 7년차 · 아이 1명', 2019, '1', 'seed84@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=명상남편', 'KAKAO', 'seed_84', 370, 102, false, NOW(), NOW()),
-('마라톤아재', '결혼 11년차 · 아이 1명', 2015, '1', 'seed85@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=마라톤아재', 'NAVER', 'seed_85', 860, 222, false, NOW(), NOW()),
-('아이스크림아빠', '결혼 6년차 · 아이 2명', 2020, '2', 'seed86@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=아이스크림아빠', 'GOOGLE', 'seed_86', 350, 96, false, NOW(), NOW()),
-('집수리남편', '결혼 9년차 · 아이 1명', 2017, '1', 'seed87@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=집수리남편', 'KAKAO', 'seed_87', 540, 145, false, NOW(), NOW()),
-('배달앱남편', '결혼 4년차', 2022, '0', 'seed88@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=배달앱남편', 'NAVER', 'seed_88', 160, 52, false, NOW(), NOW()),
-('보드타는아빠', '결혼 8년차 · 아이 2명', 2018, '2', 'seed89@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=보드타는아빠', 'KAKAO', 'seed_89', 500, 135, false, NOW(), NOW()),
-('요리도전남편', '결혼 5년차', 2021, '1', 'seed90@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=요리도전남편', 'GOOGLE', 'seed_90', 230, 72, false, NOW(), NOW()),
-('코딩아빠', '결혼 7년차 · 아이 1명', 2019, '1', 'seed91@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=코딩아빠', 'NAVER', 'seed_91', 380, 104, false, NOW(), NOW()),
-('클라이밍남편', '결혼 6년차', 2020, '0', 'seed92@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=클라이밍남편', 'KAKAO', 'seed_92', 280, 82, false, NOW(), NOW()),
-('서핑아재', '결혼 10년차 · 아이 1명', 2016, '1', 'seed93@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=서핑아재', 'NAVER', 'seed_93', 720, 192, false, NOW(), NOW()),
-('블로그남편', '결혼 8년차 · 아이 2명', 2018, '2', 'seed94@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=블로그남편', 'GOOGLE', 'seed_94', 470, 126, false, NOW(), NOW()),
-('강아지아빠', '결혼 3년차', 2023, '0', 'seed95@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=강아지아빠', 'KAKAO', 'seed_95', 95, 38, false, NOW(), NOW()),
-('텐트아재', '결혼 12년차 · 아이 2명', 2014, '2', 'seed96@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=텐트아재', 'NAVER', 'seed_96', 940, 238, false, NOW(), NOW()),
-('패들보드남편', '결혼 5년차 · 아이 1명', 2021, '1', 'seed97@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=패들보드남편', 'KAKAO', 'seed_97', 220, 68, false, NOW(), NOW()),
-('볼링아빠', '결혼 9년차 · 아이 2명', 2017, '2', 'seed98@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=볼링아빠', 'GOOGLE', 'seed_98', 580, 155, false, NOW(), NOW()),
-('드럼치는남편', '결혼 7년차', 2019, '1', 'seed99@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=드럼치는남편', 'NAVER', 'seed_99', 400, 110, false, NOW(), NOW()),
-('풍경사진가', '결혼 11년차 · 아이 1명', 2015, '1', 'seed100@azeyo.co.kr', 'https://api.dicebear.com/9.x/avataaars/svg?seed=풍경사진가', 'KAKAO', 'seed_100', 850, 220, false, NOW(), NOW());
+('든든한남편', '결혼 8년차 · 아이 2명', 2018, '2', 'seed1@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/3.jpg', 'KAKAO', 'seed_1', 320, 85, false, NOW() - INTERVAL '90 days', NOW()),
+('살림왕아재', '결혼 12년차 · 아이 1명', 2014, '1', 'seed2@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/10.jpg', 'KAKAO', 'seed_2', 890, 210, false, NOW() - INTERVAL '85 days', NOW()),
+('딸바보파파', '결혼 6년차 · 딸 2명', 2020, '2', 'seed3@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/12.jpg', 'NAVER', 'seed_3', 450, 120, false, NOW() - INTERVAL '80 days', NOW()),
+('로맨틱가이', '결혼 15년차', 2011, '3+', 'seed4@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/8.jpg', 'GOOGLE', 'seed_4', 1560, 340, false, NOW() - INTERVAL '75 days', NOW()),
+('워킹대디', '결혼 5년차 · 아이 1명', 2021, '1', 'seed5@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/11.jpg', 'KAKAO', 'seed_5', 280, 95, false, NOW() - INTERVAL '70 days', NOW()),
+('야근전사', '결혼 7년차 · 아이 2명', 2019, '2', 'seed6@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/8.jpg', 'NAVER', 'seed_6', 510, 145, false, NOW() - INTERVAL '65 days', NOW()),
+('주말아빠', '결혼 10년차 · 아이 3명', 2016, '3+', 'seed7@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/6.jpg', 'KAKAO', 'seed_7', 720, 190, false, NOW() - INTERVAL '60 days', NOW()),
+('요리하는남편', '결혼 4년차', 2022, '0', 'seed8@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/10.jpg', 'GOOGLE', 'seed_8', 180, 60, false, NOW() - INTERVAL '55 days', NOW()),
+('센스있는사위', '결혼 9년차 · 아이 1명', 2017, '1', 'seed9@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/1.jpg', 'KAKAO', 'seed_9', 640, 170, false, NOW() - INTERVAL '50 days', NOW()),
+('육아고수', '결혼 11년차 · 아이 2명', 2015, '2', 'seed10@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/7.jpg', 'NAVER', 'seed_10', 980, 250, false, NOW() - INTERVAL '45 days', NOW()),
+('결혼3년차', '신혼 끝자락', 2023, '0', 'seed11@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/1.jpg', 'KAKAO', 'seed_11', 90, 40, false, NOW() - INTERVAL '40 days', NOW()),
+('치킨아빠', '결혼 7년차 · 아이 1명', 2019, '1', 'seed12@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/11.jpg', 'NAVER', 'seed_12', 350, 100, false, NOW() - INTERVAL '38 days', NOW()),
+('캠핑족장', '결혼 8년차 · 아이 2명', 2018, '2', 'seed13@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/10.jpg', 'GOOGLE', 'seed_13', 420, 110, false, NOW() - INTERVAL '36 days', NOW()),
+('효도왕사위', '결혼 13년차 · 아이 1명', 2013, '1', 'seed14@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/7.jpg', 'KAKAO', 'seed_14', 1100, 280, false, NOW() - INTERVAL '34 days', NOW()),
+('새내기남편', '결혼 1년차', 2025, '0', 'seed15@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/5.jpg', 'NAVER', 'seed_15', 30, 20, false, NOW() - INTERVAL '32 days', NOW()),
+('운동하는아빠', '결혼 6년차 · 아이 1명', 2020, '1', 'seed16@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/3.jpg', 'KAKAO', 'seed_16', 290, 80, false, NOW() - INTERVAL '30 days', NOW()),
+('장인사랑꾼', '결혼 14년차 · 아이 2명', 2012, '2', 'seed17@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/1.jpg', 'GOOGLE', 'seed_17', 1340, 310, false, NOW() - INTERVAL '28 days', NOW()),
+('퇴근후요리사', '결혼 5년차', 2021, '1', 'seed18@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/1.jpg', 'NAVER', 'seed_18', 210, 70, false, NOW() - INTERVAL '26 days', NOW()),
+('아이둘아빠', '결혼 9년차 · 아이 2명', 2017, '2', 'seed19@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/10.jpg', 'KAKAO', 'seed_19', 580, 155, false, NOW() - INTERVAL '24 days', NOW()),
+('주말등산러', '결혼 11년차 · 아이 1명', 2015, '1', 'seed20@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/3.jpg', 'NAVER', 'seed_20', 760, 200, false, NOW() - INTERVAL '22 days', NOW()),
+('감성아재', '결혼 10년차 · 아이 2명', 2016, '2', 'seed21@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/2.jpg', 'KAKAO', 'seed_21', 670, 175, false, NOW() - INTERVAL '21 days', NOW()),
+('유머왕남편', '결혼 7년차 · 아이 1명', 2019, '1', 'seed22@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/6.jpg', 'GOOGLE', 'seed_22', 430, 115, false, NOW() - INTERVAL '20 days', NOW()),
+('집순이남편', '결혼 4년차', 2022, '0', 'seed23@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/3.jpg', 'KAKAO', 'seed_23', 150, 50, false, NOW() - INTERVAL '19 days', NOW()),
+('낚시아재', '결혼 12년차 · 아이 2명', 2014, '2', 'seed24@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/1.jpg', 'NAVER', 'seed_24', 920, 230, false, NOW() - INTERVAL '18 days', NOW()),
+('커피아빠', '결혼 6년차 · 아이 1명', 2020, '1', 'seed25@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/7.jpg', 'KAKAO', 'seed_25', 310, 90, false, NOW() - INTERVAL '17 days', NOW()),
+('게임하는남편', '결혼 3년차', 2023, '0', 'seed26@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/11.jpg', 'GOOGLE', 'seed_26', 120, 45, false, NOW() - INTERVAL '16 days', NOW()),
+('자전거아빠', '결혼 8년차 · 아이 2명', 2018, '2', 'seed27@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/2.jpg', 'NAVER', 'seed_27', 480, 130, false, NOW() - INTERVAL '15 days', NOW()),
+('독서하는아재', '결혼 10년차 · 아이 1명', 2016, '1', 'seed28@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/12.jpg', 'KAKAO', 'seed_28', 700, 185, false, NOW() - INTERVAL '14 days', NOW()),
+('베이킹아빠', '결혼 5년차 · 아이 1명', 2021, '1', 'seed29@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/8.jpg', 'NAVER', 'seed_29', 250, 75, false, NOW() - INTERVAL '13 days', NOW()),
+('골프초보남편', '결혼 9년차 · 아이 2명', 2017, '2', 'seed30@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/2.jpg', 'GOOGLE', 'seed_30', 550, 150, false, NOW() - INTERVAL '12 days', NOW()),
+('다정한사위', '결혼 7년차 · 아이 1명', 2019, '1', 'seed31@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/2.jpg', 'KAKAO', 'seed_31', 380, 105, false, NOW() - INTERVAL '11 days', NOW()),
+('설거지마스터', '결혼 6년차', 2020, '1', 'seed32@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/11.jpg', 'NAVER', 'seed_32', 340, 95, false, NOW() - INTERVAL '10 days', NOW()),
+('아침형아빠', '결혼 8년차 · 아이 2명', 2018, '2', 'seed33@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/1.jpg', 'KAKAO', 'seed_33', 460, 125, false, NOW() - INTERVAL '9 days', NOW()),
+('택배수령인', '결혼 4년차', 2022, '0', 'seed34@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/3.jpg', 'GOOGLE', 'seed_34', 160, 55, false, NOW() - INTERVAL '8 days', NOW()),
+('장보기달인', '결혼 11년차 · 아이 2명', 2015, '2', 'seed35@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/4.jpg', 'NAVER', 'seed_35', 810, 205, false, NOW() - INTERVAL '7 days', NOW()),
+('빨래접기왕', '결혼 5년차 · 아이 1명', 2021, '1', 'seed36@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/6.jpg', 'KAKAO', 'seed_36', 230, 70, false, NOW() - INTERVAL '6 days', NOW()),
+('청소기아빠', '결혼 7년차 · 아이 1명', 2019, '1', 'seed37@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/7.jpg', 'NAVER', 'seed_37', 400, 108, false, NOW() - INTERVAL '5 days', NOW()),
+('분리수거맨', '결혼 9년차 · 아이 2명', 2017, '2', 'seed38@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/8.jpg', 'GOOGLE', 'seed_38', 560, 148, false, NOW() - INTERVAL '4 days', NOW()),
+('아이돌봄이', '결혼 6년차 · 아이 2명', 2020, '2', 'seed39@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/11.jpg', 'KAKAO', 'seed_39', 370, 100, false, NOW() - INTERVAL '3 days', NOW()),
+('새벽기상러', '결혼 10년차 · 아이 1명', 2016, '1', 'seed40@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/10.jpg', 'NAVER', 'seed_40', 690, 180, false, NOW() - INTERVAL '2 days', NOW()),
+('반찬만들기', '결혼 8년차', 2018, '2', 'seed41@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/4.jpg', 'KAKAO', 'seed_41', 440, 118, false, NOW() - INTERVAL '1 day', NOW()),
+('피아노아빠', '결혼 12년차 · 아이 1명', 2014, '1', 'seed42@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/7.jpg', 'GOOGLE', 'seed_42', 950, 240, false, NOW(), NOW()),
+('텃밭아재', '결혼 15년차 · 아이 3명', 2011, '3+', 'seed43@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/3.jpg', 'NAVER', 'seed_43', 1480, 330, false, NOW(), NOW()),
+('미니밴아빠', '결혼 7년차 · 아이 2명', 2019, '2', 'seed44@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/1.jpg', 'KAKAO', 'seed_44', 410, 112, false, NOW(), NOW()),
+('와인남편', '결혼 10년차', 2016, '1', 'seed45@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/12.jpg', 'NAVER', 'seed_45', 680, 178, false, NOW(), NOW()),
+('홈카페남편', '결혼 3년차', 2023, '0', 'seed46@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/2.jpg', 'GOOGLE', 'seed_46', 100, 38, false, NOW(), NOW()),
+('조깅아빠', '결혼 6년차 · 아이 1명', 2020, '1', 'seed47@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/11.jpg', 'KAKAO', 'seed_47', 300, 88, false, NOW(), NOW()),
+('수영하는남편', '결혼 5년차', 2021, '0', 'seed48@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/9.jpg', 'NAVER', 'seed_48', 220, 68, false, NOW(), NOW()),
+('등산마니아', '결혼 13년차 · 아이 2명', 2013, '2', 'seed49@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/10.jpg', 'KAKAO', 'seed_49', 1150, 290, false, NOW(), NOW()),
+('바베큐아재', '결혼 9년차 · 아이 1명', 2017, '1', 'seed50@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/2.jpg', 'GOOGLE', 'seed_50', 530, 142, false, NOW(), NOW()),
+('DIY아빠', '결혼 8년차 · 아이 2명', 2018, '2', 'seed51@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/6.jpg', 'NAVER', 'seed_51', 470, 128, false, NOW(), NOW()),
+('영화남편', '결혼 4년차', 2022, '0', 'seed52@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/5.jpg', 'KAKAO', 'seed_52', 170, 58, false, NOW(), NOW()),
+('사진찍는아빠', '결혼 7년차 · 아이 1명', 2019, '1', 'seed53@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/12.jpg', 'NAVER', 'seed_53', 390, 106, false, NOW(), NOW()),
+('노래방남편', '결혼 11년차 · 아이 2명', 2015, '2', 'seed54@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/12.jpg', 'GOOGLE', 'seed_54', 830, 215, false, NOW(), NOW()),
+('볼링아재', '결혼 6년차 · 아이 1명', 2020, '1', 'seed55@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/9.jpg', 'KAKAO', 'seed_55', 330, 92, false, NOW(), NOW()),
+('보드게임아빠', '결혼 5년차 · 아이 1명', 2021, '1', 'seed56@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/9.jpg', 'NAVER', 'seed_56', 240, 72, false, NOW(), NOW()),
+('드라이브남편', '결혼 9년차 · 아이 2명', 2017, '2', 'seed57@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/2.jpg', 'KAKAO', 'seed_57', 570, 152, false, NOW(), NOW()),
+('맥주아재', '결혼 10년차 · 아이 1명', 2016, '1', 'seed58@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/11.jpg', 'GOOGLE', 'seed_58', 710, 188, false, NOW(), NOW()),
+('손편지남편', '결혼 8년차', 2018, '2', 'seed59@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/12.jpg', 'NAVER', 'seed_59', 450, 122, false, NOW(), NOW()),
+('꽃배달남편', '결혼 3년차', 2023, '0', 'seed60@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/8.jpg', 'KAKAO', 'seed_60', 110, 42, false, NOW(), NOW()),
+('가구조립왕', '결혼 7년차 · 아이 2명', 2019, '2', 'seed61@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/3.jpg', 'NAVER', 'seed_61', 420, 114, false, NOW(), NOW()),
+('아이숙제도우미', '결혼 12년차 · 아이 2명', 2014, '2', 'seed62@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/6.jpg', 'GOOGLE', 'seed_62', 960, 245, false, NOW(), NOW()),
+('산책남편', '결혼 5년차 · 아이 1명', 2021, '1', 'seed63@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/9.jpg', 'KAKAO', 'seed_63', 260, 78, false, NOW(), NOW()),
+('요가하는아빠', '결혼 6년차', 2020, '1', 'seed64@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/5.jpg', 'NAVER', 'seed_64', 320, 90, false, NOW(), NOW()),
+('레고아빠', '결혼 8년차 · 아이 2명', 2018, '2', 'seed65@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/10.jpg', 'KAKAO', 'seed_65', 490, 132, false, NOW(), NOW()),
+('농구아재', '결혼 11년차 · 아이 1명', 2015, '1', 'seed66@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/8.jpg', 'GOOGLE', 'seed_66', 840, 218, false, NOW(), NOW()),
+('탁구남편', '결혼 4년차', 2022, '0', 'seed67@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/3.jpg', 'NAVER', 'seed_67', 140, 48, false, NOW(), NOW()),
+('라면마스터', '결혼 7년차 · 아이 1명', 2019, '1', 'seed68@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/3.jpg', 'KAKAO', 'seed_68', 360, 98, false, NOW(), NOW()),
+('빵굽는아빠', '결혼 9년차 · 아이 2명', 2017, '2', 'seed69@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/3.jpg', 'NAVER', 'seed_69', 590, 158, false, NOW(), NOW()),
+('축구코치아빠', '결혼 10년차 · 아이 2명', 2016, '2', 'seed70@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/7.jpg', 'GOOGLE', 'seed_70', 730, 195, false, NOW(), NOW()),
+('기타치는남편', '결혼 6년차', 2020, '1', 'seed71@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/6.jpg', 'KAKAO', 'seed_71', 310, 88, false, NOW(), NOW()),
+('밤산책남편', '결혼 5년차 · 아이 1명', 2021, '1', 'seed72@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/2.jpg', 'NAVER', 'seed_72', 250, 75, false, NOW(), NOW()),
+('주차달인', '결혼 8년차 · 아이 2명', 2018, '2', 'seed73@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/6.jpg', 'KAKAO', 'seed_73', 460, 125, false, NOW(), NOW()),
+('마트남편', '결혼 13년차 · 아이 1명', 2013, '1', 'seed74@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/12.jpg', 'GOOGLE', 'seed_74', 1170, 295, false, NOW(), NOW()),
+('도시락아빠', '결혼 7년차 · 아이 2명', 2019, '2', 'seed75@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/8.jpg', 'NAVER', 'seed_75', 430, 116, false, NOW(), NOW()),
+('운전대남편', '결혼 4년차', 2022, '0', 'seed76@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/1.jpg', 'KAKAO', 'seed_76', 130, 44, false, NOW(), NOW()),
+('반려견아빠', '결혼 6년차 · 아이 1명', 2020, '1', 'seed77@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/10.jpg', 'NAVER', 'seed_77', 340, 94, false, NOW(), NOW()),
+('통기타남편', '결혼 9년차', 2017, '1', 'seed78@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/11.jpg', 'GOOGLE', 'seed_78', 600, 160, false, NOW(), NOW()),
+('헬스남편', '결혼 5년차', 2021, '0', 'seed79@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/5.jpg', 'KAKAO', 'seed_79', 200, 65, false, NOW(), NOW()),
+('정원사아빠', '결혼 14년차 · 아이 2명', 2012, '2', 'seed80@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/3.jpg', 'NAVER', 'seed_80', 1380, 315, false, NOW(), NOW()),
+('음악아재', '결혼 10년차 · 아이 1명', 2016, '1', 'seed81@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/12.jpg', 'KAKAO', 'seed_81', 690, 182, false, NOW(), NOW()),
+('당근마켓남편', '결혼 3년차', 2023, '0', 'seed82@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/5.jpg', 'GOOGLE', 'seed_82', 80, 35, false, NOW(), NOW()),
+('퍼즐아빠', '결혼 8년차 · 아이 2명', 2018, '2', 'seed83@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/8.jpg', 'NAVER', 'seed_83', 480, 130, false, NOW(), NOW()),
+('명상남편', '결혼 7년차 · 아이 1명', 2019, '1', 'seed84@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/2.jpg', 'KAKAO', 'seed_84', 370, 102, false, NOW(), NOW()),
+('마라톤아재', '결혼 11년차 · 아이 1명', 2015, '1', 'seed85@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/1.jpg', 'NAVER', 'seed_85', 860, 222, false, NOW(), NOW()),
+('아이스크림아빠', '결혼 6년차 · 아이 2명', 2020, '2', 'seed86@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/6.jpg', 'GOOGLE', 'seed_86', 350, 96, false, NOW(), NOW()),
+('집수리남편', '결혼 9년차 · 아이 1명', 2017, '1', 'seed87@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/9.jpg', 'KAKAO', 'seed_87', 540, 145, false, NOW(), NOW()),
+('배달앱남편', '결혼 4년차', 2022, '0', 'seed88@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/6.jpg', 'NAVER', 'seed_88', 160, 52, false, NOW(), NOW()),
+('보드타는아빠', '결혼 8년차 · 아이 2명', 2018, '2', 'seed89@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/9.jpg', 'KAKAO', 'seed_89', 500, 135, false, NOW(), NOW()),
+('요리도전남편', '결혼 5년차', 2021, '1', 'seed90@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/11.jpg', 'GOOGLE', 'seed_90', 230, 72, false, NOW(), NOW()),
+('코딩아빠', '결혼 7년차 · 아이 1명', 2019, '1', 'seed91@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/3.jpg', 'NAVER', 'seed_91', 380, 104, false, NOW(), NOW()),
+('클라이밍남편', '결혼 6년차', 2020, '0', 'seed92@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/6.jpg', 'KAKAO', 'seed_92', 280, 82, false, NOW(), NOW()),
+('서핑아재', '결혼 10년차 · 아이 1명', 2016, '1', 'seed93@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/7.jpg', 'NAVER', 'seed_93', 720, 192, false, NOW(), NOW()),
+('블로그남편', '결혼 8년차 · 아이 2명', 2018, '2', 'seed94@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/12.jpg', 'GOOGLE', 'seed_94', 470, 126, false, NOW(), NOW()),
+('강아지아빠', '결혼 3년차', 2023, '0', 'seed95@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/3.jpg', 'KAKAO', 'seed_95', 95, 38, false, NOW(), NOW()),
+('텐트아재', '결혼 12년차 · 아이 2명', 2014, '2', 'seed96@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/9.jpg', 'NAVER', 'seed_96', 940, 238, false, NOW(), NOW()),
+('패들보드남편', '결혼 5년차 · 아이 1명', 2021, '1', 'seed97@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/12.jpg', 'KAKAO', 'seed_97', 220, 68, false, NOW(), NOW()),
+('볼링아빠', '결혼 9년차 · 아이 2명', 2017, '2', 'seed98@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/7.jpg', 'GOOGLE', 'seed_98', 580, 155, false, NOW(), NOW()),
+('드럼치는남편', '결혼 7년차', 2019, '1', 'seed99@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/7.jpg', 'NAVER', 'seed_99', 400, 110, false, NOW(), NOW()),
+('풍경사진가', '결혼 11년차 · 아이 1명', 2015, '1', 'seed100@azeyo.co.kr', 'https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/7.jpg', 'KAKAO', 'seed_100', 850, 220, false, NOW(), NOW());
 
 -- ============================================================
 -- 2. 커뮤니티 게시글 50개
@@ -268,56 +268,16 @@ WHERE title = '유부남 최고의 행복은?';
 -- 3. 족보 50개
 -- ============================================================
 INSERT INTO azeyo_jokbo_templates (category, user_id, title, content, copy_count, created_at, updated_at) VALUES
-('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_4'), '진심 담은 생일 편지', '여보, 생일 축하해!
 
-올해도 우리 가족을 위해 고생 많았어.
-아이들 키우면서 자기 시간도 없는데
-항상 웃으면서 해내는 당신이 정말 대단해.
+('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_4'), '결혼 10년차 남편의 진심 어린 생일 편지', E'여보, 생일 축하해.\n\n이 편지를 쓰면서 우리가 함께 걸어온 시간들을 떠올려봤어. 처음 만났을 때 수줍게 웃던 네 모습, 결혼식 날 하얀 드레스를 입고 걸어오던 네 모습, 첫째를 낳고 지쳐서 잠들었을 때의 평화로운 얼굴... 그 모든 순간이 아직도 생생해.\n\n솔직히 말할게. 결혼 생활이 항상 꽃길만은 아니었잖아. 나도 미숙했고, 서로 다른 점 때문에 부딪히기도 많이 했어. 밤새 싸우고 서로 등 돌리고 잤던 날들, 지금 생각하면 왜 그랬나 싶기도 하고... 그런데 있잖아, 그 모든 시간을 견딘 건 결국 당신이 내 옆에 있었기 때문이야.\n\n아이들이 아플 때 밤새 간호하던 네가, 내가 회사에서 힘들어할 때 아무 말 없이 맥주 하나 건네주던 네가, 시어머니한테 서운한 일 있어도 웃으면서 넘기던 네가... 그런 당신이 얼마나 대단한 사람인지 나는 알아. 매일 말은 못 하지만, 매일 느끼고 있어.\n\n기억나? 작년에 내가 갑자기 입원했을 때, 아이들 학교 보내고 병원으로 뛰어오던 네 모습. 헐레벌떡 들어오면서도 나한테는 웃으면서 \"걱정 마, 다 괜찮을 거야\" 했잖아. 나중에 간호사분이 말해줬어, 복도에서 혼자 울고 있었다고. 그 이야기 듣고 나도 몰래 울었어. 미안하고 고맙고... 그런 당신이 있어서 내가 버틸 수 있었어.\n\n당신은 내 인생의 MVP야. 아이들의 세상에서 가장 좋은 엄마이자, 나한테는 세상에서 가장 든든한 동반자야. 당신이 있어서 집에 돌아오는 길이 항상 기대되고, 당신이 있어서 내일이 두렵지 않아.\n\n오늘은 당신만을 위한 날이야. 아이들 내가 볼 테니까 오늘만큼은 아무 걱정 말고 하고 싶은 거 해. 카페 가서 커피 마시면서 책 읽어도 좋고, 친구들 만나서 수다 떨어도 좋고, 그냥 집에서 낮잠 자도 좋아. 당신이 행복하면 나도 행복해, 진심으로.\n\n앞으로 남은 생일마다 이렇게 편지 쓸게. 점점 주름이 늘고 머리가 희끗희끗해져도, 내 눈에 당신은 항상 처음 만났을 때 그 사람이야.\n\n생일 축하해, 여보. 당신을 만난 건 내 인생 최고의 행운이야. 사랑해, 오늘도 내일도 영원히.', 567, NOW() - INTERVAL '25 days', NOW()),
 
-오늘은 당신만을 위한 날이야.
-내가 준비한 건 소소하지만
-진심을 담았어.
+('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_21'), '웃음과 감동이 함께하는 생일 편지', E'여보, 생일 축하해! 🎂\n\n일단 고백부터 할게. 오늘이 네 생일이라는 거 까먹을 뻔했어. (농담이야 농담!! 한 달 전부터 캘린더에 별 다섯 개 표시해놨다고!!)\n\n근데 진짜 신기한 게 있어. 매년 네 생일이 돌아올 때마다 내가 얼마나 운이 좋은 사람인지 다시 한번 느껴. 생각해봐, 전 세계 수십억 명 중에서 하필 너를 만나고, 하필 서로 좋아하게 되고, 하필 결혼까지 한 거잖아. 이건 뭐 로또 당첨보다 더한 확률 아니야?\n\n솔직히 나 같은 남편 데리고 사느라 고생이 많지? 양말 뒤집어서 빨래통에 넣는 것도 아직 못 고쳤고, 냉장고 문 열어놓는 것도 여전하고, 주말마다 소파에서 잠드는 것도... 어, 이러면 안 되는데. 사과 편지가 아니라 생일 편지인데 ㅋㅋ\n\n진지하게 말할게. 당신은 정말 대단한 사람이야. 아침마다 온 가족 밥 차려주고, 아이들 숙제 봐주고, 집안일 하면서도 자기 일도 해내잖아. 나는 가끔 설거지 한 번 하고 "오늘 집안일 했다" 하는데... 반성합니다, 여보님.\n\n올해는 좀 달라질게, 진짜로. 매일은 아니더라도 이틀에 한 번은 설거지 하고, 주말 아침은 내가 챙기고, 네가 쉴 수 있는 시간을 더 만들어줄게. 말로만 하는 거 아니야. 이 편지 스크린샷 찍어서 약속 어기면 보여줘도 돼. 아니, 냉장고에 붙여놔. 매일 볼 수 있게. 그래야 나도 정신 차리니까.\n\n그리고 하나 더. 올해는 매달 데이트하자. 아이들 친정에 맡기든, 시터 부르든, 한 달에 한 번은 우리 둘만의 시간을 만들자. 연애 때처럼 손잡고 걷고, 맛있는 거 먹고, 영화도 보자. 부부인데 데이트가 왜 안 돼? ㅋㅋ\n\n마지막으로, 당신이 내 옆에 있어줘서 진심으로 고마워. 당신 때문에 매일이 재밌고, 당신 때문에 힘든 것도 견딜 수 있어. 앞으로도 같이 늙어가자, 할머니 할아버지 될 때까지.\n\n생일 축하해, 세상에서 제일 사랑하는 우리 와이프! ❤️\n\nPS. 선물은 택배로 올 거야. 기대해도 좋아. (이번엔 사이즈 안 틀렸다, 아마도...)\nPPS. 오늘 저녁은 네가 가고 싶었던 그 식당 예약했어. 아이들은 엄마한테 맡겨놨으니까 걱정 마!', 876, NOW() - INTERVAL '24 days', NOW()),
 
-생일 축하해, 세상에서 제일 예쁜 우리 와이프!', 234, NOW() - INTERVAL '25 days', NOW()),
+('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_42'), '깊은 감사를 담은 아내에게 보내는 편지', E'사랑하는 여보에게.\n\n매년 이맘때쯤이면 편지를 써야지 하다가도 막상 펜을 잡으면 뭘 써야 할지 모르겠더라고. 하고 싶은 말은 많은데 글로 표현하는 게 서툴러서... 그래도 올해는 제대로 써보려고 해.\n\n우리가 처음 만났을 때 기억나? 소개팅 자리에서 네가 아이스 아메리카노를 시키면서 빨대를 안 꽂고 마시던 모습. 사소한 건데 그게 왜 그렇게 예뻐 보였는지. 그날 집에 가면서 이 사람이다 싶었어, 진짜로.\n\n결혼하고 나서 정신없이 살았지. 신혼의 설렘도 잠시, 아이가 태어나고 육아에 치이고 서로한테 여유가 없어지면서 다투기도 많이 했잖아. 새벽에 아이 울음소리에 깨서 서로 눈치 보던 것, 누가 먼저 일어날 건지 가위바위보 하던 것도 지금 생각하면 우리만의 추억이야.\n\n당신이 나한테 해준 것들을 헤아려보면 끝이 없어. 내가 야근할 때 혼자 아이 재우고 기다려준 밤들, 내가 아플 때 새벽에 약국 뛰어가 준 것, 시댁 가면서 아무렇지 않은 척 웃어준 것, 내 부족한 월급으로 살림하면서도 한 번도 원망하지 않은 것... 당신은 그냥 한 거겠지만, 나한테는 하나하나가 다 감사한 거야.\n\n가끔 당신이 혼자 거실에 앉아서 멍하니 있을 때 보면 마음이 아파. 많이 지쳤구나, 더 잘해줘야 하는데, 하면서도 막상 다음 날이면 또 바쁘다는 핑계로 넘어가버리는 내가 밉다.\n\n올해 당신의 생일에 약속할게. 완벽한 남편은 못 되더라도, 당신이 외롭지 않은 남편이 될게. 당신이 이야기할 때 핸드폰 내려놓고 들을게. 당신이 힘들다고 하면 해결하려 하지 말고 그냥 안아줄게. 당신의 작은 변화도 눈치채는 남편이 될게. 머리 잘랐을 때, 새 옷 입었을 때, 기분이 안 좋을 때... 그런 사소한 것들을 놓치지 않는 남편이 될게.\n\n그리고 가끔은 이유 없이 꽃도 사갈게. 기념일이 아니어도 "사랑해"라고 말할게. 당신이 당연하다고 느끼는 것들이 나한테는 하나도 당연하지 않다는 걸, 매일 표현하며 살게.\n\n생일 축하해, 여보. 당신은 이 세상에서 가장 아름다운 사람이야. 겉모습이 아니라, 마음이. 당신의 따뜻한 마음이, 누군가를 위해 희생하는 그 마음이, 나를 더 나은 사람으로 만들어줘.\n\n영원히 사랑해. ❤️', 789, NOW() - INTERVAL '23 days', NOW()),
 
-('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_21'), '유머 섞은 생일 편지', '여보 생일 축하해~ 🎂
+('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_59'), '아이들과 함께 쓰는 엄마 생일 편지', E'세상에서 제일 좋은 엄마이자, 나의 소중한 아내에게.\n\n오늘은 우리 가족에게 특별한 날이야. 바로 당신이 이 세상에 태어난 날. 당신이 태어나지 않았다면 우리 가족도 없었을 거야. 그러니까 오늘은 우리 가족 전체의 기념일인 셈이지.\n\n아이들이 오늘 아침부터 난리야. 큰애는 새벽에 일어나서 그림 그리고 있었어. 뭐냐고 물었더니 "엄마 생일 선물이니까 보지 마" 래. 둘째는 "엄마한테 편지 쓸 건데 아빠가 글자 좀 알려줘" 하더라고. 틀린 글자 투성이지만 그게 더 귀엽잖아. 아이들이 이 카드 안에 직접 쓴 편지 넣어놨으니까 꼭 읽어줘.\n\n나도 아이들한테 "엄마한테 뭐라고 쓰면 좋을까?" 물어봤거든. 큰애가 이러더라. "엄마가 세상에서 제일 좋아요. 맛있는 거 해줘서 감사해요. 근데 가끔 무서워요." 마지막 거 빼고는 완벽하지? ㅋㅋ 둘째는 "엄마 예뻐요! 아빠보다 더 좋아요!" 래... 배신자...\n\n당신이 엄마로서 얼마나 대단한지 아이들은 아직 모를 거야. 새벽에 열나는 아이 안고 응급실 뛰어갔던 것, 아이 학교 발표 준비물 만든다고 밤새 풀칠하던 것, 아이가 친구한테 따돌림당했을 때 혼자 울면서 학교에 전화했던 것... 나는 다 기억하고 있어.\n\n당신 덕분에 우리 아이들이 밝고 건강하게 자라고 있어. 가끔 아이들이 예의 바르게 인사하거나 다른 사람을 배려하는 모습을 보면, 이건 다 당신이 가르친 거구나 싶어서 존경스러워.\n\n그리고 엄마이기 전에 당신도 한 사람이잖아. 가끔 당신만의 시간이 필요하다는 거 알아. 올해는 한 달에 한 번은 당신만의 날을 만들어줄게. 그날은 아이들 내가 데리고 있을 테니까 친구 만나든, 카페 가든, 뭐든 하고 싶은 거 해.\n\n생일 축하해, 여보. 우리 가족의 중심이 되어줘서 고마워. 아이들 말처럼 세상에서 제일 좋은 엄마야, 당신은. 그리고 세상에서 제일 좋은 아내이기도 하고.\n\n사랑해, 오늘도 내일도 영원히. 당신이 이 집의 햇살이야. 당신이 웃으면 온 집안이 밝아지고, 당신이 지치면 우리 모두가 걱정돼. 그러니까 오늘만큼은 활짝 웃어줘, 우리를 위해서.\n\n- 남편 & 아이들 올림 🎈', 456, NOW() - INTERVAL '22 days', NOW()),
 
-솔직히 말하면...
-당신 없이는 하루도 못 살 것 같아.
-(밥을 누가 해...?)
-
-농담이고,
-당신이 내 인생 최고의 선물이야.
-올해도 내 옆에 있어줘서 고마워.
-
-PS. 선물은 택배로 갔어. 기대해도 좋아 😎', 189, NOW() - INTERVAL '24 days', NOW()),
-
-('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_42'), '감동형 편지', '여보에게.
-
-결혼하고 보낸 시간들을 돌아보면
-행복한 날도, 힘든 날도 있었지만
-당신과 함께여서 다 감사했어.
-
-당신은 나에게 아내이자, 친구이자
-가장 든든한 동반자야.
-
-생일 축하해.
-앞으로 남은 모든 생일을
-내가 옆에서 축하해줄게.
-
-영원히 사랑해 ❤️', 567, NOW() - INTERVAL '23 days', NOW()),
-
-('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_59'), '아이들과 함께 쓴 편지', '세상에서 제일 좋은 엄마이자
-나의 소중한 아내에게
-
-아이들이 그린 그림 봤지?
-"엄마 사랑해" 라고 썼어.
-나도 똑같은 마음이야.
-
-올해도 우리 가족의 중심이 되어줘서 고마워.
-생일 축하해!
-
-- 남편 & 아이들 올림 🎈', 145, NOW() - INTERVAL '22 days', NOW()),
+('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_70'), '신혼 시절을 그리워하며 쓰는 생일 편지', E'여보, 생일 축하해.\n\n어젯밤에 옛날 사진첩을 꺼내봤어. 연애 시절 사진, 결혼식 사진, 신혼여행 사진... 보면서 혼자 웃었다가 혼자 찡했다가 했어.\n\n사진 속 우리는 진짜 풋풋하더라. 데이트할 때 뭘 입을지 한 시간씩 고민하고, 손잡으면 심장이 두근거리고, 헤어지기 싫어서 전화 먼저 끊자고 실랑이하고... 그때의 우리가 지금의 우리를 본다면 어떨까? "야, 좀 로맨틱하게 살아라" 할까? ㅋㅋ\n\n근데 있잖아, 나는 오히려 지금이 더 좋아. 그때는 설레기만 했지, 서로를 진짜로 알지는 못했거든. 지금은 네가 피곤하면 표정만 봐도 알고, 네가 속상하면 어깨를 두드려줘야 한다는 것도 알고, 네가 아무렇지 않은 척할 때가 제일 힘들다는 것도 알아. 이건 시간이 준 선물이야.\n\n신혼 때 우리가 밤새 이야기하면서 꿈꿨던 것들 기억나? 아이 둘 낳고, 마당 있는 집에서 살고, 주말마다 가족 여행 다니고... 전부 다 이루지는 못했지만, 당신과 함께 꿈꿨다는 것 자체가 행복이었어. 그리고 아직 시간은 많잖아, 하나씩 이뤄가면 되지 뭐.\n\n요즘 살면서 가장 행복한 순간이 뭔지 알아? 퇴근하고 집에 들어서는데 집에서 불빛이 새어나올 때. 아, 나를 기다리는 사람이 있구나, 하는 그 느낌. 비 오는 날에는 특히 더 그래. 춥고 축축한 바깥에서 따뜻한 우리 집으로 돌아오면 당신이 "밥 먹었어?" 하잖아. 그 한마디가 나한테는 세상에서 제일 따뜻한 말이야.\n\n생일이라고 거창한 건 준비 못 했어. 근데 당신이 요즘 가고 싶다고 했던 곳, 먹고 싶다고 했던 것, 사고 싶다고 했던 것, 다 기억하고 있어. 당신이 무심코 던진 말들을 나는 하나하나 마음속에 적어놓거든. 하나씩 이뤄줄게, 약속해.\n\n가끔 당신이 창밖을 멍하니 보고 있을 때, 뭘 생각하는지 궁금해. 혹시 연애 시절처럼 어딘가 떠나고 싶은 건 아닌지, 지금 생활에 지친 건 아닌지... 그럴 때 나한테 말해줘. 당신이 가고 싶은 곳이면 어디든 같이 갈게. 당신이 하고 싶은 거면 뭐든 같이 할게.\n\n생일 축하해, 내 사랑. 당신과 함께 늙어가는 게 내 인생의 가장 큰 축복이야. 내년 생일에도, 10년 뒤 생일에도, 50년 뒤 생일에도 내가 옆에서 축하해줄게. 주름진 손으로 서로를 잡고 공원 벤치에 앉아 있는 그날까지.\n\n사랑해, 영원히. 💕', 345, NOW() - INTERVAL '21 days', NOW()),
 
 ('MOTHER_IN_LAW_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_14'), '장모님 카톡 정석', '어머니, 생신 축하드립니다! 🎂
 
@@ -452,17 +412,6 @@ OO주년 축하해, 여보. 영원히 사랑해 ❤️', 789, NOW() - INTERVAL '
 
 사랑해. 항상.', 287, NOW() - INTERVAL '8 days', NOW()),
 
-('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_70'), '스포츠맨 남편의 편지', '여보, 생일 축하해!
-
-내 인생의 MVP는 바로 당신이야.
-매일 풀타임으로 뛰면서도
-지치지 않는 당신이 진짜 대단해.
-
-올해는 당신이 쉴 수 있게
-내가 더 열심히 할게.
-
-해피 버스데이! ⚽🎂', 123, NOW() - INTERVAL '7 days', NOW()),
-
 ('MOTHER_IN_LAW_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_74'), '효도 만렙 카톡', '어머니, 생신 축하드립니다!
 
 어머니의 손맛을 닮은 아내 덕분에
@@ -508,16 +457,6 @@ OO주년 축하해, 여보. 영원히 사랑해 ❤️', 789, NOW() - INTERVAL '
 
 사랑해 ☀️', 176, NOW() - INTERVAL '3 days', NOW()),
 
-('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_35'), '실용파 남편의 편지', '여보, 생일 축하해!
-
-올해 선물은 네가 요즘 갖고 싶다던 그거야.
-(택배 올 때 놀라지 마 ㅎㅎ)
-
-선물보다 더 중요한 건
-매일 당신이 행복했으면 좋겠다는 내 마음이야.
-
-생일 축하하고, 사랑해! 🎁', 289, NOW() - INTERVAL '2 days', NOW()),
-
 ('MOTHER_IN_LAW_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_87'), '깔끔한 카톡', '어머니, 생신 축하드립니다! 🎂
 건강이 최고입니다.
 항상 건강하시고 행복한 나날 보내세요.
@@ -552,11 +491,6 @@ OO주년 축하해, 여보. 영원히 사랑해 ❤️', 789, NOW() - INTERVAL '
 
 사랑해! 🛋️', 198, NOW(), NOW()),
 -- 추가 족보 50개+
-('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_23'), '심플한 생일 축하', '여보 생일 축하해. 올해도 고생 많았어. 항상 고맙고 사랑해. 오늘만큼은 편하게 쉬어. 저녁은 내가 준비할게 ❤️', 87, NOW() - INTERVAL '40 days', NOW()),
-('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_36'), '센스있는 아침 문자', '여보! 오늘 주인공은 바로 당신! 🎂 아침부터 축하해. 출근길에 커피 한 잔 사놨어. 책상 위 확인해봐 ㅎㅎ 생일 축하해!', 134, NOW() - INTERVAL '38 days', NOW()),
-('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_48'), '아이들 대필 편지', '엄마! 생일 축하해요! (아빠가 대신 씁니다 ㅎㅎ) 세상에서 제일 예쁜 엄마, 아이들이 그린 그림 봐주세요. 우리 모두 엄마를 사랑해요! - 아이들+아빠 올림', 98, NOW() - INTERVAL '36 days', NOW()),
-('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_60'), '진지한 감사 편지', '여보에게. 당신과 함께한 시간들이 내 인생에서 가장 빛나는 순간들이야. 힘들 때 당신이 있어서 버틸 수 있었고, 행복할 때 당신과 나눌 수 있어서 더 행복했어. 생일 축하해. 앞으로도 내 옆에 있어줘.', 267, NOW() - INTERVAL '34 days', NOW()),
-('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_72'), '유머 + 감동 편지', '여보, 생일 축하해! 당신 없이 하루를 상상해봤는데... 아침: 굶음, 점심: 편의점, 저녁: 라면. 결론: 당신은 나의 생명줄입니다. 사랑해 ㅋㅋ❤️', 156, NOW() - INTERVAL '32 days', NOW()),
 ('MOTHER_IN_LAW_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_25'), '정중한 생신 카톡', '어머니, 생신을 진심으로 축하드립니다. 언제나 따뜻하게 대해주셔서 감사합니다. 건강하시고 행복한 한 해 되시길 바랍니다. 주말에 가족 모두 모시고 맛있는 거 드시러 가겠습니다.', 213, NOW() - INTERVAL '30 days', NOW()),
 ('MOTHER_IN_LAW_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_38'), '손자 사진 첨부용', '어머니, 생신 축하드려요! 🎂 손주가 "할머니 사랑해요" 라고 영상 찍었는데 보내드릴게요 ㅎㅎ 항상 건강하세요!', 178, NOW() - INTERVAL '28 days', NOW()),
 ('MOTHER_IN_LAW_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_52'), '유머있는 사위 카톡', '어머니~ 대한민국 최고의 장모님 생신 축하드립니다! ㅎㅎ 어머니 덕분에 인생 최고의 아내를 만났습니다. 감사합니다! 이따 맛있는 거 사들고 갈게요 🎁', 145, NOW() - INTERVAL '26 days', NOW()),
@@ -573,7 +507,6 @@ OO주년 축하해, 여보. 영원히 사랑해 ❤️', 789, NOW() - INTERVAL '
 ('ENCOURAGEMENT', (SELECT id FROM azeyo_users WHERE sns_id='seed_35'), '시험 앞둔 아내에게', '여보, 시험 공부 하느라 고생 많아. 당신이 노력하는 모습이 정말 멋져. 결과와 상관없이 당신은 이미 대단해. 할 수 있어! 파이팅! 💪', 178, NOW() - INTERVAL '4 days', NOW()),
 ('ENCOURAGEMENT', (SELECT id FROM azeyo_users WHERE sns_id='seed_55'), '육아 지친 아내에게', '여보, 오늘도 아이들 때문에 힘들었지? 당신이 있어서 우리 아이들이 이렇게 건강하게 자라는 거야. 당신은 세상에서 가장 좋은 엄마야. 이번 주말에 내가 아이들 볼게. 쉬어!', 267, NOW() - INTERVAL '2 days', NOW()),
 ('ENCOURAGEMENT', (SELECT id FROM azeyo_users WHERE sns_id='seed_75'), '무조건 응원 메시지', '여보, 뭐가 됐든 나는 당신 편이야. 힘들면 말해. 당신이 웃으면 나도 웃고, 당신이 울면 나도 울어. 그게 부부잖아. 사랑해, 항상.', 198, NOW() - INTERVAL '1 day', NOW()),
-('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_84'), '40대 아내에게', '여보, 생일 축하해! 나이는 숫자일 뿐이야. 당신은 처음 만났을 때보다 지금이 더 아름다워. 진심이야. 올해도 건강하고 행복하자. 사랑해!', 145, NOW() - INTERVAL '50 days', NOW()),
 ('MOTHER_IN_LAW_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_96'), '멀리 사는 사위 카톡', '어머니, 생신 축하드립니다! 멀리 있어서 직접 못 찾아뵙지만 마음은 항상 어머니 곁에 있습니다. 택배로 작은 선물 보내드렸어요. 건강하세요! 🎁', 112, NOW() - INTERVAL '48 days', NOW()),
 ('APOLOGY', (SELECT id FROM azeyo_users WHERE sns_id='seed_73'), '약속 깜빡 사과', '여보, 오늘 약속 까먹은 거 진짜 미안해. 핸드폰 알림까지 설정해놨는데 왜 못 봤는지... 다음부터 2개씩 설정해놓을게. 미안해 ㅠㅠ', 156, NOW() - INTERVAL '46 days', NOW()),
 ('ANNIVERSARY', (SELECT id FROM azeyo_users WHERE sns_id='seed_85'), '20주년 메시지', '여보, 20년. 인생의 절반을 당신과 보냈어. 돌이켜보면 참 많은 일이 있었지만 단 한 번도 당신과 결혼한 걸 후회한 적 없어. 다음 20년도 함께하자. 영원히 사랑해.', 456, NOW() - INTERVAL '44 days', NOW()),
