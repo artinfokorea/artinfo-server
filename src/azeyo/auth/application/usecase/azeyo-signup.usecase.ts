@@ -33,6 +33,8 @@ export class AzeyoSignupUseCase {
       );
     }
 
+    const defaultIconUrl = `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(command.nickname)}`;
+
     const userId = await this.userRepository.create({
       nickname: command.nickname,
       marriageYear: command.marriageYear,
@@ -40,7 +42,7 @@ export class AzeyoSignupUseCase {
       email: snsUserInfo.email,
       snsType: command.snsType,
       snsId: snsUserInfo.snsId,
-      iconImageUrl: snsUserInfo.iconImageUrl,
+      iconImageUrl: snsUserInfo.iconImageUrl || defaultIconUrl,
     });
 
     const user = await this.userRepository.findOneOrThrowById(userId);
