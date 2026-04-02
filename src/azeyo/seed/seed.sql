@@ -146,7 +146,7 @@ INSERT INTO azeyo_community_posts (type, category, user_id, title, contents, cre
 ('TEXT', 'GIFT', (SELECT id FROM azeyo_users WHERE sns_id='seed_25'), '아내 운동화 사줬더니 대반응', '아내가 요즘 산책 다니는데 운동화가 낡아서 뉴발란스 993 사줬어요. 10만원대인데 반응이 명품 선물 받은 것 같더라고요. 실용적인 선물이 최고인 것 같습니다.', NOW() - INTERVAL '3 days', NOW()),
 ('TEXT', 'COUPLE_FIGHT', (SELECT id FROM azeyo_users WHERE sns_id='seed_31'), '냉전 3일째... 해법 좀', '사소한 말다툼으로 3일째 냉전인데 서로 먼저 말 안 걸려고 해요. 저도 자존심이 있는데... 형님들 냉전 풀 때 어떻게 하세요?', NOW() - INTERVAL '2 days', NOW()),
 ('TEXT', 'PARENTING', (SELECT id FROM azeyo_users WHERE sns_id='seed_39'), '아이 태권도 시작했는데 울면서 안 간대요', '7살 아들 태권도 시작한 지 일주일인데 매일 울면서 안 간다고 해요. 아내는 "좀 더 시켜보자"고 하는데 저는 억지로 시키는 게 맞나 싶어서요.', NOW() - INTERVAL '1 day', NOW()),
-('TEXT', 'FREE', (SELECT id FROM azeyo_users WHERE sns_id='seed_42'), '아재 개그 모음 공유합니다', '아이한테 시전해서 성공한 아재 개그 모음입니다.\n\n1. "아빠 배고파" → "안녕 배고파, 나는 아빠"\n2. "비가 오면 뭐 탈까?" → "비타민"\n3. "세상에서 가장 빠른 닭은?" → "후라이드 치킨 (튀김)"\n\n아이가 웃는 건지 한심해서 웃는 건지 모르겠지만 일단 웃깁니다.', NOW(), NOW());
+('TEXT', 'FREE', (SELECT id FROM azeyo_users WHERE sns_id='seed_42'), '아재 개그 모음 공유합니다', E'아이한테 시전해서 성공한 아재 개그 모음입니다.\n\n1. "아빠 배고파" \u2192 "안녕 배고파, 나는 아빠"\n2. "비가 오면 뭐 탈까?" \u2192 "비타민"\n3. "세상에서 가장 빠른 닭은?" \u2192 "후라이드 치킨 (튀김)"\n\n아이가 웃는 건지 한심해서 웃는 건지 모르겠지만 일단 웃깁니다.', NOW(), NOW());
 
 -- VOTE 게시글에 선택지 추가
 UPDATE azeyo_community_posts SET vote_option_a = '고급 레스토랑 디너', vote_option_b = '여행 이용권'
