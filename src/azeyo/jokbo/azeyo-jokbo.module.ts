@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AzeyoJokboTemplate } from '@/azeyo/jokbo/domain/entity/azeyo-jokbo-template.entity';
 import { AzeyoJokboLike } from '@/azeyo/jokbo/domain/entity/azeyo-jokbo-like.entity';
@@ -14,9 +14,10 @@ import { AzeyoLikeJokboTemplateUseCase } from '@/azeyo/jokbo/application/usecase
 import { AzeyoCopyJokboTemplateUseCase } from '@/azeyo/jokbo/application/usecase/azeyo-copy-jokbo-template.usecase';
 import { AzeyoDeleteJokboTemplateUseCase } from '@/azeyo/jokbo/application/usecase/azeyo-delete-jokbo-template.usecase';
 import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
+import { AzeyoUserModule } from '@/azeyo/user/azeyo-user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AzeyoJokboTemplate, AzeyoJokboLike, AzeyoUser])],
+  imports: [TypeOrmModule.forFeature([AzeyoJokboTemplate, AzeyoJokboLike, AzeyoUser]), forwardRef(() => AzeyoUserModule)],
   controllers: [AzeyoJokboController],
   providers: [
     // UseCases

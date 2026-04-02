@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
 import { AZEYO_USER_REPOSITORY } from '@/azeyo/user/domain/repository/azeyo-user.repository.interface';
@@ -10,21 +10,24 @@ import { AzeyoScanTopMonthlyUsersUseCase } from '@/azeyo/user/application/usecas
 import { AzeyoScanMyPostsUseCase } from '@/azeyo/user/application/usecase/azeyo-scan-my-posts.usecase';
 import { AzeyoCommunityModule } from '@/azeyo/community/azeyo-community.module';
 import { AzeyoJokboModule } from '@/azeyo/jokbo/azeyo-jokbo.module';
+import { AZEYO_ACTIVITY_POINTS_SERVICE } from '@/azeyo/user/domain/service/azeyo-activity-points.service';
+import { AzeyoActivityPointsService } from '@/azeyo/user/infrastructure/service/azeyo-activity-points.service';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([AzeyoUser]),
-    AzeyoCommunityModule,
-    AzeyoJokboModule,
+    forwardRef(() => AzeyoCommunityModule),
+    forwardRef(() => AzeyoJokboModule),
   ],
   controllers: [AzeyoUserController],
   providers: [
     { provide: AZEYO_USER_REPOSITORY, useClass: AzeyoUserRepository },
+    { provide: AZEYO_ACTIVITY_POINTS_SERVICE, useClass: AzeyoActivityPointsService },
     AzeyoScanMyProfileUseCase,
     AzeyoEditProfileUseCase,
     AzeyoScanTopMonthlyUsersUseCase,
     AzeyoScanMyPostsUseCase,
   ],
-  exports: [AZEYO_USER_REPOSITORY],
+  exports: [AZEYO_USER_REPOSITORY, AZEYO_ACTIVITY_POINTS_SERVICE],
 })
 export class AzeyoUserModule {}

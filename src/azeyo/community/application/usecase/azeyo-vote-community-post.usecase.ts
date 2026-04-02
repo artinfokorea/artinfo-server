@@ -3,12 +3,14 @@ import { AZEYO_COMMUNITY_POST_REPOSITORY, IAzeyoCommunityPostRepository } from '
 import { AZEYO_COMMUNITY_VOTE_REPOSITORY, IAzeyoCommunityVoteRepository } from '@/azeyo/community/domain/repository/azeyo-community-vote.repository.interface';
 import { AzeyoCommunityNotVotePost } from '@/azeyo/community/domain/exception/azeyo-community.exception';
 import { AZEYO_COMMUNITY_POST_TYPE } from '@/azeyo/community/domain/entity/azeyo-community-post.entity';
+import { AZEYO_ACTIVITY_POINTS_SERVICE, IAzeyoActivityPointsService, AZEYO_ACTIVITY_ACTION } from '@/azeyo/user/domain/service/azeyo-activity-points.service';
 
 @Injectable()
 export class AzeyoVoteCommunityPostUseCase {
   constructor(
     @Inject(AZEYO_COMMUNITY_POST_REPOSITORY) private readonly postRepository: IAzeyoCommunityPostRepository,
     @Inject(AZEYO_COMMUNITY_VOTE_REPOSITORY) private readonly voteRepository: IAzeyoCommunityVoteRepository,
+    @Inject(AZEYO_ACTIVITY_POINTS_SERVICE) private readonly activityPointsService: IAzeyoActivityPointsService,
   ) {}
 
   async execute(userId: number, postId: number, option: 'A' | 'B'): Promise<void> {
@@ -25,6 +27,7 @@ export class AzeyoVoteCommunityPostUseCase {
       }
     } else {
       await this.voteRepository.save({ userId, postId, option });
+      await this.activityPointsService.addPoints(userId, AZEYO_ACTIVITY_ACTION.VOTE);
     }
   }
 }

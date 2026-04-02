@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AzeyoCommunityPost } from '@/azeyo/community/domain/entity/azeyo-community-post.entity';
 import { AzeyoCommunityVote } from '@/azeyo/community/domain/entity/azeyo-community-vote.entity';
@@ -26,9 +26,10 @@ import { AzeyoScanCommunityCommentsUseCase } from '@/azeyo/community/application
 import { AzeyoDeleteCommunityCommentUseCase } from '@/azeyo/community/application/usecase/azeyo-delete-community-comment.usecase';
 import { AzeyoS3Service } from '@/azeyo/common/azeyo-s3.service';
 import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
+import { AzeyoUserModule } from '@/azeyo/user/azeyo-user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AzeyoCommunityPost, AzeyoCommunityVote, AzeyoCommunityLike, AzeyoCommunityComment, AzeyoUser])],
+  imports: [TypeOrmModule.forFeature([AzeyoCommunityPost, AzeyoCommunityVote, AzeyoCommunityLike, AzeyoCommunityComment, AzeyoUser]), forwardRef(() => AzeyoUserModule)],
   controllers: [AzeyoCommunityController],
   providers: [
     // UseCases

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AzeyoUserModule } from '@/azeyo/user/azeyo-user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AzeyoSchedule } from '@/azeyo/schedule/domain/entity/azeyo-schedule.entity';
 import { AzeyoScheduleTag } from '@/azeyo/schedule/domain/entity/azeyo-schedule-tag.entity';
@@ -18,7 +19,7 @@ import { AzeyoCreateScheduleTagUseCase } from '@/azeyo/schedule/application/usec
 import { AzeyoScanScheduleRecommendationsUseCase } from '@/azeyo/schedule/application/usecase/azeyo-scan-schedule-recommendations.usecase';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AzeyoSchedule, AzeyoScheduleTag, AzeyoScheduleRecommendation])],
+  imports: [TypeOrmModule.forFeature([AzeyoSchedule, AzeyoScheduleTag, AzeyoScheduleRecommendation]), AzeyoUserModule],
   controllers: [AzeyoScheduleController],
   providers: [
     // UseCases
