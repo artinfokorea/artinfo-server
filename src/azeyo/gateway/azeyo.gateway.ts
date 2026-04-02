@@ -37,7 +37,7 @@ export class AzeyoGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const token = client.handshake.auth?.token || client.handshake.query?.token;
       if (!token) { client.disconnect(); return; }
 
-      const decoded = jwt.verify(token as string, process.env['JWT_SECRET_KEY'] as string) as JwtPayload;
+      const decoded = jwt.verify(token as string, process.env['JWT_TOKEN_KEY'] as string) as JwtPayload;
       const userId = decoded.id;
 
       this.socketUserMap.set(client.id, userId);
