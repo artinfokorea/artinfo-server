@@ -14,8 +14,8 @@ interface TokenPayload {
 
 @Injectable()
 export class AzeyoAuthRepository implements IAzeyoAuthRepository {
-  private ACCESS_TOKEN_EXPIRE_IN = 2 * 30 * 24 * 60 * 60; // 60 days
-  private REFRESH_TOKEN_EXPIRE_IN = 60 * 60; // 1 hour
+  private ACCESS_TOKEN_EXPIRE_IN = 60 * 60; // 1 hour
+  private REFRESH_TOKEN_EXPIRE_IN = 60 * 24 * 60 * 60; // 60 days
 
   constructor(
     @InjectRepository(AzeyoAuth)
