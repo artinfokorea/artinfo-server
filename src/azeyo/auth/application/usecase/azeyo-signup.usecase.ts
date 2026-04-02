@@ -40,7 +40,7 @@ export class AzeyoSignupUseCase {
       email: snsUserInfo.email,
       snsType: command.snsType,
       snsId: snsUserInfo.snsId,
-      iconImageUrl: snsUserInfo.iconImageUrl || defaultIconUrl,
+      iconImageUrl: defaultIconUrl,
     });
 
     const user = await this.userRepository.findOneOrThrowById(userId);
