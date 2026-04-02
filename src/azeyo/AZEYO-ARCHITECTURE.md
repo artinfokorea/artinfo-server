@@ -205,9 +205,14 @@ const entities = [..., MyEntity];
 - **infrastructure**: `AzeyoAuthRepository` (JWT 토큰 생성 + TypeORM)
 
 ### user — 사용자
-- **domain**: `AzeyoUser` 엔티티, `IAzeyoUserRepository`, 사용자 예외
+- **presentation**: 내 프로필 조회/수정, 이달의 활동왕 조회, 내 게시글 조회 API
+- **application**:
+  - `AzeyoScanMyProfileUseCase` — 내 프로필 조회 (통계 포함: 게시글/좋아요/족보 수)
+  - `AzeyoEditProfileUseCase` — 프로필 수정 (닉네임, 한줄소개)
+  - `AzeyoScanTopMonthlyUsersUseCase` — 이달의 활동왕 TOP N 조회
+  - `AzeyoScanMyPostsUseCase` — 내 게시글 목록 조회 (페이징, 좋아요/댓글/투표 카운트)
+- **domain**: `AzeyoUser` 엔티티 (subtitle, activityPoints, monthlyPoints 포함), `IAzeyoUserRepository`, 사용자 예외
 - **infrastructure**: `AzeyoUserRepository` (TypeORM)
-- presentation/application은 아직 없음 (auth에서 user 도메인을 import하여 사용)
 
 ### sns — 소셜 로그인 외부 API
 - **domain**: `IAzeyoSnsClient` 인터페이스, `SnsUserInfo` DTO

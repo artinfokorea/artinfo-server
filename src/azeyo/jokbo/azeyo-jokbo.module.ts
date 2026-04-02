@@ -30,5 +30,6 @@ import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
     { provide: AZEYO_JOKBO_TEMPLATE_REPOSITORY, useClass: AzeyoJokboTemplateRepository },
     { provide: AZEYO_JOKBO_LIKE_REPOSITORY, useClass: AzeyoJokboLikeRepository },
   ],
+  exports: [AZEYO_JOKBO_TEMPLATE_REPOSITORY, AZEYO_JOKBO_LIKE_REPOSITORY],
 })
 export class AzeyoJokboModule {}

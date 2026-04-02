@@ -53,4 +53,15 @@ export class AzeyoUserRepository implements IAzeyoUserRepository {
     const user = await this.userRepository.findOneBy({ nickname });
     return !!user;
   }
+
+  async saveEntity(user: AzeyoUser): Promise<void> {
+    await this.userRepository.save(user);
+  }
+
+  async findTopMonthlyUsers(count: number): Promise<AzeyoUser[]> {
+    return this.userRepository.find({
+      order: { monthlyPoints: 'DESC' },
+      take: count,
+    });
+  }
 }

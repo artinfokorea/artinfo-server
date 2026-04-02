@@ -51,5 +51,11 @@ import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
     // External
     AzeyoS3Service,
   ],
+  exports: [
+    AZEYO_COMMUNITY_POST_REPOSITORY,
+    AZEYO_COMMUNITY_LIKE_REPOSITORY,
+    AZEYO_COMMUNITY_VOTE_REPOSITORY,
+    AZEYO_COMMUNITY_COMMENT_REPOSITORY,
+  ],
 })
 export class AzeyoCommunityModule {}

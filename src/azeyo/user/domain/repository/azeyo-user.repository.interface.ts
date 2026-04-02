@@ -16,4 +16,6 @@ export interface IAzeyoUserRepository {
   findBySnsId(snsType: string, snsId: string): Promise<AzeyoUser | null>;
   findByEmail(email: string): Promise<AzeyoUser | null>;
   existsByNickname(nickname: string): Promise<boolean>;
+  saveEntity(user: AzeyoUser): Promise<void>;
+  findTopMonthlyUsers(count: number): Promise<AzeyoUser[]>;
 }

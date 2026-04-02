@@ -12,4 +12,7 @@ export interface IAzeyoCommunityPostRepository {
   incrementViewCount(id: number): Promise<void>;
   softRemove(post: AzeyoCommunityPost): Promise<void>;
   saveEntity(post: AzeyoCommunityPost): Promise<void>;
+  countByUserId(userId: number): Promise<number>;
+  findIdsByUserId(userId: number): Promise<number[]>;
+  findManyByUserId(userId: number, skip: number, take: number): Promise<{ items: AzeyoCommunityPost[]; totalCount: number }>;
 }

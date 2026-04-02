@@ -109,4 +109,24 @@ export class AzeyoCommunityPostRepository implements IAzeyoCommunityPostReposito
   async saveEntity(post: AzeyoCommunityPost): Promise<void> {
     await this.repository.save(post);
   }
+
+  async countByUserId(userId: number): Promise<number> {
+    return this.repository.countBy({ userId });
+  }
+
+  async findIdsByUserId(userId: number): Promise<number[]> {
+    const posts = await this.repository.find({ where: { userId }, select: ['id'] });
+    return posts.map(p => p.id);
+  }
+
+  async findManyByUserId(userId: number, skip: number, take: number): Promise<{ items: AzeyoCommunityPost[]; totalCount: number }> {
+    const [items, totalCount] = await this.repository.createQueryBuilder('post')
+      .leftJoinAndSelect('post.user', 'user')
+      .where('post.userId = :userId', { userId })
+      .orderBy('post.createdAt', 'DESC')
+      .skip(skip)
+      .take(take)
+      .getManyAndCount();
+    return { items, totalCount };
+  }
 }
