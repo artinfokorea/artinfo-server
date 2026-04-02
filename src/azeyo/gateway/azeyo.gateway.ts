@@ -4,21 +4,24 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
+import { Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Server, Socket } from 'socket.io';
 import * as jwt from 'jsonwebtoken';
+import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
 
 interface JwtPayload {
   id: number;
 }
-import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
 
 @WebSocketGateway({
   namespace: '/azeyo',
   cors: { origin: '*' },
 })
 export class AzeyoGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  private readonly logger = new Logger('AzeyoGateway');
+
   @WebSocketServer()
   server: Server;
 
@@ -39,6 +42,7 @@ export class AzeyoGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       const decoded = jwt.verify(token as string, process.env['JWT_TOKEN_KEY'] as string) as JwtPayload;
       const userId = decoded.id;
+      this.logger.log(`Socket connected: userId=${userId}, socketId=${client.id}`);
 
       this.socketUserMap.set(client.id, userId);
 
@@ -54,7 +58,8 @@ export class AzeyoGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (wasOffline) {
         await this.userRepository.update(userId, { isOnline: true });
       }
-    } catch {
+    } catch (error) {
+      this.logger.error(`Socket auth failed: ${error instanceof Error ? error.message : error}`);
       client.disconnect();
     }
   }
@@ -62,6 +67,7 @@ export class AzeyoGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleDisconnect(client: Socket) {
     const userId = this.socketUserMap.get(client.id);
     if (!userId) return;
+    this.logger.log(`Socket disconnected: userId=${userId}, socketId=${client.id}`);
 
     const sockets = this.onlineUsers.get(userId);
     if (sockets) {
