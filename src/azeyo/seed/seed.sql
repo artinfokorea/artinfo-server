@@ -6,17 +6,22 @@
 BEGIN;
 
 -- ============================================================
--- 0. 기존 시드 데이터 삭제 (역순)
+-- 0. 모든 azeyo 테이블 초기화
 -- ============================================================
-DELETE FROM azeyo_community_votes WHERE user_id IN (SELECT id FROM azeyo_users WHERE sns_id LIKE 'seed_%');
-DELETE FROM azeyo_community_likes WHERE user_id IN (SELECT id FROM azeyo_users WHERE sns_id LIKE 'seed_%');
-DELETE FROM azeyo_jokbo_likes WHERE user_id IN (SELECT id FROM azeyo_users WHERE sns_id LIKE 'seed_%');
-DELETE FROM azeyo_community_comments WHERE user_id IN (SELECT id FROM azeyo_users WHERE sns_id LIKE 'seed_%');
-DELETE FROM azeyo_community_posts WHERE user_id IN (SELECT id FROM azeyo_users WHERE sns_id LIKE 'seed_%');
-DELETE FROM azeyo_jokbo_templates WHERE user_id IN (SELECT id FROM azeyo_users WHERE sns_id LIKE 'seed_%');
-DELETE FROM azeyo_notifications WHERE user_id IN (SELECT id FROM azeyo_users WHERE sns_id LIKE 'seed_%');
-DELETE FROM azeyo_notification_settings WHERE user_id IN (SELECT id FROM azeyo_users WHERE sns_id LIKE 'seed_%');
-DELETE FROM azeyo_users WHERE sns_id LIKE 'seed_%';
+TRUNCATE TABLE azeyo_community_votes CASCADE;
+TRUNCATE TABLE azeyo_community_likes CASCADE;
+TRUNCATE TABLE azeyo_community_comments CASCADE;
+TRUNCATE TABLE azeyo_community_posts CASCADE;
+TRUNCATE TABLE azeyo_jokbo_likes CASCADE;
+TRUNCATE TABLE azeyo_jokbo_templates CASCADE;
+TRUNCATE TABLE azeyo_schedule_tag_map CASCADE;
+TRUNCATE TABLE azeyo_schedules CASCADE;
+TRUNCATE TABLE azeyo_schedule_recommendations CASCADE;
+TRUNCATE TABLE azeyo_schedule_tags CASCADE;
+TRUNCATE TABLE azeyo_notifications CASCADE;
+TRUNCATE TABLE azeyo_notification_settings CASCADE;
+TRUNCATE TABLE azeyo_auths CASCADE;
+TRUNCATE TABLE azeyo_users CASCADE;
 
 -- ============================================================
 -- 1. 유저 100명
