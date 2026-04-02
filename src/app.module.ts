@@ -55,6 +55,9 @@ import { AzeyoCommunityLike } from '@/azeyo/community/domain/entity/azeyo-commun
 import { AzeyoCommunityComment } from '@/azeyo/community/domain/entity/azeyo-community-comment.entity';
 import { AzeyoJokboTemplate } from '@/azeyo/jokbo/domain/entity/azeyo-jokbo-template.entity';
 import { AzeyoJokboLike } from '@/azeyo/jokbo/domain/entity/azeyo-jokbo-like.entity';
+import { AzeyoSchedule } from '@/azeyo/schedule/domain/entity/azeyo-schedule.entity';
+import { AzeyoScheduleTag } from '@/azeyo/schedule/domain/entity/azeyo-schedule-tag.entity';
+import { AzeyoScheduleRecommendation } from '@/azeyo/schedule/domain/entity/azeyo-schedule-recommendation.entity';
 
 const entities = [
   User,
@@ -91,6 +94,9 @@ const entities = [
   AzeyoCommunityComment,
   AzeyoJokboTemplate,
   AzeyoJokboLike,
+  AzeyoSchedule,
+  AzeyoScheduleTag,
+  AzeyoScheduleRecommendation,
 ];
 const modules = [
   SchedulerModule,

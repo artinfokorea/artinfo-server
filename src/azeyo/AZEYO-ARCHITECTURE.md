@@ -213,6 +213,18 @@ const entities = [..., MyEntity];
 - **domain**: `IAzeyoSnsClient` 인터페이스, `SnsUserInfo` DTO
 - **infrastructure**: `AzeyoSnsClientService` (카카오/네이버/구글 API 호출)
 
+### schedule — 일정
+- **presentation**: 일정 CRUD, 태그 조회/생성, 추천 조회 API
+- **application**:
+  - `AzeyoCreateScheduleUseCase` — 일정 등록 (태그 연결)
+  - `AzeyoScanSchedulesUseCase` — 내 일정 목록 조회
+  - `AzeyoDeleteScheduleUseCase` — 일정 삭제
+  - `AzeyoScanScheduleTagsUseCase` — 시스템 + 커스텀 태그 목록 조회
+  - `AzeyoCreateScheduleTagUseCase` — 커스텀 태그 생성
+  - `AzeyoScanScheduleRecommendationsUseCase` — 태그 기반 추천 조회
+- **domain**: `AzeyoSchedule`, `AzeyoScheduleTag`, `AzeyoScheduleRecommendation` 엔티티, 리포지토리 인터페이스, 일정 예외
+- **infrastructure**: `AzeyoScheduleRepository`, `AzeyoScheduleTagRepository`, `AzeyoScheduleRecommendationRepository` (TypeORM)
+
 ### jokbo — 족보 (메시지 템플릿)
 - **presentation**: 족보 목록 조회, 내 족보 조회, 족보 등록/삭제, 좋아요, 복사 카운트 API
 - **application**:
@@ -292,6 +304,43 @@ src/azeyo/
 │   │   └── exception/azeyo-user.exception.ts
 │   └── infrastructure/
 │       └── repository/azeyo-user.repository.ts
+│
+├── schedule/
+│   ├── azeyo-schedule.module.ts
+│   ├── presentation/
+│   │   ├── controller/azeyo-schedule.controller.ts
+│   │   └── dto/
+│   │       ├── request/
+│   │       │   ├── azeyo-create-schedule.request.ts
+│   │       │   └── azeyo-create-schedule-tag.request.ts
+│   │       └── response/
+│   │           ├── azeyo-schedule.response.ts
+│   │           └── azeyo-schedule-recommendation.response.ts
+│   ├── application/
+│   │   ├── usecase/
+│   │   │   ├── azeyo-create-schedule.usecase.ts
+│   │   │   ├── azeyo-scan-schedules.usecase.ts
+│   │   │   ├── azeyo-delete-schedule.usecase.ts
+│   │   │   ├── azeyo-scan-schedule-tags.usecase.ts
+│   │   │   ├── azeyo-create-schedule-tag.usecase.ts
+│   │   │   └── azeyo-scan-schedule-recommendations.usecase.ts
+│   │   └── command/
+│   │       └── azeyo-create-schedule.command.ts
+│   ├── domain/
+│   │   ├── entity/
+│   │   │   ├── azeyo-schedule.entity.ts
+│   │   │   ├── azeyo-schedule-tag.entity.ts
+│   │   │   └── azeyo-schedule-recommendation.entity.ts
+│   │   ├── repository/
+│   │   │   ├── azeyo-schedule.repository.interface.ts
+│   │   │   ├── azeyo-schedule-tag.repository.interface.ts
+│   │   │   └── azeyo-schedule-recommendation.repository.interface.ts
+│   │   └── exception/azeyo-schedule.exception.ts
+│   └── infrastructure/
+│       └── repository/
+│           ├── azeyo-schedule.repository.ts
+│           ├── azeyo-schedule-tag.repository.ts
+│           └── azeyo-schedule-recommendation.repository.ts
 │
 ├── sns/
 │   ├── azeyo-sns.module.ts
