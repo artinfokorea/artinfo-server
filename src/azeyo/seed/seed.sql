@@ -6,6 +6,19 @@
 BEGIN;
 
 -- ============================================================
+-- 0. 기존 시드 데이터 삭제 (역순)
+-- ============================================================
+DELETE FROM azeyo_community_votes WHERE user_id IN (SELECT id FROM azeyo_users WHERE sns_id LIKE 'seed_%');
+DELETE FROM azeyo_community_likes WHERE user_id IN (SELECT id FROM azeyo_users WHERE sns_id LIKE 'seed_%');
+DELETE FROM azeyo_jokbo_likes WHERE user_id IN (SELECT id FROM azeyo_users WHERE sns_id LIKE 'seed_%');
+DELETE FROM azeyo_community_comments WHERE user_id IN (SELECT id FROM azeyo_users WHERE sns_id LIKE 'seed_%');
+DELETE FROM azeyo_community_posts WHERE user_id IN (SELECT id FROM azeyo_users WHERE sns_id LIKE 'seed_%');
+DELETE FROM azeyo_jokbo_templates WHERE user_id IN (SELECT id FROM azeyo_users WHERE sns_id LIKE 'seed_%');
+DELETE FROM azeyo_notifications WHERE user_id IN (SELECT id FROM azeyo_users WHERE sns_id LIKE 'seed_%');
+DELETE FROM azeyo_notification_settings WHERE user_id IN (SELECT id FROM azeyo_users WHERE sns_id LIKE 'seed_%');
+DELETE FROM azeyo_users WHERE sns_id LIKE 'seed_%';
+
+-- ============================================================
 -- 1. 유저 100명
 -- ============================================================
 INSERT INTO azeyo_users (nickname, subtitle, marriage_year, children, email, sns_type, sns_id, activity_points, monthly_points, is_online, created_at, updated_at) VALUES
