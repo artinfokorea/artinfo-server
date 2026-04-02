@@ -27,9 +27,10 @@ import { AzeyoDeleteCommunityCommentUseCase } from '@/azeyo/community/applicatio
 import { AzeyoS3Service } from '@/azeyo/common/azeyo-s3.service';
 import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
 import { AzeyoUserModule } from '@/azeyo/user/azeyo-user.module';
+import { AzeyoNotificationModule } from '@/azeyo/notification/azeyo-notification.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AzeyoCommunityPost, AzeyoCommunityVote, AzeyoCommunityLike, AzeyoCommunityComment, AzeyoUser]), forwardRef(() => AzeyoUserModule)],
+  imports: [TypeOrmModule.forFeature([AzeyoCommunityPost, AzeyoCommunityVote, AzeyoCommunityLike, AzeyoCommunityComment, AzeyoUser]), forwardRef(() => AzeyoUserModule), AzeyoNotificationModule],
   controllers: [AzeyoCommunityController],
   providers: [
     // UseCases
