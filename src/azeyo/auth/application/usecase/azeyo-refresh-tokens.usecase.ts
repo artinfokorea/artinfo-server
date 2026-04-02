@@ -19,8 +19,11 @@ export class AzeyoRefreshTokensUseCase {
   ) {}
 
   async execute(accessToken: string, refreshToken: string): Promise<AzeyoAuth> {
-    const decodedToken = await this.jwtService.verify(refreshToken, { secret: process.env['JWT_TOKEN_KEY'] });
-    const { id, exp } = decodedToken;
+    const decodedRefresh = await this.jwtService.verify(refreshToken, { secret: process.env['JWT_TOKEN_KEY'] });
+    const { exp } = decodedRefresh;
+
+    const decodedAccess = this.jwtService.decode(accessToken) as { id: number; nickname: string };
+    const { id } = decodedAccess;
 
     const redisKey = `AZEYO:REFRESH=${id}`;
     const cachedAuth = await this.redisRepository.getByKey(redisKey);
