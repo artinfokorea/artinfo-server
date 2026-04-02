@@ -5,6 +5,7 @@ import { AzeyoCommunityVote } from '@/azeyo/community/domain/entity/azeyo-commun
 import { AzeyoCommunityLike } from '@/azeyo/community/domain/entity/azeyo-community-like.entity';
 import { AzeyoCommunityComment } from '@/azeyo/community/domain/entity/azeyo-community-comment.entity';
 import { AzeyoCommunityController } from '@/azeyo/community/presentation/controller/azeyo-community.controller';
+import { AzeyoCommunitySeedController } from '@/azeyo/community/presentation/controller/azeyo-community-seed.controller';
 import { AZEYO_COMMUNITY_POST_REPOSITORY } from '@/azeyo/community/domain/repository/azeyo-community-post.repository.interface';
 import { AZEYO_COMMUNITY_VOTE_REPOSITORY } from '@/azeyo/community/domain/repository/azeyo-community-vote.repository.interface';
 import { AZEYO_COMMUNITY_LIKE_REPOSITORY } from '@/azeyo/community/domain/repository/azeyo-community-like.repository.interface';
@@ -24,14 +25,17 @@ import { AzeyoUploadCommunityImagesUseCase } from '@/azeyo/community/application
 import { AzeyoCreateCommunityCommentUseCase } from '@/azeyo/community/application/usecase/azeyo-create-community-comment.usecase';
 import { AzeyoScanCommunityCommentsUseCase } from '@/azeyo/community/application/usecase/azeyo-scan-community-comments.usecase';
 import { AzeyoDeleteCommunityCommentUseCase } from '@/azeyo/community/application/usecase/azeyo-delete-community-comment.usecase';
+import { AzeyoSeedCommunityPostUseCase } from '@/azeyo/community/application/usecase/azeyo-seed-community-post.usecase';
 import { AzeyoS3Service } from '@/azeyo/common/azeyo-s3.service';
 import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
 import { AzeyoUserModule } from '@/azeyo/user/azeyo-user.module';
 import { AzeyoNotificationModule } from '@/azeyo/notification/azeyo-notification.module';
+import { AzeyoCommunityGptService } from '@/azeyo/community/infrastructure/gpt/azeyo-community-gpt.service';
+import { AzeyoCommunitySeedScheduler } from '@/azeyo/community/infrastructure/scheduler/azeyo-community-seed.scheduler';
 
 @Module({
   imports: [TypeOrmModule.forFeature([AzeyoCommunityPost, AzeyoCommunityVote, AzeyoCommunityLike, AzeyoCommunityComment, AzeyoUser]), forwardRef(() => AzeyoUserModule), AzeyoNotificationModule],
-  controllers: [AzeyoCommunityController],
+  controllers: [AzeyoCommunityController, AzeyoCommunitySeedController],
   providers: [
     // UseCases
     AzeyoCreateCommunityPostUseCase,
@@ -45,6 +49,7 @@ import { AzeyoNotificationModule } from '@/azeyo/notification/azeyo-notification
     AzeyoCreateCommunityCommentUseCase,
     AzeyoScanCommunityCommentsUseCase,
     AzeyoDeleteCommunityCommentUseCase,
+    AzeyoSeedCommunityPostUseCase,
     // Repositories
     { provide: AZEYO_COMMUNITY_POST_REPOSITORY, useClass: AzeyoCommunityPostRepository },
     { provide: AZEYO_COMMUNITY_VOTE_REPOSITORY, useClass: AzeyoCommunityVoteRepository },
@@ -52,6 +57,8 @@ import { AzeyoNotificationModule } from '@/azeyo/notification/azeyo-notification
     { provide: AZEYO_COMMUNITY_COMMENT_REPOSITORY, useClass: AzeyoCommunityCommentRepository },
     // External
     AzeyoS3Service,
+    AzeyoCommunityGptService,
+    AzeyoCommunitySeedScheduler,
   ],
   exports: [
     AZEYO_COMMUNITY_POST_REPOSITORY,
