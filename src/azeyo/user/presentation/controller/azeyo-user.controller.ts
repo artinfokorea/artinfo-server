@@ -39,7 +39,7 @@ export class AzeyoUserController {
     return new OkResponse();
   }
 
-  @RestApiPost(OkResponse, { path: '/me/profile-image', description: '프로필 이미지 업로드', auth: [USER_TYPE.CLIENT] })
+  @RestApiPost(OkResponse, { path: '/upload/profile-image', description: '프로필 이미지 업로드', auth: [USER_TYPE.CLIENT] })
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('image', { limits: { fileSize: 10 * 1024 * 1024 } }))
   async uploadProfileImage(@AuthSignature() signature: UserSignature, @UploadedFile() file: UploadFile) {
