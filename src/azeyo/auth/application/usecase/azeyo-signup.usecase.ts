@@ -33,7 +33,8 @@ export class AzeyoSignupUseCase {
       );
     }
 
-    const defaultIconUrl = `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(command.nickname)}`;
+    const randomProfileNumber = Math.floor(Math.random() * 12) + 1;
+    const defaultIconUrl = `https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/${randomProfileNumber}.jpg`;
 
     const userId = await this.userRepository.create({
       nickname: command.nickname,
