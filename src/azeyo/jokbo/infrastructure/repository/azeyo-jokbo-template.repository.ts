@@ -23,6 +23,15 @@ export class AzeyoJokboTemplateRepository implements IAzeyoJokboTemplateReposito
     return template;
   }
 
+  async findOneByIdWithUserOrThrow(id: number): Promise<AzeyoJokboTemplate> {
+    const template = await this.repository.createQueryBuilder('template')
+      .leftJoinAndSelect('template.user', 'user')
+      .where('template.id = :id', { id })
+      .getOne();
+    if (!template) throw new AzeyoJokboTemplateNotFound();
+    return template;
+  }
+
   async findOneByIdAndUserIdOrThrow(id: number, userId: number): Promise<AzeyoJokboTemplate> {
     const template = await this.repository.findOneBy({ id, userId });
     if (!template) throw new AzeyoJokboTemplateNotFound();

@@ -12,10 +12,11 @@ import { AzeyoScanMyJokboTemplatesUseCase } from '@/azeyo/jokbo/application/usec
 import { AzeyoLikeJokboTemplateUseCase } from '@/azeyo/jokbo/application/usecase/azeyo-like-jokbo-template.usecase';
 import { AzeyoCopyJokboTemplateUseCase } from '@/azeyo/jokbo/application/usecase/azeyo-copy-jokbo-template.usecase';
 import { AzeyoEditJokboTemplateUseCase } from '@/azeyo/jokbo/application/usecase/azeyo-edit-jokbo-template.usecase';
+import { AzeyoScanJokboTemplateUseCase } from '@/azeyo/jokbo/application/usecase/azeyo-scan-jokbo-template.usecase';
 import { AzeyoDeleteJokboTemplateUseCase } from '@/azeyo/jokbo/application/usecase/azeyo-delete-jokbo-template.usecase';
 import { AzeyoCreateJokboTemplateRequest } from '@/azeyo/jokbo/presentation/dto/request/azeyo-create-jokbo-template.request';
 import { AzeyoScanJokboTemplatesRequest } from '@/azeyo/jokbo/presentation/dto/request/azeyo-scan-jokbo-templates.request';
-import { AzeyoJokboTemplatesResponse, AzeyoMyJokboTemplatesResponse } from '@/azeyo/jokbo/presentation/dto/response/azeyo-jokbo-template.response';
+import { AzeyoJokboTemplateResponse, AzeyoJokboTemplatesResponse, AzeyoMyJokboTemplatesResponse } from '@/azeyo/jokbo/presentation/dto/response/azeyo-jokbo-template.response';
 
 @RestApiController('/azeyo/jokbos', 'Azeyo Jokbo')
 export class AzeyoJokboController {
@@ -24,6 +25,7 @@ export class AzeyoJokboController {
     private readonly scanTemplatesUseCase: AzeyoScanJokboTemplatesUseCase,
     private readonly scanMyTemplatesUseCase: AzeyoScanMyJokboTemplatesUseCase,
     private readonly likeTemplateUseCase: AzeyoLikeJokboTemplateUseCase,
+    private readonly scanTemplateUseCase: AzeyoScanJokboTemplateUseCase,
     private readonly copyTemplateUseCase: AzeyoCopyJokboTemplateUseCase,
     private readonly editTemplateUseCase: AzeyoEditJokboTemplateUseCase,
     private readonly deleteTemplateUseCase: AzeyoDeleteJokboTemplateUseCase,
@@ -44,6 +46,12 @@ export class AzeyoJokboController {
   async scanMyTemplates(@AuthSignature() signature: UserSignature) {
     const templates = await this.scanMyTemplatesUseCase.execute(signature.id);
     return new AzeyoMyJokboTemplatesResponse(templates);
+  }
+
+  @RestApiGet(AzeyoJokboTemplateResponse, { path: '/:templateId', description: '족보 단건 조회' })
+  async scanTemplate(@Signature() signature: UserSignature, @Param('templateId') templateId: number) {
+    const template = await this.scanTemplateUseCase.execute(templateId, signature?.id ?? null);
+    return new AzeyoJokboTemplateResponse(template);
   }
 
   @RestApiPost(CreateResponse, { path: '/', description: '족보 등록', auth: [USER_TYPE.CLIENT] })

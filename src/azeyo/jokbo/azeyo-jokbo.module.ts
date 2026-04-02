@@ -12,6 +12,7 @@ import { AzeyoScanJokboTemplatesUseCase } from '@/azeyo/jokbo/application/usecas
 import { AzeyoScanMyJokboTemplatesUseCase } from '@/azeyo/jokbo/application/usecase/azeyo-scan-my-jokbo-templates.usecase';
 import { AzeyoLikeJokboTemplateUseCase } from '@/azeyo/jokbo/application/usecase/azeyo-like-jokbo-template.usecase';
 import { AzeyoCopyJokboTemplateUseCase } from '@/azeyo/jokbo/application/usecase/azeyo-copy-jokbo-template.usecase';
+import { AzeyoScanJokboTemplateUseCase } from '@/azeyo/jokbo/application/usecase/azeyo-scan-jokbo-template.usecase';
 import { AzeyoEditJokboTemplateUseCase } from '@/azeyo/jokbo/application/usecase/azeyo-edit-jokbo-template.usecase';
 import { AzeyoDeleteJokboTemplateUseCase } from '@/azeyo/jokbo/application/usecase/azeyo-delete-jokbo-template.usecase';
 import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
@@ -25,6 +26,7 @@ import { AzeyoNotificationModule } from '@/azeyo/notification/azeyo-notification
     // UseCases
     AzeyoCreateJokboTemplateUseCase,
     AzeyoScanJokboTemplatesUseCase,
+    AzeyoScanJokboTemplateUseCase,
     AzeyoScanMyJokboTemplatesUseCase,
     AzeyoLikeJokboTemplateUseCase,
     AzeyoCopyJokboTemplateUseCase,

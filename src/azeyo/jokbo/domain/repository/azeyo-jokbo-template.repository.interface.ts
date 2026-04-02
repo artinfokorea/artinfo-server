@@ -5,6 +5,7 @@ export const AZEYO_JOKBO_TEMPLATE_REPOSITORY = Symbol('AZEYO_JOKBO_TEMPLATE_REPO
 export interface IAzeyoJokboTemplateRepository {
   create(template: Partial<AzeyoJokboTemplate>): Promise<AzeyoJokboTemplate>;
   findOneByIdOrThrow(id: number): Promise<AzeyoJokboTemplate>;
+  findOneByIdWithUserOrThrow(id: number): Promise<AzeyoJokboTemplate>;
   findOneByIdAndUserIdOrThrow(id: number, userId: number): Promise<AzeyoJokboTemplate>;
   findManyPaging(params: { skip: number; take: number; category: AZEYO_JOKBO_CATEGORY | null }): Promise<{ items: AzeyoJokboTemplate[]; totalCount: number }>;
   findManyByUserId(userId: number): Promise<AzeyoJokboTemplate[]>;
