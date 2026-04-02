@@ -159,7 +159,86 @@ INSERT INTO azeyo_community_posts (type, category, user_id, title, contents, cre
 ('TEXT', 'GIFT', (SELECT id FROM azeyo_users WHERE sns_id='seed_25'), '아내 운동화 사줬더니 대반응', '아내가 요즘 산책 다니는데 운동화가 낡아서 뉴발란스 993 사줬어요. 10만원대인데 반응이 명품 선물 받은 것 같더라고요. 실용적인 선물이 최고인 것 같습니다.', NOW() - INTERVAL '3 days', NOW()),
 ('TEXT', 'COUPLE_FIGHT', (SELECT id FROM azeyo_users WHERE sns_id='seed_31'), '냉전 3일째... 해법 좀', '사소한 말다툼으로 3일째 냉전인데 서로 먼저 말 안 걸려고 해요. 저도 자존심이 있는데... 형님들 냉전 풀 때 어떻게 하세요?', NOW() - INTERVAL '2 days', NOW()),
 ('TEXT', 'PARENTING', (SELECT id FROM azeyo_users WHERE sns_id='seed_39'), '아이 태권도 시작했는데 울면서 안 간대요', '7살 아들 태권도 시작한 지 일주일인데 매일 울면서 안 간다고 해요. 아내는 "좀 더 시켜보자"고 하는데 저는 억지로 시키는 게 맞나 싶어서요.', NOW() - INTERVAL '1 day', NOW()),
-('TEXT', 'FREE', (SELECT id FROM azeyo_users WHERE sns_id='seed_42'), '아재 개그 모음 공유합니다', E'아이한테 시전해서 성공한 아재 개그 모음입니다.\n\n1. "아빠 배고파" \u2192 "안녕 배고파, 나는 아빠"\n2. "비가 오면 뭐 탈까?" \u2192 "비타민"\n3. "세상에서 가장 빠른 닭은?" \u2192 "후라이드 치킨 (튀김)"\n\n아이가 웃는 건지 한심해서 웃는 건지 모르겠지만 일단 웃깁니다.', NOW(), NOW());
+('TEXT', 'FREE', (SELECT id FROM azeyo_users WHERE sns_id='seed_42'), '아재 개그 모음 공유합니다', E'아이한테 시전해서 성공한 아재 개그 모음입니다.\n\n1. "아빠 배고파" \u2192 "안녕 배고파, 나는 아빠"\n2. "비가 오면 뭐 탈까?" \u2192 "비타민"\n3. "세상에서 가장 빠른 닭은?" \u2192 "후라이드 치킨 (튀림)"\n\n아이가 웃는 건지 한심해서 웃는 건지 모르겠지만 일단 웃깁니다.', NOW(), NOW()),
+-- 추가 게시글 70개+
+('TEXT', 'GIFT', (SELECT id FROM azeyo_users WHERE sns_id='seed_12'), '크리스마스 선물 뭐가 좋을까요', '아내한테 크리스마스 선물 뭘 사줘야 할지 고민입니다. 매년 뻔한 것만 사주다 보니 올해는 좀 다른 걸 하고 싶어요.', NOW() - INTERVAL '45 days', NOW()),
+('TEXT', 'GIFT', (SELECT id FROM azeyo_users WHERE sns_id='seed_16'), '아내 출산 선물 추천', '곧 둘째 출산인데 아내한테 수고 선물 뭘 사줘야 할까요? 산후조리원은 이미 예약했고, 추가로 뭔가 해주고 싶습니다.', NOW() - INTERVAL '44 days', NOW()),
+('TEXT', 'GIFT', (SELECT id FROM azeyo_users WHERE sns_id='seed_27'), '화이트데이 선물 뭐 하셨어요?', '발렌타인에 초콜릿 받았는데 화이트데이에 뭘 줘야 할지... 사탕은 좀 유치한 것 같고.', NOW() - INTERVAL '43 days', NOW()),
+('VOTE', 'GIFT', (SELECT id FROM azeyo_users WHERE sns_id='seed_34'), '선물 살 때 아내한테 물어보나요?', '선물 고를 때 어떻게 하시나요?', NOW() - INTERVAL '42 days', NOW()),
+('TEXT', 'GIFT', (SELECT id FROM azeyo_users WHERE sns_id='seed_41'), '아내 핸드크림 추천', '아내가 요즘 손이 거칠다고 하는데 좋은 핸드크림 추천해주세요. 록시땅 괜찮나요?', NOW() - INTERVAL '41 days', NOW()),
+('TEXT', 'GIFT', (SELECT id FROM azeyo_users WHERE sns_id='seed_53'), '10주년 기념 여행지 추천', '결혼 10주년 기념으로 여행 가려는데 추천 부탁드려요. 아이 없이 둘이서 2박 3일 정도요.', NOW() - INTERVAL '40 days', NOW()),
+('TEXT', 'GIFT', (SELECT id FROM azeyo_users WHERE sns_id='seed_62'), '장인어른 생신 선물 고민', '장인어른이 70대이신데 건강식품은 이미 많으시고... 뭘 드려야 할지 막막합니다.', NOW() - INTERVAL '39 days', NOW()),
+('TEXT', 'COUPLE_FIGHT', (SELECT id FROM azeyo_users WHERE sns_id='seed_12'), '돈 문제로 싸웠습니다', '가계부 쓰자는 아내와 자유롭게 쓰고 싶은 저... 항상 돈 때문에 싸우네요. 형님들은 용돈 얼마씩 쓰세요?', NOW() - INTERVAL '38 days', NOW()),
+('TEXT', 'COUPLE_FIGHT', (SELECT id FROM azeyo_users WHERE sns_id='seed_23'), '핸드폰 비밀번호 문제', '아내가 핸드폰 비밀번호 바꿨다고 화를 내요. 숨길 건 없는데 그냥 습관적으로 바꾼 건데... 이해가 안 되네요.', NOW() - INTERVAL '37 days', NOW()),
+('VOTE', 'COUPLE_FIGHT', (SELECT id FROM azeyo_users WHERE sns_id='seed_34'), '부부싸움 후 풀리는 데 얼마나 걸려요?', '보통 싸우고 얼마 만에 풀리시나요?', NOW() - INTERVAL '36 days', NOW()),
+('TEXT', 'COUPLE_FIGHT', (SELECT id FROM azeyo_users WHERE sns_id='seed_44'), '아내 친구들 앞에서 실수했어요', '아내 친구들 모임에 갔다가 아내 나이를 잘못 말해서... 집에 오자마자 대판 싸웠습니다 ㅠㅠ', NOW() - INTERVAL '35 days', NOW()),
+('TEXT', 'COUPLE_FIGHT', (SELECT id FROM azeyo_users WHERE sns_id='seed_55'), '육아 방식 때문에 매일 싸워요', '아내는 엄격하게, 저는 자유롭게 키우자는 입장인데 매번 충돌합니다. 아이 앞에서 싸우면 안 되는 거 아는데...', NOW() - INTERVAL '34 days', NOW()),
+('TEXT', 'COUPLE_FIGHT', (SELECT id FROM azeyo_users WHERE sns_id='seed_66'), '청소 기준이 다릅니다', '저는 깨끗하다고 생각하는데 아내는 아직 더럽다고 해요. 기준이 너무 달라서 맨날 갈등입니다.', NOW() - INTERVAL '33 days', NOW()),
+('TEXT', 'HOBBY', (SELECT id FROM azeyo_users WHERE sns_id='seed_27'), '캠핑 초보 장비 추천', '가족 캠핑 시작하려는데 텐트부터 뭘 사야 할지 모르겠어요. 예산 100만원 정도면 뭘 갖춰야 할까요?', NOW() - INTERVAL '32 days', NOW()),
+('TEXT', 'HOBBY', (SELECT id FROM azeyo_users WHERE sns_id='seed_37'), '아내랑 같이 할 수 있는 취미', '둘이서 같이 할 수 있는 취미 찾고 있어요. 보드게임 말고 밖에서 하는 거로요.', NOW() - INTERVAL '31 days', NOW()),
+('VOTE', 'HOBBY', (SELECT id FROM azeyo_users WHERE sns_id='seed_47'), '운동 뭐 하세요?', '형님들 운동 뭐 하시나요?', NOW() - INTERVAL '30 days', NOW()),
+('TEXT', 'HOBBY', (SELECT id FROM azeyo_users WHERE sns_id='seed_57'), '러닝 시작했는데 무릎이 아파요', '40대에 러닝 시작했는데 2주 만에 무릎이 아프기 시작합니다. 러닝화가 문제일까요?', NOW() - INTERVAL '29 days', NOW()),
+('TEXT', 'HOBBY', (SELECT id FROM azeyo_users WHERE sns_id='seed_67'), '아이랑 레고 같이 하기', '아들이랑 레고 시작했는데 제가 더 빠져들었습니다 ㅋㅋ 형님들 추천 세트 있나요?', NOW() - INTERVAL '28 days', NOW()),
+('TEXT', 'HOBBY', (SELECT id FROM azeyo_users WHERE sns_id='seed_77'), '자전거 출퇴근 후기', '자전거 출퇴근 시작한 지 한 달. 체중 3kg 빠지고, 아침에 개운하고, 교통비 절약되고. 단점은 비 오는 날뿐입니다.', NOW() - INTERVAL '27 days', NOW()),
+('TEXT', 'HOBBY', (SELECT id FROM azeyo_users WHERE sns_id='seed_87'), '홈트 유튜브 추천', '헬스장 갈 시간이 없어서 집에서 운동하려는데 좋은 유튜브 채널 추천 부탁드립니다.', NOW() - INTERVAL '26 days', NOW()),
+('TEXT', 'PARENTING', (SELECT id FROM azeyo_users WHERE sns_id='seed_29'), '아이 잠투정이 심해요', '3살 아이가 매일 밤 잠투정 합니다. 1시간씩 울다가 겨우 자는데 저도 아내도 체력이 바닥이에요.', NOW() - INTERVAL '25 days', NOW()),
+('TEXT', 'PARENTING', (SELECT id FROM azeyo_users WHERE sns_id='seed_43'), '어린이집 적응 기간', '아이가 어린이집 가기 싫다고 매일 아침 울어요. 2주째인데 적응 기간이 원래 이렇게 긴가요?', NOW() - INTERVAL '24 days', NOW()),
+('VOTE', 'PARENTING', (SELECT id FROM azeyo_users WHERE sns_id='seed_51'), '아이 훈육, 어떻게 하세요?', '아이 훈육할 때 어떤 방식을 쓰시나요?', NOW() - INTERVAL '23 days', NOW()),
+('TEXT', 'PARENTING', (SELECT id FROM azeyo_users WHERE sns_id='seed_61'), '아이 영어 교육 몇 살부터?', '주변에서 5살부터 영어 가르치라고 하는데 너무 이른 거 아닌가요? 형님들은 몇 살부터 시키셨어요?', NOW() - INTERVAL '22 days', NOW()),
+('TEXT', 'PARENTING', (SELECT id FROM azeyo_users WHERE sns_id='seed_71'), '딸 사춘기 시작된 것 같아요', '초등 5학년 딸이 갑자기 말수가 줄었어요. 방문도 잠그고... 아빠로서 어떻게 대해야 할까요?', NOW() - INTERVAL '21 days', NOW()),
+('TEXT', 'PARENTING', (SELECT id FROM azeyo_users WHERE sns_id='seed_81'), '아이 용돈 얼마씩 주세요?', '초등 3학년인데 친구들은 다 용돈 받는다고 해요. 얼마가 적당할까요?', NOW() - INTERVAL '20 days', NOW()),
+('TEXT', 'PARENTING', (SELECT id FROM azeyo_users WHERE sns_id='seed_91'), '아빠표 도시락 도전기', '아이 소풍 도시락을 제가 만들었습니다. 김밥이랑 미니 핫도그... 모양은 별로인데 아이가 다 먹어줘서 뿌듯했어요.', NOW() - INTERVAL '19 days', NOW()),
+('TEXT', 'LIFE_TIP', (SELECT id FROM azeyo_users WHERE sns_id='seed_18'), '세탁기 냄새 제거 꿀팁', '세탁기에서 냄새 나시는 분? 식초 + 베이킹소다 넣고 빈 통 세탁 돌리면 신세계입니다.', NOW() - INTERVAL '18 days', NOW()),
+('TEXT', 'LIFE_TIP', (SELECT id FROM azeyo_users WHERE sns_id='seed_29'), '전기세 절약 실험 결과', '에어컨 26도 vs 28도+선풍기 한 달 비교해봤습니다. 전기세 3만원 차이... 28도+선풍기 승.', NOW() - INTERVAL '17 days', NOW()),
+('VOTE', 'LIFE_TIP', (SELECT id FROM azeyo_users WHERE sns_id='seed_38'), '주말 장보기 어디서 하세요?', '장 어디서 주로 보시나요?', NOW() - INTERVAL '16 days', NOW()),
+('TEXT', 'LIFE_TIP', (SELECT id FROM azeyo_users WHERE sns_id='seed_48'), '화장실 타일 곰팡이 제거법', '락스 키친타올 팩 진짜 효과 있어요. 키친타올에 락스 적셔서 곰팡이 위에 1시간 붙여놓으면 깨끗해집니다.', NOW() - INTERVAL '15 days', NOW()),
+('TEXT', 'LIFE_TIP', (SELECT id FROM azeyo_users WHERE sns_id='seed_58'), '신발장 냄새 잡는 법', '커피 찌꺼기 말려서 신발장에 넣어두면 냄새가 싹 사라집니다. 스타벅스에서 무료로 줘요.', NOW() - INTERVAL '14 days', NOW()),
+('TEXT', 'LIFE_TIP', (SELECT id FROM azeyo_users WHERE sns_id='seed_68'), '자동차 세차 셀프 vs 자동', '셀프 세차 3천원, 자동 세차 7천원. 결과는 비슷합니다. 다만 셀프는 운동 효과가 있어요 ㅋㅋ', NOW() - INTERVAL '13 days', NOW()),
+('TEXT', 'LIFE_TIP', (SELECT id FROM azeyo_users WHERE sns_id='seed_78'), '배수구 막힘 해결', '베이킹소다 + 뜨거운 물 조합이면 웬만한 배수구 막힘은 해결됩니다. 업체 부르면 5만원인데 500원이면 끝.', NOW() - INTERVAL '12 days', NOW()),
+('TEXT', 'FREE', (SELECT id FROM azeyo_users WHERE sns_id='seed_15'), '신혼 1년차의 깨달음', '결혼 전: "나는 절대 안 변해" 결혼 후: 화장실 변기 뚜껑 자동으로 내리는 사람이 됐습니다.', NOW() - INTERVAL '11 days', NOW()),
+('TEXT', 'FREE', (SELECT id FROM azeyo_users WHERE sns_id='seed_26'), '아내의 "아무거나 먹자"', '형님들도 "뭐 먹을래?" "아무거나" 이러면 30분 넘게 고민하시죠? 저만 그런 게 아니었군요...', NOW() - INTERVAL '10 days', NOW()),
+('VOTE', 'FREE', (SELECT id FROM azeyo_users WHERE sns_id='seed_36'), '결혼해서 좋은 점 vs 힘든 점', '결혼 생활에서 더 크게 느끼는 건?', NOW() - INTERVAL '9 days', NOW()),
+('TEXT', 'FREE', (SELECT id FROM azeyo_users WHERE sns_id='seed_46'), '아내 잘 때 보면 예쁘더라', '자고 있는 아내 얼굴 보면 진짜 예쁘다는 생각이 들어요. 깨어있을 때는 무섭... 아 아무것도 아닙니다.', NOW() - INTERVAL '8 days', NOW()),
+('TEXT', 'FREE', (SELECT id FROM azeyo_users WHERE sns_id='seed_56'), '유부남의 금요일 밤', '예전: "야 오늘 술 한잔?" 지금: "여보 나 치킨 사갈까?" 이게 행복입니다.', NOW() - INTERVAL '7 days', NOW()),
+('TEXT', 'FREE', (SELECT id FROM azeyo_users WHERE sns_id='seed_65'), '아이 학예회 다녀왔습니다', '아이가 무대에서 노래 부르는데 눈물이 나더라고요. 옆에 있던 아빠들도 다 울었습니다 ㅋㅋ', NOW() - INTERVAL '6 days', NOW()),
+('TEXT', 'FREE', (SELECT id FROM azeyo_users WHERE sns_id='seed_75'), '결혼 후 달라진 것들', '결혼 전: 자유 결혼 후: 책임감, 그리고 더 큰 행복. 형님들 다 공감하시죠?', NOW() - INTERVAL '5 days', NOW()),
+('TEXT', 'FREE', (SELECT id FROM azeyo_users WHERE sns_id='seed_85'), '아내 몰래 다이어트 중', '아내가 "요즘 좀 나왔다"고 해서 몰래 다이어트 시작했습니다. 점심 샐러드 먹는데 동료들이 이상하게 봐요 ㅋㅋ', NOW() - INTERVAL '4 days', NOW()),
+('TEXT', 'FREE', (SELECT id FROM azeyo_users WHERE sns_id='seed_95'), '강아지 키우고 싶은데', '아내는 강아지 키우자고 하는데 저는 고양이파... 형님들 반려동물 뭐 키우세요?', NOW() - INTERVAL '3 days', NOW()),
+('TEXT', 'GIFT', (SELECT id FROM azeyo_users WHERE sns_id='seed_70'), '화해 선물로 뭐가 좋을까요', '어제 크게 싸웠는데 사과의 의미로 선물 하나 사가려고요. 꽃+케이크는 너무 뻔한가?', NOW() - INTERVAL '2 days', NOW()),
+('TEXT', 'COUPLE_FIGHT', (SELECT id FROM azeyo_users WHERE sns_id='seed_80'), '말투 때문에 오해받아요', '장난으로 한 말인데 아내가 진심으로 받아들여서 싸웠어요. 말투를 고쳐야 하는 걸까요?', NOW() - INTERVAL '1 day', NOW()),
+('TEXT', 'PARENTING', (SELECT id FROM azeyo_users WHERE sns_id='seed_100'), '아이 첫 걸음마', '오늘 아이가 처음 걸었습니다!! 비틀비틀 3걸음... 영상 찍느라 정신없었는데 아내랑 둘 다 울었어요 ㅠㅠ', NOW(), NOW()),
+('VOTE', 'GIFT', (SELECT id FROM azeyo_users WHERE sns_id='seed_50'), '아내 생일에 깜짝 파티 vs 조용한 디너', '어떤 게 더 좋을까요?', NOW() - INTERVAL '48 days', NOW()),
+('VOTE', 'PARENTING', (SELECT id FROM azeyo_users WHERE sns_id='seed_73'), '아이 습관 교정, 엄격하게 vs 부드럽게', '아이 잘못된 습관 고칠 때 어떤 방식이 좋을까요?', NOW() - INTERVAL '47 days', NOW()),
+('VOTE', 'LIFE_TIP', (SELECT id FROM azeyo_users WHERE sns_id='seed_83'), '설거지 누가 하시나요?', '우리 집 설거지 담당은?', NOW() - INTERVAL '46 days', NOW()),
+('VOTE', 'FREE', (SELECT id FROM azeyo_users WHERE sns_id='seed_93'), '유부남의 취침 시간', '보통 몇 시에 주무시나요?', NOW() - INTERVAL '44 days', NOW()),
+('VOTE', 'COUPLE_FIGHT', (SELECT id FROM azeyo_users WHERE sns_id='seed_63'), '명절 어디서 보내나요?', '명절은 주로 어디서?', NOW() - INTERVAL '43 days', NOW()),
+('VOTE', 'HOBBY', (SELECT id FROM azeyo_users WHERE sns_id='seed_89'), '캠핑 vs 호텔', '가족 여행 스타일은?', NOW() - INTERVAL '42 days', NOW());
+
+-- 추가 VOTE 게시글 선택지
+UPDATE azeyo_community_posts SET vote_option_a = '서프라이즈로 고르기', vote_option_b = '물어보고 사기'
+WHERE title = '선물 살 때 아내한테 물어보나요?';
+UPDATE azeyo_community_posts SET vote_option_a = '하루 이내', vote_option_b = '며칠 걸림'
+WHERE title = '부부싸움 후 풀리는 데 얼마나 걸려요?';
+UPDATE azeyo_community_posts SET vote_option_a = '헬스/러닝', vote_option_b = '골프/등산'
+WHERE title = '운동 뭐 하세요?';
+UPDATE azeyo_community_posts SET vote_option_a = '대화로 설명', vote_option_b = '타임아웃 후 대화'
+WHERE title = '아이 훈육, 어떻게 하세요?';
+UPDATE azeyo_community_posts SET vote_option_a = '대형마트', vote_option_b = '온라인/새벽배송'
+WHERE title = '주말 장보기 어디서 하세요?';
+UPDATE azeyo_community_posts SET vote_option_a = '좋은 점이 더 많다', vote_option_b = '힘든 점이 더 많다'
+WHERE title = '결혼해서 좋은 점 vs 힘든 점';
+UPDATE azeyo_community_posts SET vote_option_a = '깜짝 파티', vote_option_b = '조용한 디너'
+WHERE title = '아내 생일에 깜짝 파티 vs 조용한 디너';
+UPDATE azeyo_community_posts SET vote_option_a = '엄격하게', vote_option_b = '부드럽게'
+WHERE title = '아이 습관 교정, 엄격하게 vs 부드럽게';
+UPDATE azeyo_community_posts SET vote_option_a = '내가 한다', vote_option_b = '아내가 한다'
+WHERE title = '설거지 누가 하시나요?';
+UPDATE azeyo_community_posts SET vote_option_a = '11시 전', vote_option_b = '12시 이후'
+WHERE title = '유부남의 취침 시간';
+UPDATE azeyo_community_posts SET vote_option_a = '남편 쪽', vote_option_b = '아내 쪽'
+WHERE title = '명절 어디서 보내나요?';
+UPDATE azeyo_community_posts SET vote_option_a = '캠핑', vote_option_b = '호텔'
+WHERE title = '캠핑 vs 호텔';
 
 -- VOTE 게시글에 선택지 추가
 UPDATE azeyo_community_posts SET vote_option_a = '고급 레스토랑 디너', vote_option_b = '여행 이용권'
@@ -466,7 +545,34 @@ OO주년 축하해, 여보. 영원히 사랑해 ❤️', 789, NOW() - INTERVAL '
 
 좀 쉬어. 당신도 충전이 필요하잖아.
 
-사랑해! 🛋️', 198, NOW(), NOW());
+사랑해! 🛋️', 198, NOW(), NOW()),
+-- 추가 족보 50개+
+('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_23'), '심플한 생일 축하', '여보 생일 축하해. 올해도 고생 많았어. 항상 고맙고 사랑해. 오늘만큼은 편하게 쉬어. 저녁은 내가 준비할게 ❤️', 87, NOW() - INTERVAL '40 days', NOW()),
+('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_36'), '센스있는 아침 문자', '여보! 오늘 주인공은 바로 당신! 🎂 아침부터 축하해. 출근길에 커피 한 잔 사놨어. 책상 위 확인해봐 ㅎㅎ 생일 축하해!', 134, NOW() - INTERVAL '38 days', NOW()),
+('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_48'), '아이들 대필 편지', '엄마! 생일 축하해요! (아빠가 대신 씁니다 ㅎㅎ) 세상에서 제일 예쁜 엄마, 아이들이 그린 그림 봐주세요. 우리 모두 엄마를 사랑해요! - 아이들+아빠 올림', 98, NOW() - INTERVAL '36 days', NOW()),
+('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_60'), '진지한 감사 편지', '여보에게. 당신과 함께한 시간들이 내 인생에서 가장 빛나는 순간들이야. 힘들 때 당신이 있어서 버틸 수 있었고, 행복할 때 당신과 나눌 수 있어서 더 행복했어. 생일 축하해. 앞으로도 내 옆에 있어줘.', 267, NOW() - INTERVAL '34 days', NOW()),
+('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_72'), '유머 + 감동 편지', '여보, 생일 축하해! 당신 없이 하루를 상상해봤는데... 아침: 굶음, 점심: 편의점, 저녁: 라면. 결론: 당신은 나의 생명줄입니다. 사랑해 ㅋㅋ❤️', 156, NOW() - INTERVAL '32 days', NOW()),
+('MOTHER_IN_LAW_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_25'), '정중한 생신 카톡', '어머니, 생신을 진심으로 축하드립니다. 언제나 따뜻하게 대해주셔서 감사합니다. 건강하시고 행복한 한 해 되시길 바랍니다. 주말에 가족 모두 모시고 맛있는 거 드시러 가겠습니다.', 213, NOW() - INTERVAL '30 days', NOW()),
+('MOTHER_IN_LAW_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_38'), '손자 사진 첨부용', '어머니, 생신 축하드려요! 🎂 손주가 "할머니 사랑해요" 라고 영상 찍었는데 보내드릴게요 ㅎㅎ 항상 건강하세요!', 178, NOW() - INTERVAL '28 days', NOW()),
+('MOTHER_IN_LAW_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_52'), '유머있는 사위 카톡', '어머니~ 대한민국 최고의 장모님 생신 축하드립니다! ㅎㅎ 어머니 덕분에 인생 최고의 아내를 만났습니다. 감사합니다! 이따 맛있는 거 사들고 갈게요 🎁', 145, NOW() - INTERVAL '26 days', NOW()),
+('MOTHER_IN_LAW_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_64'), '건강 챙기는 카톡', '어머니, 생신 축하드립니다. 요즘 날씨가 변덕스러운데 건강 잘 챙기세요. 이번에 좋은 영양제 세트 보내드렸는데 잘 드시고, 다음 주에 찾아뵐게요. 항상 감사합니다 🙏', 167, NOW() - INTERVAL '24 days', NOW()),
+('APOLOGY', (SELECT id FROM azeyo_users WHERE sns_id='seed_15'), '처음 쓰는 사과 문자', '여보... 결혼하고 처음으로 진심으로 사과해. 내가 너무 생각 없이 말했어. 당신 마음이 아팠을 거 생각하면 미안해. 앞으로 말하기 전에 한 번 더 생각할게. 미안해.', 89, NOW() - INTERVAL '22 days', NOW()),
+('APOLOGY', (SELECT id FROM azeyo_users WHERE sns_id='seed_28'), '밥으로 사과하기', '여보, 아까 잘못했어. 변명 안 할게. 대신 당신이 좋아하는 떡볶이+순대 사왔어. 같이 먹으면서 얘기하자. 미안해 ❤️', 234, NOW() - INTERVAL '20 days', NOW()),
+('APOLOGY', (SELECT id FROM azeyo_users WHERE sns_id='seed_41'), '깊은 반성문', '여보에게. 오늘 내 행동을 돌아보니 정말 부끄러워. 당신은 항상 나를 위해 최선을 다하는데 나는 그걸 당연하게 여겼어. 앞으로 달라질게. 진심이야. 미안하고 사랑해.', 178, NOW() - INTERVAL '18 days', NOW()),
+('APOLOGY', (SELECT id FROM azeyo_users WHERE sns_id='seed_54'), '재미+진심 사과', '여보, 아까 그거... 10점 만점에 제가 -100점이었습니다. 반성합니다. 벌칙: 1주일 설거지+청소 자진하겠습니다. 미안해, 진심으로. 사랑해.', 198, NOW() - INTERVAL '16 days', NOW()),
+('ANNIVERSARY', (SELECT id FROM azeyo_users WHERE sns_id='seed_19'), '5주년 메시지', '여보, 결혼 5주년 축하해! 5년... 아직도 가끔 신혼 같은 느낌이 드는 건 나만 그런가? 앞으로 50년 더 함께하자. 사랑해!', 312, NOW() - INTERVAL '14 days', NOW()),
+('ANNIVERSARY', (SELECT id FROM azeyo_users WHERE sns_id='seed_32'), '현실적인 기념일 메시지', '여보, 기념일이야! 올해도 건강하게 함께할 수 있어서 감사해. 아이들 재우고 오랜만에 둘이 와인 한잔 하자. 네가 좋아하는 치즈도 사왔어 🧀🍷', 145, NOW() - INTERVAL '12 days', NOW()),
+('ANNIVERSARY', (SELECT id FROM azeyo_users WHERE sns_id='seed_46'), '1주년 감동 메시지', '여보, 결혼 1주년 축하해! 작년 이맘때 우리 결혼식이 어제 같은데. 1년 동안 정말 행복했어. 매일매일 당신과 함께여서 감사해. 100주년까지 가보자!', 234, NOW() - INTERVAL '10 days', NOW()),
+('ANNIVERSARY', (SELECT id FROM azeyo_users WHERE sns_id='seed_69'), '7주년 일상 감사', '여보, 결혼 7주년. 대단한 이벤트는 없지만 매일 아침 같이 밥 먹고, 저녁에 같이 산책하는 이 일상이 나한테는 최고의 선물이야. 고맙고 사랑해.', 189, NOW() - INTERVAL '8 days', NOW()),
+('ENCOURAGEMENT', (SELECT id FROM azeyo_users WHERE sns_id='seed_22'), '야근하는 아내에게', '여보야, 오늘도 야근이구나. 힘들지? 집에 오면 따뜻한 국 끓여놓을게. 아이들도 잘 재워놨으니 걱정 마. 조금만 힘내! 사랑해.', 234, NOW() - INTERVAL '6 days', NOW()),
+('ENCOURAGEMENT', (SELECT id FROM azeyo_users WHERE sns_id='seed_35'), '시험 앞둔 아내에게', '여보, 시험 공부 하느라 고생 많아. 당신이 노력하는 모습이 정말 멋져. 결과와 상관없이 당신은 이미 대단해. 할 수 있어! 파이팅! 💪', 178, NOW() - INTERVAL '4 days', NOW()),
+('ENCOURAGEMENT', (SELECT id FROM azeyo_users WHERE sns_id='seed_55'), '육아 지친 아내에게', '여보, 오늘도 아이들 때문에 힘들었지? 당신이 있어서 우리 아이들이 이렇게 건강하게 자라는 거야. 당신은 세상에서 가장 좋은 엄마야. 이번 주말에 내가 아이들 볼게. 쉬어!', 267, NOW() - INTERVAL '2 days', NOW()),
+('ENCOURAGEMENT', (SELECT id FROM azeyo_users WHERE sns_id='seed_75'), '무조건 응원 메시지', '여보, 뭐가 됐든 나는 당신 편이야. 힘들면 말해. 당신이 웃으면 나도 웃고, 당신이 울면 나도 울어. 그게 부부잖아. 사랑해, 항상.', 198, NOW() - INTERVAL '1 day', NOW()),
+('WIFE_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_84'), '40대 아내에게', '여보, 생일 축하해! 나이는 숫자일 뿐이야. 당신은 처음 만났을 때보다 지금이 더 아름다워. 진심이야. 올해도 건강하고 행복하자. 사랑해!', 145, NOW() - INTERVAL '50 days', NOW()),
+('MOTHER_IN_LAW_BIRTHDAY', (SELECT id FROM azeyo_users WHERE sns_id='seed_96'), '멀리 사는 사위 카톡', '어머니, 생신 축하드립니다! 멀리 있어서 직접 못 찾아뵙지만 마음은 항상 어머니 곁에 있습니다. 택배로 작은 선물 보내드렸어요. 건강하세요! 🎁', 112, NOW() - INTERVAL '48 days', NOW()),
+('APOLOGY', (SELECT id FROM azeyo_users WHERE sns_id='seed_73'), '약속 깜빡 사과', '여보, 오늘 약속 까먹은 거 진짜 미안해. 핸드폰 알림까지 설정해놨는데 왜 못 봤는지... 다음부터 2개씩 설정해놓을게. 미안해 ㅠㅠ', 156, NOW() - INTERVAL '46 days', NOW()),
+('ANNIVERSARY', (SELECT id FROM azeyo_users WHERE sns_id='seed_85'), '20주년 메시지', '여보, 20년. 인생의 절반을 당신과 보냈어. 돌이켜보면 참 많은 일이 있었지만 단 한 번도 당신과 결혼한 걸 후회한 적 없어. 다음 20년도 함께하자. 영원히 사랑해.', 456, NOW() - INTERVAL '44 days', NOW()),
+('ENCOURAGEMENT', (SELECT id FROM azeyo_users WHERE sns_id='seed_90'), '직장 스트레스 받는 아내에게', '여보, 직장에서 힘든 일 있었구나. 말하기 싫으면 안 해도 돼. 그냥 오늘은 맛있는 거 먹고 푹 자. 내일은 더 나을 거야. 항상 응원해.', 134, NOW() - INTERVAL '42 days', NOW());
 
 -- ============================================================
 -- 4. 댓글 100개 (게시글에 랜덤 배정)
@@ -541,7 +647,119 @@ FROM (VALUES
   ('아재 개그 모음 공유합니다', 'seed_5', '아이가 웃는 건지 한심해서 웃는 건지 ㅋㅋㅋ 공감합니다', NOW() - INTERVAL '5 hours'),
   ('아재 개그 모음 공유합니다', 'seed_11', '더 있으면 공유 부탁드려요 ㅋㅋ 저도 써먹을게요', NOW() - INTERVAL '4 hours'),
   ('아재 개그 모음 공유합니다', 'seed_42', '추가요: "세상에서 가장 게으른 왕은?" → "누워왕" ㅋㅋ', NOW() - INTERVAL '3 hours'),
-  ('아재 개그 모음 공유합니다', 'seed_60', '아이가 "아빠 재미없어" 했는데 눈은 웃고 있더라고요 ㅋㅋ', NOW() - INTERVAL '2 hours')
+  ('아재 개그 모음 공유합니다', 'seed_60', '아이가 "아빠 재미없어" 했는데 눈은 웃고 있더라고요 ㅋㅋ', NOW() - INTERVAL '2 hours'),
+  -- 추가 게시글 댓글 240개+
+  ('크리스마스 선물 뭐가 좋을까요', 'seed_1', '작년에 가방 사줬더니 엄청 좋아했어요.', NOW() - INTERVAL '44 days'),
+  ('크리스마스 선물 뭐가 좋을까요', 'seed_9', '커플 파자마 세트 추천합니다. 겨울이니까!', NOW() - INTERVAL '44 days'),
+  ('크리스마스 선물 뭐가 좋을까요', 'seed_20', '아이폰 사줬는데 갑분싸... 본인이 고른 거 사주세요.', NOW() - INTERVAL '43 days'),
+  ('크리스마스 선물 뭐가 좋을까요', 'seed_35', '같이 고르러 가는 것도 좋아요. 데이트 겸!', NOW() - INTERVAL '43 days'),
+  ('아내 출산 선물 추천', 'seed_3', '고급 바디로션 세트 추천이요. 산후에 피부 관리 중요합니다.', NOW() - INTERVAL '43 days'),
+  ('아내 출산 선물 추천', 'seed_10', '수고 선물로 명품 지갑 사줬더니 눈물 흘리더라고요.', NOW() - INTERVAL '43 days'),
+  ('아내 출산 선물 추천', 'seed_19', '산후도우미 기간 연장이 최고의 선물입니다.', NOW() - INTERVAL '42 days'),
+  ('아내 출산 선물 추천', 'seed_33', '감동적인 편지 꼭 같이 쓰세요. 그게 진짜 선물이에요.', NOW() - INTERVAL '42 days'),
+  ('화이트데이 선물 뭐 하셨어요?', 'seed_5', '마카롱 세트 사줬습니다. 예쁘고 맛있고!', NOW() - INTERVAL '42 days'),
+  ('화이트데이 선물 뭐 하셨어요?', 'seed_14', '꽃+편지+마카롱 삼종세트가 정답이에요.', NOW() - INTERVAL '41 days'),
+  ('화이트데이 선물 뭐 하셨어요?', 'seed_25', '저는 쿠킹클래스 쿠폰 줬어요. 같이 요리하는 거!', NOW() - INTERVAL '41 days'),
+  ('돈 문제로 싸웠습니다', 'seed_2', '공동 계좌 + 개인 용돈 분리가 답입니다.', NOW() - INTERVAL '37 days'),
+  ('돈 문제로 싸웠습니다', 'seed_14', '저희도 가계부 앱 쓰기 시작하고 싸움이 줄었어요.', NOW() - INTERVAL '37 days'),
+  ('돈 문제로 싸웠습니다', 'seed_28', '용돈 30만원 받는데 솔직히 부족합니다 ㅋㅋ', NOW() - INTERVAL '36 days'),
+  ('돈 문제로 싸웠습니다', 'seed_40', '토스 가계부 추천해요. 자동으로 잡히니까 편합니다.', NOW() - INTERVAL '36 days'),
+  ('돈 문제로 싸웠습니다', 'seed_55', '돈 문제는 대화가 답이에요. 감정 빼고 숫자로 이야기하세요.', NOW() - INTERVAL '35 days'),
+  ('핸드폰 비밀번호 문제', 'seed_6', '저는 아내한테 비번 다 공개합니다. 숨길 거 없으니까요.', NOW() - INTERVAL '36 days'),
+  ('핸드폰 비밀번호 문제', 'seed_22', '서로 존중의 문제인 것 같아요. 대화로 풀어보세요.', NOW() - INTERVAL '36 days'),
+  ('핸드폰 비밀번호 문제', 'seed_44', '지문 등록 서로 해주면 해결됩니다.', NOW() - INTERVAL '35 days'),
+  ('아내 친구들 앞에서 실수했어요', 'seed_7', 'ㅋㅋㅋ 나이 잘못 말하면... 끝장이죠', NOW() - INTERVAL '34 days'),
+  ('아내 친구들 앞에서 실수했어요', 'seed_31', '저도 비슷한 실수... 아내 직업을 잘못 말했어요 ㅋㅋ', NOW() - INTERVAL '34 days'),
+  ('아내 친구들 앞에서 실수했어요', 'seed_50', '그냥 가만히 있는 게 최고입니다. 말을 줄이세요.', NOW() - INTERVAL '33 days'),
+  ('육아 방식 때문에 매일 싸워요', 'seed_10', '일관성이 중요합니다. 둘 중 하나로 통일하세요.', NOW() - INTERVAL '33 days'),
+  ('육아 방식 때문에 매일 싸워요', 'seed_33', '육아 관련 책 같이 읽어보시는 거 추천해요.', NOW() - INTERVAL '33 days'),
+  ('육아 방식 때문에 매일 싸워요', 'seed_61', '아이 앞에서 의견 다르면 나중에 둘이서 얘기하세요.', NOW() - INTERVAL '32 days'),
+  ('육아 방식 때문에 매일 싸워요', 'seed_71', '전문 상담 받아보세요. 부부 육아 코칭이 있습니다.', NOW() - INTERVAL '32 days'),
+  ('청소 기준이 다릅니다', 'seed_2', '로봇청소기 사세요. 기준 따질 필요가 없어져요 ㅋㅋ', NOW() - INTERVAL '32 days'),
+  ('청소 기준이 다릅니다', 'seed_32', '아내 기준에 맞추는 게 정신 건강에 좋습니다...', NOW() - INTERVAL '31 days'),
+  ('청소 기준이 다릅니다', 'seed_48', '체크리스트 만들어서 공유하세요. 객관적으로 판단 가능해요.', NOW() - INTERVAL '31 days'),
+  ('캠핑 초보 장비 추천', 'seed_13', '텐트: 코베아/스노우피크, 타프 하나, 버너, 랜턴이 기본이에요.', NOW() - INTERVAL '31 days'),
+  ('캠핑 초보 장비 추천', 'seed_43', '코스트코 캠핑 의자가 가성비 최고입니다.', NOW() - INTERVAL '30 days'),
+  ('캠핑 초보 장비 추천', 'seed_57', '처음엔 글램핑부터 시작하세요. 장비 다 있으니까요.', NOW() - INTERVAL '30 days'),
+  ('캠핑 초보 장비 추천', 'seed_77', '침낭이 제일 중요해요. 싸구려 사면 잠을 못 잡니다.', NOW() - INTERVAL '29 days'),
+  ('아내랑 같이 할 수 있는 취미', 'seed_20', '테니스 추천이요! 커플 레슨 있어요.', NOW() - INTERVAL '30 days'),
+  ('아내랑 같이 할 수 있는 취미', 'seed_37', '등산 좋아요. 대화도 하고 운동도 되고.', NOW() - INTERVAL '30 days'),
+  ('아내랑 같이 할 수 있는 취미', 'seed_58', '자전거 타세요! 한강 자전거 길 같이 달리면 최고에요.', NOW() - INTERVAL '29 days'),
+  ('러닝 시작했는데 무릎이 아파요', 'seed_47', '러닝화가 맞지 않을 수 있어요. 전문점에서 족형 분석 받아보세요.', NOW() - INTERVAL '28 days'),
+  ('러닝 시작했는데 무릎이 아파요', 'seed_70', '초반에는 걷기+러닝 번갈아 하세요. 급하게 뛰면 다칩니다.', NOW() - INTERVAL '28 days'),
+  ('러닝 시작했는데 무릎이 아파요', 'seed_85', '무릎 보호대 착용하시고 근력 운동도 병행하세요.', NOW() - INTERVAL '27 days'),
+  ('아이랑 레고 같이 하기', 'seed_51', '레고 테크닉 추천! 어른도 재밌어요.', NOW() - INTERVAL '27 days'),
+  ('아이랑 레고 같이 하기', 'seed_65', '레고 스타워즈 밀레니엄팔콘... 가격이 좀 하지만 갓작입니다.', NOW() - INTERVAL '27 days'),
+  ('아이랑 레고 같이 하기', 'seed_83', '아이 생일 선물로 레고 사줬는데 제가 다 만들었어요 ㅋㅋ', NOW() - INTERVAL '26 days'),
+  ('자전거 출퇴근 후기', 'seed_27', '비 오는 날 대비 우비 꼭 챙기세요!', NOW() - INTERVAL '26 days'),
+  ('자전거 출퇴근 후기', 'seed_47', '땀 문제는 어떻게 해결하세요? 사무실에 갈아입을 옷?', NOW() - INTERVAL '26 days'),
+  ('자전거 출퇴근 후기', 'seed_93', '회사에 샤워실 있으면 완벽한데... 없으면 물티슈 신세 ㅋㅋ', NOW() - INTERVAL '25 days'),
+  ('홈트 유튜브 추천', 'seed_16', '피지컬갤러리 추천이요! 설명이 친절해요.', NOW() - INTERVAL '25 days'),
+  ('홈트 유튜브 추천', 'seed_50', '하루 30분 운동이면 충분합니다. 꾸준함이 답이에요.', NOW() - INTERVAL '25 days'),
+  ('아이 잠투정이 심해요', 'seed_10', '백색소음 들려주세요. 효과 있었어요.', NOW() - INTERVAL '24 days'),
+  ('아이 잠투정이 심해요', 'seed_39', '루틴이 중요해요. 매일 같은 시간에 같은 순서로 재워보세요.', NOW() - INTERVAL '24 days'),
+  ('아이 잠투정이 심해요', 'seed_65', '저도 겪었는데 6개월 지나면 나아졌어요. 힘내세요!', NOW() - INTERVAL '23 days'),
+  ('어린이집 적응 기간', 'seed_19', '보통 2-4주 걸려요. 조금만 더 인내심을 가져보세요.', NOW() - INTERVAL '23 days'),
+  ('어린이집 적응 기간', 'seed_43', '선생님이랑 소통 많이 하세요. 도움이 됩니다.', NOW() - INTERVAL '22 days'),
+  ('어린이집 적응 기간', 'seed_81', '처음 일주일은 반일만 보내고 점점 늘려보세요.', NOW() - INTERVAL '22 days'),
+  ('아이 영어 교육 몇 살부터?', 'seed_10', '7살부터 시작했는데 잘 따라가고 있어요.', NOW() - INTERVAL '21 days'),
+  ('아이 영어 교육 몇 살부터?', 'seed_33', '영어 유치원보다 영어 그림책이 효과 좋았어요.', NOW() - INTERVAL '21 days'),
+  ('아이 영어 교육 몇 살부터?', 'seed_62', '너무 일찍 시작하면 한국어가 흔들릴 수 있어요.', NOW() - INTERVAL '20 days'),
+  ('딸 사춘기 시작된 것 같아요', 'seed_3', '자연스러운 과정이에요. 너무 캐묻지 마시고 기다려주세요.', NOW() - INTERVAL '20 days'),
+  ('딸 사춘기 시작된 것 같아요', 'seed_42', '딸이랑 둘이 카페 가보세요. 편한 분위기에서 대화해보세요.', NOW() - INTERVAL '19 days'),
+  ('딸 사춘기 시작된 것 같아요', 'seed_80', '문자나 편지로 마음 전해보세요. 직접 말보다 효과적이에요.', NOW() - INTERVAL '19 days'),
+  ('아이 용돈 얼마씩 주세요?', 'seed_19', '주 3천원 주고 있어요. 저축 습관도 가르치려고요.', NOW() - INTERVAL '19 days'),
+  ('아이 용돈 얼마씩 주세요?', 'seed_61', '용돈기입장 쓰게 하면 좋아요. 경제 교육 겸!', NOW() - INTERVAL '18 days'),
+  ('아빠표 도시락 도전기', 'seed_8', '대단하십니다! 저도 도전해봐야겠어요.', NOW() - INTERVAL '18 days'),
+  ('아빠표 도시락 도전기', 'seed_29', '유튜브에 아이 도시락 검색하면 쉬운 레시피 많아요!', NOW() - INTERVAL '18 days'),
+  ('아빠표 도시락 도전기', 'seed_75', '모양은 상관없어요. 아빠가 만들어줬다는 게 중요한 거에요 ㅎㅎ', NOW() - INTERVAL '17 days'),
+  ('세탁기 냄새 제거 꿀팁', 'seed_2', '식초 대신 구연산도 좋아요!', NOW() - INTERVAL '17 days'),
+  ('세탁기 냄새 제거 꿀팁', 'seed_35', '한 달에 한 번은 해줘야 합니다. 저도 바로 해봐야지.', NOW() - INTERVAL '16 days'),
+  ('전기세 절약 실험 결과', 'seed_14', '오 3만원 차이면 크네요. 선풍기 사야겠다.', NOW() - INTERVAL '16 days'),
+  ('전기세 절약 실험 결과', 'seed_48', '서큘레이터+에어컨 조합도 효과 좋아요.', NOW() - INTERVAL '15 days'),
+  ('전기세 절약 실험 결과', 'seed_68', '실험 정신 대단하십니다 ㅋㅋ 과학적 남편이시네요.', NOW() - INTERVAL '15 days'),
+  ('화장실 타일 곰팡이 제거법', 'seed_32', '이거 진짜 효과 있나요? 당장 해봐야겠다.', NOW() - INTERVAL '14 days'),
+  ('화장실 타일 곰팡이 제거법', 'seed_58', '추가로 환기 잘 시켜주면 예방도 됩니다.', NOW() - INTERVAL '13 days'),
+  ('신발장 냄새 잡는 법', 'seed_25', '커피 찌꺼기 꿀팁 감사합니다! 바로 스타벅스 갑니다 ㅋㅋ', NOW() - INTERVAL '13 days'),
+  ('신발장 냄새 잡는 법', 'seed_78', '숯도 효과 있어요. 다이소에서 500원이면 됩니다.', NOW() - INTERVAL '12 days'),
+  ('자동차 세차 셀프 vs 자동', 'seed_27', '셀프 세차 운동 효과 ㅋㅋㅋ 공감합니다', NOW() - INTERVAL '12 days'),
+  ('자동차 세차 셀프 vs 자동', 'seed_44', '코팅까지 하면 셀프가 확실히 깨끗해요.', NOW() - INTERVAL '11 days'),
+  ('배수구 막힘 해결', 'seed_35', '500원으로 5만원 절약이라니 대박 꿀팁!', NOW() - INTERVAL '11 days'),
+  ('배수구 막힘 해결', 'seed_68', '머리카락 거름망 미리 설치하면 안 막힙니다.', NOW() - INTERVAL '10 days'),
+  ('신혼 1년차의 깨달음', 'seed_11', 'ㅋㅋㅋ 공감... 저도 자동화된 사람이 됐어요', NOW() - INTERVAL '10 days'),
+  ('신혼 1년차의 깨달음', 'seed_26', '1년차면 아직 입문이에요. 갈 길이 멀었습니다 ㅋㅋ', NOW() - INTERVAL '9 days'),
+  ('신혼 1년차의 깨달음', 'seed_46', '변기 뚜껑은 기본이죠. 저는 치약 캡 닫기도 마스터했습니다.', NOW() - INTERVAL '9 days'),
+  ('아내의 "아무거나 먹자"', 'seed_5', '"아무거나" = "내가 원하는 거 맞춰봐" 입니다 ㅋㅋ', NOW() - INTERVAL '9 days'),
+  ('아내의 "아무거나 먹자"', 'seed_22', '3개 후보 제시하고 고르게 하세요. 100% 성공합니다.', NOW() - INTERVAL '8 days'),
+  ('아내의 "아무거나 먹자"', 'seed_40', '저는 "그럼 삼겹살?" 하면 대부분 OK입니다.', NOW() - INTERVAL '8 days'),
+  ('아내의 "아무거나 먹자"', 'seed_56', '배달 앱 같이 보면서 고르세요. 시간은 걸리지만 싸움은 안 납니다.', NOW() - INTERVAL '7 days'),
+  ('아내 잘 때 보면 예쁘더라', 'seed_8', '깨어있을 때는 무서... 에서 터졌습니다 ㅋㅋㅋ', NOW() - INTERVAL '7 days'),
+  ('아내 잘 때 보면 예쁘더라', 'seed_15', '저도 자고 있는 아내 보면 행복해요. 평화롭잖아요 ㅋㅋ', NOW() - INTERVAL '7 days'),
+  ('아내 잘 때 보면 예쁘더라', 'seed_60', '공감 천만 ㅋㅋㅋㅋ 자는 모습이 제일 사랑스러워요', NOW() - INTERVAL '6 days'),
+  ('유부남의 금요일 밤', 'seed_8', '치킨 들고 가는 남편이 최고의 남편입니다.', NOW() - INTERVAL '6 days'),
+  ('유부남의 금요일 밤', 'seed_26', '예전에는 2차 3차 갔는데 지금은 집이 최고... 나이 먹었나봐요.', NOW() - INTERVAL '5 days'),
+  ('유부남의 금요일 밤', 'seed_42', '금요일 밤 = 넷플릭스 + 치맥 + 아내. 이게 인생이죠.', NOW() - INTERVAL '5 days'),
+  ('아이 학예회 다녀왔습니다', 'seed_10', '학예회는 부모 눈물 제조기입니다 ㅋㅋ 공감해요.', NOW() - INTERVAL '5 days'),
+  ('아이 학예회 다녀왔습니다', 'seed_33', '영상 꼭 찍어두세요. 나중에 보면 또 울어요 ㅋㅋ', NOW() - INTERVAL '4 days'),
+  ('아이 학예회 다녀왔습니다', 'seed_71', '저는 졸업식 때 펑펑 울었습니다... 아빠들 다 그래요.', NOW() - INTERVAL '4 days'),
+  ('결혼 후 달라진 것들', 'seed_5', '책임감이 커졌지만 그만큼 행복도 커졌어요. 공감합니다.', NOW() - INTERVAL '4 days'),
+  ('결혼 후 달라진 것들', 'seed_40', '혼자 살 때보다 확실히 성장했어요. 사람이 됐달까 ㅋㅋ', NOW() - INTERVAL '3 days'),
+  ('아내 몰래 다이어트 중', 'seed_16', '점심 샐러드 먹는 유부남... 동료들이 신기해하겠네요 ㅋㅋ', NOW() - INTERVAL '3 days'),
+  ('아내 몰래 다이어트 중', 'seed_47', '간헐적 단식 추천이요. 점심만 먹으면 자연스럽게 빠져요.', NOW() - INTERVAL '2 days'),
+  ('아내 몰래 다이어트 중', 'seed_79', '운동도 같이 하세요. 살만 빼면 피부가 처집니다.', NOW() - INTERVAL '2 days'),
+  ('강아지 키우고 싶은데', 'seed_25', '강아지 키우면 산책 때문에 운동도 되고 좋아요!', NOW() - INTERVAL '2 days'),
+  ('강아지 키우고 싶은데', 'seed_77', '고양이는 독립적이라 바쁜 유부남에게 딱이에요.', NOW() - INTERVAL '1 day'),
+  ('강아지 키우고 싶은데', 'seed_95', '둘 다 키우세요 ㅋㅋ 저는 강아지 1 + 고양이 1 입니다.', NOW() - INTERVAL '1 day'),
+  ('화해 선물로 뭐가 좋을까요', 'seed_5', '꽃+케이크가 뻔해도 효과는 최고입니다.', NOW() - INTERVAL '1 day'),
+  ('화해 선물로 뭐가 좋을까요', 'seed_31', '편지 쓰세요. 진심이 담긴 편지만큼 강력한 건 없어요.', NOW() - INTERVAL '1 day'),
+  ('화해 선물로 뭐가 좋을까요', 'seed_60', '아내가 좋아하는 디저트+진심 사과 조합 추천합니다.', NOW() - INTERVAL '12 hours'),
+  ('말투 때문에 오해받아요', 'seed_6', '톤을 좀 부드럽게 하시면 도움이 돼요.', NOW() - INTERVAL '12 hours'),
+  ('말투 때문에 오해받아요', 'seed_22', '장난이라도 상대방 기분을 생각해야 해요. 형님 반성 좀 하세요 ㅋㅋ', NOW() - INTERVAL '6 hours'),
+  ('말투 때문에 오해받아요', 'seed_55', '저도 같은 문제... 이모티콘 많이 쓰면 좀 나아지더라고요 ㅎㅎ', NOW() - INTERVAL '3 hours'),
+  ('아이 첫 걸음마', 'seed_1', '축하합니다!! 영상 꼭 저장해두세요! 평생 보물이에요.', NOW() - INTERVAL '2 hours'),
+  ('아이 첫 걸음마', 'seed_10', '저도 그때 울었어요 ㅋㅋ 아이의 첫 걸음은 부모의 눈물이죠.', NOW() - INTERVAL '1 hour'),
+  ('아이 첫 걸음마', 'seed_33', '앞으로 뛰어다닐 거 생각하면... 체력 미리 키워두세요 ㅋㅋ', NOW() - INTERVAL '30 minutes'),
+  ('아이 첫 걸음마', 'seed_42', '감동적이네요! 부모 되면 이런 순간이 최고의 행복이에요.', NOW() - INTERVAL '10 minutes')
 ) AS c(post_title, sns_id, contents, created_at)
 JOIN azeyo_community_posts p ON p.title = c.post_title
 JOIN azeyo_users u ON u.sns_id = c.sns_id;
@@ -563,7 +781,16 @@ WHERE u.sns_id LIKE 'seed_%'
     '아재 개그 모음 공유합니다',
     '에어컨 필터 청소 꿀팁',
     '설거지 안 했다고 대판 싸웠어요',
-    '아내 운동화 사줬더니 대반응'
+    '아내 운동화 사줬더니 대반응',
+    '신혼 1년차의 깨달음',
+    '유부남의 금요일 밤',
+    '아이 학예회 다녀왔습니다',
+    '아이 첫 걸음마',
+    '아내의 "아무거나 먹자"',
+    '아내 잘 때 보면 예쁘더라',
+    '아빠표 도시락 도전기',
+    '자전거 출퇴근 후기',
+    '배수구 막힘 해결'
   )
   AND random() < 0.4
 ON CONFLICT DO NOTHING;
