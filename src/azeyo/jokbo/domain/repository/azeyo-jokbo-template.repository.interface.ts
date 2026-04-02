@@ -10,4 +10,5 @@ export interface IAzeyoJokboTemplateRepository {
   findManyByUserId(userId: number): Promise<AzeyoJokboTemplate[]>;
   incrementCopyCount(id: number): Promise<void>;
   softRemove(template: AzeyoJokboTemplate): Promise<void>;
+  saveEntity(template: AzeyoJokboTemplate): Promise<void>;
 }

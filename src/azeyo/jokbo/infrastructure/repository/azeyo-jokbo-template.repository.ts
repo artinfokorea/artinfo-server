@@ -65,4 +65,8 @@ export class AzeyoJokboTemplateRepository implements IAzeyoJokboTemplateReposito
   async softRemove(template: AzeyoJokboTemplate): Promise<void> {
     await this.repository.softRemove(template);
   }
+
+  async saveEntity(template: AzeyoJokboTemplate): Promise<void> {
+    await this.repository.save(template);
+  }
 }

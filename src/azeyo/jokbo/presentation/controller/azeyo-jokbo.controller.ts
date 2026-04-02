@@ -1,5 +1,5 @@
 import { Body, Param, Query } from '@nestjs/common';
-import { RestApiController, RestApiGet, RestApiPost, RestApiDelete } from '@/common/decorator/rest-api';
+import { RestApiController, RestApiGet, RestApiPost, RestApiPut, RestApiDelete } from '@/common/decorator/rest-api';
 import { AuthSignature } from '@/common/decorator/AuthSignature';
 import { Signature } from '@/common/decorator/Signature';
 import { UserSignature } from '@/common/type/type';
@@ -11,6 +11,7 @@ import { AzeyoScanJokboTemplatesUseCase } from '@/azeyo/jokbo/application/usecas
 import { AzeyoScanMyJokboTemplatesUseCase } from '@/azeyo/jokbo/application/usecase/azeyo-scan-my-jokbo-templates.usecase';
 import { AzeyoLikeJokboTemplateUseCase } from '@/azeyo/jokbo/application/usecase/azeyo-like-jokbo-template.usecase';
 import { AzeyoCopyJokboTemplateUseCase } from '@/azeyo/jokbo/application/usecase/azeyo-copy-jokbo-template.usecase';
+import { AzeyoEditJokboTemplateUseCase } from '@/azeyo/jokbo/application/usecase/azeyo-edit-jokbo-template.usecase';
 import { AzeyoDeleteJokboTemplateUseCase } from '@/azeyo/jokbo/application/usecase/azeyo-delete-jokbo-template.usecase';
 import { AzeyoCreateJokboTemplateRequest } from '@/azeyo/jokbo/presentation/dto/request/azeyo-create-jokbo-template.request';
 import { AzeyoScanJokboTemplatesRequest } from '@/azeyo/jokbo/presentation/dto/request/azeyo-scan-jokbo-templates.request';
@@ -24,6 +25,7 @@ export class AzeyoJokboController {
     private readonly scanMyTemplatesUseCase: AzeyoScanMyJokboTemplatesUseCase,
     private readonly likeTemplateUseCase: AzeyoLikeJokboTemplateUseCase,
     private readonly copyTemplateUseCase: AzeyoCopyJokboTemplateUseCase,
+    private readonly editTemplateUseCase: AzeyoEditJokboTemplateUseCase,
     private readonly deleteTemplateUseCase: AzeyoDeleteJokboTemplateUseCase,
   ) {}
 
@@ -59,6 +61,18 @@ export class AzeyoJokboController {
   @RestApiPost(OkResponse, { path: '/:templateId/copy', description: '족보 복사 카운트' })
   async copyTemplate(@Param('templateId') templateId: number) {
     await this.copyTemplateUseCase.execute(templateId);
+    return new OkResponse();
+  }
+
+  @RestApiPut(OkResponse, { path: '/:templateId', description: '족보 수정', auth: [USER_TYPE.CLIENT] })
+  async editTemplate(@AuthSignature() signature: UserSignature, @Param('templateId') templateId: number, @Body() request: AzeyoCreateJokboTemplateRequest) {
+    await this.editTemplateUseCase.execute({
+      templateId,
+      userId: signature.id,
+      category: request.category,
+      title: request.title,
+      content: request.content,
+    });
     return new OkResponse();
   }
 
