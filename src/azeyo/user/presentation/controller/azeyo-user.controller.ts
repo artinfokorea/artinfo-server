@@ -1,9 +1,12 @@
-import { Body, Query } from '@nestjs/common';
-import { RestApiController, RestApiGet, RestApiPut } from '@/common/decorator/rest-api';
+import { Body, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiConsumes } from '@nestjs/swagger';
+import { RestApiController, RestApiGet, RestApiPost, RestApiPut } from '@/common/decorator/rest-api';
 import { AuthSignature } from '@/common/decorator/AuthSignature';
-import { UserSignature } from '@/common/type/type';
+import { UserSignature, UploadFile } from '@/common/type/type';
 import { USER_TYPE } from '@/user/entity/user.entity';
 import { OkResponse } from '@/common/response/ok.response';
+import { AzeyoUploadProfileImageUseCase } from '@/azeyo/user/application/usecase/azeyo-upload-profile-image.usecase';
 import { AzeyoScanMyProfileUseCase } from '@/azeyo/user/application/usecase/azeyo-scan-my-profile.usecase';
 import { AzeyoEditProfileUseCase } from '@/azeyo/user/application/usecase/azeyo-edit-profile.usecase';
 import { AzeyoScanTopMonthlyUsersUseCase } from '@/azeyo/user/application/usecase/azeyo-scan-top-monthly-users.usecase';
@@ -21,6 +24,7 @@ export class AzeyoUserController {
     private readonly editProfileUseCase: AzeyoEditProfileUseCase,
     private readonly scanTopMonthlyUsersUseCase: AzeyoScanTopMonthlyUsersUseCase,
     private readonly scanMyPostsUseCase: AzeyoScanMyPostsUseCase,
+    private readonly uploadProfileImageUseCase: AzeyoUploadProfileImageUseCase,
   ) {}
 
   @RestApiGet(AzeyoUserProfileResponse, { path: '/me', description: '내 프로필 조회', auth: [USER_TYPE.CLIENT] })
@@ -33,6 +37,14 @@ export class AzeyoUserController {
   async editProfile(@AuthSignature() signature: UserSignature, @Body() request: AzeyoEditProfileRequest) {
     await this.editProfileUseCase.execute(signature.id, request.nickname, request.subtitle ?? null);
     return new OkResponse();
+  }
+
+  @RestApiPost(OkResponse, { path: '/me/profile-image', description: '프로필 이미지 업로드', auth: [USER_TYPE.CLIENT] })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('image', { limits: { fileSize: 10 * 1024 * 1024 } }))
+  async uploadProfileImage(@AuthSignature() signature: UserSignature, @UploadedFile() file: UploadFile) {
+    const url = await this.uploadProfileImageUseCase.execute(signature.id, file);
+    return { url };
   }
 
   @RestApiGet(AzeyoTopUsersResponse, { path: '/top-monthly', description: '이달의 활동왕 조회' })

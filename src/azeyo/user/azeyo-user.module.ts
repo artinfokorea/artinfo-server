@@ -8,6 +8,8 @@ import { AzeyoScanMyProfileUseCase } from '@/azeyo/user/application/usecase/azey
 import { AzeyoEditProfileUseCase } from '@/azeyo/user/application/usecase/azeyo-edit-profile.usecase';
 import { AzeyoScanTopMonthlyUsersUseCase } from '@/azeyo/user/application/usecase/azeyo-scan-top-monthly-users.usecase';
 import { AzeyoScanMyPostsUseCase } from '@/azeyo/user/application/usecase/azeyo-scan-my-posts.usecase';
+import { AzeyoUploadProfileImageUseCase } from '@/azeyo/user/application/usecase/azeyo-upload-profile-image.usecase';
+import { AzeyoS3Service } from '@/azeyo/common/azeyo-s3.service';
 import { AzeyoCommunityModule } from '@/azeyo/community/azeyo-community.module';
 import { AzeyoJokboModule } from '@/azeyo/jokbo/azeyo-jokbo.module';
 import { AZEYO_ACTIVITY_POINTS_SERVICE } from '@/azeyo/user/domain/service/azeyo-activity-points.service';
@@ -27,6 +29,8 @@ import { AzeyoActivityPointsService } from '@/azeyo/user/infrastructure/service/
     AzeyoEditProfileUseCase,
     AzeyoScanTopMonthlyUsersUseCase,
     AzeyoScanMyPostsUseCase,
+    AzeyoUploadProfileImageUseCase,
+    AzeyoS3Service,
   ],
   exports: [AZEYO_USER_REPOSITORY, AZEYO_ACTIVITY_POINTS_SERVICE],
 })
