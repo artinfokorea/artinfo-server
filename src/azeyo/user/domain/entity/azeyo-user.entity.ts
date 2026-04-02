@@ -41,6 +41,12 @@ export class AzeyoUser extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
   updatedAt: Date;
 
+  @Column({ type: 'boolean', name: 'is_online', default: false })
+  isOnline: boolean;
+
+  @Column({ type: 'timestamp', name: 'last_seen_at', nullable: true })
+  lastSeenAt: Date | null;
+
   @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
   deletedAt: Date | null;
 

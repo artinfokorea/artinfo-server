@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AzeyoNotification } from '@/azeyo/notification/domain/entity/azeyo-notification.entity';
 import { AzeyoNotificationSetting } from '@/azeyo/notification/domain/entity/azeyo-notification-setting.entity';
+import { AzeyoGatewayModule } from '@/azeyo/gateway/azeyo-gateway.module';
 import { AzeyoNotificationController } from '@/azeyo/notification/presentation/controller/azeyo-notification.controller';
 import { AZEYO_NOTIFICATION_REPOSITORY } from '@/azeyo/notification/domain/repository/azeyo-notification.repository.interface';
 import { AZEYO_NOTIFICATION_SETTING_REPOSITORY } from '@/azeyo/notification/domain/repository/azeyo-notification-setting.repository.interface';
@@ -15,7 +16,7 @@ import { AzeyoScanNotificationSettingsUseCase } from '@/azeyo/notification/appli
 import { AzeyoUpdateNotificationSettingsUseCase } from '@/azeyo/notification/application/usecase/azeyo-update-notification-settings.usecase';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AzeyoNotification, AzeyoNotificationSetting])],
+  imports: [TypeOrmModule.forFeature([AzeyoNotification, AzeyoNotificationSetting]), AzeyoGatewayModule],
   controllers: [AzeyoNotificationController],
   providers: [
     // UseCases

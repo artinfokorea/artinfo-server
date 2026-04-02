@@ -3,15 +3,8 @@ import { IAzeyoNotificationSender, NotificationPayload } from '@/azeyo/notificat
 import { AZEYO_NOTIFICATION_REPOSITORY, IAzeyoNotificationRepository } from '@/azeyo/notification/domain/repository/azeyo-notification.repository.interface';
 import { AZEYO_NOTIFICATION_SETTING_REPOSITORY, IAzeyoNotificationSettingRepository } from '@/azeyo/notification/domain/repository/azeyo-notification-setting.repository.interface';
 import { AZEYO_NOTIFICATION_TYPE } from '@/azeyo/notification/domain/entity/azeyo-notification.entity';
+import { AzeyoGateway } from '@/azeyo/gateway/azeyo.gateway';
 
-/**
- * IN_APP 알림 발송 구현체
- * - DB에 알림 레코드 생성
- * - 유저의 알림 설정을 확인하여 비활성화된 타입은 생략
- *
- * 추후 KAKAO_ALIMTALK 구현체를 추가하면
- * 복합 발송기(CompositeSender)에서 채널별로 분기 가능
- */
 @Injectable()
 export class AzeyoInAppNotificationSenderService implements IAzeyoNotificationSender {
   constructor(
@@ -19,19 +12,29 @@ export class AzeyoInAppNotificationSenderService implements IAzeyoNotificationSe
     private readonly notificationRepository: IAzeyoNotificationRepository,
     @Inject(AZEYO_NOTIFICATION_SETTING_REPOSITORY)
     private readonly settingRepository: IAzeyoNotificationSettingRepository,
+    private readonly gateway: AzeyoGateway,
   ) {}
 
   async send(payload: NotificationPayload): Promise<void> {
-    // 유저 알림 설정 확인
     const setting = await this.settingRepository.findByUserId(payload.userId);
     if (setting && !this.isEnabled(setting, payload.type)) return;
 
-    await this.notificationRepository.create({
+    const notification = await this.notificationRepository.create({
       userId: payload.userId,
       type: payload.type,
       title: payload.title,
       body: payload.body,
       referenceId: payload.referenceId ?? null,
+    });
+
+    // 소켓으로 실시간 전송
+    this.gateway.sendNotificationToUser(payload.userId, {
+      id: notification.id,
+      type: notification.type,
+      title: notification.title,
+      body: notification.body,
+      referenceId: notification.referenceId,
+      createdAt: notification.createdAt,
     });
   }
 
