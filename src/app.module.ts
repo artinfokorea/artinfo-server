@@ -53,6 +53,8 @@ import { AzeyoCommunityPost } from '@/azeyo/community/domain/entity/azeyo-commun
 import { AzeyoCommunityVote } from '@/azeyo/community/domain/entity/azeyo-community-vote.entity';
 import { AzeyoCommunityLike } from '@/azeyo/community/domain/entity/azeyo-community-like.entity';
 import { AzeyoCommunityComment } from '@/azeyo/community/domain/entity/azeyo-community-comment.entity';
+import { AzeyoJokboTemplate } from '@/azeyo/jokbo/domain/entity/azeyo-jokbo-template.entity';
+import { AzeyoJokboLike } from '@/azeyo/jokbo/domain/entity/azeyo-jokbo-like.entity';
 
 const entities = [
   User,
@@ -87,6 +89,8 @@ const entities = [
   AzeyoCommunityVote,
   AzeyoCommunityLike,
   AzeyoCommunityComment,
+  AzeyoJokboTemplate,
+  AzeyoJokboLike,
 ];
 const modules = [
   SchedulerModule,

@@ -213,6 +213,18 @@ const entities = [..., MyEntity];
 - **domain**: `IAzeyoSnsClient` 인터페이스, `SnsUserInfo` DTO
 - **infrastructure**: `AzeyoSnsClientService` (카카오/네이버/구글 API 호출)
 
+### jokbo — 족보 (메시지 템플릿)
+- **presentation**: 족보 목록 조회, 내 족보 조회, 족보 등록/삭제, 좋아요, 복사 카운트 API
+- **application**:
+  - `AzeyoCreateJokboTemplateUseCase` — 족보 등록
+  - `AzeyoScanJokboTemplatesUseCase` — 카테고리별 족보 목록 조회 (좋아요순 정렬, 페이징)
+  - `AzeyoScanMyJokboTemplatesUseCase` — 내가 올린 족보 조회
+  - `AzeyoLikeJokboTemplateUseCase` — 족보 좋아요/취소
+  - `AzeyoCopyJokboTemplateUseCase` — 족보 복사 카운트 증가
+  - `AzeyoDeleteJokboTemplateUseCase` — 족보 삭제
+- **domain**: `AzeyoJokboTemplate` 엔티티, `AzeyoJokboLike` 엔티티, `IAzeyoJokboTemplateRepository`, `IAzeyoJokboLikeRepository`, 족보 예외
+- **infrastructure**: `AzeyoJokboTemplateRepository`, `AzeyoJokboLikeRepository` (TypeORM)
+
 ---
 
 ## 네이밍 컨벤션
@@ -281,11 +293,44 @@ src/azeyo/
 │   └── infrastructure/
 │       └── repository/azeyo-user.repository.ts
 │
-└── sns/
-    ├── azeyo-sns.module.ts
+├── sns/
+│   ├── azeyo-sns.module.ts
+│   ├── domain/
+│   │   ├── dto/sns-user-info.ts
+│   │   └── service/azeyo-sns-client.interface.ts
+│   └── infrastructure/
+│       └── service/azeyo-sns-client.service.ts
+│
+└── jokbo/
+    ├── azeyo-jokbo.module.ts
+    ├── presentation/
+    │   ├── controller/azeyo-jokbo.controller.ts
+    │   └── dto/
+    │       ├── request/
+    │       │   ├── azeyo-create-jokbo-template.request.ts
+    │       │   └── azeyo-scan-jokbo-templates.request.ts
+    │       └── response/
+    │           └── azeyo-jokbo-template.response.ts
+    ├── application/
+    │   ├── usecase/
+    │   │   ├── azeyo-create-jokbo-template.usecase.ts
+    │   │   ├── azeyo-scan-jokbo-templates.usecase.ts
+    │   │   ├── azeyo-scan-my-jokbo-templates.usecase.ts
+    │   │   ├── azeyo-like-jokbo-template.usecase.ts
+    │   │   ├── azeyo-copy-jokbo-template.usecase.ts
+    │   │   └── azeyo-delete-jokbo-template.usecase.ts
+    │   └── command/
+    │       └── azeyo-create-jokbo-template.command.ts
     ├── domain/
-    │   ├── dto/sns-user-info.ts
-    │   └── service/azeyo-sns-client.interface.ts
+    │   ├── entity/
+    │   │   ├── azeyo-jokbo-template.entity.ts
+    │   │   └── azeyo-jokbo-like.entity.ts
+    │   ├── repository/
+    │   │   ├── azeyo-jokbo-template.repository.interface.ts
+    │   │   └── azeyo-jokbo-like.repository.interface.ts
+    │   └── exception/azeyo-jokbo.exception.ts
     └── infrastructure/
-        └── service/azeyo-sns-client.service.ts
+        └── repository/
+            ├── azeyo-jokbo-template.repository.ts
+            └── azeyo-jokbo-like.repository.ts
 ```
