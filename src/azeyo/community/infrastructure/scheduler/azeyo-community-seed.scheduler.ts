@@ -48,7 +48,7 @@ export class AzeyoCommunitySeedScheduler implements OnModuleDestroy {
       const result = await this.seedPostUseCase.execute();
       const durationMs = Date.now() - startTime;
       this.logger.log(
-        `커뮤니티 시드 글 생성 완료: postId=${result.postId}, comments=${result.commentCount} (${durationMs}ms)`,
+        `커뮤니티 시드 글 생성 완료: postId=${result.postId}, comments=${result.commentCount}, likes=${result.likeCount} (${durationMs}ms)`,
       );
     } catch (err) {
       const durationMs = Date.now() - startTime;

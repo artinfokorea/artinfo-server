@@ -20,7 +20,7 @@ export class AzeyoSeedCommunityPostUseCase {
     private readonly userRepository: Repository<AzeyoUser>,
   ) {}
 
-  async execute(): Promise<{ postId: number; commentCount: number }> {
+  async execute(): Promise<{ postId: number; commentCount: number; likeCount: number }> {
     const now = new Date();
 
     // 1. 시드 유저 목록 조회 (seed 이메일 패턴)
@@ -76,7 +76,22 @@ export class AzeyoSeedCommunityPostUseCase {
 
     this.logger.log(`글 생성 완료: id=${post.id}, author=${postAuthor.nickname}, time=${postTime.toISOString()}`);
 
-    // 8. 댓글 저장
+    // 8. 좋아요 랜덤 추가 (0~10개)
+    const likeCount = Math.floor(Math.random() * 11);
+    const shuffledUsers = [...seedUsers].sort(() => Math.random() - 0.5);
+    const likeUsers = shuffledUsers.filter(u => u.id !== postAuthor.id).slice(0, likeCount);
+    for (const likeUser of likeUsers) {
+      const likeTime = this.randomDateBetween(postTime, now);
+      await this.userRepository.manager.query(
+        `INSERT INTO azeyo_community_likes (user_id, target_id, created_at) VALUES ($1, $2, $3)`,
+        [likeUser.id, post.id, likeTime],
+      );
+    }
+    if (likeUsers.length > 0) {
+      this.logger.log(`좋아요 생성: ${likeUsers.length}개`);
+    }
+
+    // 9. 댓글 저장
     const usedUserIds = new Set<number>([postAuthor.id]);
     for (let i = 0; i < generated.comments.length; i++) {
       // 댓글 시간: postTime ~ now 사이 랜덤
@@ -104,7 +119,7 @@ export class AzeyoSeedCommunityPostUseCase {
       this.logger.log(`댓글 생성: id=${comment.id}, author=${commentAuthor.nickname}, time=${commentTime.toISOString()}`);
     }
 
-    return { postId: post.id, commentCount: generated.comments.length };
+    return { postId: post.id, commentCount: generated.comments.length, likeCount: likeUsers.length };
   }
 
   private async getLatestPost() {
