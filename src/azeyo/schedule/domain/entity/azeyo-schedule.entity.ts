@@ -13,6 +13,11 @@ import {
 import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
 import { AzeyoScheduleTag } from '@/azeyo/schedule/domain/entity/azeyo-schedule-tag.entity';
 
+export enum AZEYO_SCHEDULE_REPEAT_TYPE {
+  NONE = 'NONE',
+  YEARLY = 'YEARLY',
+}
+
 @Entity('azeyo_schedules')
 export class AzeyoSchedule extends BaseEntity {
   @PrimaryGeneratedColumn('increment', { name: 'id' })
@@ -33,6 +38,16 @@ export class AzeyoSchedule extends BaseEntity {
 
   @Column({ type: 'varchar', name: 'memo', nullable: true })
   memo: string | null;
+
+  @Column({
+    type: 'varchar',
+    name: 'repeat_type',
+    default: AZEYO_SCHEDULE_REPEAT_TYPE.NONE,
+  })
+  repeatType: AZEYO_SCHEDULE_REPEAT_TYPE;
+
+  @Column({ type: 'date', name: 'start_date', nullable: true })
+  startDate: string | null;
 
   @ManyToMany(() => AzeyoScheduleTag, { eager: true })
   @JoinTable({

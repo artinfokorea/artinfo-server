@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { NotBlank } from '@/common/decorator/validator';
 import { AzeyoCreateScheduleCommand } from '@/azeyo/schedule/application/command/azeyo-create-schedule.command';
+import { AZEYO_SCHEDULE_REPEAT_TYPE } from '@/azeyo/schedule/domain/entity/azeyo-schedule.entity';
 
 export class AzeyoCreateScheduleRequest {
   @NotBlank()
@@ -17,6 +18,12 @@ export class AzeyoCreateScheduleRequest {
   @ApiProperty({ type: [Number], required: false, description: '태그 ID 목록' })
   tagIds: number[];
 
+  @ApiProperty({ enum: AZEYO_SCHEDULE_REPEAT_TYPE, required: false, description: '반복 설정 (NONE / YEARLY)' })
+  repeatType: AZEYO_SCHEDULE_REPEAT_TYPE;
+
+  @ApiProperty({ type: String, required: false, description: '최초 시작일 (YYYY-MM-DD), 반복 시 몇 주년 계산용' })
+  startDate: string | null;
+
   toCommand(userId: number) {
     return new AzeyoCreateScheduleCommand({
       userId,
@@ -24,6 +31,8 @@ export class AzeyoCreateScheduleRequest {
       date: this.date,
       memo: this.memo ?? null,
       tagIds: this.tagIds ?? [],
+      repeatType: this.repeatType ?? AZEYO_SCHEDULE_REPEAT_TYPE.NONE,
+      startDate: this.startDate ?? null,
     });
   }
 }
