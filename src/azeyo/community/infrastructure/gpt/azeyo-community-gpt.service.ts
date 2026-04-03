@@ -29,8 +29,11 @@ export class AzeyoCommunityGptService {
     });
   }
 
-  async generatePost(commentCount: number): Promise<GptGeneratedPost> {
-    const category = CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)];
+  async generatePost(commentCount: number, excludeCategory?: AZEYO_COMMUNITY_CATEGORY | null): Promise<GptGeneratedPost> {
+    const candidates = excludeCategory
+      ? CATEGORIES.filter(c => c !== excludeCategory)
+      : CATEGORIES;
+    const category = candidates[Math.floor(Math.random() * candidates.length)];
     const isVote = Math.random() < 0.25;
     const type = isVote ? AZEYO_COMMUNITY_POST_TYPE.VOTE : AZEYO_COMMUNITY_POST_TYPE.TEXT;
 

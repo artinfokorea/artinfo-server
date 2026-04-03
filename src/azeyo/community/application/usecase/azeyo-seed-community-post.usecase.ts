@@ -33,9 +33,10 @@ export class AzeyoSeedCommunityPostUseCase {
       throw new Error('시드 유저가 없습니다');
     }
 
-    // 2. 최신 글 조회하여 시간 범위 결정
+    // 2. 최신 글 조회하여 시간 범위 + 제외 카테고리 결정
     const latestPost = await this.getLatestPost();
     const baseTime = latestPost ? new Date(latestPost.createdAt) : new Date(now.getTime() - 3600 * 1000);
+    const excludeCategory = latestPost?.category || null;
 
     // baseTime이 now보다 미래이면 보정
     const effectiveBaseTime = baseTime.getTime() > now.getTime()
@@ -48,8 +49,8 @@ export class AzeyoSeedCommunityPostUseCase {
     // 4. 댓글 수 랜덤 (0~5)
     const commentCount = Math.floor(Math.random() * 6);
 
-    // 5. GPT로 글/댓글 생성
-    const generated = await this.gptService.generatePost(commentCount);
+    // 5. GPT로 글/댓글 생성 (최신 글 카테고리 제외)
+    const generated = await this.gptService.generatePost(commentCount, excludeCategory);
 
     // 6. 랜덤 유저 선택 (글 작성자)
     const postAuthor = this.pickRandom(seedUsers);
@@ -108,7 +109,7 @@ export class AzeyoSeedCommunityPostUseCase {
 
   private async getLatestPost() {
     const result = await this.userRepository.manager.query(
-      `SELECT id, created_at as "createdAt" FROM azeyo_community_posts WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 1`,
+      `SELECT id, created_at as "createdAt", category FROM azeyo_community_posts WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 1`,
     );
     return result[0] || null;
   }
