@@ -74,6 +74,8 @@ export class AzeyoSnsClientService implements IAzeyoSnsClient {
         throw new AzeyoInvalidSnsToken();
       }
 
+      console.log('[Naver UserInfo]', JSON.stringify(payload, null, 2));
+
       // 네이버 gender: "M" or "F" → "male" or "female"로 통일
       const genderMap: Record<string, string> = { M: 'male', F: 'female' };
 
