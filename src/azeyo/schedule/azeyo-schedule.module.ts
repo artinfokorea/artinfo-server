@@ -36,5 +36,9 @@ import { AzeyoScanScheduleRecommendationsUseCase } from '@/azeyo/schedule/applic
     { provide: AZEYO_SCHEDULE_TAG_REPOSITORY, useClass: AzeyoScheduleTagRepository },
     { provide: AZEYO_SCHEDULE_RECOMMENDATION_REPOSITORY, useClass: AzeyoScheduleRecommendationRepository },
   ],
+  exports: [
+    AZEYO_SCHEDULE_REPOSITORY,
+    AZEYO_SCHEDULE_TAG_REPOSITORY,
+  ],
 })
 export class AzeyoScheduleModule {}

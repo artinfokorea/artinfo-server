@@ -32,11 +32,18 @@ export class AzeyoSnsClientService implements IAzeyoSnsClient {
         throw new AzeyoInvalidSnsToken();
       }
 
+      const account = payload.kakao_account;
+
       return {
-        email: payload.kakao_account.email || null,
-        name: payload.kakao_account.profile?.nickname || null,
+        email: account.email || null,
+        name: account.profile?.nickname || null,
         snsId: String(payload.id),
-        iconImageUrl: payload.kakao_account.profile?.profile_image_url || null,
+        iconImageUrl: account.profile?.profile_image_url || null,
+        gender: account.gender || null,
+        ageRange: account.age_range || null,
+        birthday: account.birthday || null,
+        birthyear: account.birthyear || null,
+        phone: account.phone_number || null,
       };
     } catch (e) {
       throw new AzeyoInvalidSnsToken();
@@ -61,6 +68,11 @@ export class AzeyoSnsClientService implements IAzeyoSnsClient {
         name: payload.name || null,
         snsId: payload.id,
         iconImageUrl: payload.profile_image || null,
+        gender: payload.gender || null,
+        ageRange: null,
+        birthday: payload.birthday || null,
+        birthyear: payload.birthyear || null,
+        phone: payload.mobile || null,
       };
     } catch (e) {
       throw new AzeyoInvalidSnsToken();
@@ -77,6 +89,11 @@ export class AzeyoSnsClientService implements IAzeyoSnsClient {
         name: payload.name || null,
         snsId: payload.sub,
         iconImageUrl: payload.picture || null,
+        gender: null,
+        ageRange: null,
+        birthday: null,
+        birthyear: null,
+        phone: null,
       };
     } catch (e) {
       throw new AzeyoInvalidSnsToken();

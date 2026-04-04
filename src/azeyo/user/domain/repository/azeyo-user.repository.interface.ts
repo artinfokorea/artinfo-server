@@ -7,6 +7,10 @@ export interface IAzeyoUserRepository {
     nickname: string;
     marriageDate: string | null;
     children: string;
+    gender: string | null;
+    ageRange: string | null;
+    birthDate: string | null;
+    phone: string | null;
     email: string | null;
     snsType: string | null;
     snsId: string | null;

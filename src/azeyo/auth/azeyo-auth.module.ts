@@ -10,10 +10,11 @@ import { AzeyoSnsLoginUseCase } from '@/azeyo/auth/application/usecase/azeyo-sns
 import { AzeyoRefreshTokensUseCase } from '@/azeyo/auth/application/usecase/azeyo-refresh-tokens.usecase';
 import { AzeyoUserModule } from '@/azeyo/user/azeyo-user.module';
 import { AzeyoSnsModule } from '@/azeyo/sns/azeyo-sns.module';
+import { AzeyoScheduleModule } from '@/azeyo/schedule/azeyo-schedule.module';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 
 @Module({
-  imports: [JwtModule.register({}), TypeOrmModule.forFeature([AzeyoAuth]), AzeyoUserModule, AzeyoSnsModule],
+  imports: [JwtModule.register({}), TypeOrmModule.forFeature([AzeyoAuth]), AzeyoUserModule, AzeyoSnsModule, AzeyoScheduleModule],
   controllers: [AzeyoAuthController],
   providers: [
     JwtService,

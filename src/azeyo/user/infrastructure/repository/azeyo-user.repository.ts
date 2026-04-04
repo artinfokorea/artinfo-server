@@ -16,6 +16,10 @@ export class AzeyoUserRepository implements IAzeyoUserRepository {
     nickname: string;
     marriageDate: string | null;
     children: string;
+    gender: string | null;
+    ageRange: string | null;
+    birthDate: string | null;
+    phone: string | null;
     email: string | null;
     snsType: string | null;
     snsId: string | null;
@@ -26,6 +30,10 @@ export class AzeyoUserRepository implements IAzeyoUserRepository {
       nickname: params.nickname,
       marriageDate: params.marriageDate,
       children: params.children,
+      gender: params.gender,
+      ageRange: params.ageRange,
+      birthDate: params.birthDate,
+      phone: params.phone,
       email: params.email,
       snsType: params.snsType,
       snsId: params.snsId,

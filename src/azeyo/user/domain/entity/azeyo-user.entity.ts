@@ -17,6 +17,18 @@ export class AzeyoUser extends BaseEntity {
   @Column({ name: 'children', default: '0' })
   children: string;
 
+  @Column({ type: 'varchar', name: 'gender', nullable: true })
+  gender: string | null;
+
+  @Column({ type: 'varchar', name: 'age_range', nullable: true })
+  ageRange: string | null;
+
+  @Column({ type: 'date', name: 'birth_date', nullable: true })
+  birthDate: string | null;
+
+  @Column({ type: 'varchar', name: 'phone', nullable: true })
+  phone: string | null;
+
   @Column({ type: 'varchar', name: 'email', nullable: true, unique: true })
   email: string | null;
 
