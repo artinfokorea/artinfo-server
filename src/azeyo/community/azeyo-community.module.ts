@@ -26,6 +26,7 @@ import { AzeyoUploadCommunityImagesUseCase } from '@/azeyo/community/application
 import { AzeyoCreateCommunityCommentUseCase } from '@/azeyo/community/application/usecase/azeyo-create-community-comment.usecase';
 import { AzeyoScanCommunityCommentsUseCase } from '@/azeyo/community/application/usecase/azeyo-scan-community-comments.usecase';
 import { AzeyoDeleteCommunityCommentUseCase } from '@/azeyo/community/application/usecase/azeyo-delete-community-comment.usecase';
+import { AzeyoScanUserTopPostsUseCase } from '@/azeyo/community/application/usecase/azeyo-scan-user-top-posts.usecase';
 import { AzeyoSeedCommunityPostUseCase } from '@/azeyo/community/application/usecase/azeyo-seed-community-post.usecase';
 import { AzeyoS3Service } from '@/azeyo/common/azeyo-s3.service';
 import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
@@ -51,6 +52,7 @@ import { AzeyoCommunitySeedScheduler } from '@/azeyo/community/infrastructure/sc
     AzeyoCreateCommunityCommentUseCase,
     AzeyoScanCommunityCommentsUseCase,
     AzeyoDeleteCommunityCommentUseCase,
+    AzeyoScanUserTopPostsUseCase,
     AzeyoSeedCommunityPostUseCase,
     // Repositories
     { provide: AZEYO_COMMUNITY_POST_REPOSITORY, useClass: AzeyoCommunityPostRepository },

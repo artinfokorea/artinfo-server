@@ -101,6 +101,29 @@ export class AzeyoCommunityPostRepository implements IAzeyoCommunityPostReposito
       });
   }
 
+  async findTopByUserId(userId: number, count: number): Promise<AzeyoCommunityPost[]> {
+    return this.repository.createQueryBuilder('post')
+      .leftJoinAndSelect('post.user', 'user')
+      .leftJoin('azeyo_community_likes', 'likes', 'likes.target_id = post.id AND likes.deleted_at IS NULL')
+      .leftJoin('azeyo_community_comments', 'comments', 'comments.post_id = post.id AND comments.deleted_at IS NULL')
+      .addSelect('COUNT(DISTINCT likes.id)', 'likesCount')
+      .addSelect('COUNT(DISTINCT comments.id)', 'commentsCount')
+      .where('post.userId = :userId', { userId })
+      .groupBy('post.id')
+      .addGroupBy('user.id')
+      .orderBy('COUNT(DISTINCT likes.id) + COUNT(DISTINCT comments.id)', 'DESC')
+      .addOrderBy('post.createdAt', 'DESC')
+      .limit(count)
+      .getRawAndEntities()
+      .then(({ entities, raw }) => {
+        return entities.map((entity, index) => {
+          entity.likesCount = Number(raw[index]?.likesCount ?? 0);
+          entity.commentsCount = Number(raw[index]?.commentsCount ?? 0);
+          return entity;
+        });
+      });
+  }
+
   async incrementViewCount(id: number): Promise<void> {
     await this.repository.increment({ id }, 'viewCount', 1);
   }

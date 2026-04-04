@@ -11,6 +11,7 @@ import { CreateResponse } from '@/common/response/createResponse';
 import { AzeyoCreateCommunityPostUseCase } from '@/azeyo/community/application/usecase/azeyo-create-community-post.usecase';
 import { AzeyoScanCommunityPostsUseCase } from '@/azeyo/community/application/usecase/azeyo-scan-community-posts.usecase';
 import { AzeyoScanTopCommunityPostsUseCase } from '@/azeyo/community/application/usecase/azeyo-scan-top-community-posts.usecase';
+import { AzeyoScanUserTopPostsUseCase } from '@/azeyo/community/application/usecase/azeyo-scan-user-top-posts.usecase';
 import { AzeyoScanCommunityPostUseCase } from '@/azeyo/community/application/usecase/azeyo-scan-community-post.usecase';
 import { AzeyoEditCommunityPostUseCase } from '@/azeyo/community/application/usecase/azeyo-edit-community-post.usecase';
 import { AzeyoRemoveCommunityPostUseCase } from '@/azeyo/community/application/usecase/azeyo-remove-community-post.usecase';
@@ -34,6 +35,7 @@ export class AzeyoCommunityController {
     private readonly createPostUseCase: AzeyoCreateCommunityPostUseCase,
     private readonly scanPostsUseCase: AzeyoScanCommunityPostsUseCase,
     private readonly scanTopPostsUseCase: AzeyoScanTopCommunityPostsUseCase,
+    private readonly scanUserTopPostsUseCase: AzeyoScanUserTopPostsUseCase,
     private readonly scanPostUseCase: AzeyoScanCommunityPostUseCase,
     private readonly editPostUseCase: AzeyoEditCommunityPostUseCase,
     private readonly removePostUseCase: AzeyoRemoveCommunityPostUseCase,
@@ -51,6 +53,12 @@ export class AzeyoCommunityController {
   async scanTopPosts() {
     const posts = await this.scanTopPostsUseCase.execute();
     return new AzeyoCommunityPostsResponse(posts);
+  }
+
+  @RestApiGet(AzeyoCommunityPostsResponse, { path: '/top/user/:userId', description: '특정 유저의 인기 게시글 조회' })
+  async scanUserTopPosts(@Param('userId') userId: number, @Query('count') count: number = 5) {
+    const result = await this.scanUserTopPostsUseCase.execute(userId, count);
+    return new AzeyoCommunityPostsResponse(result);
   }
 
   @RestApiGet(AzeyoCommunityPostsResponse, { path: '/', description: '게시글 목록 조회' })
