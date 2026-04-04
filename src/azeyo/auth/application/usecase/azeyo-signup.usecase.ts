@@ -63,9 +63,13 @@ export class AzeyoSignupUseCase {
       marketingConsent: command.marketingConsent,
     });
 
-    // 자동 일정 등록 (내 생일, 결혼기념일)
-    const birthDate = this.combineBirthDate(snsUserInfo.birthyear, snsUserInfo.birthday);
-    await this.createAutoSchedules(userId, command.marriageDate, birthDate);
+    // 자동 일정 등록 (내 생일, 결혼기념일) - 실패해도 회원가입은 진행
+    try {
+      const birthDate = this.combineBirthDate(snsUserInfo.birthyear, snsUserInfo.birthday);
+      await this.createAutoSchedules(userId, command.marriageDate, birthDate);
+    } catch (e) {
+      console.error('[Signup] 자동 일정 등록 실패:', e);
+    }
 
     const user = await this.userRepository.findOneOrThrowById(userId);
 
