@@ -40,7 +40,7 @@ export class AzeyoCommunityGptService {
 
     try {
       const model = this.genAI.getGenerativeModel({
-        model: 'gemini-2.0-flash-lite',
+        model: 'gemini-2.5-flash-lite',
         generationConfig: {
           responseMimeType: 'application/json',
           maxOutputTokens: 2000,
@@ -81,6 +81,9 @@ export class AzeyoCommunityGptService {
       [AZEYO_COMMUNITY_CATEGORY.PARENTING]: '육아 팁/고민 공유',
       [AZEYO_COMMUNITY_CATEGORY.LIFE_TIP]: '생활 꿀팁 공유',
       [AZEYO_COMMUNITY_CATEGORY.FREE]: '자유 주제 잡담',
+      [AZEYO_COMMUNITY_CATEGORY.WORK]: '직장생활/회사 고민 (상사, 이직, 연봉 등)',
+      [AZEYO_COMMUNITY_CATEGORY.HEALTH]: '건강/운동 (체력저하, 다이어트, 건강검진)',
+      [AZEYO_COMMUNITY_CATEGORY.IN_LAWS]: '시댁/처가 관계 (명절, 경조사 등)',
     };
 
     const isVote = type === AZEYO_COMMUNITY_POST_TYPE.VOTE;

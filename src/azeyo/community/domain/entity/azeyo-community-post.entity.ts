@@ -23,6 +23,9 @@ export enum AZEYO_COMMUNITY_CATEGORY {
   PARENTING = 'PARENTING',
   LIFE_TIP = 'LIFE_TIP',
   FREE = 'FREE',
+  WORK = 'WORK',
+  HEALTH = 'HEALTH',
+  IN_LAWS = 'IN_LAWS',
 }
 
 @Entity('azeyo_community_posts')

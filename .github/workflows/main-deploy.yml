@@ -39,6 +39,7 @@ jobs:
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
           echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
           echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
+          echo "AZEYO_GOOGLE_AI_API_KEY=${{ secrets.AZEYO_GOOGLE_AI_API_KEY }}" >> .env
           
 
       - name: Cache docker layers
