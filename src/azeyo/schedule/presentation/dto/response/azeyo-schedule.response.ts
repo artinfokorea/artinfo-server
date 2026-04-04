@@ -23,6 +23,7 @@ export class AzeyoScheduleResponse {
   @ApiProperty() memo: string | null;
   @ApiProperty() repeatType: AZEYO_SCHEDULE_REPEAT_TYPE;
   @ApiProperty() startDate: string | null;
+  @ApiProperty() alarmTimes: string[] | null;
   @ApiProperty() anniversaryLabel: string | null;
   @ApiProperty({ type: [AzeyoScheduleTagResponse] }) tags: AzeyoScheduleTagResponse[];
   @ApiProperty() createdAt: Date;
@@ -34,6 +35,7 @@ export class AzeyoScheduleResponse {
     this.memo = schedule.memo;
     this.repeatType = schedule.repeatType ?? AZEYO_SCHEDULE_REPEAT_TYPE.NONE;
     this.startDate = schedule.startDate ?? null;
+    this.alarmTimes = schedule.alarmTimes ?? null;
     this.anniversaryLabel = this.computeAnniversaryLabel(schedule);
     this.tags = (schedule.tags ?? []).map(t => new AzeyoScheduleTagResponse(t));
     this.createdAt = schedule.createdAt;

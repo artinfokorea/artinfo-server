@@ -49,6 +49,9 @@ export class AzeyoSchedule extends BaseEntity {
   @Column({ type: 'date', name: 'start_date', nullable: true })
   startDate: string | null;
 
+  @Column({ type: 'jsonb', name: 'alarm_times', nullable: true })
+  alarmTimes: string[] | null;
+
   @ManyToMany(() => AzeyoScheduleTag, { eager: true })
   @JoinTable({
     name: 'azeyo_schedule_tag_map',

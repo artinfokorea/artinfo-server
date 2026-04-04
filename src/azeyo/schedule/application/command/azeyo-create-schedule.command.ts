@@ -8,6 +8,7 @@ export class AzeyoCreateScheduleCommand {
   tagIds: number[];
   repeatType: AZEYO_SCHEDULE_REPEAT_TYPE;
   startDate: string | null;
+  alarmTimes: string[] | null;
 
   constructor(params: {
     userId: number;
@@ -17,6 +18,7 @@ export class AzeyoCreateScheduleCommand {
     tagIds: number[];
     repeatType: AZEYO_SCHEDULE_REPEAT_TYPE;
     startDate: string | null;
+    alarmTimes: string[] | null;
   }) {
     Object.assign(this, params);
   }

@@ -21,6 +21,7 @@ export class AzeyoCreateScheduleUseCase {
       memo: command.memo,
       repeatType: command.repeatType,
       startDate: command.startDate,
+      alarmTimes: command.alarmTimes,
       tags,
     });
     await this.activityPointsService.addPoints(command.userId, AZEYO_ACTIVITY_ACTION.CREATE_SCHEDULE);

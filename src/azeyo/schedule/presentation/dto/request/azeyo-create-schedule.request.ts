@@ -24,6 +24,9 @@ export class AzeyoCreateScheduleRequest {
   @ApiProperty({ type: String, required: false, description: '최초 시작일 (YYYY-MM-DD), 반복 시 몇 주년 계산용' })
   startDate: string | null;
 
+  @ApiProperty({ type: [String], required: false, description: '알람 시간 목록 (최대 2개, HH:mm 형식)', example: ['09:00', '18:00'] })
+  alarmTimes: string[] | null;
+
   toCommand(userId: number) {
     return new AzeyoCreateScheduleCommand({
       userId,
@@ -33,6 +36,7 @@ export class AzeyoCreateScheduleRequest {
       tagIds: this.tagIds ?? [],
       repeatType: this.repeatType ?? AZEYO_SCHEDULE_REPEAT_TYPE.NONE,
       startDate: this.startDate ?? null,
+      alarmTimes: this.alarmTimes?.slice(0, 2) ?? null,
     });
   }
 }

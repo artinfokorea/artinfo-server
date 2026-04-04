@@ -19,6 +19,7 @@ export class AzeyoUpdateScheduleUseCase {
     schedule.memo = command.memo;
     schedule.repeatType = command.repeatType;
     schedule.startDate = command.startDate;
+    schedule.alarmTimes = command.alarmTimes;
     schedule.tags = tags;
 
     await this.scheduleRepository.save(schedule);
