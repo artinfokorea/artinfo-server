@@ -29,7 +29,7 @@ export class AzeyoUser extends BaseEntity {
   @Column({ type: 'varchar', name: 'phone', nullable: true })
   phone: string | null;
 
-  @Column({ type: 'varchar', name: 'email', nullable: true, unique: true })
+  @Column({ type: 'varchar', name: 'email', nullable: true })
   email: string | null;
 
   @Column({ type: 'varchar', name: 'sns_type', nullable: true })
