@@ -21,8 +21,6 @@ export class AzeyoSeedCommunityPostUseCase {
   ) {}
 
   async execute(): Promise<{ postId: number; commentCount: number; likeCount: number }> {
-    const now = new Date();
-
     // 1. 시드 유저 목록 조회 (seed 이메일 패턴)
     const seedUsers = await this.userRepository
       .createQueryBuilder('u')
@@ -33,24 +31,20 @@ export class AzeyoSeedCommunityPostUseCase {
       throw new Error('시드 유저가 없습니다');
     }
 
-    // 2. 최신 글 조회하여 시간 범위 + 제외 카테고리 결정
+    // 2. 최신 글 조회하여 제외 카테고리 결정
     const latestPost = await this.getLatestPost();
-    const baseTime = latestPost ? new Date(latestPost.createdAt) : new Date(now.getTime() - 3600 * 1000);
     const excludeCategory = latestPost?.category || null;
 
-    // baseTime이 now보다 미래이면 보정
-    const effectiveBaseTime = baseTime.getTime() > now.getTime()
-      ? new Date(now.getTime() - 60 * 1000)
-      : baseTime;
-
-    // 3. 글 작성 시간: baseTime ~ now 사이 랜덤
-    const postTime = this.randomDateBetween(effectiveBaseTime, now);
-
-    // 4. 댓글 수 랜덤 (0~5)
+    // 3. 댓글 수 랜덤 (0~5)
     const commentCount = Math.floor(Math.random() * 6);
 
-    // 5. GPT로 글/댓글 생성 (최신 글 카테고리 제외)
+    // 4. GPT로 글/댓글 생성 (최신 글 카테고리 제외)
     const generated = await this.gptService.generatePost(commentCount, excludeCategory);
+
+    // 5. 글 작성 시간: 현재 시각에서 10~60분 전 랜덤 (시간대 문제 방지)
+    const now = new Date();
+    const minutesAgo = 10 + Math.floor(Math.random() * 50); // 10~60분 전
+    const postTime = new Date(now.getTime() - minutesAgo * 60 * 1000);
 
     // 6. 랜덤 유저 선택 (글 작성자)
     const postAuthor = this.pickRandom(seedUsers);
