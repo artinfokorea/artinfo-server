@@ -35,7 +35,12 @@ export class AzeyoUserController {
 
   @RestApiPut(OkResponse, { path: '/me', description: '프로필 수정', auth: [USER_TYPE.CLIENT] })
   async editProfile(@AuthSignature() signature: UserSignature, @Body() request: AzeyoEditProfileRequest) {
-    await this.editProfileUseCase.execute(signature.id, request.nickname, request.subtitle ?? null);
+    await this.editProfileUseCase.execute(signature.id, {
+      nickname: request.nickname,
+      subtitle: request.subtitle ?? null,
+      email: request.email ?? undefined,
+      phone: request.phone ?? undefined,
+    });
     return new OkResponse();
   }
 

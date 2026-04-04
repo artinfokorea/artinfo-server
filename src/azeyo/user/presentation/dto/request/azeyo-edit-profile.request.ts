@@ -8,4 +8,10 @@ export class AzeyoEditProfileRequest {
 
   @ApiProperty({ type: String, required: false, description: '한줄 소개 (최대 20자)' })
   subtitle: string | null;
+
+  @ApiProperty({ type: String, required: false, description: '이메일', nullable: true })
+  email: string | null;
+
+  @ApiProperty({ type: String, required: false, description: '연락처', nullable: true })
+  phone: string | null;
 }

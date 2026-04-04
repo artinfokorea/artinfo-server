@@ -7,10 +7,17 @@ export class AzeyoEditProfileUseCase {
     @Inject(AZEYO_USER_REPOSITORY) private readonly userRepository: IAzeyoUserRepository,
   ) {}
 
-  async execute(userId: number, nickname: string, subtitle: string | null): Promise<void> {
+  async execute(userId: number, params: {
+    nickname: string;
+    subtitle: string | null;
+    email?: string | null;
+    phone?: string | null;
+  }): Promise<void> {
     const user = await this.userRepository.findOneOrThrowById(userId);
-    user.nickname = nickname;
-    user.subtitle = subtitle;
+    user.nickname = params.nickname;
+    user.subtitle = params.subtitle;
+    if (params.email !== undefined) user.email = params.email;
+    if (params.phone !== undefined) user.phone = params.phone;
     await this.userRepository.saveEntity(user);
   }
 }
