@@ -8,7 +8,7 @@ export class AzeyoCommunitySeedController {
     private readonly seedPostUseCase: AzeyoSeedCommunityPostUseCase,
   ) {}
 
-  @RestApiPost(OkResponse, { path: '/generate', description: 'GPT로 시드 글/댓글 수동 생성 (테스트용)' })
+  @RestApiPost(OkResponse, { path: '/generate', description: 'AI로 커뮤니티 게시글/댓글 생성' })
   async generateSeedPost() {
     const result = await this.seedPostUseCase.execute();
     return { ok: true, postId: result.postId, commentCount: result.commentCount, likeCount: result.likeCount };
