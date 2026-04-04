@@ -48,6 +48,18 @@ export class AzeyoInvalidAccessToken extends HttpException {
   }
 }
 
+export class AzeyoMaleOnlyService extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'AZEYO-AUTH-006',
+        message: '아재요는 남성 전용 서비스입니다.',
+      },
+      HttpStatus.FORBIDDEN,
+    );
+  }
+}
+
 export class AzeyoUserNotRegistered extends HttpException {
   constructor() {
     super(

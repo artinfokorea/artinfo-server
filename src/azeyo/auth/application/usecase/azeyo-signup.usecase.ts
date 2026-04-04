@@ -8,6 +8,7 @@ import { AzeyoAuth, AZEYO_AUTH_TYPE, AZEYO_SNS_TYPE } from '@/azeyo/auth/domain/
 import { AZEYO_SCHEDULE_REPEAT_TYPE } from '@/azeyo/schedule/domain/entity/azeyo-schedule.entity';
 import { AzeyoSignupCommand } from '@/azeyo/auth/application/command/azeyo-signup.command';
 import { AzeyoNicknameAlreadyExist } from '@/azeyo/user/domain/exception/azeyo-user.exception';
+import { AzeyoMaleOnlyService } from '@/azeyo/auth/domain/exception/azeyo-auth.exception';
 
 @Injectable()
 export class AzeyoSignupUseCase {
@@ -33,6 +34,11 @@ export class AzeyoSignupUseCase {
     if (nicknameExists) throw new AzeyoNicknameAlreadyExist();
 
     const snsUserInfo = await this.snsClient.getUserInfo(command.snsToken, command.snsType as AZEYO_SNS_TYPE);
+
+    // 남성만 가입 가능
+    if (snsUserInfo.gender && snsUserInfo.gender !== 'male') {
+      throw new AzeyoMaleOnlyService();
+    }
 
     const existingUser = await this.userRepository.findBySnsId(command.snsType, snsUserInfo.snsId);
     if (existingUser) {
