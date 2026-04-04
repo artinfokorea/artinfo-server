@@ -74,16 +74,19 @@ export class AzeyoSnsClientService implements IAzeyoSnsClient {
         throw new AzeyoInvalidSnsToken();
       }
 
+      // 네이버 gender: "M" or "F" → "male" or "female"로 통일
+      const genderMap: Record<string, string> = { M: 'male', F: 'female' };
+
       return {
         email: payload.email || null,
         name: payload.name || null,
         snsId: payload.id,
         iconImageUrl: payload.profile_image || null,
-        gender: payload.gender || null,
-        ageRange: null,
-        birthday: payload.birthday || null,
+        gender: genderMap[payload.gender] || payload.gender || null,
+        ageRange: payload.age || null,
+        birthday: payload.birthday?.replace('-', '') || null,
         birthyear: payload.birthyear || null,
-        phone: payload.mobile || null,
+        phone: this.formatKoreanPhone(payload.mobile),
       };
     } catch (e) {
       throw new AzeyoInvalidSnsToken();
