@@ -3,7 +3,7 @@ import { AZEYO_USER_REPOSITORY, IAzeyoUserRepository } from '@/azeyo/user/domain
 import { AZEYO_AUTH_REPOSITORY, IAzeyoAuthRepository } from '@/azeyo/auth/domain/repository/azeyo-auth.repository.interface';
 import { AZEYO_SNS_CLIENT, IAzeyoSnsClient } from '@/azeyo/sns/domain/service/azeyo-sns-client.interface';
 import { AzeyoAuth, AZEYO_AUTH_TYPE, AZEYO_SNS_TYPE } from '@/azeyo/auth/domain/entity/azeyo-auth.entity';
-import { AzeyoUserNotRegistered } from '@/azeyo/auth/domain/exception/azeyo-auth.exception';
+import { AzeyoUserNotRegistered, AzeyoMaleOnlyService } from '@/azeyo/auth/domain/exception/azeyo-auth.exception';
 
 @Injectable()
 export class AzeyoSnsLoginUseCase {
@@ -20,6 +20,11 @@ export class AzeyoSnsLoginUseCase {
 
   async execute(token: string, type: AZEYO_SNS_TYPE): Promise<AzeyoAuth> {
     const snsUserInfo = await this.snsClient.getUserInfo(token, type);
+
+    // 남성만 가입/로그인 가능
+    if (snsUserInfo.gender !== 'male') {
+      throw new AzeyoMaleOnlyService();
+    }
 
     const user = await this.userRepository.findBySnsId(type, snsUserInfo.snsId);
     if (!user) {
