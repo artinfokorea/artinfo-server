@@ -82,17 +82,20 @@ export class AzeyoCommunityPostRepository implements IAzeyoCommunityPostReposito
     return this.repository.createQueryBuilder('post')
       .leftJoinAndSelect('post.user', 'user')
       .leftJoin('azeyo_community_likes', 'likes', 'likes.target_id = post.id AND likes.deleted_at IS NULL')
+      .leftJoin('azeyo_community_comments', 'comments', 'comments.post_id = post.id AND comments.deleted_at IS NULL')
       .addSelect('COUNT(DISTINCT likes.id)', 'likesCount')
+      .addSelect('COUNT(DISTINCT comments.id)', 'commentsCount')
       .where('post.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
       .groupBy('post.id')
       .addGroupBy('user.id')
-      .orderBy('COUNT(DISTINCT likes.id)', 'DESC')
+      .orderBy('COUNT(DISTINCT likes.id) + COUNT(DISTINCT comments.id)', 'DESC')
       .addOrderBy('post.createdAt', 'DESC')
       .limit(10)
       .getRawAndEntities()
       .then(({ entities, raw }) => {
         return entities.map((entity, index) => {
           entity.likesCount = Number(raw[index]?.likesCount ?? 0);
+          entity.commentsCount = Number(raw[index]?.commentsCount ?? 0);
           return entity;
         });
       });

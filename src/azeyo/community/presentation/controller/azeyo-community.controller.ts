@@ -10,6 +10,7 @@ import { OkResponse } from '@/common/response/ok.response';
 import { CreateResponse } from '@/common/response/createResponse';
 import { AzeyoCreateCommunityPostUseCase } from '@/azeyo/community/application/usecase/azeyo-create-community-post.usecase';
 import { AzeyoScanCommunityPostsUseCase } from '@/azeyo/community/application/usecase/azeyo-scan-community-posts.usecase';
+import { AzeyoScanTopCommunityPostsUseCase } from '@/azeyo/community/application/usecase/azeyo-scan-top-community-posts.usecase';
 import { AzeyoScanCommunityPostUseCase } from '@/azeyo/community/application/usecase/azeyo-scan-community-post.usecase';
 import { AzeyoEditCommunityPostUseCase } from '@/azeyo/community/application/usecase/azeyo-edit-community-post.usecase';
 import { AzeyoRemoveCommunityPostUseCase } from '@/azeyo/community/application/usecase/azeyo-remove-community-post.usecase';
@@ -32,6 +33,7 @@ export class AzeyoCommunityController {
   constructor(
     private readonly createPostUseCase: AzeyoCreateCommunityPostUseCase,
     private readonly scanPostsUseCase: AzeyoScanCommunityPostsUseCase,
+    private readonly scanTopPostsUseCase: AzeyoScanTopCommunityPostsUseCase,
     private readonly scanPostUseCase: AzeyoScanCommunityPostUseCase,
     private readonly editPostUseCase: AzeyoEditCommunityPostUseCase,
     private readonly removePostUseCase: AzeyoRemoveCommunityPostUseCase,
@@ -45,9 +47,9 @@ export class AzeyoCommunityController {
 
   // === Posts ===
 
-  @RestApiGet(AzeyoCommunityPostsResponse, { path: '/top', description: '인기 게시글 조회' })
+  @RestApiGet(AzeyoCommunityPostsResponse, { path: '/top', description: '인기 게시글 조회 (이달 좋아요+댓글 순)' })
   async scanTopPosts() {
-    const posts = await this.scanPostsUseCase.execute({ userId: null, page: 1, size: 10, category: null, keyword: null });
+    const posts = await this.scanTopPostsUseCase.execute();
     return new AzeyoCommunityPostsResponse(posts);
   }
 
