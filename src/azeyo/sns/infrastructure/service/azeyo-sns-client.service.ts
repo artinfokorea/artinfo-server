@@ -43,11 +43,22 @@ export class AzeyoSnsClientService implements IAzeyoSnsClient {
         ageRange: account.age_range || null,
         birthday: account.birthday || null,
         birthyear: account.birthyear || null,
-        phone: account.phone_number || null,
+        phone: this.formatKoreanPhone(account.phone_number),
       };
     } catch (e) {
       throw new AzeyoInvalidSnsToken();
     }
+  }
+
+  private formatKoreanPhone(phone: string | null | undefined): string | null {
+    if (!phone) return null;
+    // "+82 10-4028-7451" → "010-4028-7451"
+    const digits = phone.replace(/[^0-9]/g, '');
+    if (digits.startsWith('82') && digits.length >= 11) {
+      const local = '0' + digits.substring(2);
+      return `${local.substring(0, 3)}-${local.substring(3, 7)}-${local.substring(7)}`;
+    }
+    return phone;
   }
 
   private async getNaverUserInfo(accessToken: string): Promise<SnsUserInfo> {
