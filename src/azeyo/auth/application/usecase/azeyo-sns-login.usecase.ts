@@ -18,20 +18,8 @@ export class AzeyoSnsLoginUseCase {
     private readonly snsClient: IAzeyoSnsClient,
   ) {}
 
-  async execute(token: string, type: AZEYO_SNS_TYPE): Promise<AzeyoAuth> {
-    const snsUserInfo = await this.snsClient.getUserInfo(token, type);
-
+  async execute(_token: string, _type: AZEYO_SNS_TYPE): Promise<AzeyoAuth> {
     // 남성만 가입/로그인 가능 (테스트: 모든 유저 차단)
     throw new AzeyoMaleOnlyService();
-
-    const user = await this.userRepository.findBySnsId(type, snsUserInfo.snsId);
-    if (!user) {
-      throw new AzeyoUserNotRegistered();
-    }
-
-    return await this.authRepository.create(
-      { type: type as unknown as AZEYO_AUTH_TYPE, userId: user.id },
-      user,
-    );
   }
 }
