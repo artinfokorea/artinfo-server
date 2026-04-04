@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import {
   AZEYO_COMMUNITY_CATEGORY,
   AZEYO_COMMUNITY_POST_TYPE,
@@ -20,13 +20,12 @@ const CATEGORIES = Object.values(AZEYO_COMMUNITY_CATEGORY);
 @Injectable()
 export class AzeyoCommunityGptService {
   private readonly logger = new Logger(AzeyoCommunityGptService.name);
-  private readonly openai: OpenAI;
+  private readonly genAI: GoogleGenerativeAI;
 
   constructor() {
-    this.openai = new OpenAI({
-      apiKey: process.env['AZEYO_GPT_API_KEY'],
-      maxRetries: 3,
-    });
+    this.genAI = new GoogleGenerativeAI(
+      process.env['AZEYO_GOOGLE_AI_API_KEY'] || '',
+    );
   }
 
   async generatePost(commentCount: number, excludeCategory?: AZEYO_COMMUNITY_CATEGORY | null): Promise<GptGeneratedPost> {
@@ -37,22 +36,25 @@ export class AzeyoCommunityGptService {
     const isVote = Math.random() < 0.25;
     const type = isVote ? AZEYO_COMMUNITY_POST_TYPE.VOTE : AZEYO_COMMUNITY_POST_TYPE.TEXT;
 
-    const prompt = this.buildPrompt(type, category, commentCount);
+    const systemPrompt = this.buildPrompt(type, category, commentCount);
 
     try {
-      const response = await this.openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        response_format: { type: 'json_object' },
-        messages: [
-          { role: 'system', content: prompt },
-          { role: 'user', content: '게시글과 댓글을 생성해주세요.' },
-        ],
-        max_completion_tokens: 2000,
-        temperature: 0.9,
+      const model = this.genAI.getGenerativeModel({
+        model: 'gemini-2.0-flash-lite',
+        generationConfig: {
+          responseMimeType: 'application/json',
+          maxOutputTokens: 2000,
+          temperature: 0.9,
+        },
       });
 
-      const content = response.choices[0]?.message?.content;
-      if (!content) throw new Error('GPT 응답이 비어있습니다');
+      const response = await model.generateContent({
+        systemInstruction: systemPrompt,
+        contents: [{ role: 'user', parts: [{ text: '게시글과 댓글을 생성해주세요.' }] }],
+      });
+
+      const content = response.response.text();
+      if (!content) throw new Error('Google AI 응답이 비어있습니다');
 
       const parsed = JSON.parse(content);
 
@@ -66,7 +68,7 @@ export class AzeyoCommunityGptService {
         comments: (parsed.comments || []).slice(0, commentCount),
       };
     } catch (e) {
-      this.logger.error('GPT 게시글 생성 실패', e);
+      this.logger.error('Google AI 게시글 생성 실패', e);
       throw e;
     }
   }
