@@ -30,6 +30,10 @@ export class AzeyoScheduleRepository implements IAzeyoScheduleRepository {
     });
   }
 
+  async save(schedule: AzeyoSchedule): Promise<AzeyoSchedule> {
+    return this.repository.save(schedule);
+  }
+
   async softRemove(schedule: AzeyoSchedule): Promise<void> {
     await this.repository.softRemove(schedule);
   }

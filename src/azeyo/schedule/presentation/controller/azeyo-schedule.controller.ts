@@ -1,5 +1,5 @@
 import { Body, Param, Query } from '@nestjs/common';
-import { RestApiController, RestApiGet, RestApiPost, RestApiDelete } from '@/common/decorator/rest-api';
+import { RestApiController, RestApiGet, RestApiPost, RestApiPut, RestApiDelete } from '@/common/decorator/rest-api';
 import { AuthSignature } from '@/common/decorator/AuthSignature';
 import { UserSignature } from '@/common/type/type';
 import { USER_TYPE } from '@/user/entity/user.entity';
@@ -7,6 +7,7 @@ import { OkResponse } from '@/common/response/ok.response';
 import { CreateResponse } from '@/common/response/createResponse';
 import { AzeyoCreateScheduleUseCase } from '@/azeyo/schedule/application/usecase/azeyo-create-schedule.usecase';
 import { AzeyoScanSchedulesUseCase } from '@/azeyo/schedule/application/usecase/azeyo-scan-schedules.usecase';
+import { AzeyoUpdateScheduleUseCase } from '@/azeyo/schedule/application/usecase/azeyo-update-schedule.usecase';
 import { AzeyoDeleteScheduleUseCase } from '@/azeyo/schedule/application/usecase/azeyo-delete-schedule.usecase';
 import { AzeyoScanScheduleTagsUseCase } from '@/azeyo/schedule/application/usecase/azeyo-scan-schedule-tags.usecase';
 import { AzeyoCreateScheduleTagUseCase } from '@/azeyo/schedule/application/usecase/azeyo-create-schedule-tag.usecase';
@@ -21,6 +22,7 @@ export class AzeyoScheduleController {
   constructor(
     private readonly createScheduleUseCase: AzeyoCreateScheduleUseCase,
     private readonly scanSchedulesUseCase: AzeyoScanSchedulesUseCase,
+    private readonly updateScheduleUseCase: AzeyoUpdateScheduleUseCase,
     private readonly deleteScheduleUseCase: AzeyoDeleteScheduleUseCase,
     private readonly scanTagsUseCase: AzeyoScanScheduleTagsUseCase,
     private readonly createTagUseCase: AzeyoCreateScheduleTagUseCase,
@@ -39,6 +41,12 @@ export class AzeyoScheduleController {
   async createSchedule(@AuthSignature() signature: UserSignature, @Body() request: AzeyoCreateScheduleRequest) {
     const id = await this.createScheduleUseCase.execute(request.toCommand(signature.id));
     return new CreateResponse(id);
+  }
+
+  @RestApiPut(OkResponse, { path: '/:scheduleId', description: '일정 수정', auth: [USER_TYPE.CLIENT] })
+  async updateSchedule(@AuthSignature() signature: UserSignature, @Param('scheduleId') scheduleId: number, @Body() request: AzeyoCreateScheduleRequest) {
+    await this.updateScheduleUseCase.execute(scheduleId, request.toCommand(signature.id));
+    return new OkResponse();
   }
 
   @RestApiDelete(OkResponse, { path: '/:scheduleId', description: '일정 삭제', auth: [USER_TYPE.CLIENT] })

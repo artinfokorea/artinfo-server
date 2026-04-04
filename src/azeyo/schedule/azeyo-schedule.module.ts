@@ -13,6 +13,7 @@ import { AzeyoScheduleTagRepository } from '@/azeyo/schedule/infrastructure/repo
 import { AzeyoScheduleRecommendationRepository } from '@/azeyo/schedule/infrastructure/repository/azeyo-schedule-recommendation.repository';
 import { AzeyoCreateScheduleUseCase } from '@/azeyo/schedule/application/usecase/azeyo-create-schedule.usecase';
 import { AzeyoScanSchedulesUseCase } from '@/azeyo/schedule/application/usecase/azeyo-scan-schedules.usecase';
+import { AzeyoUpdateScheduleUseCase } from '@/azeyo/schedule/application/usecase/azeyo-update-schedule.usecase';
 import { AzeyoDeleteScheduleUseCase } from '@/azeyo/schedule/application/usecase/azeyo-delete-schedule.usecase';
 import { AzeyoScanScheduleTagsUseCase } from '@/azeyo/schedule/application/usecase/azeyo-scan-schedule-tags.usecase';
 import { AzeyoCreateScheduleTagUseCase } from '@/azeyo/schedule/application/usecase/azeyo-create-schedule-tag.usecase';
@@ -25,6 +26,7 @@ import { AzeyoScanScheduleRecommendationsUseCase } from '@/azeyo/schedule/applic
     // UseCases
     AzeyoCreateScheduleUseCase,
     AzeyoScanSchedulesUseCase,
+    AzeyoUpdateScheduleUseCase,
     AzeyoDeleteScheduleUseCase,
     AzeyoScanScheduleTagsUseCase,
     AzeyoCreateScheduleTagUseCase,

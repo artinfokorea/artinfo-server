@@ -76,7 +76,24 @@ export class AzeyoSeedCommunityPostUseCase {
 
     this.logger.log(`글 생성 완료: id=${post.id}, author=${postAuthor.nickname}, time=${postTime.toISOString()}`);
 
-    // 8. 좋아요 랜덤 추가 (0~10개)
+    // 8. 투표 글이면 시드 유저들로 랜덤 투표 추가 (3~8명)
+    if (generated.voteOptionA && generated.voteOptionB) {
+      const voteCount = 3 + Math.floor(Math.random() * 6);
+      const voteUsers = [...seedUsers]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, voteCount);
+      for (const voteUser of voteUsers) {
+        const option = Math.random() < 0.5 ? 'A' : 'B';
+        const voteTime = this.randomDateBetween(postTime, now);
+        await this.userRepository.manager.query(
+          `INSERT INTO azeyo_community_votes (user_id, post_id, option, created_at) VALUES ($1, $2, $3, $4)`,
+          [voteUser.id, post.id, option, voteTime],
+        );
+      }
+      this.logger.log(`투표 생성: ${voteUsers.length}명`);
+    }
+
+    // 9. 좋아요 랜덤 추가 (0~10개)
     const likeCount = Math.floor(Math.random() * 11);
     const shuffledUsers = [...seedUsers].sort(() => Math.random() - 0.5);
     const likeUsers = shuffledUsers.filter(u => u.id !== postAuthor.id).slice(0, likeCount);
@@ -91,7 +108,7 @@ export class AzeyoSeedCommunityPostUseCase {
       this.logger.log(`좋아요 생성: ${likeUsers.length}개`);
     }
 
-    // 9. 댓글 저장
+    // 10. 댓글 저장
     const usedUserIds = new Set<number>([postAuthor.id]);
     for (let i = 0; i < generated.comments.length; i++) {
       // 댓글 시간: postTime ~ now 사이 랜덤
