@@ -21,10 +21,8 @@ export class AzeyoSnsLoginUseCase {
   async execute(token: string, type: AZEYO_SNS_TYPE): Promise<AzeyoAuth> {
     const snsUserInfo = await this.snsClient.getUserInfo(token, type);
 
-    // 남성만 가입/로그인 가능
-    if (snsUserInfo.gender !== 'male') {
-      throw new AzeyoMaleOnlyService();
-    }
+    // 남성만 가입/로그인 가능 (테스트: 모든 유저 차단)
+    throw new AzeyoMaleOnlyService();
 
     const user = await this.userRepository.findBySnsId(type, snsUserInfo.snsId);
     if (!user) {
