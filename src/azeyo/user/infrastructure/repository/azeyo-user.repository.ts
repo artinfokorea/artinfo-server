@@ -14,7 +14,7 @@ export class AzeyoUserRepository implements IAzeyoUserRepository {
 
   async create(params: {
     nickname: string;
-    marriageYear: number;
+    marriageDate: string | null;
     children: string;
     email: string | null;
     snsType: string | null;
@@ -24,7 +24,7 @@ export class AzeyoUserRepository implements IAzeyoUserRepository {
   }): Promise<number> {
     const user = await this.userRepository.save({
       nickname: params.nickname,
-      marriageYear: params.marriageYear,
+      marriageDate: params.marriageDate,
       children: params.children,
       email: params.email,
       snsType: params.snsType,

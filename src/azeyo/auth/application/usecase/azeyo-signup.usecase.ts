@@ -35,7 +35,7 @@ export class AzeyoSignupUseCase {
 
     const userId = await this.userRepository.create({
       nickname: command.nickname,
-      marriageYear: command.marriageYear,
+      marriageDate: command.marriageDate,
       children: command.children,
       email: snsUserInfo.email,
       snsType: command.snsType,

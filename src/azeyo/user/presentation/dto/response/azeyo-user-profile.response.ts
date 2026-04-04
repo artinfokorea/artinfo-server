@@ -6,7 +6,7 @@ export class AzeyoUserProfileResponse {
   @ApiProperty() nickname: string;
   @ApiProperty() subtitle: string | null;
   @ApiProperty() iconImageUrl: string | null;
-  @ApiProperty() marriageYear: number;
+  @ApiProperty() marriageDate: string | null;
   @ApiProperty() children: string;
   @ApiProperty() activityPoints: number;
   @ApiProperty() monthlyPoints: number;
@@ -20,7 +20,7 @@ export class AzeyoUserProfileResponse {
     this.nickname = user.nickname;
     this.subtitle = user.subtitle;
     this.iconImageUrl = user.iconImageUrl;
-    this.marriageYear = user.marriageYear;
+    this.marriageDate = user.marriageDate;
     this.children = user.children;
     this.activityPoints = user.activityPoints;
     this.monthlyPoints = user.monthlyPoints;

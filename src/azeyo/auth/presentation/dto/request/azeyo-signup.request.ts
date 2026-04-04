@@ -8,8 +8,8 @@ export class AzeyoSignupRequest {
   @ApiProperty({ type: String, required: true, description: '닉네임 (2~12자)', example: '김아재' })
   nickname: string;
 
-  @ApiProperty({ type: Number, required: true, description: '결혼 연도', example: 2020 })
-  marriageYear: number;
+  @ApiProperty({ type: String, required: false, description: '결혼 날짜 (미혼이면 null)', example: '2020-05-15', nullable: true })
+  marriageDate: string | null;
 
   @ApiProperty({ type: String, required: true, description: '자녀 수', example: '0' })
   children: string;
@@ -28,7 +28,7 @@ export class AzeyoSignupRequest {
   toCommand() {
     return new AzeyoSignupCommand({
       nickname: this.nickname,
-      marriageYear: this.marriageYear,
+      marriageDate: this.marriageDate ?? null,
       children: this.children,
       snsToken: this.snsToken,
       snsType: this.snsType,

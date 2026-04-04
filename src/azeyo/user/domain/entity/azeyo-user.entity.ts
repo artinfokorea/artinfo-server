@@ -11,8 +11,8 @@ export class AzeyoUser extends BaseEntity {
   @Column({ type: 'varchar', name: 'subtitle', nullable: true })
   subtitle: string | null;
 
-  @Column({ type: 'int', name: 'marriage_year' })
-  marriageYear: number;
+  @Column({ type: 'date', name: 'marriage_date', nullable: true })
+  marriageDate: string | null;
 
   @Column({ name: 'children', default: '0' })
   children: string;
