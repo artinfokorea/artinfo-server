@@ -50,8 +50,8 @@ export class AzeyoCommunityController {
   // === Posts ===
 
   @RestApiGet(AzeyoCommunityPostsResponse, { path: '/top', description: '인기 게시글 조회 (이달 좋아요+댓글 순)' })
-  async scanTopPosts() {
-    const posts = await this.scanTopPostsUseCase.execute();
+  async scanTopPosts(@Signature() signature: UserSignature) {
+    const posts = await this.scanTopPostsUseCase.execute(signature?.id ?? null);
     return new AzeyoCommunityPostsResponse(posts);
   }
 
