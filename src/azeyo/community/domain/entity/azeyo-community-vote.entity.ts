@@ -22,7 +22,7 @@ export class AzeyoCommunityVote extends BaseEntity {
   @Column({ name: 'user_id' })
   userId: number;
 
-  @ManyToOne(() => AzeyoCommunityPost)
+  @ManyToOne(() => AzeyoCommunityPost, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'post_id', referencedColumnName: 'id' })
   post: AzeyoCommunityPost;
 

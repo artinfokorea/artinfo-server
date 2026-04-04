@@ -10,11 +10,16 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
+import { AzeyoCommunityPost } from '@/azeyo/community/domain/entity/azeyo-community-post.entity';
 
 @Entity('azeyo_community_comments')
 export class AzeyoCommunityComment extends BaseEntity {
   @PrimaryGeneratedColumn('increment', { name: 'id' })
   id: number;
+
+  @ManyToOne(() => AzeyoCommunityPost, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'post_id', referencedColumnName: 'id' })
+  post: AzeyoCommunityPost;
 
   @Column({ name: 'post_id' })
   postId: number;

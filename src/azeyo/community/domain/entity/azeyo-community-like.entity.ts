@@ -4,8 +4,11 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { AzeyoCommunityPost } from '@/azeyo/community/domain/entity/azeyo-community-post.entity';
 
 @Entity('azeyo_community_likes')
 export class AzeyoCommunityLike extends BaseEntity {
@@ -14,6 +17,10 @@ export class AzeyoCommunityLike extends BaseEntity {
 
   @Column({ name: 'user_id' })
   userId: number;
+
+  @ManyToOne(() => AzeyoCommunityPost, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'target_id', referencedColumnName: 'id' })
+  post: AzeyoCommunityPost;
 
   @Column({ name: 'target_id' })
   targetId: number;
