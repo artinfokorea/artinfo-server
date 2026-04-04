@@ -13,6 +13,7 @@ export class AzeyoUserRepository implements IAzeyoUserRepository {
   ) {}
 
   async create(params: {
+    name: string | null;
     nickname: string;
     marriageDate: string | null;
     children: string;
@@ -27,6 +28,7 @@ export class AzeyoUserRepository implements IAzeyoUserRepository {
     marketingConsent: boolean;
   }): Promise<number> {
     const user = await this.userRepository.save({
+      name: params.name,
       nickname: params.nickname,
       marriageDate: params.marriageDate,
       children: params.children,

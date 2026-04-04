@@ -4,6 +4,7 @@ export const AZEYO_USER_REPOSITORY = Symbol('AZEYO_USER_REPOSITORY');
 
 export interface IAzeyoUserRepository {
   create(params: {
+    name: string | null;
     nickname: string;
     marriageDate: string | null;
     children: string;

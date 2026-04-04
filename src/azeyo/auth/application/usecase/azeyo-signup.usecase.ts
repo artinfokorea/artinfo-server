@@ -49,6 +49,7 @@ export class AzeyoSignupUseCase {
     const defaultIconUrl = `https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/${randomProfileNumber}.jpg`;
 
     const userId = await this.userRepository.create({
+      name: snsUserInfo.name,
       nickname: command.nickname,
       marriageDate: command.marriageDate,
       children: command.children,

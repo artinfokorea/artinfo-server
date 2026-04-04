@@ -3,6 +3,7 @@ import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
 
 export class AzeyoUserProfileResponse {
   @ApiProperty() id: number;
+  @ApiProperty() name: string | null;
   @ApiProperty() nickname: string;
   @ApiProperty() subtitle: string | null;
   @ApiProperty() iconImageUrl: string | null;
@@ -19,6 +20,7 @@ export class AzeyoUserProfileResponse {
 
   constructor(user: AzeyoUser) {
     this.id = user.id;
+    this.name = user.name;
     this.nickname = user.nickname;
     this.subtitle = user.subtitle;
     this.iconImageUrl = user.iconImageUrl;

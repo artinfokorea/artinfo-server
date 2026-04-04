@@ -5,6 +5,9 @@ export class AzeyoUser extends BaseEntity {
   @PrimaryGeneratedColumn('increment', { name: 'id' })
   id: number;
 
+  @Column({ type: 'varchar', name: 'name', nullable: true })
+  name: string | null;
+
   @Column({ name: 'nickname' })
   nickname: string;
 
