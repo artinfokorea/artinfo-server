@@ -90,12 +90,17 @@ export class AzeyoCommunityGptService {
 
     const isVote = type === AZEYO_COMMUNITY_POST_TYPE.VOTE;
 
+    // UTC+9로 KST 시간 계산 (toLocaleString은 서버 환경에 따라 부정확할 수 있음)
     const now = new Date();
-    const kstNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
-    const dayOfWeek = now.toLocaleDateString('ko-KR', { weekday: 'long', timeZone: 'Asia/Seoul' });
-    const kstHour = kstNow.getHours();
-    const kstDay = kstNow.getDay();
+    const kstMs = now.getTime() + 9 * 60 * 60 * 1000;
+    const kstNow = new Date(kstMs);
+    const kstHour = kstNow.getUTCHours();
+    const kstDay = kstNow.getUTCDay();
     const isWeekend = [0, 6].includes(kstDay);
+    const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+    const dayOfWeek = dayNames[kstDay];
+
+    this.logger.log(`KST 시간 계산: ${dayOfWeek} ${kstHour}시 (UTC: ${now.getUTCHours()}시, isWeekend: ${isWeekend})`);
 
     const recentPostsSection = recentPosts.length > 0
       ? `\n## 최근 글 (중복 금지)\n아래는 최근 올라온 글 목록이야. 이 글들과 비슷한 주제나 내용은 절대 쓰지 마.\n${recentPosts.map((p, i) => `${i + 1}. [${p.category}] ${p.title}`).join('\n')}\n`
