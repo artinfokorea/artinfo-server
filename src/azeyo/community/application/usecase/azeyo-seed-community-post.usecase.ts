@@ -43,7 +43,13 @@ export class AzeyoSeedCommunityPostUseCase {
     // 5. 글 작성 시간: 최신 글 이후 ~ 현재 사이 랜덤 (항상 최신 글이 되도록)
     const [{ db_now: now, post_time: postTime }] = await this.userRepository.manager.query(
       `SELECT NOW() AS db_now,
-        NOW() - INTERVAL '1 minute' * (1 + floor(random() * 9)) AS post_time`,
+        COALESCE(
+          (SELECT created_at FROM azeyo_community_posts WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 1),
+          NOW() - INTERVAL '10 minutes'
+        ) + (NOW() - COALESCE(
+          (SELECT created_at FROM azeyo_community_posts WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 1),
+          NOW() - INTERVAL '10 minutes'
+        )) * random() AS post_time`,
     );
 
     // 6. 랜덤 유저 선택 (글 작성자)
