@@ -45,7 +45,7 @@ export class AzeyoCommunityGptService {
         model: 'gemini-2.5-flash-lite',
         generationConfig: {
           responseMimeType: 'application/json',
-          maxOutputTokens: 2000,
+          maxOutputTokens: 4000,
           temperature: 0.9,
         },
       });
