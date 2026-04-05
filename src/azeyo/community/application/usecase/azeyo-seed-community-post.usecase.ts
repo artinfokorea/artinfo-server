@@ -40,10 +40,10 @@ export class AzeyoSeedCommunityPostUseCase {
     // 4. GPT로 글/댓글 생성 (최신 글 카테고리/내용 제외)
     const generated = await this.gptService.generatePost(commentCount, recentPosts);
 
-    // 5. 글 작성 시간: DB 서버 기준 현재 시각에서 10~60분 전 랜덤
-    const minutesAgo = 10 + Math.floor(Math.random() * 50); // 10~60분 전
+    // 5. 글 작성 시간: 최신 글 이후 ~ 현재 사이 랜덤 (항상 최신 글이 되도록)
     const [{ db_now: now, post_time: postTime }] = await this.userRepository.manager.query(
-      `SELECT NOW() AS db_now, NOW() - INTERVAL '${minutesAgo} minutes' AS post_time`,
+      `SELECT NOW() AS db_now,
+        NOW() - INTERVAL '1 minute' * (1 + floor(random() * 9)) AS post_time`,
     );
 
     // 6. 랜덤 유저 선택 (글 작성자)

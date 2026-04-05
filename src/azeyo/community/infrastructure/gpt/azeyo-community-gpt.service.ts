@@ -94,7 +94,6 @@ export class AzeyoCommunityGptService {
     const kstNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
     const dayOfWeek = now.toLocaleDateString('ko-KR', { weekday: 'long', timeZone: 'Asia/Seoul' });
     const kstHour = kstNow.getHours();
-    const kstMinute = kstNow.getMinutes();
     const kstDay = kstNow.getDay();
     const isWeekend = [0, 6].includes(kstDay);
 
@@ -106,7 +105,7 @@ export class AzeyoCommunityGptService {
 카테고리: ${category} (${categoryDescriptions[category]})
 게시글 타입: ${isVote ? 'VOTE (A/B 투표)' : 'TEXT (일반 글)'}
 오늘: ${dayOfWeek} (${isWeekend ? '주말' : '평일'})
-현재 한국시간: ${kstHour}시 ${kstMinute}분
+지금 시간대: ${kstHour < 6 ? '새벽' : kstHour < 9 ? '이른 아침' : kstHour < 12 ? '오전' : kstHour < 14 ? '점심시간' : kstHour < 18 ? '오후' : kstHour < 22 ? '저녁' : '밤늦은 시간'}
 
 ## 가장 중요한 규칙
 반드시 "${categoryDescriptions[category]}" 주제로만 글을 써야 해. 다른 카테고리 주제로 쓰면 안 됨.
@@ -126,7 +125,9 @@ ${recentPostsSection}
 - 본문은 2~5문장, 짧고 임팩트 있게
 - 주말(토/일) 규칙: 본인, 아내, 가족 모두 출근/퇴근/회사/직장 관련 내용 절대 쓰지 마. 자녀의 학교/어린이집/유치원 등원/등교/하원/하교도 쓰지 마. 주말에는 온 가족이 쉬는 상황(집, 외출, 취미, 가족 나들이 등)으로만 쓰기
 - 평일(월~금) 규칙: 출근/퇴근/회사, 자녀 등원/등교 등 평일에 맞는 일상 상황 자유롭게 쓰기
-- 시간/날짜 관련 규칙: 지금은 ${dayOfWeek} ${kstHour}시${kstMinute}분이야. 글 속에서 날짜나 요일을 언급할 때 현재 시점과 맞아야 해. 예를 들어 오늘이 일요일 밤이면 "이번주 일요일"이 아니라 "오늘"이라고 써야 하고, 이미 지난 시간대의 일을 앞으로 할 일처럼 쓰면 안 됨. ${kstHour < 6 ? '지금은 새벽/심야니까 잠이 안 오거나 야식 먹거나 혼자 있는 상황' : kstHour < 9 ? '지금은 이른 아침이니까 기상/출근 준비/등원 상황' : kstHour < 12 ? '지금은 오전이니까 출근 후/업무 중 상황' : kstHour < 14 ? '지금은 점심시간이니까 점심 식사/휴식 상황' : kstHour < 18 ? '지금은 오후니까 업무 중/오후 상황' : kstHour < 22 ? '지금은 저녁이니까 퇴근 후/저녁식사/가족과 시간 상황' : '지금은 밤늦은 시간이니까 아이 재우고 혼자 있는 시간/야식/취침 전 상황'}에 맞게 쓰기
+- 글에 정확한 시각(예: "0시 7분", "오후 3시 20분")을 쓰지 마. 시간을 언급하려면 "아까", "오늘", "방금" 같이 자연스럽게 쓰기
+- 날짜/요일 관련: 오늘이 일요일 밤이면 "이번주 일요일"이 아니라 "오늘"이라고 쓰기. 이미 지난 시간대의 일을 앞으로 할 일처럼 쓰면 안 됨
+- 시간대에 맞는 상황으로 쓰기: ${kstHour < 6 ? '새벽이니까 잠이 안 오거나 야식/혼자 있는 상황' : kstHour < 9 ? '이른 아침이니까 기상/출근 준비/등원 상황' : kstHour < 12 ? '오전이니까 출근 후/업무 중 상황' : kstHour < 14 ? '점심시간이니까 점심 식사/휴식 상황' : kstHour < 18 ? '오후니까 업무 중/오후 상황' : kstHour < 22 ? '저녁이니까 퇴근 후/저녁식사/가족 시간 상황' : '밤이니까 아이 재우고 혼자 있는 시간/야식/취침 전 상황'}
 ${isVote ? '- voteOptionA, voteOptionB: 각 10자 이내의 투표 선택지' : ''}
 ${commentCount > 0 ? `- comments: ${commentCount}개의 댓글 (각각 다른 아재가 쓴 것처럼, 공감/훈수/드립 섞어서 1~2문장)` : '- comments: 빈 배열'}
 
