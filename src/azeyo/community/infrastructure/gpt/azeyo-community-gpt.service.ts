@@ -40,50 +40,72 @@ export class AzeyoCommunityGptService {
 
     const systemPrompt = this.buildPrompt(type, category, commentCount, recentPosts, postTime);
 
-    try {
-      const model = this.genAI.getGenerativeModel({
-        model: 'gemini-2.5-flash-lite',
-        generationConfig: {
-          responseMimeType: 'application/json',
-          maxOutputTokens: 8000,
-          temperature: 0.9,
-        },
-      });
+    const model = this.genAI.getGenerativeModel({
+      model: 'gemini-2.5-flash-lite',
+      generationConfig: {
+        responseMimeType: 'application/json',
+        maxOutputTokens: 8000,
+        temperature: 0.9,
+      },
+    });
 
-      // 1차: 글 생성
-      const response = await model.generateContent({
+    // 1차: 글 생성 (재시도 포함)
+    const content = await this.callWithRetry(() =>
+      model.generateContent({
         systemInstruction: systemPrompt,
         contents: [{ role: 'user', parts: [{ text: '게시글과 댓글을 생성해주세요.' }] }],
-      });
+      }),
+    );
+    const parsed = JSON.parse(content);
 
-      const content = response.response.text();
-      if (!content) throw new Error('Google AI 응답이 비어있습니다');
-
-      const parsed = JSON.parse(content);
-
-      // 2차: 검증 및 수정
+    // 2차: 검증 및 수정 (실패해도 1차 결과 사용)
+    let reviewed = parsed;
+    try {
       const reviewPrompt = this.buildReviewPrompt(type, category, commentCount);
-      const reviewResponse = await model.generateContent({
-        systemInstruction: reviewPrompt,
-        contents: [{ role: 'user', parts: [{ text: JSON.stringify(parsed) }] }],
-      });
-
-      const reviewContent = reviewResponse.response.text();
-      const reviewed = reviewContent ? JSON.parse(reviewContent) : parsed;
-
-      return {
-        type,
-        category,
-        title: reviewed.title,
-        contents: reviewed.contents,
-        voteOptionA: type === AZEYO_COMMUNITY_POST_TYPE.VOTE ? reviewed.voteOptionA : null,
-        voteOptionB: type === AZEYO_COMMUNITY_POST_TYPE.VOTE ? reviewed.voteOptionB : null,
-        comments: (reviewed.comments || []).slice(0, commentCount),
-      };
+      const reviewContent = await this.callWithRetry(() =>
+        model.generateContent({
+          systemInstruction: reviewPrompt,
+          contents: [{ role: 'user', parts: [{ text: JSON.stringify(parsed) }] }],
+        }),
+      );
+      reviewed = JSON.parse(reviewContent);
     } catch (e) {
-      this.logger.error('Google AI 게시글 생성 실패', e);
-      throw e;
+      this.logger.warn('2차 검증 실패, 1차 결과 사용', e);
     }
+
+    return {
+      type,
+      category,
+      title: reviewed.title,
+      contents: reviewed.contents,
+      voteOptionA: type === AZEYO_COMMUNITY_POST_TYPE.VOTE ? reviewed.voteOptionA : null,
+      voteOptionB: type === AZEYO_COMMUNITY_POST_TYPE.VOTE ? reviewed.voteOptionB : null,
+      comments: (reviewed.comments || []).slice(0, commentCount),
+    };
+  }
+
+  private async callWithRetry(
+    fn: () => Promise<{ response: { text: () => string } }>,
+    maxRetries = 3,
+  ): Promise<string> {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await fn();
+        const text = response.response.text();
+        if (!text) throw new Error('Google AI 응답이 비어있습니다');
+        return text;
+      } catch (e: any) {
+        const isRetryable = e?.message?.includes('503') || e?.message?.includes('429') || e?.message?.includes('high demand');
+        if (isRetryable && attempt < maxRetries) {
+          const delay = attempt * 3000; // 3초, 6초, 9초
+          this.logger.warn(`Google AI 재시도 ${attempt}/${maxRetries} (${delay}ms 후)`);
+          await new Promise(r => setTimeout(r, delay));
+          continue;
+        }
+        throw e;
+      }
+    }
+    throw new Error('Google AI 최대 재시도 횟수 초과');
   }
 
   private buildPrompt(type: AZEYO_COMMUNITY_POST_TYPE, category: AZEYO_COMMUNITY_CATEGORY, commentCount: number, recentPosts: { category: string; title: string }[] = [], postTime?: Date): string {
