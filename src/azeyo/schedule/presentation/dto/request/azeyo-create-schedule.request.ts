@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { NotBlank } from '@/common/decorator/validator';
 import { AzeyoCreateScheduleCommand } from '@/azeyo/schedule/application/command/azeyo-create-schedule.command';
-import { AZEYO_SCHEDULE_REPEAT_TYPE } from '@/azeyo/schedule/domain/entity/azeyo-schedule.entity';
+import { AZEYO_SCHEDULE_REPEAT_TYPE, AZEYO_SCHEDULE_CALENDAR_TYPE } from '@/azeyo/schedule/domain/entity/azeyo-schedule.entity';
 
 export class AzeyoCreateScheduleRequest {
   @NotBlank()
@@ -21,6 +21,9 @@ export class AzeyoCreateScheduleRequest {
   @ApiProperty({ enum: AZEYO_SCHEDULE_REPEAT_TYPE, required: false, description: '반복 설정 (NONE / YEARLY)' })
   repeatType: AZEYO_SCHEDULE_REPEAT_TYPE;
 
+  @ApiProperty({ enum: AZEYO_SCHEDULE_CALENDAR_TYPE, required: false, description: '달력 유형 (SOLAR / LUNAR)', default: 'SOLAR' })
+  calendarType: AZEYO_SCHEDULE_CALENDAR_TYPE;
+
   @ApiProperty({ type: String, required: false, description: '최초 시작일 (YYYY-MM-DD), 반복 시 몇 주년 계산용' })
   startDate: string | null;
 
@@ -35,6 +38,7 @@ export class AzeyoCreateScheduleRequest {
       memo: this.memo ?? null,
       tagIds: this.tagIds ?? [],
       repeatType: this.repeatType ?? AZEYO_SCHEDULE_REPEAT_TYPE.NONE,
+      calendarType: this.calendarType ?? AZEYO_SCHEDULE_CALENDAR_TYPE.SOLAR,
       startDate: this.startDate ?? null,
       alarmTimes: this.alarmTimes?.slice(0, 2) ?? null,
     });

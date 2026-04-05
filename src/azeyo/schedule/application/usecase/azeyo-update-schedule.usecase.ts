@@ -18,6 +18,7 @@ export class AzeyoUpdateScheduleUseCase {
     schedule.date = command.date;
     schedule.memo = command.memo;
     schedule.repeatType = command.repeatType;
+    schedule.calendarType = command.calendarType;
     schedule.startDate = command.startDate;
     schedule.alarmTimes = command.alarmTimes;
     schedule.tags = tags;

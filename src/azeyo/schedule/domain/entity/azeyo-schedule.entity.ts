@@ -18,6 +18,11 @@ export enum AZEYO_SCHEDULE_REPEAT_TYPE {
   YEARLY = 'YEARLY',
 }
 
+export enum AZEYO_SCHEDULE_CALENDAR_TYPE {
+  SOLAR = 'SOLAR',
+  LUNAR = 'LUNAR',
+}
+
 @Entity('azeyo_schedules')
 export class AzeyoSchedule extends BaseEntity {
   @PrimaryGeneratedColumn('increment', { name: 'id' })
@@ -45,6 +50,13 @@ export class AzeyoSchedule extends BaseEntity {
     default: AZEYO_SCHEDULE_REPEAT_TYPE.NONE,
   })
   repeatType: AZEYO_SCHEDULE_REPEAT_TYPE;
+
+  @Column({
+    type: 'varchar',
+    name: 'calendar_type',
+    default: AZEYO_SCHEDULE_CALENDAR_TYPE.SOLAR,
+  })
+  calendarType: AZEYO_SCHEDULE_CALENDAR_TYPE;
 
   @Column({ type: 'date', name: 'start_date', nullable: true })
   startDate: string | null;

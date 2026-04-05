@@ -20,6 +20,7 @@ export class AzeyoCreateScheduleUseCase {
       date: command.date,
       memo: command.memo,
       repeatType: command.repeatType,
+      calendarType: command.calendarType,
       startDate: command.startDate,
       alarmTimes: command.alarmTimes,
       tags,

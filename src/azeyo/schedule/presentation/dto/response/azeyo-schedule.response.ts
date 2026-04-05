@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { AzeyoSchedule, AZEYO_SCHEDULE_REPEAT_TYPE } from '@/azeyo/schedule/domain/entity/azeyo-schedule.entity';
+import { AzeyoSchedule, AZEYO_SCHEDULE_REPEAT_TYPE, AZEYO_SCHEDULE_CALENDAR_TYPE } from '@/azeyo/schedule/domain/entity/azeyo-schedule.entity';
 import { AzeyoScheduleTag } from '@/azeyo/schedule/domain/entity/azeyo-schedule-tag.entity';
 
 export class AzeyoScheduleTagResponse {
@@ -22,6 +22,7 @@ export class AzeyoScheduleResponse {
   @ApiProperty() date: string;
   @ApiProperty() memo: string | null;
   @ApiProperty() repeatType: AZEYO_SCHEDULE_REPEAT_TYPE;
+  @ApiProperty() calendarType: AZEYO_SCHEDULE_CALENDAR_TYPE;
   @ApiProperty() startDate: string | null;
   @ApiProperty() alarmTimes: string[] | null;
   @ApiProperty() anniversaryLabel: string | null;
@@ -34,6 +35,7 @@ export class AzeyoScheduleResponse {
     this.date = schedule.date;
     this.memo = schedule.memo;
     this.repeatType = schedule.repeatType ?? AZEYO_SCHEDULE_REPEAT_TYPE.NONE;
+    this.calendarType = schedule.calendarType ?? AZEYO_SCHEDULE_CALENDAR_TYPE.SOLAR;
     this.startDate = schedule.startDate ?? null;
     this.alarmTimes = schedule.alarmTimes ?? null;
     this.anniversaryLabel = this.computeAnniversaryLabel(schedule);

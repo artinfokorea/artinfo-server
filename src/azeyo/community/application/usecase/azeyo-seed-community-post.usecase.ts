@@ -34,17 +34,20 @@ export class AzeyoSeedCommunityPostUseCase {
     // 2. 최신 글 5개 조회하여 중복 방지
     const recentPosts = await this.getLatestPosts(5);
 
-    // 3. 글 작성 시간 먼저 계산 (최신 글 이후 ~ 현재 사이 랜덤)
-    const [{ db_now: now, post_time: postTime }] = await this.userRepository.manager.query(
+    // 3. 글 작성 시간 계산: (최신 글 ~ 현재) ∩ (06:30 ~ 12:00 KST) 사이 랜덤
+    const [{ db_now, latest_at }] = await this.userRepository.manager.query(
       `SELECT NOW() AS db_now,
         COALESCE(
           (SELECT created_at FROM azeyo_community_posts WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 1),
           NOW() - INTERVAL '10 minutes'
-        ) + (NOW() - COALESCE(
-          (SELECT created_at FROM azeyo_community_posts WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 1),
-          NOW() - INTERVAL '10 minutes'
-        )) * random() AS post_time`,
+        ) AS latest_at`,
     );
+    const now = new Date(db_now);
+    const baseTime = new Date(latest_at);
+    const effectiveBaseTime = baseTime.getTime() > now.getTime()
+      ? new Date(now.getTime() - 60 * 1000)
+      : baseTime;
+    const postTime = this.randomDateInAllowedWindow(effectiveBaseTime, now);
 
     // 4. 댓글 수 랜덤 (0~5)
     const commentCount = Math.floor(Math.random() * 6);
@@ -145,6 +148,60 @@ export class AzeyoSeedCommunityPostUseCase {
       [count],
     );
     return result;
+  }
+
+  /**
+   * (start ~ end) ∩ (매일 06:30 ~ 12:00 KST) 교집합 구간에서 랜덤 시간 반환
+   */
+  private randomDateInAllowedWindow(start: Date, end: Date): Date {
+    const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+    const WINDOW_START_MIN = 6 * 60 + 30; // 06:30 in minutes
+    const WINDOW_END_MIN = 12 * 60;       // 12:00 in minutes
+
+    const slots: Array<{ start: number; end: number }> = [];
+
+    // KST 기준 날짜 범위 산출
+    const startKstDay = new Date(start.getTime() + KST_OFFSET_MS);
+    startKstDay.setUTCHours(0, 0, 0, 0);
+    const endKstDay = new Date(end.getTime() + KST_OFFSET_MS);
+    endKstDay.setUTCHours(0, 0, 0, 0);
+
+    for (
+      const d = new Date(startKstDay);
+      d.getTime() <= endKstDay.getTime();
+      d.setUTCDate(d.getUTCDate() + 1)
+    ) {
+      // 이 날의 06:30~12:00 KST → UTC 변환
+      const winStartUtc = d.getTime() + WINDOW_START_MIN * 60 * 1000 - KST_OFFSET_MS;
+      const winEndUtc = d.getTime() + WINDOW_END_MIN * 60 * 1000 - KST_OFFSET_MS;
+
+      const intStart = Math.max(winStartUtc, start.getTime());
+      const intEnd = Math.min(winEndUtc, end.getTime());
+
+      if (intStart < intEnd) {
+        slots.push({ start: intStart, end: intEnd });
+      }
+    }
+
+    if (slots.length === 0) {
+      // 교집합이 없으면 now 반환 (스케줄러가 허용 시간대 밖에서 돈 경우)
+      this.logger.warn('허용 시간대(06:30~12:00 KST) 교집합 없음 — now 사용');
+      return end;
+    }
+
+    // 구간 길이에 비례하여 랜덤 선택
+    const totalMs = slots.reduce((sum, s) => sum + (s.end - s.start), 0);
+    let pick = Math.random() * totalMs;
+
+    for (const slot of slots) {
+      const len = slot.end - slot.start;
+      if (pick <= len) {
+        return new Date(slot.start + pick);
+      }
+      pick -= len;
+    }
+
+    return new Date(slots[slots.length - 1].end);
   }
 
   private randomDateBetween(start: Date, end: Date): Date {
