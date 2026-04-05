@@ -28,7 +28,7 @@ export class AzeyoCommunityGptService {
     );
   }
 
-  async generatePost(commentCount: number, recentPosts: { category: string; title: string }[] = []): Promise<GptGeneratedPost> {
+  async generatePost(commentCount: number, recentPosts: { category: string; title: string }[] = [], postTime?: Date): Promise<GptGeneratedPost> {
     // 최근 글 카테고리들을 제외하고 선택 (모두 겹치면 전체에서 랜덤)
     const recentCategories = new Set(recentPosts.map(p => p.category));
     const candidates = CATEGORIES.filter(c => !recentCategories.has(c));
@@ -38,7 +38,7 @@ export class AzeyoCommunityGptService {
     const isVote = Math.random() < 0.2; // 일반글:투표 = 4:1
     const type = isVote ? AZEYO_COMMUNITY_POST_TYPE.VOTE : AZEYO_COMMUNITY_POST_TYPE.TEXT;
 
-    const systemPrompt = this.buildPrompt(type, category, commentCount, recentPosts);
+    const systemPrompt = this.buildPrompt(type, category, commentCount, recentPosts, postTime);
 
     try {
       const model = this.genAI.getGenerativeModel({
@@ -86,7 +86,7 @@ export class AzeyoCommunityGptService {
     }
   }
 
-  private buildPrompt(type: AZEYO_COMMUNITY_POST_TYPE, category: AZEYO_COMMUNITY_CATEGORY, commentCount: number, recentPosts: { category: string; title: string }[] = []): string {
+  private buildPrompt(type: AZEYO_COMMUNITY_POST_TYPE, category: AZEYO_COMMUNITY_CATEGORY, commentCount: number, recentPosts: { category: string; title: string }[] = [], postTime?: Date): string {
     const categoryDescriptions: Record<AZEYO_COMMUNITY_CATEGORY, string> = {
       [AZEYO_COMMUNITY_CATEGORY.GIFT]: '선물 추천/고민 (아내, 장인장모, 아이 선물 등)',
       [AZEYO_COMMUNITY_CATEGORY.COUPLE_FIGHT]: '부부 갈등/고민 상담',
@@ -101,9 +101,9 @@ export class AzeyoCommunityGptService {
 
     const isVote = type === AZEYO_COMMUNITY_POST_TYPE.VOTE;
 
-    // UTC+9로 KST 시간 계산 (toLocaleString은 서버 환경에 따라 부정확할 수 있음)
-    const now = new Date();
-    const kstMs = now.getTime() + 9 * 60 * 60 * 1000;
+    // 글이 등록될 시간 기준으로 KST 계산
+    const baseTime = postTime || new Date();
+    const kstMs = baseTime.getTime() + 9 * 60 * 60 * 1000;
     const kstNow = new Date(kstMs);
     const kstHour = kstNow.getUTCHours();
     const kstDay = kstNow.getUTCDay();
@@ -111,7 +111,7 @@ export class AzeyoCommunityGptService {
     const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
     const dayOfWeek = dayNames[kstDay];
 
-    this.logger.log(`KST 시간 계산: ${dayOfWeek} ${kstHour}시 (UTC: ${now.getUTCHours()}시, isWeekend: ${isWeekend})`);
+    this.logger.log(`글 생성 시간 기준 KST: ${dayOfWeek} ${kstHour}시 (postTime: ${baseTime.toISOString()})`);
 
     const recentPostsSection = recentPosts.length > 0
       ? `\n## 최근 글 (중복 금지)\n아래는 최근 올라온 글 목록이야. 이 글들과 비슷한 주제나 내용은 절대 쓰지 마.\n${recentPosts.map((p, i) => `${i + 1}. [${p.category}] ${p.title}`).join('\n')}\n`

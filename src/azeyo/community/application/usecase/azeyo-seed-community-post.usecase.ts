@@ -34,13 +34,7 @@ export class AzeyoSeedCommunityPostUseCase {
     // 2. 최신 글 5개 조회하여 중복 방지
     const recentPosts = await this.getLatestPosts(5);
 
-    // 3. 댓글 수 랜덤 (0~5)
-    const commentCount = Math.floor(Math.random() * 6);
-
-    // 4. GPT로 글/댓글 생성 (최신 글 카테고리/내용 제외)
-    const generated = await this.gptService.generatePost(commentCount, recentPosts);
-
-    // 5. 글 작성 시간: 최신 글 이후 ~ 현재 사이 랜덤 (항상 최신 글이 되도록)
+    // 3. 글 작성 시간 먼저 계산 (최신 글 이후 ~ 현재 사이 랜덤)
     const [{ db_now: now, post_time: postTime }] = await this.userRepository.manager.query(
       `SELECT NOW() AS db_now,
         COALESCE(
@@ -51,6 +45,12 @@ export class AzeyoSeedCommunityPostUseCase {
           NOW() - INTERVAL '10 minutes'
         )) * random() AS post_time`,
     );
+
+    // 4. 댓글 수 랜덤 (0~5)
+    const commentCount = Math.floor(Math.random() * 6);
+
+    // 5. GPT로 글/댓글 생성 (글 생성 시간을 전달)
+    const generated = await this.gptService.generatePost(commentCount, recentPosts, new Date(postTime));
 
     // 6. 랜덤 유저 선택 (글 작성자)
     const postAuthor = this.pickRandom(seedUsers);
