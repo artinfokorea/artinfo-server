@@ -107,6 +107,10 @@ export class AzeyoCommunityGptService {
 게시글 타입: ${isVote ? 'VOTE (A/B 투표)' : 'TEXT (일반 글)'}
 오늘: ${dayOfWeek} (${isWeekend ? '주말' : '평일'})
 현재 한국시간: ${kstHour}시 ${kstMinute}분
+
+## 가장 중요한 규칙
+반드시 "${categoryDescriptions[category]}" 주제로만 글을 써야 해. 다른 카테고리 주제로 쓰면 안 됨.
+예를 들어 카테고리가 "육아"면 육아 관련 내용만, "선물"이면 선물 관련 내용만 써야 함.
 ${recentPostsSection}
 ## 말투 규칙
 - 카톡이나 남초 커뮤니티에서 쓰는 편한 반말 (예: "~했음", "~인데", "~ㅋㅋ", "~함", "진짜 ㅋㅋ")
