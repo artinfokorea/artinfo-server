@@ -50,6 +50,7 @@ export class AzeyoCommunityGptService {
         },
       });
 
+      // 1차: 글 생성
       const response = await model.generateContent({
         systemInstruction: systemPrompt,
         contents: [{ role: 'user', parts: [{ text: '게시글과 댓글을 생성해주세요.' }] }],
@@ -60,14 +61,24 @@ export class AzeyoCommunityGptService {
 
       const parsed = JSON.parse(content);
 
+      // 2차: 검증 및 수정
+      const reviewPrompt = this.buildReviewPrompt(type, category, commentCount);
+      const reviewResponse = await model.generateContent({
+        systemInstruction: reviewPrompt,
+        contents: [{ role: 'user', parts: [{ text: JSON.stringify(parsed) }] }],
+      });
+
+      const reviewContent = reviewResponse.response.text();
+      const reviewed = reviewContent ? JSON.parse(reviewContent) : parsed;
+
       return {
         type,
         category,
-        title: parsed.title,
-        contents: parsed.contents,
-        voteOptionA: type === AZEYO_COMMUNITY_POST_TYPE.VOTE ? parsed.voteOptionA : null,
-        voteOptionB: type === AZEYO_COMMUNITY_POST_TYPE.VOTE ? parsed.voteOptionB : null,
-        comments: (parsed.comments || []).slice(0, commentCount),
+        title: reviewed.title,
+        contents: reviewed.contents,
+        voteOptionA: type === AZEYO_COMMUNITY_POST_TYPE.VOTE ? reviewed.voteOptionA : null,
+        voteOptionB: type === AZEYO_COMMUNITY_POST_TYPE.VOTE ? reviewed.voteOptionB : null,
+        comments: (reviewed.comments || []).slice(0, commentCount),
       };
     } catch (e) {
       this.logger.error('Google AI 게시글 생성 실패', e);
@@ -135,6 +146,37 @@ ${recentPostsSection}
 - 시간대에 맞는 상황으로 쓰기: ${kstHour < 6 ? '새벽이니까 잠이 안 오거나 야식/혼자 있는 상황' : kstHour < 9 ? '이른 아침이니까 기상/출근 준비/등원 상황' : kstHour < 12 ? '오전이니까 출근 후/업무 중 상황' : kstHour < 14 ? '점심시간이니까 점심 식사/휴식 상황' : kstHour < 18 ? '오후니까 업무 중/오후 상황' : kstHour < 22 ? '저녁이니까 퇴근 후/저녁식사/가족 시간 상황' : '밤이니까 아이 재우고 혼자 있는 시간/야식/취침 전 상황'}
 ${isVote ? '- voteOptionA, voteOptionB: 각 10자 이내의 투표 선택지' : ''}
 ${commentCount > 0 ? `- comments: ${commentCount}개의 댓글 (각각 다른 아재가 쓴 것처럼, 공감/훈수/드립 섞어서 1~2문장)` : '- comments: 빈 배열'}
+
+## JSON 형식으로만 응답
+{
+  "title": "제목",
+  "contents": "본문 내용",
+  ${isVote ? '"voteOptionA": "선택지A",\n  "voteOptionB": "선택지B",' : ''}
+  "comments": [${commentCount > 0 ? '"댓글1", "댓글2"' : ''}]
+}`;
+  }
+
+  private buildReviewPrompt(type: AZEYO_COMMUNITY_POST_TYPE, category: AZEYO_COMMUNITY_CATEGORY, commentCount: number): string {
+    const now = new Date();
+    const kstMs = now.getTime() + 9 * 60 * 60 * 1000;
+    const kstNow = new Date(kstMs);
+    const kstHour = kstNow.getUTCHours();
+    const kstDay = kstNow.getUTCDay();
+    const isWeekend = [0, 6].includes(kstDay);
+    const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+    const dayOfWeek = dayNames[kstDay];
+    const timeSlot = kstHour < 6 ? '새벽' : kstHour < 9 ? '이른 아침' : kstHour < 12 ? '오전' : kstHour < 14 ? '점심시간' : kstHour < 18 ? '오후' : kstHour < 22 ? '저녁' : '밤늦은 시간';
+    const isVote = type === AZEYO_COMMUNITY_POST_TYPE.VOTE;
+
+    return `너는 기혼 남성 커뮤니티 게시글 검수자야. 아래 JSON을 검토하고 문제가 있으면 수정해서 같은 JSON 형식으로 응답해. 문제없으면 그대로 응답해.
+
+현재: ${dayOfWeek} ${timeSlot} (${isWeekend ? '주말' : '평일'})
+
+## 검수 기준
+1. 시각 표현 금지: "N시", "N분", "N시 반" 등 구체적 시각이 있으면 "아까", "방금", "오늘" 등으로 수정
+2. 시간대 부적합: ${isWeekend ? '주말인데 출근/퇴근/회사/직장/학교 내용이 있으면 집/가족/외출 상황으로 수정' : kstHour < 8 || kstHour >= 22 ? '새벽/밤인데 출근/퇴근/회사/팀장/야근 내용이 있으면 집에서 쉬는 상황으로 수정' : '현재 시간대에 맞지 않는 상황이 있으면 수정'}
+3. 카테고리 불일치: 카테고리 "${category}"와 내용이 안 맞으면 카테고리에 맞게 수정
+4. 말투: 존댓말이나 격식체가 있으면 반말로 수정
 
 ## JSON 형식으로만 응답
 {
