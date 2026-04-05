@@ -27,10 +27,10 @@ export class AzeyoCommunitySeedScheduler implements OnModuleDestroy {
   }
 
   /**
-   * 매 정시 실행 (07:00 ~ 01:00 KST)
+   * 매 정시 실행 (07:00 ~ 24:00 KST)
    * Redis SET NX로 분산 락을 잡아 한 인스턴스만 실행
    */
-  @Cron('0 0 0-1,7-23 * * *', {
+  @Cron('0 0 0,7-23 * * *', {
     name: 'azeyoCommunitySeed',
     timeZone: 'Asia/Seoul',
   })
