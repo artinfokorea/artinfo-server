@@ -35,7 +35,7 @@ export class AzeyoCommunityGptService {
     const category = candidates.length > 0
       ? candidates[Math.floor(Math.random() * candidates.length)]
       : CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)];
-    const isVote = Math.random() < 0.25;
+    const isVote = Math.random() < 0.2; // 일반글:투표 = 4:1
     const type = isVote ? AZEYO_COMMUNITY_POST_TYPE.VOTE : AZEYO_COMMUNITY_POST_TYPE.TEXT;
 
     const systemPrompt = this.buildPrompt(type, category, commentCount, recentPosts);
