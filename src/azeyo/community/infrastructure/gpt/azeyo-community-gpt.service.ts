@@ -28,15 +28,17 @@ export class AzeyoCommunityGptService {
     );
   }
 
-  async generatePost(commentCount: number, excludeCategory?: AZEYO_COMMUNITY_CATEGORY | null): Promise<GptGeneratedPost> {
-    const candidates = excludeCategory
-      ? CATEGORIES.filter(c => c !== excludeCategory)
-      : CATEGORIES;
-    const category = candidates[Math.floor(Math.random() * candidates.length)];
+  async generatePost(commentCount: number, recentPosts: { category: string; title: string }[] = []): Promise<GptGeneratedPost> {
+    // 최근 글 카테고리들을 제외하고 선택 (모두 겹치면 전체에서 랜덤)
+    const recentCategories = new Set(recentPosts.map(p => p.category));
+    const candidates = CATEGORIES.filter(c => !recentCategories.has(c));
+    const category = candidates.length > 0
+      ? candidates[Math.floor(Math.random() * candidates.length)]
+      : CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)];
     const isVote = Math.random() < 0.25;
     const type = isVote ? AZEYO_COMMUNITY_POST_TYPE.VOTE : AZEYO_COMMUNITY_POST_TYPE.TEXT;
 
-    const systemPrompt = this.buildPrompt(type, category, commentCount);
+    const systemPrompt = this.buildPrompt(type, category, commentCount, recentPosts);
 
     try {
       const model = this.genAI.getGenerativeModel({
@@ -73,7 +75,7 @@ export class AzeyoCommunityGptService {
     }
   }
 
-  private buildPrompt(type: AZEYO_COMMUNITY_POST_TYPE, category: AZEYO_COMMUNITY_CATEGORY, commentCount: number): string {
+  private buildPrompt(type: AZEYO_COMMUNITY_POST_TYPE, category: AZEYO_COMMUNITY_CATEGORY, commentCount: number, recentPosts: { category: string; title: string }[] = []): string {
     const categoryDescriptions: Record<AZEYO_COMMUNITY_CATEGORY, string> = {
       [AZEYO_COMMUNITY_CATEGORY.GIFT]: '선물 추천/고민 (아내, 장인장모, 아이 선물 등)',
       [AZEYO_COMMUNITY_CATEGORY.COUPLE_FIGHT]: '부부 갈등/고민 상담',
@@ -89,14 +91,23 @@ export class AzeyoCommunityGptService {
     const isVote = type === AZEYO_COMMUNITY_POST_TYPE.VOTE;
 
     const now = new Date();
+    const kstNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
     const dayOfWeek = now.toLocaleDateString('ko-KR', { weekday: 'long', timeZone: 'Asia/Seoul' });
-    const isWeekend = [0, 6].includes(new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' })).getDay());
+    const kstHour = kstNow.getHours();
+    const kstMinute = kstNow.getMinutes();
+    const kstDay = kstNow.getDay();
+    const isWeekend = [0, 6].includes(kstDay);
+
+    const recentPostsSection = recentPosts.length > 0
+      ? `\n## 최근 글 (중복 금지)\n아래는 최근 올라온 글 목록이야. 이 글들과 비슷한 주제나 내용은 절대 쓰지 마.\n${recentPosts.map((p, i) => `${i + 1}. [${p.category}] ${p.title}`).join('\n')}\n`
+      : '';
 
     return `너는 "아재요"라는 기혼 남성 커뮤니티에 글 쓰는 30~50대 남자야.
 카테고리: ${category} (${categoryDescriptions[category]})
 게시글 타입: ${isVote ? 'VOTE (A/B 투표)' : 'TEXT (일반 글)'}
 오늘: ${dayOfWeek} (${isWeekend ? '주말' : '평일'})
-
+현재 한국시간: ${kstHour}시 ${kstMinute}분
+${recentPostsSection}
 ## 말투 규칙
 - 카톡이나 남초 커뮤니티에서 쓰는 편한 반말 (예: "~했음", "~인데", "~ㅋㅋ", "~함", "진짜 ㅋㅋ")
 - "ㅋㅋ", "ㅎㅎ", "ㄹㅇ", "ㅇㅈ" 같은 자음 표현 자연스럽게 섞기
@@ -109,7 +120,9 @@ export class AzeyoCommunityGptService {
 - 자조적 유머, 한탄, 과장 자유롭게 (예: "월급은 통장 스쳐가고", "눈치가 생존스킬")
 - 제목은 15자 이내, 궁금해서 클릭하게
 - 본문은 2~5문장, 짧고 임팩트 있게
-- 근무는 월~금요일만 함. 주말(토/일)에는 출근, 퇴근, 회사 관련 내용 쓰지 말 것. 주말에는 집, 가족, 취미, 외출 등 주말에 맞는 상황으로 쓰기
+- 근무는 월~금요일만 함. 주말(토/일)에는 출근, 퇴근, 회사 관련 내용 쓰지 마. 주말에는 집, 가족, 취미, 외출 등 주말에 맞는 상황으로 쓰기
+- 자녀의 학교, 어린이집, 유치원은 월~금요일만 감. 주말(토/일)에는 등원/등교, 하원/하교 관련 내용 쓰지 마. 주말에는 아이와 집이나 외출하는 상황으로 쓰기
+- 시간 관련 내용이 있으면 현재 한국시간(${kstHour}시)을 기준으로 자연스럽게 쓰기 (예: ${kstHour < 12 ? '오전이면 아침/출근길 상황' : kstHour < 18 ? '오후면 점심 후/업무 중 상황' : '저녁이면 퇴근 후/저녁식사 상황'})
 ${isVote ? '- voteOptionA, voteOptionB: 각 10자 이내의 투표 선택지' : ''}
 ${commentCount > 0 ? `- comments: ${commentCount}개의 댓글 (각각 다른 아재가 쓴 것처럼, 공감/훈수/드립 섞어서 1~2문장)` : '- comments: 빈 배열'}
 
