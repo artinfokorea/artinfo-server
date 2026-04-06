@@ -58,6 +58,18 @@ export class AzeyoUserController {
     return { url };
   }
 
+  @RestApiGet(AzeyoTopUsersResponse, { path: '/top-monthly', description: '이달의 활동왕 조회' })
+  async scanTopMonthlyUsers(@Query('count') count: number) {
+    const users = await this.scanTopMonthlyUsersUseCase.execute(count || 3);
+    return new AzeyoTopUsersResponse(users);
+  }
+
+  @RestApiGet(AzeyoCommunityPostsResponse, { path: '/me/posts', description: '내 게시글 조회', auth: [USER_TYPE.CLIENT] })
+  async scanMyPosts(@AuthSignature() signature: UserSignature, @Query() query: List) {
+    const result = await this.scanMyPostsUseCase.execute(signature.id, query.page, query.size);
+    return new AzeyoCommunityPostsResponse(result);
+  }
+
   @RestApiGet(AzeyoPublicUserProfileResponse, { path: '/:userId', description: '유저 공개 프로필 조회' })
   async scanUserProfile(@Param('userId') userId: number) {
     const user = await this.scanUserProfileUseCase.execute(userId);
@@ -73,17 +85,5 @@ export class AzeyoUserController {
   ) {
     await this.reportUserUseCase.execute(signature.id, userId, reason, contents ?? null);
     return new OkResponse();
-  }
-
-  @RestApiGet(AzeyoTopUsersResponse, { path: '/top-monthly', description: '이달의 활동왕 조회' })
-  async scanTopMonthlyUsers(@Query('count') count: number) {
-    const users = await this.scanTopMonthlyUsersUseCase.execute(count || 3);
-    return new AzeyoTopUsersResponse(users);
-  }
-
-  @RestApiGet(AzeyoCommunityPostsResponse, { path: '/me/posts', description: '내 게시글 조회', auth: [USER_TYPE.CLIENT] })
-  async scanMyPosts(@AuthSignature() signature: UserSignature, @Query() query: List) {
-    const result = await this.scanMyPostsUseCase.execute(signature.id, query.page, query.size);
-    return new AzeyoCommunityPostsResponse(result);
   }
 }
