@@ -34,9 +34,11 @@ export class AzeyoCreateCommunityCommentUseCase {
     });
     await this.activityPointsService.addPoints(params.userId, AZEYO_ACTIVITY_ACTION.CREATE_COMMENT);
 
-    // 글 작성자에게 알림
     const post = await this.postRepository.findOneByIdOrThrow(params.postId);
-    if (post.userId !== params.userId) {
+    const notifiedUserIds = new Set<number>([params.userId]);
+
+    // 1. 글 작성자에게 댓글 알림
+    if (!notifiedUserIds.has(post.userId)) {
       await this.notificationSender.send({
         userId: post.userId,
         type: AZEYO_NOTIFICATION_TYPE.COMMENT,
@@ -44,6 +46,41 @@ export class AzeyoCreateCommunityCommentUseCase {
         body: `회원님의 '${post.title}' 글에 댓글이 달렸어요`,
         referenceId: String(params.postId),
       });
+      notifiedUserIds.add(post.userId);
+    }
+
+    // 2. 대댓글인 경우: 부모 댓글 작성자에게 답글 알림
+    if (params.parentId) {
+      const parentComment = await this.commentRepository.findOneById(params.parentId);
+      if (parentComment && !notifiedUserIds.has(parentComment.userId)) {
+        await this.notificationSender.send({
+          userId: parentComment.userId,
+          type: AZEYO_NOTIFICATION_TYPE.COMMENT,
+          title: '새 답글',
+          body: `회원님의 댓글에 답글이 달렸어요`,
+          referenceId: String(params.postId),
+        });
+        notifiedUserIds.add(parentComment.userId);
+      }
+    }
+
+    // 3. @멘션된 유저에게 알림
+    const mentions = params.contents.match(/@(\S+)/g);
+    if (mentions) {
+      const nicknames = mentions.map(m => m.slice(1));
+      for (const nickname of nicknames) {
+        const mentionedUser = await this.userRepository.findOneByNickname(nickname);
+        if (mentionedUser && !notifiedUserIds.has(mentionedUser.id)) {
+          await this.notificationSender.send({
+            userId: mentionedUser.id,
+            type: AZEYO_NOTIFICATION_TYPE.MENTION,
+            title: '멘션',
+            body: `${user.nickname}님이 댓글에서 회원님을 언급했어요`,
+            referenceId: String(params.postId),
+          });
+          notifiedUserIds.add(mentionedUser.id);
+        }
+      }
     }
 
     return comment.id;

@@ -17,6 +17,10 @@ export class AzeyoCommunityCommentRepository implements IAzeyoCommunityCommentRe
     return this.repository.save(entity);
   }
 
+  async findOneById(id: number): Promise<AzeyoCommunityComment | null> {
+    return this.repository.findOne({ where: { id }, relations: ['user'] });
+  }
+
   async findOneByIdAndUserIdOrThrow(id: number, userId: number): Promise<AzeyoCommunityComment> {
     const comment = await this.repository.findOne({ where: { id, userId }, relations: ['user'] });
     if (!comment) throw new AzeyoCommunityCommentNotFound();

@@ -66,6 +66,10 @@ export class AzeyoUserRepository implements IAzeyoUserRepository {
     return !!user;
   }
 
+  async findOneByNickname(nickname: string): Promise<AzeyoUser | null> {
+    return this.userRepository.findOneBy({ nickname });
+  }
+
   async saveEntity(user: AzeyoUser): Promise<void> {
     await this.userRepository.save(user);
   }
