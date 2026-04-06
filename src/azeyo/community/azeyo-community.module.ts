@@ -4,16 +4,19 @@ import { AzeyoCommunityPost } from '@/azeyo/community/domain/entity/azeyo-commun
 import { AzeyoCommunityVote } from '@/azeyo/community/domain/entity/azeyo-community-vote.entity';
 import { AzeyoCommunityLike } from '@/azeyo/community/domain/entity/azeyo-community-like.entity';
 import { AzeyoCommunityComment } from '@/azeyo/community/domain/entity/azeyo-community-comment.entity';
+import { AzeyoCommunityReport } from '@/azeyo/community/domain/entity/azeyo-community-report.entity';
 import { AzeyoCommunityController } from '@/azeyo/community/presentation/controller/azeyo-community.controller';
 import { AzeyoCommunitySeedController } from '@/azeyo/community/presentation/controller/azeyo-community-seed.controller';
 import { AZEYO_COMMUNITY_POST_REPOSITORY } from '@/azeyo/community/domain/repository/azeyo-community-post.repository.interface';
 import { AZEYO_COMMUNITY_VOTE_REPOSITORY } from '@/azeyo/community/domain/repository/azeyo-community-vote.repository.interface';
 import { AZEYO_COMMUNITY_LIKE_REPOSITORY } from '@/azeyo/community/domain/repository/azeyo-community-like.repository.interface';
 import { AZEYO_COMMUNITY_COMMENT_REPOSITORY } from '@/azeyo/community/domain/repository/azeyo-community-comment.repository.interface';
+import { AZEYO_COMMUNITY_REPORT_REPOSITORY } from '@/azeyo/community/domain/repository/azeyo-community-report.repository.interface';
 import { AzeyoCommunityPostRepository } from '@/azeyo/community/infrastructure/repository/azeyo-community-post.repository';
 import { AzeyoCommunityVoteRepository } from '@/azeyo/community/infrastructure/repository/azeyo-community-vote.repository';
 import { AzeyoCommunityLikeRepository } from '@/azeyo/community/infrastructure/repository/azeyo-community-like.repository';
 import { AzeyoCommunityCommentRepository } from '@/azeyo/community/infrastructure/repository/azeyo-community-comment.repository';
+import { AzeyoCommunityReportRepository } from '@/azeyo/community/infrastructure/repository/azeyo-community-report.repository';
 import { AzeyoCreateCommunityPostUseCase } from '@/azeyo/community/application/usecase/azeyo-create-community-post.usecase';
 import { AzeyoScanCommunityPostsUseCase } from '@/azeyo/community/application/usecase/azeyo-scan-community-posts.usecase';
 import { AzeyoScanTopCommunityPostsUseCase } from '@/azeyo/community/application/usecase/azeyo-scan-top-community-posts.usecase';
@@ -26,6 +29,7 @@ import { AzeyoUploadCommunityImagesUseCase } from '@/azeyo/community/application
 import { AzeyoCreateCommunityCommentUseCase } from '@/azeyo/community/application/usecase/azeyo-create-community-comment.usecase';
 import { AzeyoScanCommunityCommentsUseCase } from '@/azeyo/community/application/usecase/azeyo-scan-community-comments.usecase';
 import { AzeyoDeleteCommunityCommentUseCase } from '@/azeyo/community/application/usecase/azeyo-delete-community-comment.usecase';
+import { AzeyoReportCommunityPostUseCase } from '@/azeyo/community/application/usecase/azeyo-report-community-post.usecase';
 import { AzeyoScanUserTopPostsUseCase } from '@/azeyo/community/application/usecase/azeyo-scan-user-top-posts.usecase';
 import { AzeyoSeedCommunityPostUseCase } from '@/azeyo/community/application/usecase/azeyo-seed-community-post.usecase';
 import { AzeyoS3Service } from '@/azeyo/common/azeyo-s3.service';
@@ -36,7 +40,7 @@ import { AzeyoCommunityGptService } from '@/azeyo/community/infrastructure/gpt/a
 import { AzeyoCommunitySeedScheduler } from '@/azeyo/community/infrastructure/scheduler/azeyo-community-seed.scheduler';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AzeyoCommunityPost, AzeyoCommunityVote, AzeyoCommunityLike, AzeyoCommunityComment, AzeyoUser]), forwardRef(() => AzeyoUserModule), AzeyoNotificationModule],
+  imports: [TypeOrmModule.forFeature([AzeyoCommunityPost, AzeyoCommunityVote, AzeyoCommunityLike, AzeyoCommunityComment, AzeyoCommunityReport, AzeyoUser]), forwardRef(() => AzeyoUserModule), AzeyoNotificationModule],
   controllers: [AzeyoCommunityController, AzeyoCommunitySeedController],
   providers: [
     // UseCases
@@ -54,11 +58,13 @@ import { AzeyoCommunitySeedScheduler } from '@/azeyo/community/infrastructure/sc
     AzeyoDeleteCommunityCommentUseCase,
     AzeyoScanUserTopPostsUseCase,
     AzeyoSeedCommunityPostUseCase,
+    AzeyoReportCommunityPostUseCase,
     // Repositories
     { provide: AZEYO_COMMUNITY_POST_REPOSITORY, useClass: AzeyoCommunityPostRepository },
     { provide: AZEYO_COMMUNITY_VOTE_REPOSITORY, useClass: AzeyoCommunityVoteRepository },
     { provide: AZEYO_COMMUNITY_LIKE_REPOSITORY, useClass: AzeyoCommunityLikeRepository },
     { provide: AZEYO_COMMUNITY_COMMENT_REPOSITORY, useClass: AzeyoCommunityCommentRepository },
+    { provide: AZEYO_COMMUNITY_REPORT_REPOSITORY, useClass: AzeyoCommunityReportRepository },
     // External
     AzeyoS3Service,
     AzeyoCommunityGptService,

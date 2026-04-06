@@ -23,3 +23,9 @@ export class AzeyoCommunityCommentNotFound extends HttpException {
     super({ code: 'AZEYO-COMMUNITY-004', message: '댓글이 존재하지 않습니다.' }, HttpStatus.NOT_FOUND);
   }
 }
+
+export class AzeyoCommunityReportDuplicate extends HttpException {
+  constructor() {
+    super({ code: 'AZEYO-COMMUNITY-005', message: '이미 신고한 게시글입니다.' }, HttpStatus.CONFLICT);
+  }
+}

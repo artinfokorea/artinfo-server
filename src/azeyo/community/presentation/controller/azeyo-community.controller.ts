@@ -21,6 +21,8 @@ import { AzeyoUploadCommunityImagesUseCase } from '@/azeyo/community/application
 import { AzeyoCreateCommunityCommentUseCase } from '@/azeyo/community/application/usecase/azeyo-create-community-comment.usecase';
 import { AzeyoScanCommunityCommentsUseCase } from '@/azeyo/community/application/usecase/azeyo-scan-community-comments.usecase';
 import { AzeyoDeleteCommunityCommentUseCase } from '@/azeyo/community/application/usecase/azeyo-delete-community-comment.usecase';
+import { AzeyoReportCommunityPostUseCase } from '@/azeyo/community/application/usecase/azeyo-report-community-post.usecase';
+import { AZEYO_COMMUNITY_REPORT_REASON } from '@/azeyo/community/domain/entity/azeyo-community-report.entity';
 import { AzeyoCreateCommunityPostRequest } from '@/azeyo/community/presentation/dto/request/azeyo-create-community-post.request';
 import { AzeyoEditCommunityPostRequest } from '@/azeyo/community/presentation/dto/request/azeyo-edit-community-post.request';
 import { AzeyoScanCommunityPostsRequest } from '@/azeyo/community/presentation/dto/request/azeyo-scan-community-posts.request';
@@ -45,6 +47,7 @@ export class AzeyoCommunityController {
     private readonly createCommentUseCase: AzeyoCreateCommunityCommentUseCase,
     private readonly scanCommentsUseCase: AzeyoScanCommunityCommentsUseCase,
     private readonly deleteCommentUseCase: AzeyoDeleteCommunityCommentUseCase,
+    private readonly reportPostUseCase: AzeyoReportCommunityPostUseCase,
   ) {}
 
   // === Posts ===
@@ -116,6 +119,17 @@ export class AzeyoCommunityController {
   @RestApiPost(OkResponse, { path: '/:postId/like', description: '게시글 좋아요', auth: [USER_TYPE.CLIENT] })
   async likePost(@AuthSignature() signature: UserSignature, @Param('postId') postId: number, @Body('isLike') isLike: boolean) {
     await this.likePostUseCase.execute(signature.id, postId, isLike);
+    return new OkResponse();
+  }
+
+  @RestApiPost(OkResponse, { path: '/:postId/report', description: '게시글 신고', auth: [USER_TYPE.CLIENT] })
+  async reportPost(
+    @AuthSignature() signature: UserSignature,
+    @Param('postId') postId: number,
+    @Body('reason') reason: AZEYO_COMMUNITY_REPORT_REASON,
+    @Body('contents') contents: string | null,
+  ) {
+    await this.reportPostUseCase.execute(signature.id, postId, reason, contents ?? null);
     return new OkResponse();
   }
 
