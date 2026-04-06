@@ -11,6 +11,8 @@ export class AzeyoUserProfileResponse {
   @ApiProperty() phone: string | null;
   @ApiProperty() marriageDate: string | null;
   @ApiProperty() children: string;
+  @ApiProperty() gender: string | null;
+  @ApiProperty() birthDate: string | null;
   @ApiProperty() activityPoints: number;
   @ApiProperty() monthlyPoints: number;
   @ApiProperty() postsCount: number;
@@ -28,6 +30,8 @@ export class AzeyoUserProfileResponse {
     this.phone = user.phone;
     this.marriageDate = user.marriageDate;
     this.children = user.children;
+    this.gender = user.gender;
+    this.birthDate = user.birthDate;
     this.activityPoints = user.activityPoints;
     this.monthlyPoints = user.monthlyPoints;
     this.postsCount = user.postsCount;
