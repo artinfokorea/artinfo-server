@@ -47,11 +47,7 @@ export class AzeyoSeedCommunityPostUseCase {
     const effectiveBaseTime = baseTime.getTime() > now.getTime()
       ? new Date(now.getTime() - 60 * 1000)
       : baseTime;
-    // 최신 글에서 10~50분 뒤로 고정 간격 추가 (수렴 방지), now 초과 방지
-    const gapMs = (10 + Math.random() * 40) * 60 * 1000;
-    const postTime = new Date(
-      Math.min(effectiveBaseTime.getTime() + gapMs, now.getTime()),
-    );
+    const postTime = this.randomDateBetween(effectiveBaseTime, now);
 
     // 4. 댓글 수 랜덤 (0~5)
     const commentCount = Math.floor(Math.random() * 6);
