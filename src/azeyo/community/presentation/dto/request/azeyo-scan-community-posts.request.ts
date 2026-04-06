@@ -8,4 +8,7 @@ export class AzeyoScanCommunityPostsRequest extends List {
 
   @ApiProperty({ enum: AZEYO_COMMUNITY_CATEGORY, required: false, description: '카테고리 필터' })
   category: AZEYO_COMMUNITY_CATEGORY | null;
+
+  @ApiProperty({ type: Number, required: false, description: '특정 유저의 글만 조회' })
+  authorId: number | null = null;
 }

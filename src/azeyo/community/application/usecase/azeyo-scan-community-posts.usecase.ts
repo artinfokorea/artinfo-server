@@ -20,6 +20,7 @@ export class AzeyoScanCommunityPostsUseCase {
     size: number;
     category: AZEYO_COMMUNITY_CATEGORY | null;
     keyword: string | null;
+    authorId?: number | null;
   }): Promise<{ items: AzeyoCommunityPost[]; totalCount: number }> {
     const skip = (params.page - 1) * params.size;
     const pagingItems = await this.postRepository.findManyPaging({
@@ -27,6 +28,7 @@ export class AzeyoScanCommunityPostsUseCase {
       take: params.size,
       category: params.category,
       keyword: params.keyword,
+      authorId: params.authorId,
     });
 
     const postIds = pagingItems.items.map(item => item.id);

@@ -43,12 +43,17 @@ export class AzeyoCommunityPostRepository implements IAzeyoCommunityPostReposito
     take: number;
     category: AZEYO_COMMUNITY_CATEGORY | null;
     keyword: string | null;
+    authorId?: number | null;
   }): Promise<{ items: AzeyoCommunityPost[]; totalCount: number }> {
     const qb = this.repository.createQueryBuilder('post')
       .leftJoinAndSelect('post.user', 'user');
 
+    if (params.authorId) {
+      qb.andWhere('post.userId = :authorId', { authorId: params.authorId });
+    }
+
     if (params.category) {
-      qb.where('post.category = :category', { category: params.category });
+      qb.andWhere('post.category = :category', { category: params.category });
     }
 
     if (params.keyword) {

@@ -72,6 +72,7 @@ export class AzeyoCommunityController {
       size: request.size,
       category: request.category,
       keyword: request.keyword,
+      authorId: request.authorId ? Number(request.authorId) : null,
     });
     return new AzeyoCommunityPostsResponse(result);
   }
