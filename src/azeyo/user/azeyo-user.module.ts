@@ -1,6 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
+import { AzeyoUserReport } from '@/azeyo/user/domain/entity/azeyo-user-report.entity';
 import { AZEYO_USER_REPOSITORY } from '@/azeyo/user/domain/repository/azeyo-user.repository.interface';
 import { AzeyoUserRepository } from '@/azeyo/user/infrastructure/repository/azeyo-user.repository';
 import { AzeyoUserController } from '@/azeyo/user/presentation/controller/azeyo-user.controller';
@@ -9,6 +10,10 @@ import { AzeyoEditProfileUseCase } from '@/azeyo/user/application/usecase/azeyo-
 import { AzeyoScanTopMonthlyUsersUseCase } from '@/azeyo/user/application/usecase/azeyo-scan-top-monthly-users.usecase';
 import { AzeyoScanMyPostsUseCase } from '@/azeyo/user/application/usecase/azeyo-scan-my-posts.usecase';
 import { AzeyoUploadProfileImageUseCase } from '@/azeyo/user/application/usecase/azeyo-upload-profile-image.usecase';
+import { AzeyoScanUserProfileUseCase } from '@/azeyo/user/application/usecase/azeyo-scan-user-profile.usecase';
+import { AzeyoReportUserUseCase } from '@/azeyo/user/application/usecase/azeyo-report-user.usecase';
+import { AZEYO_USER_REPORT_REPOSITORY } from '@/azeyo/user/domain/repository/azeyo-user-report.repository.interface';
+import { AzeyoUserReportRepository } from '@/azeyo/user/infrastructure/repository/azeyo-user-report.repository';
 import { AzeyoS3Service } from '@/azeyo/common/azeyo-s3.service';
 import { AzeyoCommunityModule } from '@/azeyo/community/azeyo-community.module';
 import { AzeyoJokboModule } from '@/azeyo/jokbo/azeyo-jokbo.module';
@@ -17,15 +22,18 @@ import { AzeyoActivityPointsService } from '@/azeyo/user/infrastructure/service/
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([AzeyoUser]),
+    TypeOrmModule.forFeature([AzeyoUser, AzeyoUserReport]),
     forwardRef(() => AzeyoCommunityModule),
     forwardRef(() => AzeyoJokboModule),
   ],
   controllers: [AzeyoUserController],
   providers: [
     { provide: AZEYO_USER_REPOSITORY, useClass: AzeyoUserRepository },
+    { provide: AZEYO_USER_REPORT_REPOSITORY, useClass: AzeyoUserReportRepository },
     { provide: AZEYO_ACTIVITY_POINTS_SERVICE, useClass: AzeyoActivityPointsService },
     AzeyoScanMyProfileUseCase,
+    AzeyoScanUserProfileUseCase,
+    AzeyoReportUserUseCase,
     AzeyoEditProfileUseCase,
     AzeyoScanTopMonthlyUsersUseCase,
     AzeyoScanMyPostsUseCase,
