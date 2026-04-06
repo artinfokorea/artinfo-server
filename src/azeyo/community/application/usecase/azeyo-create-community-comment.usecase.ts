@@ -4,6 +4,8 @@ import { AZEYO_COMMUNITY_POST_REPOSITORY, IAzeyoCommunityPostRepository } from '
 import { AZEYO_ACTIVITY_POINTS_SERVICE, IAzeyoActivityPointsService, AZEYO_ACTIVITY_ACTION } from '@/azeyo/user/domain/service/azeyo-activity-points.service';
 import { AZEYO_NOTIFICATION_SENDER, IAzeyoNotificationSender } from '@/azeyo/notification/domain/service/azeyo-notification-sender.interface';
 import { AZEYO_NOTIFICATION_TYPE } from '@/azeyo/notification/domain/entity/azeyo-notification.entity';
+import { AZEYO_USER_REPOSITORY, IAzeyoUserRepository } from '@/azeyo/user/domain/repository/azeyo-user.repository.interface';
+import { AzeyoCommunityWriteBanned } from '@/azeyo/community/domain/exception/azeyo-community.exception';
 
 @Injectable()
 export class AzeyoCreateCommunityCommentUseCase {
@@ -16,9 +18,14 @@ export class AzeyoCreateCommunityCommentUseCase {
     private readonly activityPointsService: IAzeyoActivityPointsService,
     @Inject(AZEYO_NOTIFICATION_SENDER)
     private readonly notificationSender: IAzeyoNotificationSender,
+    @Inject(AZEYO_USER_REPOSITORY)
+    private readonly userRepository: IAzeyoUserRepository,
   ) {}
 
   async execute(params: { userId: number; postId: number; parentId: number | null; contents: string }): Promise<number> {
+    const user = await this.userRepository.findOneOrThrowById(params.userId);
+    if (user.isWriteBanned) throw new AzeyoCommunityWriteBanned();
+
     const comment = await this.commentRepository.create({
       userId: params.userId,
       postId: params.postId,

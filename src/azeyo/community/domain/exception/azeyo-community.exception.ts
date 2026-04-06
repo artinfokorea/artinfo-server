@@ -24,6 +24,12 @@ export class AzeyoCommunityCommentNotFound extends HttpException {
   }
 }
 
+export class AzeyoCommunityWriteBanned extends HttpException {
+  constructor() {
+    super({ code: 'AZEYO-COMMUNITY-006', message: '글쓰기가 제한된 사용자입니다.' }, HttpStatus.FORBIDDEN);
+  }
+}
+
 export class AzeyoCommunityReportDuplicate extends HttpException {
   constructor() {
     super({ code: 'AZEYO-COMMUNITY-005', message: '이미 신고한 게시글입니다.' }, HttpStatus.CONFLICT);
