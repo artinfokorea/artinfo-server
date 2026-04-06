@@ -34,7 +34,7 @@ export class AzeyoSeedCommunityPostUseCase {
     // 2. 최신 글 5개 조회하여 중복 방지
     const recentPosts = await this.getLatestPosts(5);
 
-    // 3. 글 작성 시간 계산: (최신 글 ~ 현재) ∩ (06:30 ~ 12:00 KST) 사이 랜덤
+    // 3. 글 작성 시간 계산: (최신 글 ~ 현재) ∩ (06:30 ~ 23:59 KST) 사이 랜덤
     const [{ db_now, latest_at }] = await this.userRepository.manager.query(
       `SELECT NOW() AS db_now,
         COALESCE(
@@ -47,7 +47,12 @@ export class AzeyoSeedCommunityPostUseCase {
     const effectiveBaseTime = baseTime.getTime() > now.getTime()
       ? new Date(now.getTime() - 60 * 1000)
       : baseTime;
-    const postTime = this.randomDateBetween(effectiveBaseTime, now);
+    const postTime = this.randomDateInAllowedRange(effectiveBaseTime, now);
+
+    if (!postTime) {
+      this.logger.log('현재 시간이 허용 범위(06:30~23:59 KST) 밖이므로 시드 생성을 건너뜁니다.');
+      return { postId: 0, commentCount: 0, likeCount: 0 };
+    }
 
     // 4. 댓글 수 랜덤 (0~5)
     const commentCount = Math.floor(Math.random() * 6);
@@ -148,6 +153,55 @@ export class AzeyoSeedCommunityPostUseCase {
       [count],
     );
     return result;
+  }
+
+  /**
+   * (최신 글 ~ 현재) ∩ (06:30 ~ 23:59 KST) 교집합 범위에서 랜덤 시간 반환
+   * 교집합이 없으면 null 반환
+   */
+  private randomDateInAllowedRange(start: Date, end: Date): Date | null {
+    const KST_OFFSET = 9 * 60 * 60 * 1000;
+
+    // start~end 사이 날짜들에 대해 허용 구간(06:30~23:59 KST)과의 교집합을 구함
+    const startDate = new Date(start.getTime() + KST_OFFSET);
+    const endDate = new Date(end.getTime() + KST_OFFSET);
+
+    const startDay = new Date(Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()));
+    const endDay = new Date(Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate()));
+
+    const allowedSlots: { from: number; to: number }[] = [];
+    const current = new Date(startDay);
+
+    while (current <= endDay) {
+      // KST 06:30 ~ 23:59 -> UTC 기준으로 변환
+      const dayAllowStart = new Date(current.getTime() + 6 * 60 * 60 * 1000 + 30 * 60 * 1000 - KST_OFFSET).getTime();
+      const dayAllowEnd = new Date(current.getTime() + 23 * 60 * 60 * 1000 + 59 * 60 * 1000 - KST_OFFSET).getTime();
+
+      // start~end 와 교집합
+      const from = Math.max(dayAllowStart, start.getTime());
+      const to = Math.min(dayAllowEnd, end.getTime());
+
+      if (from < to) {
+        allowedSlots.push({ from, to });
+      }
+
+      current.setUTCDate(current.getUTCDate() + 1);
+    }
+
+    if (allowedSlots.length === 0) return null;
+
+    // 각 슬롯의 길이에 비례하여 랜덤 선택
+    const totalMs = allowedSlots.reduce((sum, s) => sum + (s.to - s.from), 0);
+    let pick = Math.random() * totalMs;
+    for (const slot of allowedSlots) {
+      const slotLen = slot.to - slot.from;
+      if (pick < slotLen) {
+        return new Date(slot.from + pick);
+      }
+      pick -= slotLen;
+    }
+
+    return new Date(allowedSlots[allowedSlots.length - 1].to);
   }
 
   private randomDateBetween(start: Date, end: Date): Date {
