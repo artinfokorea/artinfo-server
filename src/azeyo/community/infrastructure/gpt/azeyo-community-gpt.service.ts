@@ -130,8 +130,13 @@ export class AzeyoCommunityGptService {
     const kstHour = kstNow.getUTCHours();
     const kstDay = kstNow.getUTCDay();
     const isWeekend = [0, 6].includes(kstDay);
+    const kstMonth = kstNow.getUTCMonth() + 1;
     const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
     const dayOfWeek = dayNames[kstDay];
+
+    // 명절 시즌: 2월(설날), 9월(추석)
+    const isHolidaySeason = kstMonth === 2 || kstMonth === 9;
+    const holidayName = kstMonth === 2 ? '설날' : kstMonth === 9 ? '추석' : '';
 
     this.logger.log(`글 생성 시간 기준 KST: ${dayOfWeek} ${kstHour}시 (postTime: ${baseTime.toISOString()})`);
 
@@ -165,6 +170,7 @@ ${recentPostsSection}
 - 평일(월~금) 근무시간(09~18시)에만 회사/직장/출퇴근 관련 내용 가능. 새벽/밤(22시~08시)에는 회사/직장/팀장/상사/야근/퇴근 관련 내용 쓰지 마. 새벽/밤에는 집에서 쉬는 상황으로 쓰기
 - 글 속에 시각/시간 표현을 절대 쓰지 마. "N시", "N분", "N시 반" 모두 금지 (예: "새벽 2시", "0시 7분", "3시 반", "오후 3시" 전부 금지). 시간을 언급하려면 "아까", "오늘", "방금", "잠깐 전" 같이 쓰기
 - 날짜/요일 관련: 오늘이 일요일 밤이면 "이번주 일요일"이 아니라 "오늘"이라고 쓰기. 이미 지난 시간대의 일을 앞으로 할 일처럼 쓰면 안 됨
+${isHolidaySeason ? `- 지금은 ${holidayName} 시즌이야. 명절 관련 내용(${holidayName} 준비, 시댁/처가 방문, 세뱃돈/용돈, 명절 스트레스, 귀성길 등)을 자연스럽게 녹여서 써도 좋아. 단, 카테고리에 맞는 내용이어야 함` : '- 명절(설날/추석) 관련 내용은 쓰지 마. 지금은 명절 시즌이 아님'}
 - 시간대에 맞는 상황으로 쓰기: ${kstHour < 6 ? '새벽이니까 잠이 안 오거나 야식/혼자 있는 상황' : kstHour < 9 ? '이른 아침이니까 기상/출근 준비/등원 상황' : kstHour < 12 ? '오전이니까 출근 후/업무 중 상황' : kstHour < 14 ? '점심시간이니까 점심 식사/휴식 상황' : kstHour < 18 ? '오후니까 업무 중/오후 상황' : kstHour < 22 ? '저녁이니까 퇴근 후/저녁식사/가족 시간 상황' : '밤이니까 아이 재우고 혼자 있는 시간/야식/취침 전 상황'}
 ${isVote ? '- voteOptionA, voteOptionB: 각 10자 이내의 투표 선택지' : ''}
 ${commentCount > 0 ? `- comments: ${commentCount}개의 댓글 (각각 다른 아재가 쓴 것처럼, 공감/훈수/드립 섞어서 1~2문장)` : '- comments: 빈 배열'}
