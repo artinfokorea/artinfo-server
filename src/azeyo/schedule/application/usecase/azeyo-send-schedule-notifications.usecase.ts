@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AzeyoSchedule, AZEYO_SCHEDULE_REPEAT_TYPE, AZEYO_SCHEDULE_CALENDAR_TYPE } from '@/azeyo/schedule/domain/entity/azeyo-schedule.entity';
@@ -10,8 +10,6 @@ const KoreanLunarCalendar = require('korean-lunar-calendar');
 
 @Injectable()
 export class AzeyoSendScheduleNotificationsUseCase {
-  private readonly logger = new Logger(AzeyoSendScheduleNotificationsUseCase.name);
-
   constructor(
     @InjectRepository(AzeyoSchedule)
     private readonly scheduleRepository: Repository<AzeyoSchedule>,

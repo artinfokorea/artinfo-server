@@ -21,9 +21,10 @@ import { AzeyoCreateScheduleTagUseCase } from '@/azeyo/schedule/application/usec
 import { AzeyoScanScheduleRecommendationsUseCase } from '@/azeyo/schedule/application/usecase/azeyo-scan-schedule-recommendations.usecase';
 import { AzeyoSendScheduleNotificationsUseCase } from '@/azeyo/schedule/application/usecase/azeyo-send-schedule-notifications.usecase';
 import { AzeyoScheduleNotificationScheduler } from '@/azeyo/schedule/infrastructure/scheduler/azeyo-schedule-notification.scheduler';
+import { AzeyoSchedulerModule } from '@/azeyo/scheduler/azeyo-scheduler.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AzeyoSchedule, AzeyoScheduleTag, AzeyoScheduleRecommendation]), AzeyoUserModule, AzeyoNotificationModule],
+  imports: [TypeOrmModule.forFeature([AzeyoSchedule, AzeyoScheduleTag, AzeyoScheduleRecommendation]), AzeyoUserModule, AzeyoNotificationModule, AzeyoSchedulerModule],
   controllers: [AzeyoScheduleController],
   providers: [
     // UseCases

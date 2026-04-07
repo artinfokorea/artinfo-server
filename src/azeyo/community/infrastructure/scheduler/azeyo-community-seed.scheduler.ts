@@ -1,10 +1,13 @@
-import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import * as Redis from 'ioredis';
 import { AzeyoSeedCommunityPostUseCase } from '@/azeyo/community/application/usecase/azeyo-seed-community-post.usecase';
+import { AZEYO_SCHEDULER_HISTORY_REPOSITORY, IAzeyoSchedulerHistoryRepository } from '@/azeyo/scheduler/domain/repository/azeyo-scheduler-history.repository.interface';
+import { AZEYO_SCHEDULER_STATUS } from '@/azeyo/scheduler/domain/entity/azeyo-scheduler-history.entity';
 
+const SCHEDULER_NAME = 'community-seed';
 const LOCK_KEY = 'azeyo:scheduler:community-seed:lock';
-const LOCK_TTL = 300; // 5분
+const LOCK_TTL = 300;
 
 @Injectable()
 export class AzeyoCommunitySeedScheduler implements OnModuleDestroy {
@@ -13,6 +16,8 @@ export class AzeyoCommunitySeedScheduler implements OnModuleDestroy {
 
   constructor(
     private readonly seedPostUseCase: AzeyoSeedCommunityPostUseCase,
+    @Inject(AZEYO_SCHEDULER_HISTORY_REPOSITORY)
+    private readonly historyRepository: IAzeyoSchedulerHistoryRepository,
   ) {
     this.redis = new Redis.Redis({
       host: process.env['REDIS_HOST'],
@@ -26,10 +31,6 @@ export class AzeyoCommunitySeedScheduler implements OnModuleDestroy {
     await this.redis.quit();
   }
 
-  /**
-   * 매 정시 실행 (07:00 ~ 24:00 KST)
-   * Redis SET NX로 분산 락을 잡아 한 인스턴스만 실행
-   */
   @Cron('0 0 0,7-23 * * *', {
     name: 'azeyoCommunitySeed',
     timeZone: 'Asia/Seoul',
@@ -38,6 +39,13 @@ export class AzeyoCommunitySeedScheduler implements OnModuleDestroy {
     const acquired = await this.redis.set(LOCK_KEY, '1', 'EX', LOCK_TTL, 'NX');
     if (!acquired) {
       this.logger.log('다른 인스턴스에서 실행 중 — 스킵');
+      await this.historyRepository.record({
+        schedulerName: SCHEDULER_NAME,
+        status: AZEYO_SCHEDULER_STATUS.SKIPPED,
+        result: '다른 인스턴스에서 실행 중',
+        errorMessage: null,
+        durationMs: 0,
+      });
       return;
     }
 
@@ -50,12 +58,24 @@ export class AzeyoCommunitySeedScheduler implements OnModuleDestroy {
       this.logger.log(
         `커뮤니티 시드 글 생성 완료: postId=${result.postId}, comments=${result.commentCount}, likes=${result.likeCount} (${durationMs}ms)`,
       );
+      await this.historyRepository.record({
+        schedulerName: SCHEDULER_NAME,
+        status: AZEYO_SCHEDULER_STATUS.SUCCESS,
+        result: `postId=${result.postId}, comments=${result.commentCount}, likes=${result.likeCount}`,
+        errorMessage: null,
+        durationMs,
+      });
     } catch (err) {
       const durationMs = Date.now() - startTime;
-      this.logger.error(
-        `커뮤니티 시드 글 생성 실패 (${durationMs}ms)`,
-        err,
-      );
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      this.logger.error(`커뮤니티 시드 글 생성 실패 (${durationMs}ms)`, err);
+      await this.historyRepository.record({
+        schedulerName: SCHEDULER_NAME,
+        status: AZEYO_SCHEDULER_STATUS.FAILURE,
+        result: null,
+        errorMessage,
+        durationMs,
+      });
     }
   }
 }

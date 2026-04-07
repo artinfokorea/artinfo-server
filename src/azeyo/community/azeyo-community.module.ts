@@ -38,9 +38,10 @@ import { AzeyoUserModule } from '@/azeyo/user/azeyo-user.module';
 import { AzeyoNotificationModule } from '@/azeyo/notification/azeyo-notification.module';
 import { AzeyoCommunityGptService } from '@/azeyo/community/infrastructure/gpt/azeyo-community-gpt.service';
 import { AzeyoCommunitySeedScheduler } from '@/azeyo/community/infrastructure/scheduler/azeyo-community-seed.scheduler';
+import { AzeyoSchedulerModule } from '@/azeyo/scheduler/azeyo-scheduler.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AzeyoCommunityPost, AzeyoCommunityVote, AzeyoCommunityLike, AzeyoCommunityComment, AzeyoCommunityReport, AzeyoUser]), forwardRef(() => AzeyoUserModule), AzeyoNotificationModule],
+  imports: [TypeOrmModule.forFeature([AzeyoCommunityPost, AzeyoCommunityVote, AzeyoCommunityLike, AzeyoCommunityComment, AzeyoCommunityReport, AzeyoUser]), forwardRef(() => AzeyoUserModule), AzeyoNotificationModule, AzeyoSchedulerModule],
   controllers: [AzeyoCommunityController, AzeyoCommunitySeedController],
   providers: [
     // UseCases
