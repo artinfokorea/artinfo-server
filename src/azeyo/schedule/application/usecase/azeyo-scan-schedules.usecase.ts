@@ -1,7 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { AZEYO_SCHEDULE_REPOSITORY, IAzeyoScheduleRepository } from '@/azeyo/schedule/domain/repository/azeyo-schedule.repository.interface';
 import { AzeyoSchedule, AZEYO_SCHEDULE_REPEAT_TYPE, AZEYO_SCHEDULE_CALENDAR_TYPE } from '@/azeyo/schedule/domain/entity/azeyo-schedule.entity';
-import KoreanLunarCalendar from 'korean-lunar-calendar';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const KoreanLunarCalendar = require('korean-lunar-calendar');
 
 @Injectable()
 export class AzeyoScanSchedulesUseCase {

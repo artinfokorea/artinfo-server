@@ -4,7 +4,8 @@ import { AZEYO_SCHEDULE_TAG_REPOSITORY, IAzeyoScheduleTagRepository } from '@/az
 import { AzeyoCreateScheduleCommand } from '@/azeyo/schedule/application/command/azeyo-create-schedule.command';
 import { AZEYO_ACTIVITY_POINTS_SERVICE, IAzeyoActivityPointsService, AZEYO_ACTIVITY_ACTION } from '@/azeyo/user/domain/service/azeyo-activity-points.service';
 import { AZEYO_SCHEDULE_CALENDAR_TYPE } from '@/azeyo/schedule/domain/entity/azeyo-schedule.entity';
-import KoreanLunarCalendar from 'korean-lunar-calendar';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const KoreanLunarCalendar = require('korean-lunar-calendar');
 
 @Injectable()
 export class AzeyoCreateScheduleUseCase {
