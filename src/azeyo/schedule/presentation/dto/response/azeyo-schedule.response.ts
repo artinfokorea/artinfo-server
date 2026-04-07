@@ -24,7 +24,6 @@ export class AzeyoScheduleResponse {
   @ApiProperty() repeatType: AZEYO_SCHEDULE_REPEAT_TYPE;
   @ApiProperty() calendarType: AZEYO_SCHEDULE_CALENDAR_TYPE;
   @ApiProperty() startDate: string | null;
-  @ApiProperty() alarmTimes: string[] | null;
   @ApiProperty() anniversaryLabel: string | null;
   @ApiProperty({ type: [AzeyoScheduleTagResponse] }) tags: AzeyoScheduleTagResponse[];
   @ApiProperty() createdAt: Date;
@@ -37,7 +36,6 @@ export class AzeyoScheduleResponse {
     this.repeatType = schedule.repeatType ?? AZEYO_SCHEDULE_REPEAT_TYPE.NONE;
     this.calendarType = schedule.calendarType ?? AZEYO_SCHEDULE_CALENDAR_TYPE.SOLAR;
     this.startDate = schedule.startDate ?? null;
-    this.alarmTimes = schedule.alarmTimes ?? null;
     this.anniversaryLabel = this.computeAnniversaryLabel(schedule);
     this.tags = (schedule.tags ?? []).map(t => new AzeyoScheduleTagResponse(t));
     this.createdAt = schedule.createdAt;

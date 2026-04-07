@@ -9,7 +9,6 @@ export class AzeyoCreateScheduleCommand {
   repeatType: AZEYO_SCHEDULE_REPEAT_TYPE;
   calendarType: AZEYO_SCHEDULE_CALENDAR_TYPE;
   startDate: string | null;
-  alarmTimes: string[] | null;
 
   constructor(params: {
     userId: number;
@@ -20,7 +19,6 @@ export class AzeyoCreateScheduleCommand {
     repeatType: AZEYO_SCHEDULE_REPEAT_TYPE;
     calendarType: AZEYO_SCHEDULE_CALENDAR_TYPE;
     startDate: string | null;
-    alarmTimes: string[] | null;
   }) {
     Object.assign(this, params);
   }
