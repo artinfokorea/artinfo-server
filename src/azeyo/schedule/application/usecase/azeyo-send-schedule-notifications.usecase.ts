@@ -38,7 +38,7 @@ export class AzeyoSendScheduleNotificationsUseCase {
         await this.notificationSender.send({
           userId: schedule.userId,
           type: AZEYO_NOTIFICATION_TYPE.SCHEDULE,
-          title: '��정 알림',
+          title: '일정 알림',
           body: `'${schedule.title}' 일정이 3일 남았어요`,
           referenceId: String(schedule.id),
         });
