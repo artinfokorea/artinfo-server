@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AzeyoUserModule } from '@/azeyo/user/azeyo-user.module';
+import { AzeyoNotificationModule } from '@/azeyo/notification/azeyo-notification.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AzeyoSchedule } from '@/azeyo/schedule/domain/entity/azeyo-schedule.entity';
 import { AzeyoScheduleTag } from '@/azeyo/schedule/domain/entity/azeyo-schedule-tag.entity';
@@ -18,9 +19,11 @@ import { AzeyoDeleteScheduleUseCase } from '@/azeyo/schedule/application/usecase
 import { AzeyoScanScheduleTagsUseCase } from '@/azeyo/schedule/application/usecase/azeyo-scan-schedule-tags.usecase';
 import { AzeyoCreateScheduleTagUseCase } from '@/azeyo/schedule/application/usecase/azeyo-create-schedule-tag.usecase';
 import { AzeyoScanScheduleRecommendationsUseCase } from '@/azeyo/schedule/application/usecase/azeyo-scan-schedule-recommendations.usecase';
+import { AzeyoSendScheduleNotificationsUseCase } from '@/azeyo/schedule/application/usecase/azeyo-send-schedule-notifications.usecase';
+import { AzeyoScheduleNotificationScheduler } from '@/azeyo/schedule/infrastructure/scheduler/azeyo-schedule-notification.scheduler';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AzeyoSchedule, AzeyoScheduleTag, AzeyoScheduleRecommendation]), AzeyoUserModule],
+  imports: [TypeOrmModule.forFeature([AzeyoSchedule, AzeyoScheduleTag, AzeyoScheduleRecommendation]), AzeyoUserModule, AzeyoNotificationModule],
   controllers: [AzeyoScheduleController],
   providers: [
     // UseCases
@@ -31,6 +34,9 @@ import { AzeyoScanScheduleRecommendationsUseCase } from '@/azeyo/schedule/applic
     AzeyoScanScheduleTagsUseCase,
     AzeyoCreateScheduleTagUseCase,
     AzeyoScanScheduleRecommendationsUseCase,
+    AzeyoSendScheduleNotificationsUseCase,
+    // Scheduler
+    AzeyoScheduleNotificationScheduler,
     // Repositories
     { provide: AZEYO_SCHEDULE_REPOSITORY, useClass: AzeyoScheduleRepository },
     { provide: AZEYO_SCHEDULE_TAG_REPOSITORY, useClass: AzeyoScheduleTagRepository },
