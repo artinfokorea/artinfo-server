@@ -19,6 +19,7 @@ import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
 import { AzeyoUserModule } from '@/azeyo/user/azeyo-user.module';
 import { AzeyoNotificationModule } from '@/azeyo/notification/azeyo-notification.module';
 import { SystemModule } from '@/system/module/system.module';
+import { RedisRepository } from '@/common/redis/redis-repository.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([AzeyoJokboTemplate, AzeyoJokboLike, AzeyoUser]), forwardRef(() => AzeyoUserModule), AzeyoNotificationModule, SystemModule],
@@ -36,6 +37,7 @@ import { SystemModule } from '@/system/module/system.module';
     // Repositories
     { provide: AZEYO_JOKBO_TEMPLATE_REPOSITORY, useClass: AzeyoJokboTemplateRepository },
     { provide: AZEYO_JOKBO_LIKE_REPOSITORY, useClass: AzeyoJokboLikeRepository },
+    RedisRepository,
   ],
   exports: [AZEYO_JOKBO_TEMPLATE_REPOSITORY, AZEYO_JOKBO_LIKE_REPOSITORY],
 })

@@ -6,6 +6,9 @@ import { AZEYO_NOTIFICATION_TYPE } from '@/azeyo/notification/domain/entity/azey
 import { AZEYO_USER_REPOSITORY, IAzeyoUserRepository } from '@/azeyo/user/domain/repository/azeyo-user.repository.interface';
 import { SystemService } from '@/system/service/system.service';
 import { ALIMTALK_TEMPLATE } from '@/azeyo/notification/domain/constant/alimtalk-template.constant';
+import { RedisRepository } from '@/common/redis/redis-repository.service';
+
+const ALIMTALK_COOLDOWN_SECONDS = 3600; // 1시간
 
 @Injectable()
 export class AzeyoCopyJokboTemplateUseCase {
@@ -21,6 +24,7 @@ export class AzeyoCopyJokboTemplateUseCase {
     @Inject(AZEYO_USER_REPOSITORY)
     private readonly userRepository: IAzeyoUserRepository,
     private readonly systemService: SystemService,
+    private readonly redisRepository: RedisRepository,
   ) {}
 
   async execute(templateId: number): Promise<void> {
@@ -36,12 +40,17 @@ export class AzeyoCopyJokboTemplateUseCase {
     });
 
     try {
+      const cooldownKey = `alimtalk:jokbo_copy:${template.userId}:${templateId}`;
+      const existing = await this.redisRepository.getByKey(cooldownKey);
+      if (existing) return;
+
       const user = await this.userRepository.findOneOrThrowById(template.userId);
       if (user.phone) {
         await this.systemService.sendAlimtalk(user.phone, ALIMTALK_TEMPLATE.JOKBO_COPY, {
           '#{jokboTitle}': template.title,
           '#{templateId}': String(templateId),
         });
+        await this.redisRepository.setValue({ key: cooldownKey, value: true, ttl: ALIMTALK_COOLDOWN_SECONDS });
       }
     } catch (e) {
       this.logger.error(`알림톡 발송 실패 - templateId: ${templateId}`, e);
