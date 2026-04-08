@@ -1,0 +1,3 @@
+export const ALIMTALK_TEMPLATE = {
+  JOKBO_COPY: 'KA01TP260406154436795jzWcHkmPipM',
+} as const;

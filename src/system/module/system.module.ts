@@ -13,5 +13,6 @@ import { RedisRepository } from '@/common/redis/redis-repository.service';
   imports: [TypeOrmModule.forFeature([ImageEntity, Province])],
   controllers: [SystemController],
   providers: [SystemService, AwsS3Service, ImageRepository, ProvinceRepository, RedisRepository],
+  exports: [SystemService],
 })
 export class SystemModule {}

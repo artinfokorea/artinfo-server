@@ -18,9 +18,10 @@ import { AzeyoDeleteJokboTemplateUseCase } from '@/azeyo/jokbo/application/useca
 import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
 import { AzeyoUserModule } from '@/azeyo/user/azeyo-user.module';
 import { AzeyoNotificationModule } from '@/azeyo/notification/azeyo-notification.module';
+import { SystemModule } from '@/system/module/system.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AzeyoJokboTemplate, AzeyoJokboLike, AzeyoUser]), forwardRef(() => AzeyoUserModule), AzeyoNotificationModule],
+  imports: [TypeOrmModule.forFeature([AzeyoJokboTemplate, AzeyoJokboLike, AzeyoUser]), forwardRef(() => AzeyoUserModule), AzeyoNotificationModule, SystemModule],
   controllers: [AzeyoJokboController],
   providers: [
     // UseCases

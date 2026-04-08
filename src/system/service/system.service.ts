@@ -67,6 +67,21 @@ export class SystemService {
     });
   }
 
+  async sendAlimtalk(to: string, templateId: string, variables: Record<string, string>) {
+    await this.messageService.sendOne({
+      from: process.env['COOL_SMS_SENDER_NUMBER']!,
+      to,
+      text: '',
+      kakaoOptions: {
+        pfId: process.env['COOL_SMS_KAKAO_PF_ID']!,
+        templateId,
+        variables,
+        disableSms: true,
+        adFlag: false,
+      },
+    } as any);
+  }
+
   async getUploadImageMetaOrThrow(uploadFile: UploadFile, compress: boolean): Promise<ImageMeta> {
     let imageBuffer: Buffer;
 
