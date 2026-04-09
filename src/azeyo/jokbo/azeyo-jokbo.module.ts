@@ -20,9 +20,10 @@ import { AzeyoUserModule } from '@/azeyo/user/azeyo-user.module';
 import { AzeyoNotificationModule } from '@/azeyo/notification/azeyo-notification.module';
 import { SystemModule } from '@/system/module/system.module';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
+import { AzeyoAlimtalkHistory } from '@/azeyo/notification/domain/entity/azeyo-alimtalk-history.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AzeyoJokboTemplate, AzeyoJokboLike, AzeyoUser]), forwardRef(() => AzeyoUserModule), AzeyoNotificationModule, SystemModule],
+  imports: [TypeOrmModule.forFeature([AzeyoJokboTemplate, AzeyoJokboLike, AzeyoUser, AzeyoAlimtalkHistory]), forwardRef(() => AzeyoUserModule), AzeyoNotificationModule, SystemModule],
   controllers: [AzeyoJokboController],
   providers: [
     // UseCases

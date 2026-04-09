@@ -60,6 +60,7 @@ import { AzeyoJokboLike } from '@/azeyo/jokbo/domain/entity/azeyo-jokbo-like.ent
 import { AzeyoSchedule } from '@/azeyo/schedule/domain/entity/azeyo-schedule.entity';
 import { AzeyoScheduleTag } from '@/azeyo/schedule/domain/entity/azeyo-schedule-tag.entity';
 import { AzeyoScheduleRecommendation } from '@/azeyo/schedule/domain/entity/azeyo-schedule-recommendation.entity';
+import { AzeyoAlimtalkHistory } from '@/azeyo/notification/domain/entity/azeyo-alimtalk-history.entity';
 
 const entities = [
   User,
@@ -101,6 +102,7 @@ const entities = [
   AzeyoScheduleRecommendation,
   AzeyoNotification,
   AzeyoNotificationSetting,
+  AzeyoAlimtalkHistory,
 ];
 const modules = [
   SchedulerModule,
