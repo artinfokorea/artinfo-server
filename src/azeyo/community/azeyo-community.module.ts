@@ -39,9 +39,12 @@ import { AzeyoNotificationModule } from '@/azeyo/notification/azeyo-notification
 import { AzeyoCommunityGptService } from '@/azeyo/community/infrastructure/gpt/azeyo-community-gpt.service';
 import { AzeyoCommunitySeedScheduler } from '@/azeyo/community/infrastructure/scheduler/azeyo-community-seed.scheduler';
 import { AzeyoSchedulerModule } from '@/azeyo/scheduler/azeyo-scheduler.module';
+import { SystemModule } from '@/system/module/system.module';
+import { RedisRepository } from '@/common/redis/redis-repository.service';
+import { AzeyoAlimtalkHistory } from '@/azeyo/notification/domain/entity/azeyo-alimtalk-history.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AzeyoCommunityPost, AzeyoCommunityVote, AzeyoCommunityLike, AzeyoCommunityComment, AzeyoCommunityReport, AzeyoUser]), forwardRef(() => AzeyoUserModule), AzeyoNotificationModule, AzeyoSchedulerModule],
+  imports: [TypeOrmModule.forFeature([AzeyoCommunityPost, AzeyoCommunityVote, AzeyoCommunityLike, AzeyoCommunityComment, AzeyoCommunityReport, AzeyoUser, AzeyoAlimtalkHistory]), forwardRef(() => AzeyoUserModule), AzeyoNotificationModule, AzeyoSchedulerModule, SystemModule],
   controllers: [AzeyoCommunityController, AzeyoCommunitySeedController],
   providers: [
     // UseCases
@@ -67,6 +70,7 @@ import { AzeyoSchedulerModule } from '@/azeyo/scheduler/azeyo-scheduler.module';
     { provide: AZEYO_COMMUNITY_COMMENT_REPOSITORY, useClass: AzeyoCommunityCommentRepository },
     { provide: AZEYO_COMMUNITY_REPORT_REPOSITORY, useClass: AzeyoCommunityReportRepository },
     // External
+    RedisRepository,
     AzeyoS3Service,
     AzeyoCommunityGptService,
     AzeyoCommunitySeedScheduler,
