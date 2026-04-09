@@ -7,6 +7,7 @@ import { AZEYO_USER_REPOSITORY, IAzeyoUserRepository } from '@/azeyo/user/domain
 import { SystemService } from '@/system/service/system.service';
 import { ALIMTALK_TEMPLATE } from '@/azeyo/notification/domain/constant/alimtalk-template.constant';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
+import { AZEYO_NOTIFICATION_SETTING_REPOSITORY, IAzeyoNotificationSettingRepository } from '@/azeyo/notification/domain/repository/azeyo-notification-setting.repository.interface';
 
 const ALIMTALK_COOLDOWN_SECONDS = 3600; // 1시간
 
@@ -25,6 +26,8 @@ export class AzeyoCopyJokboTemplateUseCase {
     private readonly userRepository: IAzeyoUserRepository,
     private readonly systemService: SystemService,
     private readonly redisRepository: RedisRepository,
+    @Inject(AZEYO_NOTIFICATION_SETTING_REPOSITORY)
+    private readonly settingRepository: IAzeyoNotificationSettingRepository,
   ) {}
 
   async execute(templateId: number): Promise<void> {
@@ -40,6 +43,9 @@ export class AzeyoCopyJokboTemplateUseCase {
     });
 
     try {
+      const setting = await this.settingRepository.findByUserId(template.userId);
+      if (!setting?.jokboCopyEnabled) return;
+
       const cooldownKey = `alimtalk:jokbo_copy:${template.userId}:${templateId}`;
       const existing = await this.redisRepository.getByKey(cooldownKey);
       if (existing) return;

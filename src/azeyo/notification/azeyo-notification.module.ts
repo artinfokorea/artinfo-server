@@ -30,6 +30,6 @@ import { AzeyoUpdateNotificationSettingsUseCase } from '@/azeyo/notification/app
     // Sender
     { provide: AZEYO_NOTIFICATION_SENDER, useClass: AzeyoInAppNotificationSenderService },
   ],
-  exports: [AZEYO_NOTIFICATION_SENDER],
+  exports: [AZEYO_NOTIFICATION_SENDER, AZEYO_NOTIFICATION_SETTING_REPOSITORY],
 })
 export class AzeyoNotificationModule {}
