@@ -71,7 +71,7 @@ export class SystemService {
     await this.messageService.sendOne({
       from: process.env['COOL_SMS_SENDER_NUMBER']!,
       to,
-      text: '',
+      text: '알림톡 발송',
       kakaoOptions: {
         pfId: process.env['COOL_SMS_KAKAO_PF_ID']!,
         templateId,
