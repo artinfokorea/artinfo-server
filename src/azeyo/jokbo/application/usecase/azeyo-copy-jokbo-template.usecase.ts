@@ -57,7 +57,7 @@ export class AzeyoCopyJokboTemplateUseCase {
 
       const user = await this.userRepository.findOneOrThrowById(template.userId);
       if (user.phone) {
-        const variables = { '#{jokboTitle}': template.title, '#{templateId}': String(templateId) };
+        const variables = { '#{jokboTitle}': template.title };
         try {
           await this.systemService.sendAlimtalk(user.phone, ALIMTALK_TEMPLATE.JOKBO_COPY, variables);
           await this.alimtalkHistoryRepository.save({ userId: template.userId, phone: user.phone, templateId: ALIMTALK_TEMPLATE.JOKBO_COPY, variables, isSuccess: true, errorMessage: null });
