@@ -32,7 +32,7 @@ export class AzeyoSeedCommunityPostUseCase {
     }
 
     // 2. 최신 글 5개 조회하여 중복 방지
-    const recentPosts = await this.getLatestPosts(5);
+    const recentPosts = await this.getLatestPosts(10);
 
     // 3. 글 작성 시간 계산: (최신 글 ~ 현재) ∩ (06:30 ~ 23:59 KST) 사이 랜덤
     const [{ db_now, latest_at }] = await this.userRepository.manager.query(

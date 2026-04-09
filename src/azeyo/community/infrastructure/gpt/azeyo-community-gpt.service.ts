@@ -35,7 +35,7 @@ export class AzeyoCommunityGptService {
     const category = candidates.length > 0
       ? candidates[Math.floor(Math.random() * candidates.length)]
       : CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)];
-    const isVote = Math.random() < 0.2; // 일반글:투표 = 4:1
+    const isVote = Math.random() < 0.1; // 일반글:투표 = 9:1
     const type = isVote ? AZEYO_COMMUNITY_POST_TYPE.VOTE : AZEYO_COMMUNITY_POST_TYPE.TEXT;
 
     const systemPrompt = this.buildPrompt(type, category, commentCount, recentPosts, postTime);
@@ -142,7 +142,7 @@ export class AzeyoCommunityGptService {
     this.logger.log(`글 생성 시간 기준 KST: ${dayOfWeek} ${kstHour}시 (postTime: ${baseTime.toISOString()})`);
 
     const recentPostsSection = recentPosts.length > 0
-      ? `\n## 최근 글 (중복 금지)\n아래는 최근 올라온 글 목록이야. 이 글들과 비슷한 주제나 내용은 절대 쓰지 마.\n${recentPosts.map((p, i) => `${i + 1}. [${p.category}] ${p.title}`).join('\n')}\n`
+      ? `\n## 제목/주제 중복 금지 (매우 중요!!!)\n아래는 최근 올라온 글 제목 목록이야. 반드시 지켜야 할 규칙:\n1. 아래 제목과 같거나 비슷한 제목 절대 금지 (단어만 바꾸거나 순서만 바꾸는 것도 금지)\n2. 아래 글들과 같은 주제/소재/상황도 금지\n3. 완전히 새로운 주제와 제목으로 작성해야 함\n\n금지된 제목 목록:\n${recentPosts.map((p, i) => `${i + 1}. [${p.category}] "${p.title}"`).join('\n')}\n\n위 제목들과 조금이라도 비슷하면 안 됨. 완전히 다른 새로운 이야기를 써.\n`
       : '';
 
     return `너는 "아재요"라는 기혼 남성 커뮤니티에 글 쓰는 30~50대 남자야.
