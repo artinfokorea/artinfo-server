@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, In, Between } from 'typeorm';
+import { DataSource, In, Between, IsNull } from 'typeorm';
 import { ExamGradingService } from '@/tov/service/exam-grading.service';
 import { VlUser } from '@/tov/entity/vl-user.entity';
 import { VlExam } from '@/tov/entity/vl-exam.entity';
@@ -19,20 +19,20 @@ export class TovRepository {
 
   async findUserById(userId: string): Promise<VlUser | null> {
     return this.dataSource.getRepository(VlUser).findOne({
-      where: { id: userId, deletedAt: null as any },
+      where: { id: userId, deletedAt: IsNull() },
     });
   }
 
   async existsInProgressExam(userId: string): Promise<boolean> {
     const count = await this.dataSource.getRepository(VlExam).count({
-      where: { userId, status: 'in_progress', deletedAt: null as any },
+      where: { userId, status: 'in_progress', deletedAt: IsNull() },
     });
     return count > 0;
   }
 
   async findWordGroupById(groupId: string): Promise<VlWordGroup | null> {
     return this.dataSource.getRepository(VlWordGroup).findOne({
-      where: { id: groupId, deletedAt: null as any },
+      where: { id: groupId, deletedAt: IsNull() },
     });
   }
 
@@ -41,7 +41,7 @@ export class TovRepository {
       where: {
         wordGroupId: groupId,
         wordSeq: Between(seqFrom, seqTo),
-        deletedAt: null as any,
+        deletedAt: IsNull(),
       },
     });
   }
@@ -52,17 +52,17 @@ export class TovRepository {
     const [words, meanings, synonyms, antonyms, sentences] = await Promise.all([
       this.dataSource.getRepository(VlMasterWord).find({ where: { id: In(masterWordIds) } }),
       this.dataSource.getRepository(VlWordMeaning).find({
-        where: { masterWordId: In(masterWordIds), deletedAt: null as any },
+        where: { masterWordId: In(masterWordIds), deletedAt: IsNull() },
         order: { displayOrder: 'ASC' },
       }),
       this.dataSource.getRepository(VlWordSynonym).find({
-        where: { masterWordId: In(masterWordIds), deletedAt: null as any },
+        where: { masterWordId: In(masterWordIds), deletedAt: IsNull() },
       }),
       this.dataSource.getRepository(VlWordAntonym).find({
-        where: { masterWordId: In(masterWordIds), deletedAt: null as any },
+        where: { masterWordId: In(masterWordIds), deletedAt: IsNull() },
       }),
       this.dataSource.getRepository(VlWordExampleSentence).find({
-        where: { masterWordId: In(masterWordIds), deletedAt: null as any },
+        where: { masterWordId: In(masterWordIds), deletedAt: IsNull() },
       }),
     ]);
 
@@ -94,7 +94,7 @@ export class TovRepository {
     await this.dataSource.transaction(async manager => {
       const exam = await manager.findOneOrFail(VlExam, { where: { id: examId } });
       const questions = await manager.find(VlExamQuestion, {
-        where: { examId, deletedAt: null as any },
+        where: { examId, deletedAt: IsNull() },
       });
       const wordGroup = await manager.findOneOrFail(VlWordGroup, {
         where: { id: exam.wordGroupId },
