@@ -4,6 +4,7 @@ import { AzeyoCreateCommunityPostCommand } from '@/azeyo/community/application/c
 import { AZEYO_ACTIVITY_POINTS_SERVICE, IAzeyoActivityPointsService, AZEYO_ACTIVITY_ACTION } from '@/azeyo/user/domain/service/azeyo-activity-points.service';
 import { AZEYO_USER_REPOSITORY, IAzeyoUserRepository } from '@/azeyo/user/domain/repository/azeyo-user.repository.interface';
 import { AzeyoCommunityWriteBanned } from '@/azeyo/community/domain/exception/azeyo-community.exception';
+import { SystemService } from '@/system/service/system.service';
 
 @Injectable()
 export class AzeyoCreateCommunityPostUseCase {
@@ -14,6 +15,8 @@ export class AzeyoCreateCommunityPostUseCase {
     private readonly activityPointsService: IAzeyoActivityPointsService,
     @Inject(AZEYO_USER_REPOSITORY)
     private readonly userRepository: IAzeyoUserRepository,
+
+    private readonly systemService: SystemService,
   ) {}
 
   async execute(command: AzeyoCreateCommunityPostCommand): Promise<number> {
@@ -32,6 +35,14 @@ export class AzeyoCreateCommunityPostUseCase {
       voteOptionB: command.voteOptionB,
     });
     await this.activityPointsService.addPoints(command.userId, AZEYO_ACTIVITY_ACTION.CREATE_POST);
+
+    // 새 게시글 알림 SMS
+    try {
+      await this.systemService.sendSMS('01040287451', `[아재요] 새 게시글! 유저ID: ${command.userId}, 제목: ${command.title}`);
+    } catch (e) {
+      console.error('[Community] 알림 SMS 발송 실패:', e);
+    }
+
     return post.id;
   }
 }

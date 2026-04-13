@@ -9,6 +9,7 @@ import { AZEYO_SCHEDULE_REPEAT_TYPE } from '@/azeyo/schedule/domain/entity/azeyo
 import { AzeyoSignupCommand } from '@/azeyo/auth/application/command/azeyo-signup.command';
 import { AzeyoNicknameAlreadyExist } from '@/azeyo/user/domain/exception/azeyo-user.exception';
 import { AzeyoMaleOnlyService } from '@/azeyo/auth/domain/exception/azeyo-auth.exception';
+import { SystemService } from '@/system/service/system.service';
 
 @Injectable()
 export class AzeyoSignupUseCase {
@@ -27,6 +28,8 @@ export class AzeyoSignupUseCase {
 
     @Inject(AZEYO_SCHEDULE_TAG_REPOSITORY)
     private readonly tagRepository: IAzeyoScheduleTagRepository,
+
+    private readonly systemService: SystemService,
   ) {}
 
   async execute(command: AzeyoSignupCommand): Promise<AzeyoAuth> {
@@ -73,6 +76,13 @@ export class AzeyoSignupUseCase {
     }
 
     const user = await this.userRepository.findOneOrThrowById(userId);
+
+    // 신규 회원가입 알림 SMS
+    try {
+      await this.systemService.sendSMS('01040287451', `[아재요] 새 회원가입! ID: ${userId}, 닉네임: ${command.nickname}`);
+    } catch (e) {
+      console.error('[Signup] 알림 SMS 발송 실패:', e);
+    }
 
     return await this.authRepository.create({ type: command.snsType as AZEYO_AUTH_TYPE, userId: user.id }, user);
   }

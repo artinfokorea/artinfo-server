@@ -12,9 +12,10 @@ import { AzeyoUserModule } from '@/azeyo/user/azeyo-user.module';
 import { AzeyoSnsModule } from '@/azeyo/sns/azeyo-sns.module';
 import { AzeyoScheduleModule } from '@/azeyo/schedule/azeyo-schedule.module';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
+import { SystemModule } from '@/system/module/system.module';
 
 @Module({
-  imports: [JwtModule.register({}), TypeOrmModule.forFeature([AzeyoAuth]), AzeyoUserModule, AzeyoSnsModule, AzeyoScheduleModule],
+  imports: [JwtModule.register({}), TypeOrmModule.forFeature([AzeyoAuth]), AzeyoUserModule, AzeyoSnsModule, AzeyoScheduleModule, SystemModule],
   controllers: [AzeyoAuthController],
   providers: [
     JwtService,
