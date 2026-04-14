@@ -1,5 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { parseErrorSource } from '@/common/exception/parse-error-source';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -29,26 +30,31 @@ export class HttpExceptionFilter implements ExceptionFilter {
       }
     }
 
-    // 에러 로그 (JSON → CloudWatch에서 필드 파싱 가능)
     if (status >= 500) {
+      const source = parseErrorSource(exception.stack);
       console.log(JSON.stringify({
         level: 'ERROR',
         type: 'HttpException',
         statusCode: status,
         code,
         message,
+        class: source.className,
+        function: source.methodName,
         method: request.method,
         url: request.originalUrl,
         ip: request.ip,
         stack: exception.stack,
       }));
     } else if (status >= 400) {
+      const source = parseErrorSource(exception.stack);
       console.log(JSON.stringify({
         level: 'WARN',
         type: 'HttpException',
         statusCode: status,
         code,
         message,
+        class: source.className,
+        function: source.methodName,
         method: request.method,
         url: request.originalUrl,
       }));

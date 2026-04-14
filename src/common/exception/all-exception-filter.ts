@@ -1,5 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { parseErrorSource } from '@/common/exception/parse-error-source';
 
 @Catch()
 export class AllExceptionFilter implements ExceptionFilter {
@@ -12,12 +13,15 @@ export class AllExceptionFilter implements ExceptionFilter {
     if (exception instanceof HttpException) throw exception;
 
     const error = exception instanceof Error ? exception : new Error(String(exception));
+    const source = parseErrorSource(error.stack);
 
     console.log(JSON.stringify({
       level: 'ERROR',
       type: 'UnhandledException',
       statusCode: 500,
-      class: error.constructor?.name ?? 'Unknown',
+      class: source.className,
+      function: source.methodName,
+      errorType: error.constructor?.name ?? 'Unknown',
       message: error.message,
       method: request?.method,
       url: request?.originalUrl,
