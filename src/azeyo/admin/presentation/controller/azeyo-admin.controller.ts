@@ -38,17 +38,15 @@ export class AzeyoAdminController {
     await this.assertAdmin(signature);
     const result = await this.userRepository.findAllPaging((page - 1) * size, size);
     return {
-      item: {
-        users: result.items.map(u => ({
-          id: u.id,
-          nickname: u.nickname,
-          iconImageUrl: u.iconImageUrl,
-          activityPoints: u.activityPoints,
-          createdAt: u.createdAt,
-          isWriteBanned: u.isWriteBanned,
-        })),
-        totalCount: result.totalCount,
-      },
+      users: result.items.map(u => ({
+        id: u.id,
+        nickname: u.nickname,
+        iconImageUrl: u.iconImageUrl,
+        activityPoints: u.activityPoints,
+        createdAt: u.createdAt,
+        isWriteBanned: u.isWriteBanned,
+      })),
+      totalCount: result.totalCount,
     };
   }
 
@@ -156,25 +154,23 @@ export class AzeyoAdminController {
       keyword: keyword ?? null,
     });
     return {
-      item: {
-        posts: result.items.map(p => ({
-          id: p.id,
-          type: p.type,
-          category: p.category,
-          userId: p.userId,
-          authorName: p.user?.nickname ?? '',
-          authorIconImageUrl: p.user?.iconImageUrl ?? null,
-          title: p.title,
-          contents: p.contents,
-          imageUrls: p.imageUrls,
-          imageRatio: p.imageRatio,
-          voteOptionA: p.voteOptionA,
-          voteOptionB: p.voteOptionB,
-          viewCount: p.viewCount,
-          createdAt: p.createdAt,
-        })),
-        totalCount: result.totalCount,
-      },
+      posts: result.items.map(p => ({
+        id: p.id,
+        type: p.type,
+        category: p.category,
+        userId: p.userId,
+        authorName: p.user?.nickname ?? '',
+        authorIconImageUrl: p.user?.iconImageUrl ?? null,
+        title: p.title,
+        contents: p.contents,
+        imageUrls: p.imageUrls,
+        imageRatio: p.imageRatio,
+        voteOptionA: p.voteOptionA,
+        voteOptionB: p.voteOptionB,
+        viewCount: p.viewCount,
+        createdAt: p.createdAt,
+      })),
+      totalCount: result.totalCount,
     };
   }
 }
