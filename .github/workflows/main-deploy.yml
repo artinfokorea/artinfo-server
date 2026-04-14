@@ -81,7 +81,13 @@ jobs:
       - name: Deploy Container 1
         run: |
           docker rm -f ${{ env.CONTAINER_NAME_1 }} || true
-          docker run -d -p 3000:3000 --name ${{ env.CONTAINER_NAME_1 }} --network artinfo-network --cpus=1 --restart always ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}
+          docker run -d -p 3000:3000 --name ${{ env.CONTAINER_NAME_1 }} --network artinfo-network --cpus=1 --restart always \
+            --log-driver=awslogs \
+            --log-opt awslogs-region=ap-northeast-2 \
+            --log-opt awslogs-group=azeyo-server-log \
+            --log-opt awslogs-stream=azeyo-server-1-stream \
+            --log-opt awslogs-create-group=true \
+            ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}
 
       - name: Health Check Container 1
         run: |
@@ -99,7 +105,13 @@ jobs:
       - name: Deploy Container 2
         run: |
           docker rm -f ${{ env.CONTAINER_NAME_2 }} || true
-          docker run -d -p 3001:3000 --name ${{ env.CONTAINER_NAME_2 }} --network artinfo-network --cpus=1 --restart always ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}
+          docker run -d -p 3001:3000 --name ${{ env.CONTAINER_NAME_2 }} --network artinfo-network --cpus=1 --restart always \
+            --log-driver=awslogs \
+            --log-opt awslogs-region=ap-northeast-2 \
+            --log-opt awslogs-group=azeyo-server-log \
+            --log-opt awslogs-stream=azeyo-server-2-stream \
+            --log-opt awslogs-create-group=true \
+            ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}
 
       - name: Health Check Container 2
         run: |
