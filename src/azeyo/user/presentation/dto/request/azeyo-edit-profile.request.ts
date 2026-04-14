@@ -2,6 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { NotBlank } from '@/common/decorator/validator';
 
 export class AzeyoEditProfileRequest {
+  @ApiProperty({ type: String, required: false, description: '이름', nullable: true })
+  name: string | null;
+
   @NotBlank()
   @ApiProperty({ type: String, required: true, description: '닉네임 (2~12자)' })
   nickname: string;

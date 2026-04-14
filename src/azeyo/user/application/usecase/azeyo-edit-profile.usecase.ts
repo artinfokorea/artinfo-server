@@ -8,12 +8,14 @@ export class AzeyoEditProfileUseCase {
   ) {}
 
   async execute(userId: number, params: {
+    name?: string | null;
     nickname: string;
     subtitle: string | null;
     email?: string | null;
     phone?: string | null;
   }): Promise<void> {
     const user = await this.userRepository.findOneOrThrowById(userId);
+    if (params.name !== undefined) user.name = params.name;
     user.nickname = params.nickname;
     user.subtitle = params.subtitle;
     if (params.email !== undefined) user.email = params.email;
