@@ -7,8 +7,9 @@ import { AzeyoJokboModule } from '@/azeyo/jokbo/azeyo-jokbo.module';
 import { AzeyoScheduleModule } from '@/azeyo/schedule/azeyo-schedule.module';
 import { AzeyoNotificationModule } from '@/azeyo/notification/azeyo-notification.module';
 import { AzeyoGatewayModule } from '@/azeyo/gateway/azeyo-gateway.module';
+import { AzeyoAdminModule } from '@/azeyo/admin/azeyo-admin.module';
 
 @Module({
-  imports: [AzeyoAuthModule, AzeyoUserModule, AzeyoSnsModule, AzeyoCommunityModule, AzeyoJokboModule, AzeyoScheduleModule, AzeyoNotificationModule, AzeyoGatewayModule],
+  imports: [AzeyoAuthModule, AzeyoUserModule, AzeyoSnsModule, AzeyoCommunityModule, AzeyoJokboModule, AzeyoScheduleModule, AzeyoNotificationModule, AzeyoGatewayModule, AzeyoAdminModule],
 })
 export class AzeyoModule {}

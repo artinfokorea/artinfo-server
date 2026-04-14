@@ -68,6 +68,9 @@ export class AzeyoUser extends BaseEntity {
   @Column({ type: 'boolean', name: 'is_write_banned', default: false })
   isWriteBanned: boolean;
 
+  @Column({ type: 'boolean', name: 'is_admin', default: false })
+  isAdmin: boolean;
+
   @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
   deletedAt: Date | null;
 

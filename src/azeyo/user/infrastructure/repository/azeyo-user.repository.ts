@@ -80,4 +80,13 @@ export class AzeyoUserRepository implements IAzeyoUserRepository {
       take: count,
     });
   }
+
+  async findAllPaging(skip: number, take: number): Promise<{ items: AzeyoUser[]; totalCount: number }> {
+    const [items, totalCount] = await this.userRepository.findAndCount({
+      order: { createdAt: 'DESC' },
+      skip,
+      take,
+    });
+    return { items, totalCount };
+  }
 }

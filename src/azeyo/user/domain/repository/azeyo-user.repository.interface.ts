@@ -25,4 +25,5 @@ export interface IAzeyoUserRepository {
   findOneByNickname(nickname: string): Promise<AzeyoUser | null>;
   saveEntity(user: AzeyoUser): Promise<void>;
   findTopMonthlyUsers(count: number): Promise<AzeyoUser[]>;
+  findAllPaging(skip: number, take: number): Promise<{ items: AzeyoUser[]; totalCount: number }>;
 }

@@ -19,6 +19,7 @@ export class AzeyoUserProfileResponse {
   @ApiProperty() likesCount: number;
   @ApiProperty() jokboCount: number;
   @ApiProperty() isWriteBanned: boolean;
+  @ApiProperty() isAdmin: boolean;
   @ApiProperty() createdAt: Date;
 
   constructor(user: AzeyoUser) {
@@ -39,6 +40,7 @@ export class AzeyoUserProfileResponse {
     this.likesCount = user.likesCount;
     this.jokboCount = user.jokboCount;
     this.isWriteBanned = user.isWriteBanned ?? false;
+    this.isAdmin = user.isAdmin ?? false;
     this.createdAt = user.createdAt;
   }
 }
