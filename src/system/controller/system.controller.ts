@@ -19,6 +19,11 @@ export class SystemController {
     return new OkResponse();
   }
 
+  @RestApiGet(OkResponse, { path: '/error-test', description: '500 에러 테스트' })
+  async errorTest() {
+    throw new Error('테스트 에러: SystemController.errorTest()에서 발생');
+  }
+
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(
     FilesInterceptor('imageFiles', 10, {
