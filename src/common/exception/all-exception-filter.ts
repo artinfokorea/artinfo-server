@@ -16,6 +16,7 @@ export class AllExceptionFilter implements ExceptionFilter {
     console.log(JSON.stringify({
       level: 'ERROR',
       type: 'UnhandledException',
+      statusCode: 500,
       class: error.constructor?.name ?? 'Unknown',
       message: error.message,
       method: request?.method,
