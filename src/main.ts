@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ResponseInterceptor } from './common/interceptor/interceptor';
 import { setSwagger } from '@/common/swagger/swagger';
 import { HttpExceptionFilter } from '@/common/exception/http-exception-filter';
+import { AllExceptionFilter } from '@/common/exception/all-exception-filter';
 import { json, urlencoded } from 'express';
 
 async function bootstrap() {
@@ -18,7 +19,7 @@ async function bootstrap() {
   app.use(json({ limit: '50mb' }));
   app.use(urlencoded({ extended: true, limit: '50mb' }));
 
-  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalFilters(new AllExceptionFilter(), new HttpExceptionFilter());
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.enableCors({
     origin: '*',
