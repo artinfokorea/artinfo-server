@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { SignUpCommand } from '@/auth/dto/command/sign-up.command';
 import { UserRepository } from '@/user/repository/user.repository';
 import {
@@ -82,7 +82,12 @@ export class AuthService {
   }
 
   async refreshTokens(command: RefreshAccessTokenCommand): Promise<Auth> {
-    const decodedToken = await this.jwtService.verify(command.refreshToken, { secret: process.env.JWT_TOKEN_KEY });
+    let decodedToken: any;
+    try {
+      decodedToken = await this.jwtService.verify(command.refreshToken, { secret: process.env.JWT_TOKEN_KEY });
+    } catch {
+      throw new UnauthorizedException({ code: 'AUTH-010', message: '토큰이 만료되었습니다.' });
+    }
     const { id, exp } = decodedToken;
 
     const redisKey = `USER:REFRESH=${id}`;
