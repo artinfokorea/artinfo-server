@@ -29,12 +29,23 @@ export class AzeyoCommunityGptService {
   }
 
   async generatePost(commentCount: number, recentPosts: { category: string; title: string }[] = [], postTime?: Date): Promise<GptGeneratedPost> {
-    // 최근 글 카테고리들을 제외하고 선택 (모두 겹치면 전체에서 랜덤)
+    // 주말 여부 판별 (KST 기준)
+    const baseTime = postTime || new Date();
+    const kstMs = baseTime.getTime() + 9 * 60 * 60 * 1000;
+    const kstDay = new Date(kstMs).getUTCDay();
+    const isWeekend = [0, 6].includes(kstDay);
+
+    // 주말이면 WORK 카테고리 제외
+    const availableCategories = isWeekend
+      ? CATEGORIES.filter(c => c !== AZEYO_COMMUNITY_CATEGORY.WORK)
+      : CATEGORIES;
+
+    // 최근 글 카테고리들을 제외하고 선택 (모두 겹치면 가용 카테고리에서 랜덤)
     const recentCategories = new Set(recentPosts.map(p => p.category));
-    const candidates = CATEGORIES.filter(c => !recentCategories.has(c));
+    const candidates = availableCategories.filter(c => !recentCategories.has(c));
     const category = candidates.length > 0
       ? candidates[Math.floor(Math.random() * candidates.length)]
-      : CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)];
+      : availableCategories[Math.floor(Math.random() * availableCategories.length)];
     const isVote = Math.random() < 0.1; // 일반글:투표 = 9:1
     const type = isVote ? AZEYO_COMMUNITY_POST_TYPE.VOTE : AZEYO_COMMUNITY_POST_TYPE.TEXT;
 
@@ -158,12 +169,21 @@ export class AzeyoCommunityGptService {
 
 카테고리: ${category} (${categoryDescriptions[category]})
 게시글 타입: ${isVote ? 'VOTE (A/B 투표)' : 'TEXT (일반 글)'}
-오늘: ${kstMonth}월 ${kstDate}일 ${dayOfWeek} (${isWeekend ? '주말' : '평일'})
-지금 시간대: ${kstHour < 1 ? '밤늦은 시간' : kstHour < 6 ? '새벽' : kstHour < 9 ? '이른 아침' : kstHour < 12 ? '오전' : kstHour < 14 ? '점심시간' : kstHour < 18 ? '오후' : kstHour < 22 ? '저녁' : '밤늦은 시간'}
+오늘 (한국시간 KST 기준): ${kstMonth}월 ${kstDate}일 ${dayOfWeek} (${isWeekend ? '주말' : '평일'})
+지금 시간대 (한국시간 KST 기준): ${kstHour < 1 ? '밤늦은 시간' : kstHour < 6 ? '새벽' : kstHour < 9 ? '이른 아침' : kstHour < 12 ? '오전' : kstHour < 14 ? '점심시간' : kstHour < 18 ? '오후' : kstHour < 22 ? '저녁' : '밤늦은 시간'}
+모든 시간/요일 판단은 한국시간(KST, UTC+9) 기준이야. UTC나 다른 시간대로 해석하지 마.
 
 ## 가장 중요한 규칙
 반드시 "${categoryDescriptions[category]}" 주제로만 글을 써야 해. 다른 카테고리 주제로 쓰면 안 됨.
 예를 들어 카테고리가 "육아"면 육아 관련 내용만, "선물"이면 선물 관련 내용만 써야 함.
+${isWeekend ? `
+## !!!!! 주말 규칙 (최우선, 반드시 지켜!!!) !!!!!
+오늘은 ${dayOfWeek}이야. 주말임!!!
+- 출근/퇴근/회사/직장/동료/팀장/상사/업무/야근/점심(회사)/학교/어린이집/유치원 관련 내용 절대절대 금지!!!
+- "일하다가", "동료", "같이 일하는", "업무", "퇴근", "출근" 같은 단어 자체를 쓰면 안 됨
+- 주말에는: 집에서 쉬기, 가족 나들이, 아이와 놀기, 아내와의 시간, 취미, 집안일, 장보기, 마트, 외식 등 주말 상황으로만 쓰기
+- 이 규칙을 어기면 글 전체가 무효됨. 반드시 지킬 것!!!
+` : ''}
 ${recentPostsSection}
 ## 말투 규칙
 - 카톡이나 남초 커뮤니티에서 쓰는 편한 반말 (예: "~했음", "~인데", "~ㅋㅋ", "~함", "진짜 ㅋㅋ")
@@ -177,14 +197,15 @@ ${recentPostsSection}
 - 자조적 유머, 한탄, 과장 자유롭게 (예: "월급은 통장 스쳐가고", "눈치가 생존스킬")
 - 제목은 15자 이내, 궁금해서 클릭하게
 - 본문은 2~4문장, 짧고 임팩트 있게 (절대 5문장 넘기지 마)
-- 주말(토/일) 규칙: 출근/퇴근/회사/직장/학교/어린이집/유치원 관련 내용 절대 금지. 주말에는 온 가족이 쉬는 상황으로만 쓰기
-- 평일(월~금) 근무시간(09~18시)에만 회사/직장/출퇴근 관련 내용 가능. 새벽/밤(22시~08시)에는 회사/직장/팀장/상사/야근/퇴근 관련 내용 쓰지 마. 새벽/밤에는 집에서 쉬는 상황으로 쓰기
+${isWeekend ? '- [필수] 오늘은 주말이야!!! 회사/직장/출근/퇴근/동료/업무/학교/어린이집 관련 내용 절대 쓰지 마. 주말 가족/집/외출/쉬는 상황으로만 써' : '- 평일(월~금) 근무시간(09~18시)에만 회사/직장/출퇴근 관련 내용 가능. 새벽/밤(22시~08시)에는 회사/직장/팀장/상사/야근/퇴근 관련 내용 쓰지 마. 새벽/밤에는 집에서 쉬는 상황으로 쓰기'}
 - 글 속에 시각/시간 표현을 절대 쓰지 마. "N시", "N분", "N시 반" 모두 금지 (예: "새벽 2시", "0시 7분", "3시 반", "오후 3시" 전부 금지). 시간을 언급하려면 "아까", "오늘", "방금", "잠깐 전" 같이 쓰기
 - 날짜/요일 관련: 오늘은 ${kstMonth}월 ${kstDate}일이야. 날짜를 언급할 때 실제 오늘 날짜와 맞아야 함. 예를 들어 "15일이라 월급 들어왔는데"는 오늘이 15일이 아니면 쓰면 안 됨. 오늘이 일요일 밤이면 "이번주 일요일"이 아니라 "오늘"이라고 쓰기. 이미 지난 시간대의 일을 앞으로 할 일처럼 쓰면 안 됨
 ${isHolidaySeason ? `- 지금은 ${holidayName} 시즌이야. 명절 관련 내용(${holidayName} 준비, 시댁/처가 방문, 세뱃돈/용돈, 명절 스트레스, 귀성길 등)을 자연스럽게 녹여서 써도 좋아. 단, 카테고리에 맞는 내용이어야 함` : '- [필수] 명절(설날/추석/차례/세뱃돈/귀성길/시댁 명절/처가 명절) 관련 내용은 절대 쓰지 마. 지금은 명절 시즌이 아님. 이 규칙을 어기면 안 됨'}
 - [필수] 지금은 "${kstHour < 1 ? '밤늦은 시간' : kstHour < 6 ? '새벽' : kstHour < 9 ? '이른 아침' : kstHour < 12 ? '오전' : kstHour < 14 ? '점심시간' : kstHour < 18 ? '오후' : kstHour < 22 ? '저녁' : '밤늦은 시간'}" 시간대야. 이 시간대에 맞는 상황으로만 써야 하고, 다른 시간대 상황은 절대 금지:
-  - 지금 써야 할 상황: ${kstHour < 1 ? '아이 재우고 혼자 있는 시간/야식/취침 전 상황 (출근/점심/저녁식사 내용 금지)' : kstHour < 6 ? '잠이 안 오거나 야식/혼자 있는 상황' : kstHour < 9 ? '기상/출근 준비/등원 상황' : kstHour < 12 ? '출근 후 업무 중 상황 (점심/점심시간/점심메뉴/밥 먹는 내용 금지 - 아직 점심 전임)' : kstHour < 14 ? '점심 식사/휴식 상황' : kstHour < 18 ? '업무 중/오후 상황 (점심/점심메뉴 내용 금지 - 점심은 이미 지남)' : kstHour < 22 ? '퇴근 후/저녁식사/가족 시간 상황 (출근/점심 내용 금지)' : '아이 재우고 혼자 있는 시간/야식/취침 전 상황 (출근/점심/저녁식사 내용 금지)'}
-  - 금지 예시: ${kstHour < 1 ? '출근/점심/업무 중 관련 내용' : kstHour < 12 ? '점심/저녁/퇴근 관련 내용' : kstHour < 14 ? '출근 준비/아침 관련 내용' : kstHour < 18 ? '점심 먹는 중/아침/출근 준비 관련 내용' : kstHour < 22 ? '출근/점심/오전 업무 관련 내용' : '출근/점심/업무 중 관련 내용'}
+${isWeekend
+  ? `  - 지금 써야 할 상황: ${kstHour < 1 ? '아이 재우고 혼자 있는 시간/야식/취침 전 (집에서 쉬는 주말 밤)' : kstHour < 6 ? '잠이 안 오거나 혼자 있는 새벽 (주말 새벽)' : kstHour < 9 ? '주말 아침 느긋하게 기상/아이와 아침 시간' : kstHour < 12 ? '주말 오전 집에서 쉬기/가족과 시간/나들이 준비' : kstHour < 14 ? '주말 점심 가족 외식/집밥/장보기' : kstHour < 18 ? '주말 오후 나들이/가족 시간/취미/집안일' : kstHour < 22 ? '주말 저녁 가족 저녁식사/TV/아이 놀아주기' : '아이 재우고 혼자 있는 시간/주말 밤 휴식'}`
+  : `  - 지금 써야 할 상황: ${kstHour < 1 ? '아이 재우고 혼자 있는 시간/야식/취침 전 상황 (출근/점심/저녁식사 내용 금지)' : kstHour < 6 ? '잠이 안 오거나 야식/혼자 있는 상황' : kstHour < 9 ? '기상/출근 준비/등원 상황' : kstHour < 12 ? '출근 후 업무 중 상황 (점심/점심시간/점심메뉴/밥 먹는 내용 금지 - 아직 점심 전임)' : kstHour < 14 ? '점심 식사/휴식 상황' : kstHour < 18 ? '업무 중/오후 상황 (점심/점심메뉴 내용 금지 - 점심은 이미 지남)' : kstHour < 22 ? '퇴근 후/저녁식사/가족 시간 상황 (출근/점심 내용 금지)' : '아이 재우고 혼자 있는 시간/야식/취침 전 상황 (출근/점심/저녁식사 내용 금지)'}`}
+  - 금지 예시: ${isWeekend ? '출근/퇴근/회사/직장/동료/팀장/상사/업무/야근/어린이집/유치원/학교 관련 내용 전부 금지' : kstHour < 1 ? '출근/점심/업무 중 관련 내용' : kstHour < 12 ? '점심/저녁/퇴근 관련 내용' : kstHour < 14 ? '출근 준비/아침 관련 내용' : kstHour < 18 ? '점심 먹는 중/아침/출근 준비 관련 내용' : kstHour < 22 ? '출근/점심/오전 업무 관련 내용' : '출근/점심/업무 중 관련 내용'}
 ${isVote ? '- voteOptionA, voteOptionB: 각 10자 이내의 투표 선택지' : ''}
 ${commentCount > 0 ? `- comments: ${commentCount}개의 댓글 (각각 다른 아재가 쓴 것처럼, 공감/훈수/드립 섞어서 1~2문장)` : '- comments: 빈 배열'}
 
