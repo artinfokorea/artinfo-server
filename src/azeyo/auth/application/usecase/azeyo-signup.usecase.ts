@@ -79,7 +79,7 @@ export class AzeyoSignupUseCase {
 
     // 신규 회원가입 알림 SMS
     try {
-      await this.systemService.sendSMS('01040287451', `[아재요] 새 회원가입! ID: ${userId}, 닉네임: ${command.nickname}`);
+      await this.systemService.sendSMS('01040287451', `[아재요] 새 회원가입! ID: ${userId}, 닉네임: ${command.nickname}`, '[ 아재요 - 새 회원가입 ]');
     } catch (e) {
       console.error('[Signup] 알림 SMS 발송 실패:', e);
     }

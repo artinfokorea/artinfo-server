@@ -47,12 +47,12 @@ export class SystemService {
     });
   }
 
-  async sendSMS(to: string, text: string) {
+  async sendSMS(to: string, text: string, subject: string = '[ 아트인포 - 레슨 신청 ]') {
     console.log(process.env['COOL_SMS_SENDER_NUMBER']);
     await this.messageService.sendOne({
       from: process.env['COOL_SMS_SENDER_NUMBER']!,
       to: to,
-      subject: '[ 아트인포 - 레슨 신청 ]',
+      subject,
       text: text,
       autoTypeDetect: true,
     });

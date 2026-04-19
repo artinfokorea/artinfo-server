@@ -38,7 +38,7 @@ export class AzeyoCreateCommunityPostUseCase {
 
     // 새 게시글 알림 SMS
     try {
-      await this.systemService.sendSMS('01040287451', `[아재요] 새 게시글! 유저ID: ${command.userId}, 제목: ${command.title}`);
+      await this.systemService.sendSMS('01040287451', `[아재요] 새 게시글! 유저ID: ${command.userId}, 제목: ${command.title}`, '[ 아재요 - 새 게시글 ]');
     } catch (e) {
       console.error('[Community] 알림 SMS 발송 실패:', e);
     }
