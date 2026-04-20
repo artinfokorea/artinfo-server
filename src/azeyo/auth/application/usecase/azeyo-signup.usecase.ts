@@ -1,4 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { AZEYO_USER_REPOSITORY, IAzeyoUserRepository } from '@/azeyo/user/domain/repository/azeyo-user.repository.interface';
 import { AZEYO_AUTH_REPOSITORY, IAzeyoAuthRepository } from '@/azeyo/auth/domain/repository/azeyo-auth.repository.interface';
 import { AZEYO_SNS_CLIENT, IAzeyoSnsClient } from '@/azeyo/sns/domain/service/azeyo-sns-client.interface';
@@ -10,6 +12,8 @@ import { AzeyoSignupCommand } from '@/azeyo/auth/application/command/azeyo-signu
 import { AzeyoNicknameAlreadyExist } from '@/azeyo/user/domain/exception/azeyo-user.exception';
 import { AzeyoMaleOnlyService } from '@/azeyo/auth/domain/exception/azeyo-auth.exception';
 import { SystemService } from '@/system/service/system.service';
+import { AzeyoAlimtalkHistory } from '@/azeyo/notification/domain/entity/azeyo-alimtalk-history.entity';
+import { ALIMTALK_TEMPLATE } from '@/azeyo/notification/domain/constant/alimtalk-template.constant';
 
 @Injectable()
 export class AzeyoSignupUseCase {
@@ -30,6 +34,9 @@ export class AzeyoSignupUseCase {
     private readonly tagRepository: IAzeyoScheduleTagRepository,
 
     private readonly systemService: SystemService,
+
+    @InjectRepository(AzeyoAlimtalkHistory)
+    private readonly alimtalkHistoryRepository: Repository<AzeyoAlimtalkHistory>,
   ) {}
 
   async execute(command: AzeyoSignupCommand): Promise<AzeyoAuth> {
@@ -82,6 +89,22 @@ export class AzeyoSignupUseCase {
       await this.systemService.sendSMS('01040287451', `[아재요] 새 회원가입! ID: ${userId}, 닉네임: ${command.nickname}`, '[ 아재요 - 새 회원가입 ]');
     } catch (e) {
       console.error('[Signup] 알림 SMS 발송 실패:', e);
+    }
+
+    // 회원가입 환영 알림톡
+    try {
+      if (user.phone) {
+        const variables = { '#{nickname}': command.nickname };
+        try {
+          await this.systemService.sendAlimtalk(user.phone, ALIMTALK_TEMPLATE.SIGNUP_WELCOME, variables);
+          await this.alimtalkHistoryRepository.save({ userId: user.id, phone: user.phone, templateId: ALIMTALK_TEMPLATE.SIGNUP_WELCOME, variables, isSuccess: true, errorMessage: null });
+        } catch (sendError) {
+          await this.alimtalkHistoryRepository.save({ userId: user.id, phone: user.phone, templateId: ALIMTALK_TEMPLATE.SIGNUP_WELCOME, variables, isSuccess: false, errorMessage: String(sendError) });
+          throw sendError;
+        }
+      }
+    } catch (e) {
+      console.error('[Signup] 환영 알림톡 발송 실패:', e);
     }
 
     return await this.authRepository.create({ type: command.snsType as AZEYO_AUTH_TYPE, userId: user.id }, user);

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AzeyoAuth } from '@/azeyo/auth/domain/entity/azeyo-auth.entity';
+import { AzeyoAlimtalkHistory } from '@/azeyo/notification/domain/entity/azeyo-alimtalk-history.entity';
 import { AZEYO_AUTH_REPOSITORY } from '@/azeyo/auth/domain/repository/azeyo-auth.repository.interface';
 import { AzeyoAuthRepository } from '@/azeyo/auth/infrastructure/repository/azeyo-auth.repository';
 import { AzeyoAuthController } from '@/azeyo/auth/presentation/controller/azeyo-auth.controller';
@@ -15,7 +16,7 @@ import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { SystemModule } from '@/system/module/system.module';
 
 @Module({
-  imports: [JwtModule.register({}), TypeOrmModule.forFeature([AzeyoAuth]), AzeyoUserModule, AzeyoSnsModule, AzeyoScheduleModule, SystemModule],
+  imports: [JwtModule.register({}), TypeOrmModule.forFeature([AzeyoAuth, AzeyoAlimtalkHistory]), AzeyoUserModule, AzeyoSnsModule, AzeyoScheduleModule, SystemModule],
   controllers: [AzeyoAuthController],
   providers: [
     JwtService,

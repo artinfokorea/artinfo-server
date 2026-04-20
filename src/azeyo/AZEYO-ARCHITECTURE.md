@@ -198,7 +198,7 @@ const entities = [..., MyEntity];
 ### auth — 인증
 - **presentation**: 회원가입, 소셜 로그인, 토큰 재발급 API
 - **application**:
-  - `AzeyoSignupUseCase` — SNS 토큰 검증 + 유저 생성 + 토큰 발급
+  - `AzeyoSignupUseCase` — SNS 토큰 검증 + 유저 생성 + 토큰 발급 + 환영 알림톡 발송(`SIGNUP_WELCOME`)
   - `AzeyoSnsLoginUseCase` — SNS 토큰으로 기존 유저 로그인
   - `AzeyoRefreshTokensUseCase` — access/refresh 토큰 재발급
 - **domain**: `AzeyoAuth` 엔티티, `IAzeyoAuthRepository`, 인증 예외
