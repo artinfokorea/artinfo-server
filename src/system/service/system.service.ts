@@ -10,6 +10,7 @@ import { ImageCreator } from '@/system/repository/operation/image.creator';
 import { ImageEntity } from '@/system/entity/image.entity';
 import * as moment from 'moment/moment';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
+import { AwsSesService } from '@/aws/ses/aws-ses.service';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 
 export type ImageMeta = {
@@ -31,8 +32,13 @@ export class SystemService {
     private readonly awsS3Service: AwsS3Service,
     private readonly imageRepository: ImageRepository,
     private readonly redisRepository: RedisRepository,
+    private readonly awsSesService: AwsSesService,
   ) {
     this.messageService = new CoolsmsMessageService(process.env['COOL_SMS_API_KEY']!, process.env['COOL_SMS_SECRET_KEY']!);
+  }
+
+  async sendEmail(to: string | string[], subject: string, html: string) {
+    await this.awsSesService.send(to, subject, html);
   }
 
   async sendApplyJobAlarmSMS(to: string) {

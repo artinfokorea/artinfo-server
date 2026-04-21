@@ -95,11 +95,15 @@ export class AzeyoSignupUseCase {
 
     const user = await this.userRepository.findOneOrThrowById(userId);
 
-    // 신규 회원가입 알림 SMS
+    // 신규 회원가입 관리자 알림 메일
     try {
-      await this.systemService.sendSMS('01040287451', `[아재요] 새 회원가입! ID: ${userId}, 닉네임: ${command.nickname}`, '[ 아재요 - 새 회원가입 ]');
+      await this.systemService.sendEmail(
+        'chorales@naver.com',
+        '[아재요] 새 회원가입 알림',
+        `<h3>새 회원가입</h3><p>ID: ${userId}<br/>닉네임: ${command.nickname}</p>`,
+      );
     } catch (e) {
-      console.error('[Signup] 알림 SMS 발송 실패:', e);
+      console.error('[Signup] 알림 메일 발송 실패:', e);
     }
 
     // 회원가입 환영 알림톡

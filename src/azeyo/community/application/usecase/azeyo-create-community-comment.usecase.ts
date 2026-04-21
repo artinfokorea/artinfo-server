@@ -54,9 +54,13 @@ export class AzeyoCreateCommunityCommentUseCase {
     const post = await this.postRepository.findOneByIdOrThrow(params.postId);
 
     try {
-      await this.systemService.sendSMS('01040287451', `[아재요] 새 댓글! 유저ID: ${params.userId}, 글제목: ${post.title}`, '[ 아재요 - 새 댓글 ]');
+      await this.systemService.sendEmail(
+        'chorales@naver.com',
+        '[아재요] 새 댓글 알림',
+        `<h3>새 댓글</h3><p>유저ID: ${params.userId}<br/>글제목: ${post.title}</p>`,
+      );
     } catch (e) {
-      console.error('[Community] 댓글 알림 SMS 발송 실패:', e);
+      console.error('[Community] 댓글 알림 메일 발송 실패:', e);
     }
 
     const notifiedUserIds = new Set<number>([params.userId]);
