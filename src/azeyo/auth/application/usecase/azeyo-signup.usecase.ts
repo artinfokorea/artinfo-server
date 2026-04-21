@@ -101,6 +101,7 @@ export class AzeyoSignupUseCase {
         'chorales@naver.com',
         '[아재요] 새 회원가입 알림',
         `<h3>새 회원가입</h3><p>ID: ${userId}<br/>닉네임: ${command.nickname}</p>`,
+        'AZEYO <azeyokorea@gmail.com>',
       );
     } catch (e) {
       console.error('[Signup] 알림 메일 발송 실패:', e);

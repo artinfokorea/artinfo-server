@@ -37,8 +37,8 @@ export class SystemService {
     this.messageService = new CoolsmsMessageService(process.env['COOL_SMS_API_KEY']!, process.env['COOL_SMS_SECRET_KEY']!);
   }
 
-  async sendEmail(to: string | string[], subject: string, html: string) {
-    await this.awsSesService.send(to, subject, html);
+  async sendEmail(to: string | string[], subject: string, html: string, from?: string) {
+    await this.awsSesService.send(to, subject, html, from);
   }
 
   async sendApplyJobAlarmSMS(to: string) {

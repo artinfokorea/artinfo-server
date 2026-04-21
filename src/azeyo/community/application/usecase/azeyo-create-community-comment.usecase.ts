@@ -58,6 +58,7 @@ export class AzeyoCreateCommunityCommentUseCase {
         'chorales@naver.com',
         '[아재요] 새 댓글 알림',
         `<h3>새 댓글</h3><p>유저ID: ${params.userId}<br/>글제목: ${post.title}</p>`,
+        'AZEYO <azeyokorea@gmail.com>',
       );
     } catch (e) {
       console.error('[Community] 댓글 알림 메일 발송 실패:', e);

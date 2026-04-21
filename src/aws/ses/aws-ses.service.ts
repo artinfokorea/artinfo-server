@@ -15,11 +15,11 @@ export class AwsSesService {
     });
   }
 
-  async send(to: string | string[], subject: string, html: string): Promise<void> {
+  async send(to: string | string[], subject: string, html: string, from: string = 'ARTINFO <artinfokorea2022@gmail.com>'): Promise<void> {
     const recipients = Array.isArray(to) ? to.join(',') : to;
 
     const rawEmail = [
-      `From: ARTINFO <artinfokorea2022@gmail.com>`,
+      `From: ${from}`,
       `To: ${recipients}`,
       `Subject: ${subject}`,
       `MIME-Version: 1.0`,
