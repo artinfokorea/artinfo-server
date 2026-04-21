@@ -1,7 +1,7 @@
 import { RestApiController, RestApiDelete, RestApiGet, RestApiPost, RestApiPut } from '@/common/decorator/rest-api';
 import { PerformanceService } from '@/performance/performance.service';
 import { PerformancesResponse } from '@/performance/dto/response/performances.response';
-import { Body, Param, Query } from '@nestjs/common';
+import { Body, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { GetPerformancesRequest } from '@/performance/dto/request/get-performances.request';
 import { PerformanceDetailResponse } from '@/performance/dto/response/performance-detail.response';
 import { OkResponse } from '@/common/response/ok.response';
@@ -30,13 +30,13 @@ export class PerformanceController {
   }
 
   @RestApiPut(OkResponse, { path: '/:performanceId', description: '공연 수정', auth: [USER_TYPE.CLIENT] })
-  async editPerformance(@AuthSignature() signature: UserSignature, @Param('performanceId') performanceId: number, @Body() request: EditPerformanceRequest) {
+  async editPerformance(@AuthSignature() signature: UserSignature, @Param('performanceId', ParseIntPipe) performanceId: number, @Body() request: EditPerformanceRequest) {
     await this.performanceService.editPerformance(request.toCommand(signature.id, performanceId));
     return new OkResponse();
   }
 
   @RestApiDelete(OkResponse, { path: '/:performanceId', description: '공연 삭제', auth: [USER_TYPE.CLIENT] })
-  async deletePerformance(@AuthSignature() signature: UserSignature, @Param('performanceId') performanceId: number) {
+  async deletePerformance(@AuthSignature() signature: UserSignature, @Param('performanceId', ParseIntPipe) performanceId: number) {
     await this.performanceService.deletePerformance(signature.id, performanceId);
     return new OkResponse();
   }
@@ -66,7 +66,7 @@ export class PerformanceController {
   }
 
   @RestApiGet(PerformanceDetailResponse, { path: '/:performanceId', description: '공연 단건 조회' })
-  async getPerformance(@Param('performanceId') performanceId: number) {
+  async getPerformance(@Param('performanceId', ParseIntPipe) performanceId: number) {
     const performance = await this.performanceService.getPerformance(performanceId);
     return new PerformanceDetailResponse(performance);
   }
