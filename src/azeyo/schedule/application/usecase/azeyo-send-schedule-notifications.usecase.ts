@@ -17,15 +17,21 @@ export class AzeyoSendScheduleNotificationsUseCase {
     private readonly notificationSender: IAzeyoNotificationSender,
   ) {}
 
-  async execute(): Promise<{ d3Count: number; d1Count: number }> {
+  async execute(options: { days: number[] }): Promise<{ counts: Record<number, number> }> {
     const schedules = await this.scheduleRepository.find({ where: { deletedAt: undefined } });
 
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const thisYear = now.getFullYear();
 
-    let d3Count = 0;
-    let d1Count = 0;
+    const counts: Record<number, number> = {};
+    for (const d of options.days) counts[d] = 0;
+
+    const messageByDiff: Record<number, string> = {
+      3: '3일 남았어요',
+      1: '내일이에요',
+      0: '오늘이에요',
+    };
 
     for (const schedule of schedules) {
       const targetDate = this.resolveNextDate(schedule, thisYear);
@@ -34,28 +40,19 @@ export class AzeyoSendScheduleNotificationsUseCase {
       const target = new Date(targetDate + 'T00:00:00');
       const diffDays = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
-      if (diffDays === 3) {
-        await this.notificationSender.send({
-          userId: schedule.userId,
-          type: AZEYO_NOTIFICATION_TYPE.SCHEDULE,
-          title: '일정 알림',
-          body: `'${schedule.title}' 일정이 3일 남았어요`,
-          referenceId: String(schedule.id),
-        });
-        d3Count++;
-      } else if (diffDays === 1) {
-        await this.notificationSender.send({
-          userId: schedule.userId,
-          type: AZEYO_NOTIFICATION_TYPE.SCHEDULE,
-          title: '일정 알림',
-          body: `'${schedule.title}' 일정이 내일이에요`,
-          referenceId: String(schedule.id),
-        });
-        d1Count++;
-      }
+      if (!options.days.includes(diffDays)) continue;
+
+      await this.notificationSender.send({
+        userId: schedule.userId,
+        type: AZEYO_NOTIFICATION_TYPE.SCHEDULE,
+        title: '일정 알림',
+        body: `'${schedule.title}' 일정이 ${messageByDiff[diffDays] ?? `${diffDays}일 남았어요`}`,
+        referenceId: String(schedule.id),
+      });
+      counts[diffDays]++;
     }
 
-    return { d3Count, d1Count };
+    return { counts };
   }
 
   private resolveNextDate(schedule: AzeyoSchedule, thisYear: number): string | null {

@@ -6,7 +6,9 @@ import { AZEYO_SCHEDULER_HISTORY_REPOSITORY, IAzeyoSchedulerHistoryRepository } 
 import { AZEYO_SCHEDULER_STATUS } from '@/azeyo/scheduler/domain/entity/azeyo-scheduler-history.entity';
 
 const SCHEDULER_NAME = 'schedule-notification';
+const SCHEDULER_NAME_D0 = 'schedule-notification-d0';
 const LOCK_KEY = 'azeyo:scheduler:schedule-notification:lock';
+const LOCK_KEY_D0 = 'azeyo:scheduler:schedule-notification-d0:lock';
 const LOCK_TTL = 300;
 
 @Injectable()
@@ -53,13 +55,13 @@ export class AzeyoScheduleNotificationScheduler implements OnModuleDestroy {
     this.logger.log('일정 알림 스케줄러 시작');
 
     try {
-      const result = await this.sendNotificationsUseCase.execute();
+      const result = await this.sendNotificationsUseCase.execute({ days: [3, 1] });
       const durationMs = Date.now() - startTime;
-      this.logger.log(`일정 알림 발송 완료: D-3=${result.d3Count}건, D-1=${result.d1Count}건 (${durationMs}ms)`);
+      this.logger.log(`일정 알림 발송 완료: D-3=${result.counts[3]}건, D-1=${result.counts[1]}건 (${durationMs}ms)`);
       await this.historyRepository.record({
         schedulerName: SCHEDULER_NAME,
         status: AZEYO_SCHEDULER_STATUS.SUCCESS,
-        result: `D-3=${result.d3Count}건, D-1=${result.d1Count}건`,
+        result: `D-3=${result.counts[3]}건, D-1=${result.counts[1]}건`,
         errorMessage: null,
         durationMs,
       });
@@ -69,6 +71,52 @@ export class AzeyoScheduleNotificationScheduler implements OnModuleDestroy {
       this.logger.error(`일정 알림 발송 실패 (${durationMs}ms)`, err);
       await this.historyRepository.record({
         schedulerName: SCHEDULER_NAME,
+        status: AZEYO_SCHEDULER_STATUS.FAILURE,
+        result: null,
+        errorMessage,
+        durationMs,
+      });
+    }
+  }
+
+  @Cron('0 0 10 * * *', {
+    name: 'azeyoScheduleNotificationD0',
+    timeZone: 'Asia/Seoul',
+  })
+  async handleDayOfNotifications() {
+    const acquired = await this.redis.set(LOCK_KEY_D0, '1', 'EX', LOCK_TTL, 'NX');
+    if (!acquired) {
+      this.logger.log('다른 인스턴스에서 실행 중 — 스킵 (D-0)');
+      await this.historyRepository.record({
+        schedulerName: SCHEDULER_NAME_D0,
+        status: AZEYO_SCHEDULER_STATUS.SKIPPED,
+        result: '다른 인스턴스에서 실행 중',
+        errorMessage: null,
+        durationMs: 0,
+      });
+      return;
+    }
+
+    const startTime = Date.now();
+    this.logger.log('당일 일정 알림 스케줄러 시작');
+
+    try {
+      const result = await this.sendNotificationsUseCase.execute({ days: [0] });
+      const durationMs = Date.now() - startTime;
+      this.logger.log(`당일 일정 알림 발송 완료: D-0=${result.counts[0]}건 (${durationMs}ms)`);
+      await this.historyRepository.record({
+        schedulerName: SCHEDULER_NAME_D0,
+        status: AZEYO_SCHEDULER_STATUS.SUCCESS,
+        result: `D-0=${result.counts[0]}건`,
+        errorMessage: null,
+        durationMs,
+      });
+    } catch (err) {
+      const durationMs = Date.now() - startTime;
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      this.logger.error(`당일 일정 알림 발송 실패 (${durationMs}ms)`, err);
+      await this.historyRepository.record({
+        schedulerName: SCHEDULER_NAME_D0,
         status: AZEYO_SCHEDULER_STATUS.FAILURE,
         result: null,
         errorMessage,
