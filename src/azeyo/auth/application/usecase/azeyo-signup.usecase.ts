@@ -14,6 +14,7 @@ import { AzeyoMaleOnlyService } from '@/azeyo/auth/domain/exception/azeyo-auth.e
 import { SystemService } from '@/system/service/system.service';
 import { AzeyoAlimtalkHistory } from '@/azeyo/notification/domain/entity/azeyo-alimtalk-history.entity';
 import { ALIMTALK_TEMPLATE } from '@/azeyo/notification/domain/constant/alimtalk-template.constant';
+import { AZEYO_NOTIFICATION_SETTING_REPOSITORY, IAzeyoNotificationSettingRepository } from '@/azeyo/notification/domain/repository/azeyo-notification-setting.repository.interface';
 
 @Injectable()
 export class AzeyoSignupUseCase {
@@ -37,6 +38,9 @@ export class AzeyoSignupUseCase {
 
     @InjectRepository(AzeyoAlimtalkHistory)
     private readonly alimtalkHistoryRepository: Repository<AzeyoAlimtalkHistory>,
+
+    @Inject(AZEYO_NOTIFICATION_SETTING_REPOSITORY)
+    private readonly notificationSettingRepository: IAzeyoNotificationSettingRepository,
   ) {}
 
   async execute(command: AzeyoSignupCommand): Promise<AzeyoAuth> {
@@ -80,6 +84,13 @@ export class AzeyoSignupUseCase {
       await this.createAutoSchedules(userId, command.marriageDate, birthDate);
     } catch (e) {
       console.error('[Signup] 자동 일정 등록 실패:', e);
+    }
+
+    // 알림 설정 기본값 생성 - 실패해도 회원가입은 진행
+    try {
+      await this.notificationSettingRepository.upsert(userId, { marketingEnabled: command.marketingConsent });
+    } catch (e) {
+      console.error('[Signup] 알림 설정 생성 실패:', e);
     }
 
     const user = await this.userRepository.findOneOrThrowById(userId);

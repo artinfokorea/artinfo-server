@@ -80,6 +80,8 @@ import { AzeyoAlimtalkHistory } from '@/azeyo/notification/domain/entity/azeyo-a
     AZEYO_COMMUNITY_LIKE_REPOSITORY,
     AZEYO_COMMUNITY_VOTE_REPOSITORY,
     AZEYO_COMMUNITY_COMMENT_REPOSITORY,
+    AzeyoCreateCommunityPostUseCase,
+    AzeyoCreateCommunityCommentUseCase,
   ],
 })
 export class AzeyoCommunityModule {}

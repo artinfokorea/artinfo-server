@@ -12,11 +12,12 @@ import { AzeyoRefreshTokensUseCase } from '@/azeyo/auth/application/usecase/azey
 import { AzeyoUserModule } from '@/azeyo/user/azeyo-user.module';
 import { AzeyoSnsModule } from '@/azeyo/sns/azeyo-sns.module';
 import { AzeyoScheduleModule } from '@/azeyo/schedule/azeyo-schedule.module';
+import { AzeyoNotificationModule } from '@/azeyo/notification/azeyo-notification.module';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { SystemModule } from '@/system/module/system.module';
 
 @Module({
-  imports: [JwtModule.register({}), TypeOrmModule.forFeature([AzeyoAuth, AzeyoAlimtalkHistory]), AzeyoUserModule, AzeyoSnsModule, AzeyoScheduleModule, SystemModule],
+  imports: [JwtModule.register({}), TypeOrmModule.forFeature([AzeyoAuth, AzeyoAlimtalkHistory]), AzeyoUserModule, AzeyoSnsModule, AzeyoScheduleModule, AzeyoNotificationModule, SystemModule],
   controllers: [AzeyoAuthController],
   providers: [
     JwtService,

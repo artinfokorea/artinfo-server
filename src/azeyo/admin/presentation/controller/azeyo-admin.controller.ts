@@ -8,8 +8,10 @@ import { CreateResponse } from '@/common/response/createResponse';
 import { Inject } from '@nestjs/common';
 import { AZEYO_USER_REPOSITORY, IAzeyoUserRepository } from '@/azeyo/user/domain/repository/azeyo-user.repository.interface';
 import { AZEYO_COMMUNITY_POST_REPOSITORY, IAzeyoCommunityPostRepository } from '@/azeyo/community/domain/repository/azeyo-community-post.repository.interface';
-import { AZEYO_COMMUNITY_COMMENT_REPOSITORY, IAzeyoCommunityCommentRepository } from '@/azeyo/community/domain/repository/azeyo-community-comment.repository.interface';
 import { AZEYO_COMMUNITY_POST_TYPE, AZEYO_COMMUNITY_CATEGORY } from '@/azeyo/community/domain/entity/azeyo-community-post.entity';
+import { AzeyoCreateCommunityPostUseCase } from '@/azeyo/community/application/usecase/azeyo-create-community-post.usecase';
+import { AzeyoCreateCommunityCommentUseCase } from '@/azeyo/community/application/usecase/azeyo-create-community-comment.usecase';
+import { AzeyoCreateCommunityPostCommand } from '@/azeyo/community/application/command/azeyo-create-community-post.command';
 import { ForbiddenException } from '@nestjs/common';
 
 @RestApiController('/azeyo/admin', 'Azeyo Admin')
@@ -19,8 +21,8 @@ export class AzeyoAdminController {
     private readonly userRepository: IAzeyoUserRepository,
     @Inject(AZEYO_COMMUNITY_POST_REPOSITORY)
     private readonly postRepository: IAzeyoCommunityPostRepository,
-    @Inject(AZEYO_COMMUNITY_COMMENT_REPOSITORY)
-    private readonly commentRepository: IAzeyoCommunityCommentRepository,
+    private readonly createPostUseCase: AzeyoCreateCommunityPostUseCase,
+    private readonly createCommentUseCase: AzeyoCreateCommunityCommentUseCase,
   ) {}
 
   private async assertAdmin(signature: UserSignature): Promise<void> {
@@ -67,18 +69,20 @@ export class AzeyoAdminController {
     },
   ) {
     await this.assertAdmin(signature);
-    const post = await this.postRepository.create({
-      userId: body.userId,
-      type: body.type,
-      category: body.category,
-      title: body.title,
-      contents: body.contents,
-      imageUrls: body.imageUrls ?? null,
-      imageRatio: body.imageRatio ?? null,
-      voteOptionA: body.voteOptionA ?? null,
-      voteOptionB: body.voteOptionB ?? null,
-    });
-    return new CreateResponse(post.id);
+    const postId = await this.createPostUseCase.execute(
+      new AzeyoCreateCommunityPostCommand({
+        userId: body.userId,
+        type: body.type,
+        category: body.category,
+        title: body.title,
+        contents: body.contents,
+        imageUrls: body.imageUrls ?? null,
+        imageRatio: body.imageRatio ?? null,
+        voteOptionA: body.voteOptionA ?? null,
+        voteOptionB: body.voteOptionB ?? null,
+      }),
+    );
+    return new CreateResponse(postId);
   }
 
   // 특정 유저로 댓글 작성
@@ -88,13 +92,13 @@ export class AzeyoAdminController {
     @Body() body: { userId: number; postId: number; parentId?: number | null; contents: string },
   ) {
     await this.assertAdmin(signature);
-    const comment = await this.commentRepository.create({
+    const commentId = await this.createCommentUseCase.execute({
       userId: body.userId,
       postId: body.postId,
       parentId: body.parentId ?? null,
       contents: body.contents,
     });
-    return new CreateResponse(comment.id);
+    return new CreateResponse(commentId);
   }
 
   // 게시글 수정 (소유자 무관)

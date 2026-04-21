@@ -198,7 +198,7 @@ const entities = [..., MyEntity];
 ### auth — 인증
 - **presentation**: 회원가입, 소셜 로그인, 토큰 재발급 API
 - **application**:
-  - `AzeyoSignupUseCase` — SNS 토큰 검증 + 유저 생성 + 토큰 발급 + 환영 알림톡 발송(`SIGNUP_WELCOME`)
+  - `AzeyoSignupUseCase` — SNS 토큰 검증 + 유저 생성 + 자동 일정 생성 + 알림 설정(`AzeyoNotificationSetting`) 기본값 생성 + 토큰 발급 + 환영 알림톡 발송(`SIGNUP_WELCOME`)
   - `AzeyoSnsLoginUseCase` — SNS 토큰으로 기존 유저 로그인
   - `AzeyoRefreshTokensUseCase` — access/refresh 토큰 재발급
 - **domain**: `AzeyoAuth` 엔티티, `IAzeyoAuthRepository`, 인증 예외
@@ -241,6 +241,10 @@ const entities = [..., MyEntity];
   - `AzeyoDeleteJokboTemplateUseCase` — 족보 삭제
 - **domain**: `AzeyoJokboTemplate` 엔티티, `AzeyoJokboLike` 엔티티, `IAzeyoJokboTemplateRepository`, `IAzeyoJokboLikeRepository`, 족보 예외
 - **infrastructure**: `AzeyoJokboTemplateRepository`, `AzeyoJokboLikeRepository` (TypeORM)
+
+### admin — 관리자
+- **presentation**: 유저 목록 조회, 대리 게시글/댓글 작성, 게시글 수정/삭제, 전체 게시글 조회 API (`isAdmin` 체크)
+- 대리 게시글/댓글은 `AzeyoCreateCommunityPostUseCase` / `AzeyoCreateCommunityCommentUseCase`를 경유하여 일반 글쓰기와 동일하게 포인트 지급 및 알림톡 발송 처리됨
 
 ---
 
