@@ -17,6 +17,7 @@ import { JobSchedule } from '@/job/entity/job-schedule.entity';
 import { JobUser } from '@/job/entity/job-user.entity';
 import { SystemService } from '@/system/service/system.service';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
+import { AwsSesService } from '@/aws/ses/aws-ses.service';
 import { ImageEntity } from '@/system/entity/image.entity';
 import { ImageRepository } from '@/system/repository/image.repository';
 import { FileConverterModule } from '@/file-converter/file-converter.module';
@@ -24,6 +25,6 @@ import { FileConverterModule } from '@/file-converter/file-converter.module';
 @Module({
   imports: [TypeOrmModule.forFeature([Job, JobMajorCategory, JobUser, JobProvince, MajorCategory, Province, User, JobSchedule, ImageEntity]), FileConverterModule],
   controllers: [JobController],
-  providers: [JobService, UserRepository, JobRepository, MajorRepository, RedisRepository, JobEvent, SystemService, AwsS3Service, ImageRepository],
+  providers: [JobService, UserRepository, JobRepository, MajorRepository, RedisRepository, JobEvent, SystemService, AwsS3Service, AwsSesService, ImageRepository],
 })
 export class JobModule {}
