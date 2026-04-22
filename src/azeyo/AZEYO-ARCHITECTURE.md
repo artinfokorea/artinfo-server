@@ -227,6 +227,8 @@ const entities = [..., MyEntity];
   - `AzeyoScanScheduleTagsUseCase` — 시스템 + 커스텀 태그 목록 조회
   - `AzeyoCreateScheduleTagUseCase` — 커스텀 태그 생성
   - `AzeyoScanScheduleRecommendationsUseCase` — 태그 기반 추천 조회
+  - `AzeyoSendScheduleNotificationsUseCase` — D-3/D-1/D-0 일정 알림 발송 (인앱 + 알림톡 `SCHEDULE_D3`/`SCHEDULE_D1`/`SCHEDULE_D0`, `#{scheduleTitle}` 치환, `scheduleEnabled` 설정 체크)
+- **infrastructure**: Redis lock 기반 스케줄러(`AzeyoScheduleNotificationScheduler`) — 매일 10시(D-0) / 13시(D-3, D-1) 실행
 - **domain**: `AzeyoSchedule`, `AzeyoScheduleTag`, `AzeyoScheduleRecommendation` 엔티티, 리포지토리 인터페이스, 일정 예외
 - **infrastructure**: `AzeyoScheduleRepository`, `AzeyoScheduleTagRepository`, `AzeyoScheduleRecommendationRepository` (TypeORM)
 

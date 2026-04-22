@@ -5,6 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AzeyoSchedule } from '@/azeyo/schedule/domain/entity/azeyo-schedule.entity';
 import { AzeyoScheduleTag } from '@/azeyo/schedule/domain/entity/azeyo-schedule-tag.entity';
 import { AzeyoScheduleRecommendation } from '@/azeyo/schedule/domain/entity/azeyo-schedule-recommendation.entity';
+import { AzeyoAlimtalkHistory } from '@/azeyo/notification/domain/entity/azeyo-alimtalk-history.entity';
+import { SystemModule } from '@/system/module/system.module';
 import { AzeyoScheduleController } from '@/azeyo/schedule/presentation/controller/azeyo-schedule.controller';
 import { AZEYO_SCHEDULE_REPOSITORY } from '@/azeyo/schedule/domain/repository/azeyo-schedule.repository.interface';
 import { AZEYO_SCHEDULE_TAG_REPOSITORY } from '@/azeyo/schedule/domain/repository/azeyo-schedule-tag.repository.interface';
@@ -24,7 +26,7 @@ import { AzeyoScheduleNotificationScheduler } from '@/azeyo/schedule/infrastruct
 import { AzeyoSchedulerModule } from '@/azeyo/scheduler/azeyo-scheduler.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AzeyoSchedule, AzeyoScheduleTag, AzeyoScheduleRecommendation]), AzeyoUserModule, AzeyoNotificationModule, AzeyoSchedulerModule],
+  imports: [TypeOrmModule.forFeature([AzeyoSchedule, AzeyoScheduleTag, AzeyoScheduleRecommendation, AzeyoAlimtalkHistory]), AzeyoUserModule, AzeyoNotificationModule, AzeyoSchedulerModule, SystemModule],
   controllers: [AzeyoScheduleController],
   providers: [
     // UseCases
