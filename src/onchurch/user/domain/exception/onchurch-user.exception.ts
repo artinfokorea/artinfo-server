@@ -1,0 +1,13 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
+
+export class OnchurchUserNotFound extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-USER-001',
+        message: '사용자를 찾을 수 없습니다.',
+      },
+      HttpStatus.NOT_FOUND,
+    );
+  }
+}

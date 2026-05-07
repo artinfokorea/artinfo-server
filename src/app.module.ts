@@ -61,6 +61,9 @@ import { AzeyoSchedule } from '@/azeyo/schedule/domain/entity/azeyo-schedule.ent
 import { AzeyoScheduleTag } from '@/azeyo/schedule/domain/entity/azeyo-schedule-tag.entity';
 import { AzeyoScheduleRecommendation } from '@/azeyo/schedule/domain/entity/azeyo-schedule-recommendation.entity';
 import { AzeyoAlimtalkHistory } from '@/azeyo/notification/domain/entity/azeyo-alimtalk-history.entity';
+import { OnchurchModule } from '@/onchurch/onchurch.module';
+import { OnchurchUser } from '@/onchurch/user/domain/entity/onchurch-user.entity';
+import { OnchurchAuth } from '@/onchurch/auth/domain/entity/onchurch-auth.entity';
 
 const entities = [
   User,
@@ -103,6 +106,8 @@ const entities = [
   AzeyoNotification,
   AzeyoNotificationSetting,
   AzeyoAlimtalkHistory,
+  OnchurchUser,
+  OnchurchAuth,
 ];
 const modules = [
   SchedulerModule,
@@ -125,6 +130,7 @@ const modules = [
   AdmissionModule,
   TovModule,
   AzeyoModule,
+  OnchurchModule,
 ];
 
 @Module({
