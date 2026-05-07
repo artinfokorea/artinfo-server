@@ -3,9 +3,9 @@ export class OnchurchUpsertMyChurchCommand {
   name: string;
   eng: string | null;
   tagline: string | null;
-  phone: string;
-  email: string;
-  address: string;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
   representative: string | null;
   businessNo: string | null;
   logoUrl: string | null;
@@ -16,9 +16,9 @@ export class OnchurchUpsertMyChurchCommand {
     name: string;
     eng: string | null;
     tagline: string | null;
-    phone: string;
-    email: string;
-    address: string;
+    phone: string | null;
+    email: string | null;
+    address: string | null;
     representative: string | null;
     businessNo: string | null;
     logoUrl: string | null;

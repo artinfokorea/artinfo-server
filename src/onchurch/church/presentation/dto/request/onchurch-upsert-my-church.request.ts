@@ -1,34 +1,30 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ArrayType, Email, NotBlank } from '@/common/decorator/validator';
+import { ArrayType, NotBlank } from '@/common/decorator/validator';
 import { OnchurchUpsertMyChurchCommand } from '@/onchurch/church/application/command/onchurch-upsert-my-church.command';
 
 export class OnchurchUpsertMyChurchRequest {
   @NotBlank()
-  @ApiProperty({ type: String, required: true, description: '서브도메인 (영문 소문자/숫자/하이픈)', example: 'sungdong' })
+  @ApiProperty({ type: String, required: true, description: '서브도메인 (영문 소문자/숫자/하이픈)', example: 'onchurch' })
   slug: string;
 
   @NotBlank()
-  @ApiProperty({ type: String, required: true, description: '교회 이름 (한글)', example: '성동교회' })
+  @ApiProperty({ type: String, required: true, description: '교회 이름 (한글)', example: '온교회' })
   name: string;
 
-  @ApiProperty({ type: String, required: false, description: '영문명', example: 'SUNGDONG CHURCH', nullable: true })
+  @ApiProperty({ type: String, required: false, description: '영문명', example: 'ONCHURCH', nullable: true })
   eng: string | null;
 
   @ApiProperty({ type: String, required: false, description: '태그라인', nullable: true })
   tagline: string | null;
 
-  @NotBlank()
-  @ApiProperty({ type: String, required: true, description: '전화번호', example: '02-1234-5678' })
-  phone: string;
+  @ApiProperty({ type: String, required: false, description: '전화번호 (사이트 운영 시 필수)', nullable: true })
+  phone: string | null;
 
-  @NotBlank()
-  @Email()
-  @ApiProperty({ type: String, required: true, description: '이메일', example: 'hello@yourchurch.kr' })
-  email: string;
+  @ApiProperty({ type: String, required: false, description: '이메일 (사이트 운영 시 필수)', nullable: true })
+  email: string | null;
 
-  @NotBlank()
-  @ApiProperty({ type: String, required: true, description: '주소', example: '서울특별시 ...' })
-  address: string;
+  @ApiProperty({ type: String, required: false, description: '주소 (사이트 운영 시 필수)', nullable: true })
+  address: string | null;
 
   @ApiProperty({ type: String, required: false, description: '대표자', nullable: true })
   representative: string | null;
@@ -49,9 +45,9 @@ export class OnchurchUpsertMyChurchRequest {
       name: this.name,
       eng: this.eng ?? null,
       tagline: this.tagline ?? null,
-      phone: this.phone,
-      email: this.email,
-      address: this.address,
+      phone: this.phone ?? null,
+      email: this.email ?? null,
+      address: this.address ?? null,
       representative: this.representative ?? null,
       businessNo: this.businessNo ?? null,
       logoUrl: this.logoUrl ?? null,

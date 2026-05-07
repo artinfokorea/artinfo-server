@@ -7,6 +7,7 @@ import { OnchurchChurchController } from '@/onchurch/church/presentation/control
 import { OnchurchScanMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-scan-my-church.usecase';
 import { OnchurchUpsertMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-upsert-my-church.usecase';
 import { OnchurchPublishMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-publish-my-church.usecase';
+import { OnchurchCheckSlugUseCase } from '@/onchurch/church/application/usecase/onchurch-check-slug.usecase';
 import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
 
 @Module({
@@ -17,6 +18,7 @@ import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
     OnchurchScanMyChurchUseCase,
     OnchurchUpsertMyChurchUseCase,
     OnchurchPublishMyChurchUseCase,
+    OnchurchCheckSlugUseCase,
   ],
   exports: [ONCHURCH_CHURCH_REPOSITORY],
 })
