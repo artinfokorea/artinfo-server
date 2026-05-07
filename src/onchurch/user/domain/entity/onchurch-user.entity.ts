@@ -34,6 +34,12 @@ export class OnchurchUser extends BaseEntity {
   @Column({ type: 'boolean', name: 'marketing_consent', default: false })
   marketingConsent: boolean;
 
+  @Column({ type: 'timestamp', name: 'free_trial_until', nullable: true })
+  freeTrialUntil: Date | null;
+
+  @Column({ type: 'timestamp', name: 'paid_until', nullable: true })
+  paidUntil: Date | null;
+
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 

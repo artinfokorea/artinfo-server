@@ -21,6 +21,7 @@ export class OnchurchUserRepository implements IOnchurchUserRepository {
     churchName: string | null;
     churchId: number | null;
     marketingConsent: boolean;
+    freeTrialUntil: Date | null;
   }): Promise<number> {
     const user = await this.userRepository.save({
       loginId: params.loginId,
@@ -31,6 +32,7 @@ export class OnchurchUserRepository implements IOnchurchUserRepository {
       churchName: params.churchName,
       churchId: params.churchId,
       marketingConsent: params.marketingConsent,
+      freeTrialUntil: params.freeTrialUntil,
     });
 
     return user.id;

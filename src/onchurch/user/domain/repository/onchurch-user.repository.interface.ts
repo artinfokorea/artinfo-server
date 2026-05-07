@@ -12,6 +12,7 @@ export interface IOnchurchUserRepository {
     churchName: string | null;
     churchId: number | null;
     marketingConsent: boolean;
+    freeTrialUntil: Date | null;
   }): Promise<number>;
   findOneOrThrowById(id: number): Promise<OnchurchUser>;
   findByLoginId(loginId: string): Promise<OnchurchUser | null>;

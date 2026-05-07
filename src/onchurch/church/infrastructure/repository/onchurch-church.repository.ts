@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IOnchurchChurchRepository, OnchurchChurchUpsertParams } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
 import { OnchurchChurch } from '@/onchurch/church/domain/entity/onchurch-church.entity';
+import { OnchurchChurchNotFound } from '@/onchurch/church/domain/exception/onchurch-church.exception';
 
 @Injectable()
 export class OnchurchChurchRepository implements IOnchurchChurchRepository {
@@ -41,5 +42,12 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
 
     const created = this.churchRepository.create({ ownerId, ...params });
     return this.churchRepository.save(created);
+  }
+
+  async updatePublished(ownerId: number, isPublished: boolean): Promise<OnchurchChurch> {
+    const church = await this.churchRepository.findOneBy({ ownerId });
+    if (!church) throw new OnchurchChurchNotFound();
+    church.isPublished = isPublished;
+    return this.churchRepository.save(church);
   }
 }

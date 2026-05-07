@@ -32,6 +32,9 @@ export class OnchurchSignupUseCase {
 
     const hashedPassword = await bcrypt.hash(command.password, this.BCRYPT_ROUNDS);
 
+    const FREE_TRIAL_DAYS = 14;
+    const freeTrialUntil = new Date(Date.now() + FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000);
+
     const userId = await this.userRepository.create({
       loginId: command.userId,
       password: hashedPassword,
@@ -41,6 +44,7 @@ export class OnchurchSignupUseCase {
       churchName: null,
       churchId: null,
       marketingConsent: command.marketingConsent,
+      freeTrialUntil,
     });
 
     const user = await this.userRepository.findOneOrThrowById(userId);

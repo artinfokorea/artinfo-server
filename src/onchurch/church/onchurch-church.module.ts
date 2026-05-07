@@ -6,14 +6,17 @@ import { OnchurchChurchRepository } from '@/onchurch/church/infrastructure/repos
 import { OnchurchChurchController } from '@/onchurch/church/presentation/controller/onchurch-church.controller';
 import { OnchurchScanMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-scan-my-church.usecase';
 import { OnchurchUpsertMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-upsert-my-church.usecase';
+import { OnchurchPublishMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-publish-my-church.usecase';
+import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OnchurchChurch])],
+  imports: [TypeOrmModule.forFeature([OnchurchChurch]), OnchurchUserModule],
   controllers: [OnchurchChurchController],
   providers: [
     { provide: ONCHURCH_CHURCH_REPOSITORY, useClass: OnchurchChurchRepository },
     OnchurchScanMyChurchUseCase,
     OnchurchUpsertMyChurchUseCase,
+    OnchurchPublishMyChurchUseCase,
   ],
   exports: [ONCHURCH_CHURCH_REPOSITORY],
 })
