@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ArrayType, NotBlank } from '@/common/decorator/validator';
+import { ArrayType, Email, NotBlank } from '@/common/decorator/validator';
 import { OnchurchUpsertMyChurchCommand } from '@/onchurch/church/application/command/onchurch-upsert-my-church.command';
 
 export class OnchurchUpsertMyChurchRequest {
@@ -17,14 +17,18 @@ export class OnchurchUpsertMyChurchRequest {
   @ApiProperty({ type: String, required: false, description: '태그라인', nullable: true })
   tagline: string | null;
 
-  @ApiProperty({ type: String, required: false, description: '전화번호', nullable: true })
-  phone: string | null;
+  @NotBlank()
+  @ApiProperty({ type: String, required: true, description: '전화번호', example: '02-1234-5678' })
+  phone: string;
 
-  @ApiProperty({ type: String, required: false, description: '이메일', nullable: true })
-  email: string | null;
+  @NotBlank()
+  @Email()
+  @ApiProperty({ type: String, required: true, description: '이메일', example: 'hello@yourchurch.kr' })
+  email: string;
 
-  @ApiProperty({ type: String, required: false, description: '주소', nullable: true })
-  address: string | null;
+  @NotBlank()
+  @ApiProperty({ type: String, required: true, description: '주소', example: '서울특별시 ...' })
+  address: string;
 
   @ApiProperty({ type: String, required: false, description: '대표자', nullable: true })
   representative: string | null;
@@ -45,9 +49,9 @@ export class OnchurchUpsertMyChurchRequest {
       name: this.name,
       eng: this.eng ?? null,
       tagline: this.tagline ?? null,
-      phone: this.phone ?? null,
-      email: this.email ?? null,
-      address: this.address ?? null,
+      phone: this.phone,
+      email: this.email,
+      address: this.address,
       representative: this.representative ?? null,
       businessNo: this.businessNo ?? null,
       logoUrl: this.logoUrl ?? null,
