@@ -73,6 +73,15 @@ export class SystemService {
     });
   }
 
+  async sendOnchurchVerificationNumber(to: string, verificationNumber: string) {
+    await this.messageService.sendOne({
+      from: process.env['COOL_SMS_SENDER_NUMBER']!,
+      to: to,
+      text: `[온교회] 인증 번호: ${verificationNumber}`,
+      autoTypeDetect: true,
+    });
+  }
+
   async sendAlimtalk(to: string, templateId: string, variables: Record<string, string>) {
     await this.messageService.sendOne({
       from: process.env['COOL_SMS_SENDER_NUMBER']!,

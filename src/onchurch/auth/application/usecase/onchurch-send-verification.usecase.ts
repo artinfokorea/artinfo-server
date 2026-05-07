@@ -20,7 +20,7 @@ export class OnchurchSendVerificationUseCase {
       ttl: this.CODE_TTL_SECONDS,
     });
 
-    await this.systemService.sendVerificationNumber(phone, code);
+    await this.systemService.sendOnchurchVerificationNumber(phone, code);
   }
 
   private codeKey(phone: string): string {
