@@ -66,6 +66,7 @@ import { OnchurchUser } from '@/onchurch/user/domain/entity/onchurch-user.entity
 import { OnchurchAuth } from '@/onchurch/auth/domain/entity/onchurch-auth.entity';
 import { OnchurchChurch } from '@/onchurch/church/domain/entity/onchurch-church.entity';
 import { OnchurchBanner } from '@/onchurch/banner/domain/entity/onchurch-banner.entity';
+import { OnchurchNotice } from '@/onchurch/notice/domain/entity/onchurch-notice.entity';
 
 const entities = [
   User,
@@ -112,6 +113,7 @@ const entities = [
   OnchurchAuth,
   OnchurchChurch,
   OnchurchBanner,
+  OnchurchNotice,
 ];
 const modules = [
   SchedulerModule,
