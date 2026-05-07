@@ -2,6 +2,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ONCHURCH_BANNER_REPOSITORY, IOnchurchBannerRepository } from '@/onchurch/banner/domain/repository/onchurch-banner.repository.interface';
 import { ONCHURCH_CHURCH_REPOSITORY, IOnchurchChurchRepository } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
 
+const DEFAULT_BANNER_IMAGE_URL =
+  'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/4637/images/20260507/original/tncw9_mUrfv.1778160778436.jpeg';
+
 export interface PublicBannerView {
   id: number | null;
   title: string;
@@ -48,6 +51,6 @@ export class OnchurchListPublicBannersUseCase {
   }
 
   private buildDefault(title: string, description: string): PublicBannerView {
-    return { id: null, title, description, imageUrl: null, linkUrl: null, isDefault: true };
+    return { id: null, title, description, imageUrl: DEFAULT_BANNER_IMAGE_URL, linkUrl: null, isDefault: true };
   }
 }
