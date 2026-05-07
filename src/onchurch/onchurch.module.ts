@@ -4,8 +4,9 @@ import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
 import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
 import { OnchurchBannerModule } from '@/onchurch/banner/onchurch-banner.module';
 import { OnchurchNoticeModule } from '@/onchurch/notice/onchurch-notice.module';
+import { OnchurchEventModule } from '@/onchurch/event/onchurch-event.module';
 
 @Module({
-  imports: [OnchurchAuthModule, OnchurchUserModule, OnchurchChurchModule, OnchurchBannerModule, OnchurchNoticeModule],
+  imports: [OnchurchAuthModule, OnchurchUserModule, OnchurchChurchModule, OnchurchBannerModule, OnchurchNoticeModule, OnchurchEventModule],
 })
 export class OnchurchModule {}
