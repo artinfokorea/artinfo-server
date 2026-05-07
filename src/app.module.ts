@@ -68,6 +68,10 @@ import { OnchurchChurch } from '@/onchurch/church/domain/entity/onchurch-church.
 import { OnchurchBanner } from '@/onchurch/banner/domain/entity/onchurch-banner.entity';
 import { OnchurchNotice } from '@/onchurch/notice/domain/entity/onchurch-notice.entity';
 import { OnchurchEvent } from '@/onchurch/event/domain/entity/onchurch-event.entity';
+import { OnchurchPastor } from '@/onchurch/about/domain/entity/onchurch-pastor.entity';
+import { OnchurchVision } from '@/onchurch/about/domain/entity/onchurch-vision.entity';
+import { OnchurchHistory } from '@/onchurch/about/domain/entity/onchurch-history.entity';
+import { OnchurchStaff } from '@/onchurch/about/domain/entity/onchurch-staff.entity';
 
 const entities = [
   User,
@@ -116,6 +120,10 @@ const entities = [
   OnchurchBanner,
   OnchurchNotice,
   OnchurchEvent,
+  OnchurchPastor,
+  OnchurchVision,
+  OnchurchHistory,
+  OnchurchStaff,
 ];
 const modules = [
   SchedulerModule,
