@@ -20,6 +20,10 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
     return this.churchRepository.findOneBy({ slug });
   }
 
+  async findPublishedBySlug(slug: string): Promise<OnchurchChurch | null> {
+    return this.churchRepository.findOneBy({ slug, isPublished: true });
+  }
+
   async upsertByOwnerId(ownerId: number, params: OnchurchChurchUpsertParams): Promise<OnchurchChurch> {
     const existing = await this.churchRepository.findOneBy({ ownerId });
 
@@ -44,10 +48,13 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
     return this.churchRepository.save(created);
   }
 
-  async updatePublished(ownerId: number, isPublished: boolean): Promise<OnchurchChurch> {
+  async updatePublished(ownerId: number, isPublished: boolean, firstPublishedAt?: Date): Promise<OnchurchChurch> {
     const church = await this.churchRepository.findOneBy({ ownerId });
     if (!church) throw new OnchurchChurchNotFound();
     church.isPublished = isPublished;
+    if (firstPublishedAt && !church.firstPublishedAt) {
+      church.firstPublishedAt = firstPublishedAt;
+    }
     return this.churchRepository.save(church);
   }
 }

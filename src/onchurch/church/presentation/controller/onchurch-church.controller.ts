@@ -39,9 +39,9 @@ export class OnchurchChurchController {
     return new OnchurchChurchResponse(church);
   }
 
-  @RestApiPut(OnchurchChurchResponse, { path: '/me/publish', description: '사이트 운영 on/off (필수항목 + 구독 검증)', auth: [USER_TYPE.CLIENT] })
+  @RestApiPut(OnchurchMyChurchResponse, { path: '/me/publish', description: '사이트 운영 on/off (필수항목 + 구독 검증, 첫 publish 시 7일 무료 체험 자동 부여)', auth: [USER_TYPE.CLIENT] })
   async publishMyChurch(@AuthSignature() signature: UserSignature, @Body() request: OnchurchPublishMyChurchRequest) {
-    const church = await this.publishMyChurchUseCase.execute(signature.id, request.isPublished);
-    return new OnchurchChurchResponse(church);
+    const { church, user } = await this.publishMyChurchUseCase.execute(signature.id, request.isPublished);
+    return new OnchurchMyChurchResponse(church, user);
   }
 }

@@ -44,6 +44,9 @@ export class OnchurchChurch extends BaseEntity {
   @Column({ type: 'boolean', name: 'is_published', default: false })
   isPublished: boolean;
 
+  @Column({ type: 'timestamp', name: 'first_published_at', nullable: true })
+  firstPublishedAt: Date | null;
+
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 

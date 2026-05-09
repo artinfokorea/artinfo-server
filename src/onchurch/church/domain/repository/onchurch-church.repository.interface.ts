@@ -19,6 +19,7 @@ export interface OnchurchChurchUpsertParams {
 export interface IOnchurchChurchRepository {
   findByOwnerId(ownerId: number): Promise<OnchurchChurch | null>;
   findBySlug(slug: string): Promise<OnchurchChurch | null>;
+  findPublishedBySlug(slug: string): Promise<OnchurchChurch | null>;
   upsertByOwnerId(ownerId: number, params: OnchurchChurchUpsertParams): Promise<OnchurchChurch>;
-  updatePublished(ownerId: number, isPublished: boolean): Promise<OnchurchChurch>;
+  updatePublished(ownerId: number, isPublished: boolean, firstPublishedAt?: Date): Promise<OnchurchChurch>;
 }
