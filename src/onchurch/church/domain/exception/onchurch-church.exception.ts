@@ -29,7 +29,7 @@ export class OnchurchChurchRequiredFieldsMissing extends HttpException {
     super(
       {
         code: 'ONCHURCH-CHURCH-003',
-        message: '필수 항목(기본정보·연락처)이 모두 입력되어야 사이트를 운영할 수 있습니다.',
+        message: '필수 항목(기본정보·연락처·교회 소개·예배 안내)이 모두 입력되어야 사이트를 운영할 수 있습니다.',
       },
       HttpStatus.BAD_REQUEST,
     );
