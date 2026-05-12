@@ -4,11 +4,11 @@ import { NotBlank } from '@/common/decorator/validator';
 import { OnchurchWorshipServiceTag } from '@/onchurch/worship/domain/entity/onchurch-worship-service.entity';
 import { OnchurchWorshipServiceWriteCommand } from '@/onchurch/worship/application/command/onchurch-worship-write.command';
 
-const TAGS: OnchurchWorshipServiceTag[] = ['MAIN', 'WEEK', 'DAILY'];
+const TAGS: OnchurchWorshipServiceTag[] = ['WEEK', 'DAILY'];
 
 export class OnchurchWorshipServiceWriteRequest {
   @IsIn(TAGS)
-  @ApiProperty({ enum: TAGS, required: true, description: '예배 구분', example: 'MAIN' })
+  @ApiProperty({ enum: TAGS, required: true, description: '예배 구분', example: 'WEEK' })
   tag: OnchurchWorshipServiceTag;
 
   @NotBlank()

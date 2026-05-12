@@ -1,6 +1,6 @@
 import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-export type OnchurchWorshipServiceTag = 'MAIN' | 'WEEK' | 'DAILY';
+export type OnchurchWorshipServiceTag = 'WEEK' | 'DAILY';
 
 @Entity('onchurch_worship_services')
 export class OnchurchWorshipService extends BaseEntity {

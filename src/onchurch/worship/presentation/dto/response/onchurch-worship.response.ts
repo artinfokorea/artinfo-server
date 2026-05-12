@@ -5,7 +5,7 @@ import { PublicWorshipView } from '@/onchurch/worship/application/usecase/onchur
 
 export class OnchurchWorshipServiceResponse {
   @ApiProperty({ type: Number }) id: number;
-  @ApiProperty({ enum: ['MAIN', 'WEEK', 'DAILY'] }) tag: OnchurchWorshipServiceTag;
+  @ApiProperty({ enum: ['WEEK', 'DAILY'] }) tag: OnchurchWorshipServiceTag;
   @ApiProperty({ type: String }) name: string;
   @ApiProperty({ type: String }) time: string;
   @ApiProperty({ type: String, nullable: true }) meta: string | null;
