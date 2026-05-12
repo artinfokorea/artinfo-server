@@ -4,6 +4,7 @@ import { ONCHURCH_CHURCH_REPOSITORY, IOnchurchChurchRepository } from '@/onchurc
 import { OnchurchPastor } from '@/onchurch/about/domain/entity/onchurch-pastor.entity';
 import { OnchurchPastorWriteCommand } from '@/onchurch/about/application/command/onchurch-about-write.command';
 import { OnchurchAboutChurchNotConfigured } from '@/onchurch/about/domain/exception/onchurch-about.exception';
+import { OnchurchChurchRequiredService } from '@/onchurch/church/application/service/onchurch-church-required.service';
 
 @Injectable()
 export class OnchurchScanMyPastorUseCase {
@@ -28,11 +29,14 @@ export class OnchurchUpsertMyPastorUseCase {
     private readonly pastorRepository: IOnchurchPastorRepository,
     @Inject(ONCHURCH_CHURCH_REPOSITORY)
     private readonly churchRepository: IOnchurchChurchRepository,
+    private readonly requiredService: OnchurchChurchRequiredService,
   ) {}
 
   async execute(userId: number, command: OnchurchPastorWriteCommand): Promise<OnchurchPastor> {
     const church = await this.churchRepository.findByOwnerId(userId);
     if (!church) throw new OnchurchAboutChurchNotConfigured();
-    return this.pastorRepository.upsertByChurchId(church.id, command);
+    const saved = await this.pastorRepository.upsertByChurchId(church.id, command);
+    await this.requiredService.autoUnpublishIfMissing(church);
+    return saved;
   }
 }

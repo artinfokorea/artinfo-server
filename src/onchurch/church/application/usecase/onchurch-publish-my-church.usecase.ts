@@ -1,29 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { ONCHURCH_CHURCH_REPOSITORY, IOnchurchChurchRepository } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
 import { ONCHURCH_USER_REPOSITORY, IOnchurchUserRepository } from '@/onchurch/user/domain/repository/onchurch-user.repository.interface';
 import { OnchurchChurch } from '@/onchurch/church/domain/entity/onchurch-church.entity';
 import { OnchurchUser } from '@/onchurch/user/domain/entity/onchurch-user.entity';
-import { OnchurchPastor } from '@/onchurch/about/domain/entity/onchurch-pastor.entity';
-import { OnchurchWorshipService } from '@/onchurch/worship/domain/entity/onchurch-worship-service.entity';
 import {
   OnchurchChurchNotFound,
-  OnchurchChurchRequiredFieldsMissing,
   OnchurchSubscriptionRequired,
 } from '@/onchurch/church/domain/exception/onchurch-church.exception';
+import { OnchurchChurchRequiredService } from '@/onchurch/church/application/service/onchurch-church-required.service';
 
 const FREE_TRIAL_DAYS = 7;
-
-function hasChurchBaseFields(church: OnchurchChurch): boolean {
-  return (
-    !!church.slug?.trim() &&
-    !!church.name?.trim() &&
-    !!church.phone?.trim() &&
-    !!church.email?.trim() &&
-    !!church.address?.trim()
-  );
-}
 
 function isSubscriptionActive(freeTrialUntil: Date | null, paidUntil: Date | null): boolean {
   const now = Date.now();
@@ -46,11 +32,7 @@ export class OnchurchPublishMyChurchUseCase {
     @Inject(ONCHURCH_USER_REPOSITORY)
     private readonly userRepository: IOnchurchUserRepository,
 
-    @InjectRepository(OnchurchPastor)
-    private readonly pastorRepository: Repository<OnchurchPastor>,
-
-    @InjectRepository(OnchurchWorshipService)
-    private readonly worshipServiceRepository: Repository<OnchurchWorshipService>,
+    private readonly requiredService: OnchurchChurchRequiredService,
   ) {}
 
   async execute(userId: number, isPublished: boolean): Promise<PublishResult> {
@@ -62,13 +44,7 @@ export class OnchurchPublishMyChurchUseCase {
 
     const existing = await this.churchRepository.findByOwnerId(userId);
     if (!existing) throw new OnchurchChurchNotFound();
-    if (!hasChurchBaseFields(existing)) throw new OnchurchChurchRequiredFieldsMissing();
-
-    const pastor = await this.pastorRepository.findOneBy({ churchId: existing.id });
-    if (!pastor || !pastor.name?.trim()) throw new OnchurchChurchRequiredFieldsMissing();
-
-    const worshipServiceCount = await this.worshipServiceRepository.count({ where: { churchId: existing.id } });
-    if (worshipServiceCount === 0) throw new OnchurchChurchRequiredFieldsMissing();
+    await this.requiredService.validateOrThrow(existing);
 
     let user = await this.userRepository.findOneOrThrowById(userId);
 

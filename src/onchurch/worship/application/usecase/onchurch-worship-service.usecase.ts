@@ -10,6 +10,7 @@ import {
   OnchurchWorshipChurchNotConfigured,
   OnchurchWorshipServiceNotFound,
 } from '@/onchurch/worship/domain/exception/onchurch-worship.exception';
+import { OnchurchChurchRequiredService } from '@/onchurch/church/application/service/onchurch-church-required.service';
 
 @Injectable()
 export class OnchurchListMyWorshipServicesUseCase {
@@ -42,13 +43,16 @@ export class OnchurchUpdateMyWorshipServiceUseCase {
   constructor(
     @Inject(ONCHURCH_WORSHIP_SERVICE_REPOSITORY) private readonly repo: IOnchurchWorshipServiceRepository,
     @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly requiredService: OnchurchChurchRequiredService,
   ) {}
   async execute(userId: number, id: number, command: OnchurchWorshipServiceWriteCommand): Promise<OnchurchWorshipService> {
     const church = await this.churchRepo.findByOwnerId(userId);
     if (!church) throw new OnchurchWorshipChurchNotConfigured();
     const owned = await this.repo.findOwnedById(church.id, id);
     if (!owned) throw new OnchurchWorshipServiceNotFound();
-    return this.repo.update(church.id, id, command);
+    const updated = await this.repo.update(church.id, id, command);
+    await this.requiredService.autoUnpublishIfMissing(church);
+    return updated;
   }
 }
 
@@ -57,6 +61,7 @@ export class OnchurchDeleteMyWorshipServiceUseCase {
   constructor(
     @Inject(ONCHURCH_WORSHIP_SERVICE_REPOSITORY) private readonly repo: IOnchurchWorshipServiceRepository,
     @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly requiredService: OnchurchChurchRequiredService,
   ) {}
   async execute(userId: number, id: number): Promise<void> {
     const church = await this.churchRepo.findByOwnerId(userId);
@@ -64,5 +69,6 @@ export class OnchurchDeleteMyWorshipServiceUseCase {
     const owned = await this.repo.findOwnedById(church.id, id);
     if (!owned) throw new OnchurchWorshipServiceNotFound();
     await this.repo.remove(church.id, id);
+    await this.requiredService.autoUnpublishIfMissing(church);
   }
 }
