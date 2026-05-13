@@ -24,6 +24,13 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
     return this.churchRepository.findOneBy({ slug, isPublished: true });
   }
 
+  async findAllPublished(): Promise<OnchurchChurch[]> {
+    return this.churchRepository.find({
+      where: { isPublished: true },
+      order: { firstPublishedAt: 'DESC', id: 'DESC' },
+    });
+  }
+
   async upsertByOwnerId(ownerId: number, params: OnchurchChurchUpsertParams): Promise<OnchurchChurch> {
     const existing = await this.churchRepository.findOneBy({ ownerId });
 

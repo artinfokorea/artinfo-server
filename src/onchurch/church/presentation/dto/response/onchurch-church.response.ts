@@ -83,6 +83,33 @@ export class OnchurchSubscriptionResponse {
   }
 }
 
+export class OnchurchPublicChurchListItemResponse {
+  @ApiProperty({ type: Number }) id: number;
+  @ApiProperty({ type: String }) slug: string;
+  @ApiProperty({ type: String }) name: string;
+  @ApiProperty({ type: String, nullable: true }) eng: string | null;
+  @ApiProperty({ type: String, nullable: true }) tagline: string | null;
+  @ApiProperty({ type: String, nullable: true }) logoUrl: string | null;
+
+  constructor(church: OnchurchChurch) {
+    this.id = church.id;
+    this.slug = church.slug;
+    this.name = church.name;
+    this.eng = church.eng;
+    this.tagline = church.tagline;
+    this.logoUrl = church.logoUrl;
+  }
+}
+
+export class OnchurchPublicChurchListResponse {
+  @ApiProperty({ type: [OnchurchPublicChurchListItemResponse] })
+  churches: OnchurchPublicChurchListItemResponse[];
+
+  constructor(churches: OnchurchChurch[]) {
+    this.churches = churches.map((c) => new OnchurchPublicChurchListItemResponse(c));
+  }
+}
+
 export class OnchurchMyChurchResponse {
   @ApiProperty({ type: OnchurchChurchResponse, required: false, nullable: true })
   church: OnchurchChurchResponse | null;
