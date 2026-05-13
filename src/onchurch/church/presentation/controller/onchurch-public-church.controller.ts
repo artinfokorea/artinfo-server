@@ -14,7 +14,7 @@ export class OnchurchPublicChurchController {
     private readonly listPublicChurchesUseCase: OnchurchListPublicChurchesUseCase,
   ) {}
 
-  @RestApiGet(OnchurchPublicChurchListResponse, { path: '', description: '공개 - 운영 중인 교회 목록' })
+  @RestApiGet(OnchurchPublicChurchListResponse, { path: '/', description: '공개 - 운영 중인 교회 목록' })
   async list() {
     const churches = await this.listPublicChurchesUseCase.execute();
     return new OnchurchPublicChurchListResponse(churches);
