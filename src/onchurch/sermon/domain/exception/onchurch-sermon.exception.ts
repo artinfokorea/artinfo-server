@@ -29,7 +29,7 @@ export class OnchurchSermonSeriesNotFound extends HttpException {
     super(
       {
         code: 'ONCHURCH-SERMON-003',
-        message: '시리즈를 찾을 수 없습니다.',
+        message: '카테고리를 찾을 수 없습니다.',
       },
       HttpStatus.NOT_FOUND,
     );

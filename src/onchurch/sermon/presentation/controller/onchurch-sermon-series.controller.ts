@@ -22,22 +22,22 @@ export class OnchurchSermonSeriesController {
     private readonly deleteUseCase: OnchurchDeleteMySermonSeriesUseCase,
   ) {}
 
-  @RestApiGet(OnchurchSermonSeriesListResponse, { path: '/me', description: '내 교회 설교 시리즈 목록', auth: [USER_TYPE.CLIENT] })
+  @RestApiGet(OnchurchSermonSeriesListResponse, { path: '/me', description: '내 교회 설교 카테고리 목록', auth: [USER_TYPE.CLIENT] })
   async listMine(@AuthSignature() s: UserSignature) {
     return new OnchurchSermonSeriesListResponse(await this.listUseCase.execute(s.id));
   }
 
-  @RestApiPost(OnchurchSermonSeriesResponse, { path: '/me', description: '시리즈 추가', auth: [USER_TYPE.CLIENT] })
+  @RestApiPost(OnchurchSermonSeriesResponse, { path: '/me', description: '카테고리 추가', auth: [USER_TYPE.CLIENT] })
   async createMine(@AuthSignature() s: UserSignature, @Body() req: OnchurchSermonSeriesWriteRequest) {
     return new OnchurchSermonSeriesResponse(await this.createUseCase.execute(s.id, req.toCommand()));
   }
 
-  @RestApiPut(OnchurchSermonSeriesResponse, { path: '/me/:id', description: '시리즈 수정', auth: [USER_TYPE.CLIENT] })
+  @RestApiPut(OnchurchSermonSeriesResponse, { path: '/me/:id', description: '카테고리 수정', auth: [USER_TYPE.CLIENT] })
   async updateMine(@AuthSignature() s: UserSignature, @Param('id', ParseIntPipe) id: number, @Body() req: OnchurchSermonSeriesWriteRequest) {
     return new OnchurchSermonSeriesResponse(await this.updateUseCase.execute(s.id, id, req.toCommand()));
   }
 
-  @RestApiDelete(OkResponse, { path: '/me/:id', description: '시리즈 삭제', auth: [USER_TYPE.CLIENT] })
+  @RestApiDelete(OkResponse, { path: '/me/:id', description: '카테고리 삭제', auth: [USER_TYPE.CLIENT] })
   async deleteMine(@AuthSignature() s: UserSignature, @Param('id', ParseIntPipe) id: number) {
     await this.deleteUseCase.execute(s.id, id);
     return new OkResponse();

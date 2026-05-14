@@ -6,7 +6,7 @@ import { OnchurchSermonSeriesWriteCommand } from '@/onchurch/sermon/application/
 export class OnchurchSermonSeriesWriteRequest {
   @NotBlank()
   @MaxLength(120)
-  @ApiProperty({ type: String, required: true, description: '시리즈 이름', example: '마태복음 강해' })
+  @ApiProperty({ type: String, required: true, description: '카테고리 이름', example: '마태복음 강해' })
   name: string;
 
   @IsInt()

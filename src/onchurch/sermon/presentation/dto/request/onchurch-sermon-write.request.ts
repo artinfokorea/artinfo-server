@@ -6,7 +6,7 @@ import { OnchurchSermonWriteCommand } from '@/onchurch/sermon/application/comman
 export class OnchurchSermonWriteRequest {
   @IsOptional()
   @IsInt()
-  @ApiProperty({ type: Number, required: false, nullable: true, description: '시리즈 ID', example: 1 })
+  @ApiProperty({ type: Number, required: false, nullable: true, description: '카테고리 ID', example: 1 })
   seriesId: number | null;
 
   @NotBlank()
