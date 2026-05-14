@@ -1,5 +1,28 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { OnchurchNotice } from '@/onchurch/notice/domain/entity/onchurch-notice.entity';
+import { OnchurchNoticeCategory } from '@/onchurch/notice/domain/entity/onchurch-notice-category.entity';
+
+export class OnchurchNoticeCategoryResponse {
+  @ApiProperty({ type: Number }) id: number;
+  @ApiProperty({ type: String }) name: string;
+  @ApiProperty({ type: Number }) sortOrder: number;
+  @ApiProperty({ type: Boolean }) isActive: boolean;
+
+  constructor(c: OnchurchNoticeCategory) {
+    this.id = c.id;
+    this.name = c.name;
+    this.sortOrder = c.sortOrder;
+    this.isActive = c.isActive;
+  }
+}
+
+export class OnchurchNoticeCategoryListResponse {
+  @ApiProperty({ type: [OnchurchNoticeCategoryResponse] })
+  categories: OnchurchNoticeCategoryResponse[];
+  constructor(items: OnchurchNoticeCategory[]) {
+    this.categories = items.map(c => new OnchurchNoticeCategoryResponse(c));
+  }
+}
 
 export class OnchurchNoticeResponse {
   @ApiProperty({ type: Number, required: true })

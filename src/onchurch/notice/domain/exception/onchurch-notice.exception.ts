@@ -23,3 +23,15 @@ export class OnchurchNoticeChurchNotConfigured extends HttpException {
     );
   }
 }
+
+export class OnchurchNoticeCategoryNotFound extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-NOTICE-003',
+        message: '카테고리를 찾을 수 없습니다.',
+      },
+      HttpStatus.NOT_FOUND,
+    );
+  }
+}
