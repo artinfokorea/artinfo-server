@@ -16,11 +16,11 @@ export class OnchurchSermonSeriesRepository implements IOnchurchSermonSeriesRepo
   ) {}
 
   async findAllByChurchId(churchId: number): Promise<OnchurchSermonSeries[]> {
-    return this.repo.find({ where: { churchId }, order: { sortOrder: 'ASC', id: 'ASC' } });
+    return this.repo.find({ where: { churchId }, order: { createdAt: 'DESC', id: 'DESC' } });
   }
 
   async findActiveByChurchId(churchId: number): Promise<OnchurchSermonSeries[]> {
-    return this.repo.find({ where: { churchId, isActive: true }, order: { sortOrder: 'ASC', id: 'ASC' } });
+    return this.repo.find({ where: { churchId, isActive: true }, order: { createdAt: 'DESC', id: 'DESC' } });
   }
 
   async findOwnedById(churchId: number, id: number): Promise<OnchurchSermonSeries | null> {
