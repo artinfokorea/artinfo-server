@@ -20,6 +20,7 @@ export class OnchurchGalleryCategoryResponse {
 export class OnchurchGalleryResponse {
   @ApiProperty({ type: Number }) id: number;
   @ApiProperty({ type: Number, nullable: true }) categoryId: number | null;
+  @ApiProperty({ type: String, nullable: true }) batchId: string | null;
   @ApiProperty({ type: String }) title: string;
   @ApiProperty({ type: String, nullable: true }) date: string | null;
   @ApiProperty({ type: String, nullable: true }) photoUrl: string | null;
@@ -30,6 +31,7 @@ export class OnchurchGalleryResponse {
   constructor(g: OnchurchGallery) {
     this.id = g.id;
     this.categoryId = g.categoryId;
+    this.batchId = g.batchId;
     this.title = g.title;
     this.date = g.date;
     this.photoUrl = g.photoUrl;

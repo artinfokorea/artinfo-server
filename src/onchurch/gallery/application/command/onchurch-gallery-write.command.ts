@@ -12,6 +12,7 @@ export class OnchurchGalleryCategoryWriteCommand {
 
 export class OnchurchGalleryWriteCommand {
   categoryId: number | null;
+  batchId: string | null;
   title: string;
   date: string | null;
   photoUrl: string | null;
@@ -21,6 +22,7 @@ export class OnchurchGalleryWriteCommand {
 
   constructor(p: {
     categoryId: number | null;
+    batchId: string | null;
     title: string;
     date: string | null;
     photoUrl: string | null;
@@ -29,6 +31,7 @@ export class OnchurchGalleryWriteCommand {
     isActive: boolean;
   }) {
     this.categoryId = p.categoryId;
+    this.batchId = p.batchId;
     this.title = p.title;
     this.date = p.date;
     this.photoUrl = p.photoUrl;

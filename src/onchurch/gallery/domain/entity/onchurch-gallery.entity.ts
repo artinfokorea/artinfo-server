@@ -11,6 +11,9 @@ export class OnchurchGallery extends BaseEntity {
   @Column({ type: 'int', name: 'category_id', nullable: true })
   categoryId: number | null;
 
+  @Column({ type: 'varchar', name: 'batch_id', nullable: true, length: 40 })
+  batchId: string | null;
+
   @Column({ type: 'varchar', name: 'title', length: 200 })
   title: string;
 

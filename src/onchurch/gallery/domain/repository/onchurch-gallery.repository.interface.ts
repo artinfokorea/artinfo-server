@@ -4,6 +4,7 @@ export const ONCHURCH_GALLERY_REPOSITORY = Symbol('ONCHURCH_GALLERY_REPOSITORY')
 
 export interface OnchurchGalleryWriteParams {
   categoryId: number | null;
+  batchId: string | null;
   title: string;
   date: string | null;
   photoUrl: string | null;

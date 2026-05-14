@@ -9,6 +9,11 @@ export class OnchurchGalleryWriteRequest {
   @ApiProperty({ type: Number, required: false, nullable: true, description: '카테고리 ID' })
   categoryId: number | null;
 
+  @IsOptional()
+  @MaxLength(40)
+  @ApiProperty({ type: String, required: false, nullable: true, description: '함께 업로드된 사진 묶음 ID (UUID 등)' })
+  batchId: string | null;
+
   @NotBlank()
   @MaxLength(200)
   @ApiProperty({ type: String, required: true, description: '제목' })
@@ -40,6 +45,7 @@ export class OnchurchGalleryWriteRequest {
   toCommand(): OnchurchGalleryWriteCommand {
     return new OnchurchGalleryWriteCommand({
       categoryId: this.categoryId ?? null,
+      batchId: (this.batchId ?? '').trim() || null,
       title: this.title.trim(),
       date: (this.date ?? '').trim() || null,
       photoUrl: (this.photoUrl ?? '').trim() || null,
