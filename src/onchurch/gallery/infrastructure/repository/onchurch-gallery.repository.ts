@@ -16,11 +16,11 @@ export class OnchurchGalleryRepository implements IOnchurchGalleryRepository {
   ) {}
 
   async findAllByChurchId(churchId: number): Promise<OnchurchGallery[]> {
-    return this.repo.find({ where: { churchId }, order: { sortOrder: 'ASC', id: 'ASC' } });
+    return this.repo.find({ where: { churchId }, order: { createdAt: 'DESC', id: 'DESC' } });
   }
 
   async findActiveByChurchId(churchId: number): Promise<OnchurchGallery[]> {
-    return this.repo.find({ where: { churchId, isActive: true }, order: { sortOrder: 'ASC', id: 'ASC' } });
+    return this.repo.find({ where: { churchId, isActive: true }, order: { createdAt: 'DESC', id: 'DESC' } });
   }
 
   async findOwnedById(churchId: number, id: number): Promise<OnchurchGallery | null> {
