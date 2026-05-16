@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { IOnchurchChurchRepository, OnchurchChurchUpsertParams } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
 import { OnchurchChurch } from '@/onchurch/church/domain/entity/onchurch-church.entity';
+import { OnchurchUser } from '@/onchurch/user/domain/entity/onchurch-user.entity';
 import { OnchurchChurchNotFound } from '@/onchurch/church/domain/exception/onchurch-church.exception';
 
 @Injectable()
@@ -29,6 +30,23 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
       where: { isPublished: true },
       order: { firstPublishedAt: 'DESC', id: 'DESC' },
     });
+  }
+
+  async findPublishedWithExpiredSubscription(now: Date): Promise<OnchurchChurch[]> {
+    // free_trial / paid 둘 다 만료(null 이거나 now 이하)인 published 교회만.
+    return this.churchRepository
+      .createQueryBuilder('church')
+      .innerJoin(OnchurchUser, 'u', 'u.id = church.owner_id AND u.deleted_at IS NULL')
+      .where('church.is_published = :pub', { pub: true })
+      .andWhere('(u.free_trial_until IS NULL OR u.free_trial_until <= :now)', { now })
+      .andWhere('(u.paid_until IS NULL OR u.paid_until <= :now)', { now })
+      .getMany();
+  }
+
+  async bulkUnpublishByOwnerIds(ownerIds: number[]): Promise<number> {
+    if (ownerIds.length === 0) return 0;
+    const result = await this.churchRepository.update({ ownerId: In(ownerIds), isPublished: true }, { isPublished: false });
+    return result.affected ?? 0;
   }
 
   async upsertByOwnerId(ownerId: number, params: OnchurchChurchUpsertParams): Promise<OnchurchChurch> {

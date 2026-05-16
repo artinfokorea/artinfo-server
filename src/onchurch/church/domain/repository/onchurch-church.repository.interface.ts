@@ -21,6 +21,8 @@ export interface IOnchurchChurchRepository {
   findBySlug(slug: string): Promise<OnchurchChurch | null>;
   findPublishedBySlug(slug: string): Promise<OnchurchChurch | null>;
   findAllPublished(): Promise<OnchurchChurch[]>;
+  findPublishedWithExpiredSubscription(now: Date): Promise<OnchurchChurch[]>;
+  bulkUnpublishByOwnerIds(ownerIds: number[]): Promise<number>;
   upsertByOwnerId(ownerId: number, params: OnchurchChurchUpsertParams): Promise<OnchurchChurch>;
   updatePublished(ownerId: number, isPublished: boolean, firstPublishedAt?: Date): Promise<OnchurchChurch>;
 }

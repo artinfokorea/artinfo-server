@@ -13,7 +13,9 @@ import { OnchurchPublishMyChurchUseCase } from '@/onchurch/church/application/us
 import { OnchurchCheckSlugUseCase } from '@/onchurch/church/application/usecase/onchurch-check-slug.usecase';
 import { OnchurchGetPublicChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-get-public-church.usecase';
 import { OnchurchListPublicChurchesUseCase } from '@/onchurch/church/application/usecase/onchurch-list-public-churches.usecase';
+import { OnchurchAutoUnpublishExpiredUseCase } from '@/onchurch/church/application/usecase/onchurch-auto-unpublish-expired.usecase';
 import { OnchurchChurchRequiredService } from '@/onchurch/church/application/service/onchurch-church-required.service';
+import { OnchurchSubscriptionScheduler } from '@/onchurch/church/scheduler/onchurch-subscription.scheduler';
 import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
 
 @Module({
@@ -27,7 +29,9 @@ import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
     OnchurchCheckSlugUseCase,
     OnchurchGetPublicChurchUseCase,
     OnchurchListPublicChurchesUseCase,
+    OnchurchAutoUnpublishExpiredUseCase,
     OnchurchChurchRequiredService,
+    OnchurchSubscriptionScheduler,
   ],
   exports: [ONCHURCH_CHURCH_REPOSITORY, OnchurchChurchRequiredService],
 })
