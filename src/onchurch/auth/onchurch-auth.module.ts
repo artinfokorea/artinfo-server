@@ -13,6 +13,7 @@ import { OnchurchVerifyCodeUseCase } from '@/onchurch/auth/application/usecase/o
 import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { SystemModule } from '@/system/module/system.module';
+import { AwsSesService } from '@/aws/ses/aws-ses.service';
 
 @Module({
   imports: [JwtModule.register({}), TypeOrmModule.forFeature([OnchurchAuth]), OnchurchUserModule, SystemModule],
@@ -26,6 +27,7 @@ import { SystemModule } from '@/system/module/system.module';
     OnchurchVerifyCodeUseCase,
     { provide: ONCHURCH_AUTH_REPOSITORY, useClass: OnchurchAuthRepository },
     RedisRepository,
+    AwsSesService,
   ],
 })
 export class OnchurchAuthModule {}

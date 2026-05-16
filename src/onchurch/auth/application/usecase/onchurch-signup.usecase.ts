@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { ONCHURCH_USER_REPOSITORY, IOnchurchUserRepository } from '@/onchurch/user/domain/repository/onchurch-user.repository.interface';
 import { ONCHURCH_AUTH_REPOSITORY, IOnchurchAuthRepository } from '@/onchurch/auth/domain/repository/onchurch-auth.repository.interface';
@@ -7,10 +7,14 @@ import { ONCHURCH_USER_ROLE } from '@/onchurch/user/domain/entity/onchurch-user.
 import { OnchurchSignupCommand } from '@/onchurch/auth/application/command/onchurch-signup.command';
 import { OnchurchPhoneNotVerified, OnchurchUserIdAlreadyExist } from '@/onchurch/auth/domain/exception/onchurch-auth.exception';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
+import { AwsSesService } from '@/aws/ses/aws-ses.service';
+
+const SIGNUP_NOTIFY_TO = 'chorales@naver.com';
 
 @Injectable()
 export class OnchurchSignupUseCase {
   private readonly BCRYPT_ROUNDS = 10;
+  private readonly logger = new Logger(OnchurchSignupUseCase.name);
 
   constructor(
     @Inject(ONCHURCH_USER_REPOSITORY)
@@ -20,6 +24,8 @@ export class OnchurchSignupUseCase {
     private readonly authRepository: IOnchurchAuthRepository,
 
     private readonly redisRepository: RedisRepository,
+
+    private readonly sesService: AwsSesService,
   ) {}
 
   async execute(command: OnchurchSignupCommand): Promise<OnchurchAuth> {
@@ -50,6 +56,21 @@ export class OnchurchSignupUseCase {
     const user = await this.userRepository.findOneOrThrowById(userId);
 
     await this.redisRepository.delete(verifiedKey);
+
+    // 가입 알림 메일 — 실패해도 가입 자체는 통과시킨다.
+    try {
+      const html = [
+        `<h3>온교회 신규 회원 가입</h3>`,
+        `<p><b>아이디</b>: ${user.loginId}</p>`,
+        `<p><b>이름</b>: ${user.name}</p>`,
+        `<p><b>연락처</b>: ${user.phone}</p>`,
+        `<p><b>마케팅 수신 동의</b>: ${user.marketingConsent ? '예' : '아니오'}</p>`,
+        `<p><b>가입 일시</b>: ${new Date().toISOString()}</p>`,
+      ].join('');
+      await this.sesService.send(SIGNUP_NOTIFY_TO, `[온교회 가입] ${user.name}`, html);
+    } catch (err) {
+      this.logger.error(`가입 알림 메일 발송 실패: userId=${user.id}`, err as any);
+    }
 
     return await this.authRepository.create({ userId: user.id }, user);
   }
