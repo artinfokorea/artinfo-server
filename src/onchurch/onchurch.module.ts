@@ -10,6 +10,7 @@ import { OnchurchTransportationModule } from '@/onchurch/transportation/onchurch
 import { OnchurchWorshipModule } from '@/onchurch/worship/onchurch-worship.module';
 import { OnchurchSermonModule } from '@/onchurch/sermon/onchurch-sermon.module';
 import { OnchurchGalleryModule } from '@/onchurch/gallery/onchurch-gallery.module';
+import { OnchurchPrayerModule } from '@/onchurch/prayer/onchurch-prayer.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { OnchurchGalleryModule } from '@/onchurch/gallery/onchurch-gallery.modul
     OnchurchWorshipModule,
     OnchurchSermonModule,
     OnchurchGalleryModule,
+    OnchurchPrayerModule,
   ],
 })
 export class OnchurchModule {}
