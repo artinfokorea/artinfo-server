@@ -10,6 +10,7 @@ export class OnchurchUpsertMyChurchCommand {
   businessNo: string | null;
   logoUrl: string | null;
   enabledPages: string[];
+  homeSectionOrder: string[];
 
   constructor(params: {
     slug: string;
@@ -23,6 +24,7 @@ export class OnchurchUpsertMyChurchCommand {
     businessNo: string | null;
     logoUrl: string | null;
     enabledPages: string[];
+    homeSectionOrder: string[];
   }) {
     this.slug = params.slug;
     this.name = params.name;
@@ -35,5 +37,6 @@ export class OnchurchUpsertMyChurchCommand {
     this.businessNo = params.businessNo;
     this.logoUrl = params.logoUrl;
     this.enabledPages = params.enabledPages;
+    this.homeSectionOrder = params.homeSectionOrder;
   }
 }

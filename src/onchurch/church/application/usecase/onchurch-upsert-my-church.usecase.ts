@@ -32,6 +32,7 @@ export class OnchurchUpsertMyChurchUseCase {
       businessNo: command.businessNo,
       logoUrl: command.logoUrl,
       enabledPages: command.enabledPages,
+      homeSectionOrder: command.homeSectionOrder,
     });
 
     await this.requiredService.autoUnpublishIfMissing(saved);

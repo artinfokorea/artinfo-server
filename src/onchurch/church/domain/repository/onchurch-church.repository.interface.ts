@@ -14,6 +14,7 @@ export interface OnchurchChurchUpsertParams {
   businessNo: string | null;
   logoUrl: string | null;
   enabledPages: string[];
+  homeSectionOrder: string[];
 }
 
 export interface IOnchurchChurchRepository {

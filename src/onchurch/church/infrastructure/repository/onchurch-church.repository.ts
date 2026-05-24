@@ -65,6 +65,7 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
         businessNo: params.businessNo,
         logoUrl: params.logoUrl,
         enabledPages: params.enabledPages,
+        homeSectionOrder: params.homeSectionOrder,
       });
       return this.churchRepository.save(existing);
     }

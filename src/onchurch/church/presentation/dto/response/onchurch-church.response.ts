@@ -39,6 +39,9 @@ export class OnchurchChurchResponse {
   @ApiProperty({ type: [String], required: true })
   enabledPages: string[];
 
+  @ApiProperty({ type: [String], required: true, description: '홈페이지 섹션 노출 순서' })
+  homeSectionOrder: string[];
+
   @ApiProperty({ type: Boolean, required: true, description: '사이트 운영 중 여부' })
   isPublished: boolean;
 
@@ -55,6 +58,7 @@ export class OnchurchChurchResponse {
     this.businessNo = church.businessNo;
     this.logoUrl = church.logoUrl;
     this.enabledPages = church.enabledPages ?? [];
+    this.homeSectionOrder = church.homeSectionOrder ?? [];
     this.isPublished = church.isPublished ?? false;
   }
 }

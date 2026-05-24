@@ -39,6 +39,10 @@ export class OnchurchUpsertMyChurchRequest {
   @ApiProperty({ type: [String], required: true, description: '활성화된 페이지 ID 배열', example: ['about', 'worship', 'notices'] })
   enabledPages: string[];
 
+  @ArrayType()
+  @ApiProperty({ type: [String], required: false, description: '홈페이지 섹션 노출 순서', example: ['banner', 'hero', 'worship', 'sermons', 'visit', 'pastor'] })
+  homeSectionOrder?: string[];
+
   toCommand(): OnchurchUpsertMyChurchCommand {
     return new OnchurchUpsertMyChurchCommand({
       slug: this.slug,
@@ -52,6 +56,7 @@ export class OnchurchUpsertMyChurchRequest {
       businessNo: this.businessNo ?? null,
       logoUrl: this.logoUrl ?? null,
       enabledPages: this.enabledPages ?? [],
+      homeSectionOrder: this.homeSectionOrder ?? [],
     });
   }
 }

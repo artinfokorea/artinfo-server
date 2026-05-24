@@ -41,6 +41,9 @@ export class OnchurchChurch extends BaseEntity {
   @Column({ type: 'jsonb', name: 'enabled_pages', default: () => "'[]'::jsonb" })
   enabledPages: string[];
 
+  @Column({ type: 'jsonb', name: 'home_section_order', default: () => "'[]'::jsonb" })
+  homeSectionOrder: string[];
+
   @Column({ type: 'boolean', name: 'is_published', default: false })
   isPublished: boolean;
 
