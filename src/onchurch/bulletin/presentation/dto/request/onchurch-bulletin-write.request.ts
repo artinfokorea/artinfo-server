@@ -77,7 +77,7 @@ export class OnchurchBulletinWriteRequest {
       coverVerse: (this.coverVerse ?? '').trim() || null,
       coverVerseRef: sOrNull(this.coverVerseRef),
       worshipOrder: (this.worshipOrder ?? [])
-        .map((o) => ({ no: s(o?.no), item: s(o?.item), leader: sOrNull(o?.leader) }))
+        .map((o) => ({ item: s(o?.item), detail: sOrNull(o?.detail), leader: sOrNull(o?.leader) }))
         .filter((o) => o.item),
       worshipServices: (this.worshipServices ?? [])
         .map((o) => ({ name: s(o?.name), time: s(o?.time), meta: sOrNull(o?.meta) }))
