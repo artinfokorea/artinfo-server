@@ -34,6 +34,20 @@ export class OnchurchBulletinWriteRequest {
   @ApiProperty({ type: String, required: false, description: '교회 위치 이미지 URL', nullable: true })
   locationImageUrl: string | null;
 
+  @IsOptional()
+  @MaxLength(60)
+  @ApiProperty({ type: String, required: false, description: '주보 호수 (예: 제 1234 호)', nullable: true })
+  issueNo: string | null;
+
+  @IsOptional()
+  @ApiProperty({ type: String, required: false, description: '금주의 말씀 본문', nullable: true })
+  coverVerse: string | null;
+
+  @IsOptional()
+  @MaxLength(120)
+  @ApiProperty({ type: String, required: false, description: '금주의 말씀 출처', nullable: true })
+  coverVerseRef: string | null;
+
   @ArrayType()
   @ApiProperty({ type: 'array', required: false, description: '예배 순서 [{no,item,leader}]' })
   worshipOrder?: OnchurchBulletinWorshipOrderItem[];
@@ -59,6 +73,9 @@ export class OnchurchBulletinWriteRequest {
       templateId: s(this.templateId) || 'classic',
       serviceDate: sOrNull(this.serviceDate),
       locationImageUrl: sOrNull(this.locationImageUrl),
+      issueNo: sOrNull(this.issueNo),
+      coverVerse: (this.coverVerse ?? '').trim() || null,
+      coverVerseRef: sOrNull(this.coverVerseRef),
       worshipOrder: (this.worshipOrder ?? [])
         .map((o) => ({ no: s(o?.no), item: s(o?.item), leader: sOrNull(o?.leader) }))
         .filter((o) => o.item),

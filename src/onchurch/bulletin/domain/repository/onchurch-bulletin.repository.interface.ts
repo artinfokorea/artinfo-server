@@ -13,6 +13,9 @@ export interface OnchurchBulletinWriteParams {
   templateId: string;
   serviceDate: string | null;
   locationImageUrl: string | null;
+  issueNo: string | null;
+  coverVerse: string | null;
+  coverVerseRef: string | null;
   worshipOrder: OnchurchBulletinWorshipOrderItem[];
   worshipServices: OnchurchBulletinWorshipServiceItem[];
   staff: OnchurchBulletinStaffItem[];

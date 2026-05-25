@@ -48,6 +48,17 @@ export class OnchurchBulletin extends BaseEntity {
   @Column({ type: 'varchar', name: 'location_image_url', nullable: true, length: 1000 })
   locationImageUrl: string | null;
 
+  // 주보 호수 (예: '제 1234 호')
+  @Column({ type: 'varchar', name: 'issue_no', nullable: true, length: 60 })
+  issueNo: string | null;
+
+  // 금주의 말씀 — 본문과 출처
+  @Column({ type: 'text', name: 'cover_verse', nullable: true })
+  coverVerse: string | null;
+
+  @Column({ type: 'varchar', name: 'cover_verse_ref', nullable: true, length: 120 })
+  coverVerseRef: string | null;
+
   @Column({ type: 'jsonb', name: 'worship_order', default: () => "'[]'::jsonb" })
   worshipOrder: OnchurchBulletinWorshipOrderItem[];
 

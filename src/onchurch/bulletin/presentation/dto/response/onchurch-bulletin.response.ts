@@ -13,6 +13,9 @@ export class OnchurchBulletinResponse {
   @ApiProperty({ type: String }) templateId: string;
   @ApiProperty({ type: String, nullable: true }) serviceDate: string | null;
   @ApiProperty({ type: String, nullable: true }) locationImageUrl: string | null;
+  @ApiProperty({ type: String, nullable: true }) issueNo: string | null;
+  @ApiProperty({ type: String, nullable: true }) coverVerse: string | null;
+  @ApiProperty({ type: String, nullable: true }) coverVerseRef: string | null;
   @ApiProperty({ type: 'array' }) worshipOrder: OnchurchBulletinWorshipOrderItem[];
   @ApiProperty({ type: 'array' }) worshipServices: OnchurchBulletinWorshipServiceItem[];
   @ApiProperty({ type: 'array' }) staff: OnchurchBulletinStaffItem[];
@@ -24,6 +27,9 @@ export class OnchurchBulletinResponse {
     this.templateId = b.templateId;
     this.serviceDate = b.serviceDate;
     this.locationImageUrl = b.locationImageUrl;
+    this.issueNo = b.issueNo;
+    this.coverVerse = b.coverVerse;
+    this.coverVerseRef = b.coverVerseRef;
     this.worshipOrder = b.worshipOrder ?? [];
     this.worshipServices = b.worshipServices ?? [];
     this.staff = b.staff ?? [];
