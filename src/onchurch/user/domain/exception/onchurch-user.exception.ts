@@ -11,3 +11,15 @@ export class OnchurchUserNotFound extends HttpException {
     );
   }
 }
+
+export class OnchurchUserPasswordMismatch extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-USER-002',
+        message: '현재 비밀번호가 일치하지 않습니다.',
+      },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+}

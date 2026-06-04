@@ -3,10 +3,22 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { OnchurchUser } from '@/onchurch/user/domain/entity/onchurch-user.entity';
 import { ONCHURCH_USER_REPOSITORY } from '@/onchurch/user/domain/repository/onchurch-user.repository.interface';
 import { OnchurchUserRepository } from '@/onchurch/user/infrastructure/repository/onchurch-user.repository';
+import { OnchurchUserController } from '@/onchurch/user/presentation/controller/onchurch-user.controller';
+import {
+  OnchurchGetMyProfileUseCase,
+  OnchurchUpdateMyProfileUseCase,
+  OnchurchChangeMyPasswordUseCase,
+} from '@/onchurch/user/application/usecase/onchurch-user-profile.usecase';
 
 @Module({
   imports: [TypeOrmModule.forFeature([OnchurchUser])],
-  providers: [{ provide: ONCHURCH_USER_REPOSITORY, useClass: OnchurchUserRepository }],
+  controllers: [OnchurchUserController],
+  providers: [
+    { provide: ONCHURCH_USER_REPOSITORY, useClass: OnchurchUserRepository },
+    OnchurchGetMyProfileUseCase,
+    OnchurchUpdateMyProfileUseCase,
+    OnchurchChangeMyPasswordUseCase,
+  ],
   exports: [ONCHURCH_USER_REPOSITORY],
 })
 export class OnchurchUserModule {}
