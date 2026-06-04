@@ -9,6 +9,7 @@ import {
   OnchurchUpdateMyProfileUseCase,
   OnchurchChangeMyPasswordUseCase,
 } from '@/onchurch/user/application/usecase/onchurch-user-profile.usecase';
+import { RedisRepository } from '@/common/redis/redis-repository.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([OnchurchUser])],
@@ -18,6 +19,7 @@ import {
     OnchurchGetMyProfileUseCase,
     OnchurchUpdateMyProfileUseCase,
     OnchurchChangeMyPasswordUseCase,
+    RedisRepository,
   ],
   exports: [ONCHURCH_USER_REPOSITORY],
 })
