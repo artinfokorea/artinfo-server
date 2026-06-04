@@ -13,6 +13,7 @@ import { OnchurchGalleryModule } from '@/onchurch/gallery/onchurch-gallery.modul
 import { OnchurchPrayerModule } from '@/onchurch/prayer/onchurch-prayer.module';
 import { OnchurchInquiryModule } from '@/onchurch/inquiry/onchurch-inquiry.module';
 import { OnchurchBulletinModule } from '@/onchurch/bulletin/onchurch-bulletin.module';
+import { OnchurchCommunityModule } from '@/onchurch/community/onchurch-community.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { OnchurchBulletinModule } from '@/onchurch/bulletin/onchurch-bulletin.mo
     OnchurchPrayerModule,
     OnchurchInquiryModule,
     OnchurchBulletinModule,
+    OnchurchCommunityModule,
   ],
 })
 export class OnchurchModule {}

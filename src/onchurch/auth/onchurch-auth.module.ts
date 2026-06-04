@@ -11,12 +11,13 @@ import { OnchurchRefreshTokensUseCase } from '@/onchurch/auth/application/usecas
 import { OnchurchSendVerificationUseCase } from '@/onchurch/auth/application/usecase/onchurch-send-verification.usecase';
 import { OnchurchVerifyCodeUseCase } from '@/onchurch/auth/application/usecase/onchurch-verify-code.usecase';
 import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
+import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { SystemModule } from '@/system/module/system.module';
 import { AwsSesService } from '@/aws/ses/aws-ses.service';
 
 @Module({
-  imports: [JwtModule.register({}), TypeOrmModule.forFeature([OnchurchAuth]), OnchurchUserModule, SystemModule],
+  imports: [JwtModule.register({}), TypeOrmModule.forFeature([OnchurchAuth]), OnchurchUserModule, OnchurchChurchModule, SystemModule],
   controllers: [OnchurchAuthController],
   providers: [
     JwtService,

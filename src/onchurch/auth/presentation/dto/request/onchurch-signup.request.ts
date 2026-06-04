@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional, MaxLength } from 'class-validator';
 import { IsPhone, NotBlank } from '@/common/decorator/validator';
 import { OnchurchSignupCommand } from '@/onchurch/auth/application/command/onchurch-signup.command';
 
@@ -23,6 +24,11 @@ export class OnchurchSignupRequest {
   @ApiProperty({ type: Boolean, required: false, description: '마케팅 정보 수신 동의', example: false, default: false })
   marketingConsent: boolean;
 
+  @IsOptional()
+  @MaxLength(120)
+  @ApiProperty({ type: String, required: false, description: '소속 교회 slug (교회 페이지에서 성도 가입 시)', nullable: true, example: 'sungdong' })
+  churchSlug?: string | null;
+
   toCommand(): OnchurchSignupCommand {
     return new OnchurchSignupCommand({
       userId: this.userId,
@@ -30,6 +36,7 @@ export class OnchurchSignupRequest {
       name: this.name,
       phone: this.phone,
       marketingConsent: this.marketingConsent ?? false,
+      churchSlug: (this.churchSlug ?? '').trim() || null,
     });
   }
 }

@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { ONCHURCH_USER_REPOSITORY, IOnchurchUserRepository } from '@/onchurch/user/domain/repository/onchurch-user.repository.interface';
 import { ONCHURCH_AUTH_REPOSITORY, IOnchurchAuthRepository } from '@/onchurch/auth/domain/repository/onchurch-auth.repository.interface';
+import { ONCHURCH_CHURCH_REPOSITORY, IOnchurchChurchRepository } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
 import { OnchurchAuth } from '@/onchurch/auth/domain/entity/onchurch-auth.entity';
 import { ONCHURCH_USER_ROLE } from '@/onchurch/user/domain/entity/onchurch-user.entity';
 import { OnchurchSignupCommand } from '@/onchurch/auth/application/command/onchurch-signup.command';
@@ -23,6 +24,9 @@ export class OnchurchSignupUseCase {
     @Inject(ONCHURCH_AUTH_REPOSITORY)
     private readonly authRepository: IOnchurchAuthRepository,
 
+    @Inject(ONCHURCH_CHURCH_REPOSITORY)
+    private readonly churchRepository: IOnchurchChurchRepository,
+
     private readonly redisRepository: RedisRepository,
 
     private readonly sesService: AwsSesService,
@@ -41,14 +45,25 @@ export class OnchurchSignupUseCase {
     const FREE_TRIAL_DAYS = 14;
     const freeTrialUntil = new Date(Date.now() + FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000);
 
+    // 교회 페이지에서 가입한 성도면 slug로 소속 교회를 연결한다.
+    let churchId: number | null = null;
+    let churchName: string | null = null;
+    if (command.churchSlug) {
+      const church = await this.churchRepository.findBySlug(command.churchSlug);
+      if (church) {
+        churchId = church.id;
+        churchName = church.name;
+      }
+    }
+
     const userId = await this.userRepository.create({
       loginId: command.userId,
       password: hashedPassword,
       name: command.name,
       phone: command.phone,
       role: ONCHURCH_USER_ROLE.MEMBER,
-      churchName: null,
-      churchId: null,
+      churchName,
+      churchId,
       marketingConsent: command.marketingConsent,
       freeTrialUntil,
     });
