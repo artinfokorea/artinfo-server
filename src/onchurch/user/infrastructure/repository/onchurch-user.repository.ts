@@ -57,4 +57,19 @@ export class OnchurchUserRepository implements IOnchurchUserRepository {
   async saveEntity(user: OnchurchUser): Promise<void> {
     await this.userRepository.save(user);
   }
+
+  async findMembersByChurchId(churchId: number): Promise<OnchurchUser[]> {
+    return this.userRepository.find({
+      where: { churchId },
+      order: { createdAt: 'DESC', id: 'DESC' },
+    });
+  }
+
+  async findMemberByChurchId(churchId: number, id: number): Promise<OnchurchUser | null> {
+    return this.userRepository.findOneBy({ id, churchId });
+  }
+
+  async softDeleteById(id: number): Promise<void> {
+    await this.userRepository.softDelete({ id });
+  }
 }

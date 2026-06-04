@@ -7,6 +7,8 @@ import { ONCHURCH_CHURCH_REPOSITORY } from '@/onchurch/church/domain/repository/
 import { OnchurchChurchRepository } from '@/onchurch/church/infrastructure/repository/onchurch-church.repository';
 import { OnchurchChurchController } from '@/onchurch/church/presentation/controller/onchurch-church.controller';
 import { OnchurchPublicChurchController } from '@/onchurch/church/presentation/controller/onchurch-public-church.controller';
+import { OnchurchChurchMemberController } from '@/onchurch/church/presentation/controller/onchurch-church-member.controller';
+import { OnchurchListChurchMembersUseCase, OnchurchRemoveChurchMemberUseCase } from '@/onchurch/church/application/usecase/onchurch-church-member.usecase';
 import { OnchurchScanMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-scan-my-church.usecase';
 import { OnchurchUpsertMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-upsert-my-church.usecase';
 import { OnchurchPublishMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-publish-my-church.usecase';
@@ -20,7 +22,7 @@ import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([OnchurchChurch, OnchurchPastor, OnchurchWorshipService]), OnchurchUserModule],
-  controllers: [OnchurchChurchController, OnchurchPublicChurchController],
+  controllers: [OnchurchChurchController, OnchurchPublicChurchController, OnchurchChurchMemberController],
   providers: [
     { provide: ONCHURCH_CHURCH_REPOSITORY, useClass: OnchurchChurchRepository },
     OnchurchScanMyChurchUseCase,
@@ -32,6 +34,8 @@ import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
     OnchurchAutoUnpublishExpiredUseCase,
     OnchurchChurchRequiredService,
     OnchurchSubscriptionScheduler,
+    OnchurchListChurchMembersUseCase,
+    OnchurchRemoveChurchMemberUseCase,
   ],
   exports: [ONCHURCH_CHURCH_REPOSITORY, OnchurchChurchRequiredService],
 })

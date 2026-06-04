@@ -18,4 +18,7 @@ export interface IOnchurchUserRepository {
   findByLoginId(loginId: string): Promise<OnchurchUser | null>;
   existsByLoginId(loginId: string): Promise<boolean>;
   saveEntity(user: OnchurchUser): Promise<void>;
+  findMembersByChurchId(churchId: number): Promise<OnchurchUser[]>;
+  findMemberByChurchId(churchId: number, id: number): Promise<OnchurchUser | null>;
+  softDeleteById(id: number): Promise<void>;
 }

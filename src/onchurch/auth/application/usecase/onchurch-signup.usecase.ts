@@ -45,10 +45,14 @@ export class OnchurchSignupUseCase {
     const FREE_TRIAL_DAYS = 14;
     const freeTrialUntil = new Date(Date.now() + FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000);
 
-    // 교회 페이지에서 가입한 성도면 slug로 소속 교회를 연결한다.
+    // 가입 경로에 따라 역할을 구분한다.
+    // - 교회 페이지에서 가입(churchSlug 있음): 성도(MEMBER), 해당 교회에 소속
+    // - 랜딩 페이지에서 가입(churchSlug 없음): 교회 관리자(ADMIN), 관리 콘솔에서 교회 개설
     let churchId: number | null = null;
     let churchName: string | null = null;
+    let role: ONCHURCH_USER_ROLE = ONCHURCH_USER_ROLE.ADMIN;
     if (command.churchSlug) {
+      role = ONCHURCH_USER_ROLE.MEMBER;
       const church = await this.churchRepository.findBySlug(command.churchSlug);
       if (church) {
         churchId = church.id;
@@ -61,7 +65,7 @@ export class OnchurchSignupUseCase {
       password: hashedPassword,
       name: command.name,
       phone: command.phone,
-      role: ONCHURCH_USER_ROLE.MEMBER,
+      role,
       churchName,
       churchId,
       marketingConsent: command.marketingConsent,

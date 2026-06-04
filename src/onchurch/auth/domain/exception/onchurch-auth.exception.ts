@@ -83,3 +83,15 @@ export class OnchurchAuthNotFound extends HttpException {
     );
   }
 }
+
+export class OnchurchNotChurchMember extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-AUTH-008',
+        message: '이 교회의 계정이 아닙니다. 해당 교회에서 가입한 계정으로 로그인해주세요.',
+      },
+      HttpStatus.FORBIDDEN,
+    );
+  }
+}
