@@ -4,8 +4,9 @@ import { ONCHURCH_USER_REPOSITORY, IOnchurchUserRepository } from '@/onchurch/us
 import { ONCHURCH_AUTH_REPOSITORY, IOnchurchAuthRepository } from '@/onchurch/auth/domain/repository/onchurch-auth.repository.interface';
 import { ONCHURCH_CHURCH_REPOSITORY, IOnchurchChurchRepository } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
 import { OnchurchAuth } from '@/onchurch/auth/domain/entity/onchurch-auth.entity';
+import { ONCHURCH_USER_ROLE } from '@/onchurch/user/domain/entity/onchurch-user.entity';
 import { OnchurchLoginCommand } from '@/onchurch/auth/application/command/onchurch-login.command';
-import { OnchurchInvalidCredentials, OnchurchNotChurchMember } from '@/onchurch/auth/domain/exception/onchurch-auth.exception';
+import { OnchurchInvalidCredentials, OnchurchNotAdmin, OnchurchNotChurchMember } from '@/onchurch/auth/domain/exception/onchurch-auth.exception';
 
 @Injectable()
 export class OnchurchLoginUseCase {
@@ -27,11 +28,14 @@ export class OnchurchLoginUseCase {
     const passwordMatches = await bcrypt.compare(command.password, user.password);
     if (!passwordMatches) throw new OnchurchInvalidCredentials();
 
-    // 교회 사이트에서 로그인하는 경우, 그 교회에 소속(성도)되었거나 소유(관리자)한 계정만 허용한다.
     if (command.churchSlug) {
+      // 교회 사이트에서 로그인하는 경우, 그 교회에 소속(성도)되었거나 소유(관리자)한 계정만 허용한다.
       const church = await this.churchRepository.findBySlug(command.churchSlug);
       const belongs = !!church && (user.churchId === church.id || church.ownerId === user.id);
       if (!belongs) throw new OnchurchNotChurchMember();
+    } else {
+      // 랜딩(관리 콘솔)에서 로그인하는 경우, 관리자(ADMIN) 계정만 허용한다.
+      if (user.role !== ONCHURCH_USER_ROLE.ADMIN) throw new OnchurchNotAdmin();
     }
 
     return await this.authRepository.create({ userId: user.id }, user);

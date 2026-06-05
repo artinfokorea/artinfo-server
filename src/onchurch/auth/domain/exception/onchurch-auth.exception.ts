@@ -119,3 +119,15 @@ export class OnchurchAccountNotMatched extends HttpException {
     );
   }
 }
+
+export class OnchurchNotAdmin extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-AUTH-011',
+        message: '관리자 계정으로만 로그인할 수 있습니다.',
+      },
+      HttpStatus.FORBIDDEN,
+    );
+  }
+}
