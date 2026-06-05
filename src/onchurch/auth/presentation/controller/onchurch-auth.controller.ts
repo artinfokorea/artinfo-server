@@ -47,7 +47,7 @@ export class OnchurchAuthController {
 
   @RestApiPost(OnchurchFindLoginIdsResponse, { path: '/find-id', description: '온처치 아이디 찾기 (휴대폰 인증 후 해당 연락처의 아이디 목록 반환)' })
   async findLoginIds(@Body() request: OnchurchFindLoginIdsRequest) {
-    const accounts = await this.findLoginIdsUseCase.execute(request.phone);
+    const accounts = await this.findLoginIdsUseCase.execute(request.phone, (request.churchSlug ?? '').trim() || null);
 
     return new OnchurchFindLoginIdsResponse(accounts);
   }
@@ -58,6 +58,7 @@ export class OnchurchAuthController {
       loginId: request.loginId,
       phone: request.phone,
       newPassword: request.newPassword,
+      churchSlug: (request.churchSlug ?? '').trim() || null,
     });
 
     return new OkResponse();

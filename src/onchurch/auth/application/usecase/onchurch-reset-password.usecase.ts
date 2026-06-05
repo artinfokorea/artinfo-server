@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { ONCHURCH_USER_REPOSITORY, IOnchurchUserRepository } from '@/onchurch/user/domain/repository/onchurch-user.repository.interface';
+import { ONCHURCH_CHURCH_REPOSITORY, IOnchurchChurchRepository } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
 import { OnchurchAccountNotMatched, OnchurchPhoneNotVerified } from '@/onchurch/auth/domain/exception/onchurch-auth.exception';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 
@@ -12,10 +13,13 @@ export class OnchurchResetPasswordUseCase {
     @Inject(ONCHURCH_USER_REPOSITORY)
     private readonly userRepository: IOnchurchUserRepository,
 
+    @Inject(ONCHURCH_CHURCH_REPOSITORY)
+    private readonly churchRepository: IOnchurchChurchRepository,
+
     private readonly redisRepository: RedisRepository,
   ) {}
 
-  async execute(params: { loginId: string; phone: string; newPassword: string }): Promise<void> {
+  async execute(params: { loginId: string; phone: string; newPassword: string; churchSlug?: string | null }): Promise<void> {
     // 아이디 + 연락처로 휴대폰 인증(verifications/mobile)을 통과해야 한다.
     const verifiedKey = `onchurch:verified:${params.phone}`;
     const isPhoneVerified = await this.redisRepository.getByKey(verifiedKey);
@@ -24,6 +28,13 @@ export class OnchurchResetPasswordUseCase {
     const user = await this.userRepository.findByLoginId(params.loginId);
     if (!user || user.phone !== params.phone) {
       throw new OnchurchAccountNotMatched();
+    }
+
+    // 교회 페이지에서 재설정하는 경우, 해당 교회 소속(성도)이거나 소유(관리자)한 계정만 허용한다.
+    if (params.churchSlug) {
+      const church = await this.churchRepository.findBySlug(params.churchSlug);
+      const belongs = !!church && (user.churchId === church.id || church.ownerId === user.id);
+      if (!belongs) throw new OnchurchAccountNotMatched();
     }
 
     user.password = await bcrypt.hash(params.newPassword, this.BCRYPT_ROUNDS);
