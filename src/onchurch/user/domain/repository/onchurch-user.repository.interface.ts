@@ -16,6 +16,7 @@ export interface IOnchurchUserRepository {
   }): Promise<number>;
   findOneOrThrowById(id: number): Promise<OnchurchUser>;
   findByLoginId(loginId: string): Promise<OnchurchUser | null>;
+  findByPhone(phone: string): Promise<OnchurchUser[]>;
   existsByLoginId(loginId: string): Promise<boolean>;
   saveEntity(user: OnchurchUser): Promise<void>;
   findMembersByChurchId(churchId: number): Promise<OnchurchUser[]>;

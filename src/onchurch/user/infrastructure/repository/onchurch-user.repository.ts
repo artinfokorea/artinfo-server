@@ -49,6 +49,13 @@ export class OnchurchUserRepository implements IOnchurchUserRepository {
     return this.userRepository.findOneBy({ loginId });
   }
 
+  async findByPhone(phone: string): Promise<OnchurchUser[]> {
+    return this.userRepository.find({
+      where: { phone },
+      order: { createdAt: 'ASC', id: 'ASC' },
+    });
+  }
+
   async existsByLoginId(loginId: string): Promise<boolean> {
     const user = await this.userRepository.findOneBy({ loginId });
     return !!user;

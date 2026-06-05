@@ -95,3 +95,27 @@ export class OnchurchNotChurchMember extends HttpException {
     );
   }
 }
+
+export class OnchurchLoginIdNotFoundByPhone extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-AUTH-009',
+        message: '해당 연락처로 가입된 아이디가 없습니다.',
+      },
+      HttpStatus.NOT_FOUND,
+    );
+  }
+}
+
+export class OnchurchAccountNotMatched extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-AUTH-010',
+        message: '아이디와 연락처가 일치하는 계정을 찾을 수 없습니다.',
+      },
+      HttpStatus.NOT_FOUND,
+    );
+  }
+}

@@ -5,13 +5,19 @@ import { OnchurchLoginUseCase } from '@/onchurch/auth/application/usecase/onchur
 import { OnchurchRefreshTokensUseCase } from '@/onchurch/auth/application/usecase/onchurch-refresh-tokens.usecase';
 import { OnchurchSendVerificationUseCase } from '@/onchurch/auth/application/usecase/onchurch-send-verification.usecase';
 import { OnchurchVerifyCodeUseCase } from '@/onchurch/auth/application/usecase/onchurch-verify-code.usecase';
+import { OnchurchFindLoginIdsUseCase } from '@/onchurch/auth/application/usecase/onchurch-find-login-ids.usecase';
+import { OnchurchResetPasswordUseCase } from '@/onchurch/auth/application/usecase/onchurch-reset-password.usecase';
 import { OnchurchSignupRequest } from '@/onchurch/auth/presentation/dto/request/onchurch-signup.request';
 import { OnchurchLoginRequest } from '@/onchurch/auth/presentation/dto/request/onchurch-login.request';
 import { OnchurchRefreshTokensRequest } from '@/onchurch/auth/presentation/dto/request/onchurch-refresh-tokens.request';
 import { OnchurchSendVerificationRequest } from '@/onchurch/auth/presentation/dto/request/onchurch-send-verification.request';
 import { OnchurchVerifyCodeRequest } from '@/onchurch/auth/presentation/dto/request/onchurch-verify-code.request';
+import { OnchurchFindLoginIdsRequest } from '@/onchurch/auth/presentation/dto/request/onchurch-find-login-ids.request';
+import { OnchurchResetPasswordRequest } from '@/onchurch/auth/presentation/dto/request/onchurch-reset-password.request';
 import { OnchurchAuthTokensResponse } from '@/onchurch/auth/presentation/dto/response/onchurch-auth-tokens.response';
 import { OnchurchSendVerificationResponse, OnchurchVerifyCodeResponse } from '@/onchurch/auth/presentation/dto/response/onchurch-send-verification.response';
+import { OnchurchFindLoginIdsResponse } from '@/onchurch/auth/presentation/dto/response/onchurch-find-login-ids.response';
+import { OkResponse } from '@/common/response/ok.response';
 
 @RestApiController('/onchurch/auths', 'Onchurch Auth')
 export class OnchurchAuthController {
@@ -21,6 +27,8 @@ export class OnchurchAuthController {
     private readonly refreshTokensUseCase: OnchurchRefreshTokensUseCase,
     private readonly sendVerificationUseCase: OnchurchSendVerificationUseCase,
     private readonly verifyCodeUseCase: OnchurchVerifyCodeUseCase,
+    private readonly findLoginIdsUseCase: OnchurchFindLoginIdsUseCase,
+    private readonly resetPasswordUseCase: OnchurchResetPasswordUseCase,
   ) {}
 
   @RestApiPost(OnchurchSendVerificationResponse, { path: '/verifications/mobile', description: '온처치 휴대폰 인증번호 발송' })
@@ -35,6 +43,24 @@ export class OnchurchAuthController {
     await this.verifyCodeUseCase.execute(request.phone, request.code);
 
     return new OnchurchVerifyCodeResponse(true);
+  }
+
+  @RestApiPost(OnchurchFindLoginIdsResponse, { path: '/find-id', description: '온처치 아이디 찾기 (휴대폰 인증 후 해당 연락처의 아이디 목록 반환)' })
+  async findLoginIds(@Body() request: OnchurchFindLoginIdsRequest) {
+    const accounts = await this.findLoginIdsUseCase.execute(request.phone);
+
+    return new OnchurchFindLoginIdsResponse(accounts);
+  }
+
+  @RestApiPut(OkResponse, { path: '/reset-password', description: '온처치 비밀번호 재설정 (아이디+휴대폰 인증 후 새 비밀번호 설정)' })
+  async resetPassword(@Body() request: OnchurchResetPasswordRequest) {
+    await this.resetPasswordUseCase.execute({
+      loginId: request.loginId,
+      phone: request.phone,
+      newPassword: request.newPassword,
+    });
+
+    return new OkResponse();
   }
 
   @RestApiPost(OnchurchAuthTokensResponse, { path: '/sign-up', description: '온처치 회원가입' })

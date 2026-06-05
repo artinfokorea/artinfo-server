@@ -10,6 +10,8 @@ import { OnchurchLoginUseCase } from '@/onchurch/auth/application/usecase/onchur
 import { OnchurchRefreshTokensUseCase } from '@/onchurch/auth/application/usecase/onchurch-refresh-tokens.usecase';
 import { OnchurchSendVerificationUseCase } from '@/onchurch/auth/application/usecase/onchurch-send-verification.usecase';
 import { OnchurchVerifyCodeUseCase } from '@/onchurch/auth/application/usecase/onchurch-verify-code.usecase';
+import { OnchurchFindLoginIdsUseCase } from '@/onchurch/auth/application/usecase/onchurch-find-login-ids.usecase';
+import { OnchurchResetPasswordUseCase } from '@/onchurch/auth/application/usecase/onchurch-reset-password.usecase';
 import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
 import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
@@ -26,6 +28,8 @@ import { AwsSesService } from '@/aws/ses/aws-ses.service';
     OnchurchRefreshTokensUseCase,
     OnchurchSendVerificationUseCase,
     OnchurchVerifyCodeUseCase,
+    OnchurchFindLoginIdsUseCase,
+    OnchurchResetPasswordUseCase,
     { provide: ONCHURCH_AUTH_REPOSITORY, useClass: OnchurchAuthRepository },
     RedisRepository,
     AwsSesService,
