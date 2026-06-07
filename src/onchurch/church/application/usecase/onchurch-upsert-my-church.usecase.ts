@@ -15,13 +15,18 @@ export class OnchurchUpsertMyChurchUseCase {
   ) {}
 
   async execute(userId: number, command: OnchurchUpsertMyChurchCommand): Promise<OnchurchChurch> {
-    const slugOwner = await this.churchRepository.findBySlug(command.slug);
+    // 서브도메인(slug)은 최초 1회만 발급되며 이후 변경 불가.
+    // 이미 발급된 경우 클라이언트가 보낸 값과 무관하게 기존 slug를 유지한다.
+    const existing = await this.churchRepository.findByOwnerId(userId);
+    const slug = existing?.slug ?? command.slug;
+
+    const slugOwner = await this.churchRepository.findBySlug(slug);
     if (slugOwner && slugOwner.ownerId !== userId) {
       throw new OnchurchChurchSlugAlreadyTaken();
     }
 
     const saved = await this.churchRepository.upsertByOwnerId(userId, {
-      slug: command.slug,
+      slug,
       name: command.name,
       eng: command.eng,
       tagline: command.tagline,
