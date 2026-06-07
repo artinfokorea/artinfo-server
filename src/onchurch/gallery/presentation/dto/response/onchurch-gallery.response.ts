@@ -64,8 +64,12 @@ export class OnchurchPublicGalleryResponse {
   @ApiProperty({ type: [OnchurchGalleryResponse] })
   galleries: OnchurchGalleryResponse[];
 
+  @ApiProperty({ type: Number })
+  totalCount: number;
+
   constructor(view: PublicGalleryView) {
     this.categories = view.categories.map(c => new OnchurchGalleryCategoryResponse(c));
     this.galleries = view.galleries.map(g => new OnchurchGalleryResponse(g));
+    this.totalCount = view.totalCount;
   }
 }

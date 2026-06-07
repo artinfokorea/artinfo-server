@@ -23,6 +23,27 @@ export class OnchurchGalleryRepository implements IOnchurchGalleryRepository {
     return this.repo.find({ where: { churchId, isActive: true }, order: { createdAt: 'DESC', id: 'DESC' } });
   }
 
+  async findActivePagedByChurchId(
+    churchId: number,
+    params: { categoryId?: number | null; skip: number; take: number },
+  ): Promise<{ items: OnchurchGallery[]; totalCount: number }> {
+    const qb = this.repo
+      .createQueryBuilder('g')
+      .where('g.churchId = :churchId', { churchId })
+      .andWhere('g.isActive = true')
+      .orderBy('g.createdAt', 'DESC')
+      .addOrderBy('g.id', 'DESC')
+      .skip(params.skip)
+      .take(params.take);
+
+    if (params.categoryId != null) {
+      qb.andWhere('g.categoryId = :categoryId', { categoryId: params.categoryId });
+    }
+
+    const [items, totalCount] = await qb.getManyAndCount();
+    return { items, totalCount };
+  }
+
   async findOwnedById(churchId: number, id: number): Promise<OnchurchGallery | null> {
     return this.repo.findOneBy({ id, churchId });
   }

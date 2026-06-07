@@ -14,6 +14,7 @@ import { OnchurchGalleryCategory } from '@/onchurch/gallery/domain/entity/onchur
 export interface PublicGalleryView {
   categories: OnchurchGalleryCategory[];
   galleries: OnchurchGallery[];
+  totalCount: number;
 }
 
 @Injectable()
@@ -24,13 +25,29 @@ export class OnchurchListPublicGalleryUseCase {
     @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
   ) {}
 
-  async execute(slug: string): Promise<PublicGalleryView> {
+  async execute(
+    slug: string,
+    params: { categoryId?: number | null; page: number; size: number },
+  ): Promise<PublicGalleryView> {
     const church = await this.churchRepo.findBySlug(slug);
-    if (!church) return { categories: [], galleries: [] };
-    const [categories, galleries] = await Promise.all([
-      this.categoryRepo.findActiveByChurchId(church.id),
-      this.galleryRepo.findActiveByChurchId(church.id),
+    if (!church) return { categories: [], galleries: [], totalCount: 0 };
+
+    const skip = Math.max(0, (params.page - 1) * params.size);
+    const take = Math.min(60, Math.max(1, params.size));
+
+    // 카테고리 칩은 첫 페이지에서만 내려준다 (이후 무한스크롤 요청에는 불필요).
+    const categoriesPromise =
+      params.page === 1 ? this.categoryRepo.findActiveByChurchId(church.id) : Promise.resolve([]);
+
+    const [categories, paged] = await Promise.all([
+      categoriesPromise,
+      this.galleryRepo.findActivePagedByChurchId(church.id, {
+        categoryId: params.categoryId,
+        skip,
+        take,
+      }),
     ]);
-    return { categories, galleries };
+
+    return { categories, galleries: paged.items, totalCount: paged.totalCount };
   }
 }
