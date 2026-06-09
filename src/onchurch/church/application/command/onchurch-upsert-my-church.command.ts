@@ -9,6 +9,7 @@ export class OnchurchUpsertMyChurchCommand {
   representative: string | null;
   businessNo: string | null;
   logoUrl: string | null;
+  youtubeUrl: string | null;
   enabledPages: string[];
   homeSectionOrder: string[];
 
@@ -23,6 +24,7 @@ export class OnchurchUpsertMyChurchCommand {
     representative: string | null;
     businessNo: string | null;
     logoUrl: string | null;
+    youtubeUrl: string | null;
     enabledPages: string[];
     homeSectionOrder: string[];
   }) {
@@ -36,6 +38,7 @@ export class OnchurchUpsertMyChurchCommand {
     this.representative = params.representative;
     this.businessNo = params.businessNo;
     this.logoUrl = params.logoUrl;
+    this.youtubeUrl = params.youtubeUrl;
     this.enabledPages = params.enabledPages;
     this.homeSectionOrder = params.homeSectionOrder;
   }

@@ -38,6 +38,9 @@ export class OnchurchChurch extends BaseEntity {
   @Column({ type: 'varchar', name: 'logo_url', nullable: true })
   logoUrl: string | null;
 
+  @Column({ type: 'varchar', name: 'youtube_url', nullable: true })
+  youtubeUrl: string | null;
+
   @Column({ type: 'jsonb', name: 'enabled_pages', default: () => "'[]'::jsonb" })
   enabledPages: string[];
 

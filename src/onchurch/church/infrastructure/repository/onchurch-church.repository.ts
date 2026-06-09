@@ -64,6 +64,7 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
         representative: params.representative,
         businessNo: params.businessNo,
         logoUrl: params.logoUrl,
+        youtubeUrl: params.youtubeUrl,
         enabledPages: params.enabledPages,
         homeSectionOrder: params.homeSectionOrder,
       });

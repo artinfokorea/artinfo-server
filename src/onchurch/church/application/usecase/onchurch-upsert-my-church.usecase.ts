@@ -36,6 +36,7 @@ export class OnchurchUpsertMyChurchUseCase {
       representative: command.representative,
       businessNo: command.businessNo,
       logoUrl: command.logoUrl,
+      youtubeUrl: command.youtubeUrl,
       enabledPages: command.enabledPages,
       homeSectionOrder: command.homeSectionOrder,
     });

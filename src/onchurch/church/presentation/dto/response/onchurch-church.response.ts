@@ -36,6 +36,9 @@ export class OnchurchChurchResponse {
   @ApiProperty({ type: String, required: false, nullable: true })
   logoUrl: string | null;
 
+  @ApiProperty({ type: String, required: false, nullable: true, description: '유튜브 채널 URL' })
+  youtubeUrl: string | null;
+
   @ApiProperty({ type: [String], required: true })
   enabledPages: string[];
 
@@ -57,6 +60,7 @@ export class OnchurchChurchResponse {
     this.representative = church.representative;
     this.businessNo = church.businessNo;
     this.logoUrl = church.logoUrl;
+    this.youtubeUrl = church.youtubeUrl;
     this.enabledPages = church.enabledPages ?? [];
     this.homeSectionOrder = church.homeSectionOrder ?? [];
     this.isPublished = church.isPublished ?? false;

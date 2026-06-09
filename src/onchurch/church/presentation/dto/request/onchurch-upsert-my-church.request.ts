@@ -35,6 +35,9 @@ export class OnchurchUpsertMyChurchRequest {
   @ApiProperty({ type: String, required: false, description: '로고 이미지 URL', nullable: true })
   logoUrl: string | null;
 
+  @ApiProperty({ type: String, required: false, description: '유튜브 채널 URL', nullable: true })
+  youtubeUrl: string | null;
+
   @ArrayType()
   @ApiProperty({ type: [String], required: true, description: '활성화된 페이지 ID 배열', example: ['about', 'worship', 'notices'] })
   enabledPages: string[];
@@ -55,6 +58,7 @@ export class OnchurchUpsertMyChurchRequest {
       representative: this.representative ?? null,
       businessNo: this.businessNo ?? null,
       logoUrl: this.logoUrl ?? null,
+      youtubeUrl: this.youtubeUrl ?? null,
       enabledPages: this.enabledPages ?? [],
       homeSectionOrder: this.homeSectionOrder ?? [],
     });

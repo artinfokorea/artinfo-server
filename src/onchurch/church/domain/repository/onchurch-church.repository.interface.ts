@@ -13,6 +13,7 @@ export interface OnchurchChurchUpsertParams {
   representative: string | null;
   businessNo: string | null;
   logoUrl: string | null;
+  youtubeUrl: string | null;
   enabledPages: string[];
   homeSectionOrder: string[];
 }
