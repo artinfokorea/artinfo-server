@@ -125,8 +125,12 @@ export class OnchurchMyChurchResponse {
   @ApiProperty({ type: OnchurchSubscriptionResponse, required: true })
   subscription: OnchurchSubscriptionResponse;
 
-  constructor(church: OnchurchChurch | null, user: OnchurchUser) {
+  @ApiProperty({ type: String, enum: ['owner', 'admin', 'member'], required: false, nullable: true, description: '현재 사용자의 교회 내 등급 (관리자페이지 게이팅용)' })
+  churchRole: 'owner' | 'admin' | 'member' | null;
+
+  constructor(church: OnchurchChurch | null, user: OnchurchUser, churchRole: 'owner' | 'admin' | 'member' | null = null) {
     this.church = church ? new OnchurchChurchResponse(church) : null;
     this.subscription = new OnchurchSubscriptionResponse(user);
+    this.churchRole = churchRole;
   }
 }

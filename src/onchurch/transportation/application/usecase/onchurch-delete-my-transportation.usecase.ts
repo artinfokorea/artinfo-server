@@ -3,7 +3,7 @@ import {
   ONCHURCH_TRANSPORTATION_REPOSITORY,
   IOnchurchTransportationRepository,
 } from '@/onchurch/transportation/domain/repository/onchurch-transportation.repository.interface';
-import { ONCHURCH_CHURCH_REPOSITORY, IOnchurchChurchRepository } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
+import { OnchurchChurchManagerResolver } from '@/onchurch/church/application/service/onchurch-church-manager.resolver';
 import {
   OnchurchTransportationChurchNotConfigured,
   OnchurchTransportationNotFound,
@@ -15,12 +15,11 @@ export class OnchurchDeleteMyTransportationUseCase {
     @Inject(ONCHURCH_TRANSPORTATION_REPOSITORY)
     private readonly repo: IOnchurchTransportationRepository,
 
-    @Inject(ONCHURCH_CHURCH_REPOSITORY)
-    private readonly churchRepository: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
 
   async execute(userId: number, id: number): Promise<void> {
-    const church = await this.churchRepository.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchTransportationChurchNotConfigured();
     const owned = await this.repo.findOwnedById(church.id, id);
     if (!owned) throw new OnchurchTransportationNotFound();

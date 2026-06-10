@@ -7,14 +7,16 @@ export class OnchurchChurchMemberResponse {
   @ApiProperty({ type: String }) name: string;
   @ApiProperty({ type: String }) phone: string;
   @ApiProperty({ type: String }) role: string;
+  @ApiProperty({ type: String, enum: ['owner', 'admin', 'member'] }) churchRole: 'owner' | 'admin' | 'member';
   @ApiProperty({ type: String }) createdAt: string;
 
-  constructor(user: OnchurchUser) {
+  constructor(user: OnchurchUser, churchOwnerId: number | null) {
     this.id = user.id;
     this.loginId = user.loginId;
     this.name = user.name;
     this.phone = user.phone;
     this.role = user.role;
+    this.churchRole = user.id === churchOwnerId ? 'owner' : user.role === 'admin' ? 'admin' : 'member';
     this.createdAt = user.createdAt.toISOString();
   }
 }
@@ -22,7 +24,7 @@ export class OnchurchChurchMemberResponse {
 export class OnchurchChurchMemberListResponse {
   @ApiProperty({ type: [OnchurchChurchMemberResponse] })
   members: OnchurchChurchMemberResponse[];
-  constructor(users: OnchurchUser[]) {
-    this.members = users.map((u) => new OnchurchChurchMemberResponse(u));
+  constructor(users: OnchurchUser[], churchOwnerId: number | null) {
+    this.members = users.map((u) => new OnchurchChurchMemberResponse(u, churchOwnerId));
   }
 }

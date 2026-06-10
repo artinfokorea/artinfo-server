@@ -17,6 +17,10 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
     return this.churchRepository.findOneBy({ ownerId });
   }
 
+  async findById(id: number): Promise<OnchurchChurch | null> {
+    return this.churchRepository.findOneBy({ id });
+  }
+
   async findBySlug(slug: string): Promise<OnchurchChurch | null> {
     return this.churchRepository.findOneBy({ slug });
   }

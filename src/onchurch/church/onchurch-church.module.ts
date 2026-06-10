@@ -8,7 +8,8 @@ import { OnchurchChurchRepository } from '@/onchurch/church/infrastructure/repos
 import { OnchurchChurchController } from '@/onchurch/church/presentation/controller/onchurch-church.controller';
 import { OnchurchPublicChurchController } from '@/onchurch/church/presentation/controller/onchurch-public-church.controller';
 import { OnchurchChurchMemberController } from '@/onchurch/church/presentation/controller/onchurch-church-member.controller';
-import { OnchurchListChurchMembersUseCase, OnchurchRemoveChurchMemberUseCase } from '@/onchurch/church/application/usecase/onchurch-church-member.usecase';
+import { OnchurchListChurchMembersUseCase, OnchurchRemoveChurchMemberUseCase, OnchurchChangeChurchMemberRoleUseCase } from '@/onchurch/church/application/usecase/onchurch-church-member.usecase';
+import { OnchurchChurchManagerResolver } from '@/onchurch/church/application/service/onchurch-church-manager.resolver';
 import { OnchurchScanMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-scan-my-church.usecase';
 import { OnchurchUpsertMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-upsert-my-church.usecase';
 import { OnchurchPublishMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-publish-my-church.usecase';
@@ -36,7 +37,9 @@ import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
     OnchurchSubscriptionScheduler,
     OnchurchListChurchMembersUseCase,
     OnchurchRemoveChurchMemberUseCase,
+    OnchurchChangeChurchMemberRoleUseCase,
+    OnchurchChurchManagerResolver,
   ],
-  exports: [ONCHURCH_CHURCH_REPOSITORY, OnchurchChurchRequiredService],
+  exports: [ONCHURCH_CHURCH_REPOSITORY, OnchurchChurchRequiredService, OnchurchChurchManagerResolver],
 })
 export class OnchurchChurchModule {}

@@ -4,6 +4,7 @@ import {
   IOnchurchCommunityCategoryRepository,
 } from '@/onchurch/community/domain/repository/onchurch-community-category.repository.interface';
 import { ONCHURCH_CHURCH_REPOSITORY, IOnchurchChurchRepository } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
+import { OnchurchChurchManagerResolver } from '@/onchurch/church/application/service/onchurch-church-manager.resolver';
 import { OnchurchCommunityCategory } from '@/onchurch/community/domain/entity/onchurch-community-category.entity';
 import { OnchurchCommunityCategoryWriteCommand } from '@/onchurch/community/application/command/onchurch-community-category-write.command';
 import { OnchurchCommunityChurchNotConfigured, OnchurchCommunityCategoryNotFound } from '@/onchurch/community/domain/exception/onchurch-community.exception';
@@ -12,10 +13,10 @@ import { OnchurchCommunityChurchNotConfigured, OnchurchCommunityCategoryNotFound
 export class OnchurchListMyCommunityCategoriesUseCase {
   constructor(
     @Inject(ONCHURCH_COMMUNITY_CATEGORY_REPOSITORY) private readonly repo: IOnchurchCommunityCategoryRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number): Promise<OnchurchCommunityCategory[]> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) return [];
     return this.repo.findAllByChurchId(church.id);
   }
@@ -38,10 +39,10 @@ export class OnchurchListPublicCommunityCategoriesUseCase {
 export class OnchurchCreateMyCommunityCategoryUseCase {
   constructor(
     @Inject(ONCHURCH_COMMUNITY_CATEGORY_REPOSITORY) private readonly repo: IOnchurchCommunityCategoryRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number, command: OnchurchCommunityCategoryWriteCommand): Promise<OnchurchCommunityCategory> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchCommunityChurchNotConfigured();
     return this.repo.create(church.id, command);
   }
@@ -51,10 +52,10 @@ export class OnchurchCreateMyCommunityCategoryUseCase {
 export class OnchurchUpdateMyCommunityCategoryUseCase {
   constructor(
     @Inject(ONCHURCH_COMMUNITY_CATEGORY_REPOSITORY) private readonly repo: IOnchurchCommunityCategoryRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number, id: number, command: OnchurchCommunityCategoryWriteCommand): Promise<OnchurchCommunityCategory> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchCommunityChurchNotConfigured();
     const owned = await this.repo.findOwnedById(church.id, id);
     if (!owned) throw new OnchurchCommunityCategoryNotFound();
@@ -66,10 +67,10 @@ export class OnchurchUpdateMyCommunityCategoryUseCase {
 export class OnchurchDeleteMyCommunityCategoryUseCase {
   constructor(
     @Inject(ONCHURCH_COMMUNITY_CATEGORY_REPOSITORY) private readonly repo: IOnchurchCommunityCategoryRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number, id: number): Promise<void> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchCommunityChurchNotConfigured();
     const owned = await this.repo.findOwnedById(church.id, id);
     if (!owned) throw new OnchurchCommunityCategoryNotFound();

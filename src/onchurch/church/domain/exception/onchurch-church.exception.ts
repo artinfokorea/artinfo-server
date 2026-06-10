@@ -47,3 +47,27 @@ export class OnchurchSubscriptionRequired extends HttpException {
     );
   }
 }
+
+export class OnchurchChurchManagementForbidden extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-CHURCH-005',
+        message: '교회를 관리할 권한이 없습니다.',
+      },
+      HttpStatus.FORBIDDEN,
+    );
+  }
+}
+
+export class OnchurchOwnerGradeImmutable extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-CHURCH-006',
+        message: '오너 등급은 변경하거나 삭제할 수 없습니다.',
+      },
+      HttpStatus.FORBIDDEN,
+    );
+  }
+}

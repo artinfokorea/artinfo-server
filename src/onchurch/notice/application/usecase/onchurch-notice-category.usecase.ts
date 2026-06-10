@@ -3,7 +3,7 @@ import {
   ONCHURCH_NOTICE_CATEGORY_REPOSITORY,
   IOnchurchNoticeCategoryRepository,
 } from '@/onchurch/notice/domain/repository/onchurch-notice-category.repository.interface';
-import { ONCHURCH_CHURCH_REPOSITORY, IOnchurchChurchRepository } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
+import { OnchurchChurchManagerResolver } from '@/onchurch/church/application/service/onchurch-church-manager.resolver';
 import { OnchurchNoticeCategory } from '@/onchurch/notice/domain/entity/onchurch-notice-category.entity';
 import { OnchurchNoticeCategoryWriteCommand } from '@/onchurch/notice/application/command/onchurch-notice-category-write.command';
 import { OnchurchNoticeChurchNotConfigured, OnchurchNoticeCategoryNotFound } from '@/onchurch/notice/domain/exception/onchurch-notice.exception';
@@ -12,10 +12,10 @@ import { OnchurchNoticeChurchNotConfigured, OnchurchNoticeCategoryNotFound } fro
 export class OnchurchListMyNoticeCategoriesUseCase {
   constructor(
     @Inject(ONCHURCH_NOTICE_CATEGORY_REPOSITORY) private readonly repo: IOnchurchNoticeCategoryRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number): Promise<OnchurchNoticeCategory[]> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) return [];
     return this.repo.findAllByChurchId(church.id);
   }
@@ -25,10 +25,10 @@ export class OnchurchListMyNoticeCategoriesUseCase {
 export class OnchurchCreateMyNoticeCategoryUseCase {
   constructor(
     @Inject(ONCHURCH_NOTICE_CATEGORY_REPOSITORY) private readonly repo: IOnchurchNoticeCategoryRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number, command: OnchurchNoticeCategoryWriteCommand): Promise<OnchurchNoticeCategory> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchNoticeChurchNotConfigured();
     return this.repo.create(church.id, command);
   }
@@ -38,10 +38,10 @@ export class OnchurchCreateMyNoticeCategoryUseCase {
 export class OnchurchUpdateMyNoticeCategoryUseCase {
   constructor(
     @Inject(ONCHURCH_NOTICE_CATEGORY_REPOSITORY) private readonly repo: IOnchurchNoticeCategoryRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number, id: number, command: OnchurchNoticeCategoryWriteCommand): Promise<OnchurchNoticeCategory> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchNoticeChurchNotConfigured();
     const owned = await this.repo.findOwnedById(church.id, id);
     if (!owned) throw new OnchurchNoticeCategoryNotFound();
@@ -53,10 +53,10 @@ export class OnchurchUpdateMyNoticeCategoryUseCase {
 export class OnchurchDeleteMyNoticeCategoryUseCase {
   constructor(
     @Inject(ONCHURCH_NOTICE_CATEGORY_REPOSITORY) private readonly repo: IOnchurchNoticeCategoryRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number, id: number): Promise<void> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchNoticeChurchNotConfigured();
     const owned = await this.repo.findOwnedById(church.id, id);
     if (!owned) throw new OnchurchNoticeCategoryNotFound();

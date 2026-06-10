@@ -29,8 +29,8 @@ export class OnchurchChurchController {
 
   @RestApiGet(OnchurchMyChurchResponse, { path: '/me', description: '내 교회 정보 + 구독 상태 조회', auth: [USER_TYPE.CLIENT] })
   async scanMyChurch(@AuthSignature() signature: UserSignature) {
-    const { church, user } = await this.scanMyChurchUseCase.execute(signature.id);
-    return new OnchurchMyChurchResponse(church, user);
+    const { church, user, churchRole } = await this.scanMyChurchUseCase.execute(signature.id);
+    return new OnchurchMyChurchResponse(church, user, churchRole);
   }
 
   @RestApiPut(OnchurchChurchResponse, { path: '/me', description: '내 교회 정보 생성/수정', auth: [USER_TYPE.CLIENT] })

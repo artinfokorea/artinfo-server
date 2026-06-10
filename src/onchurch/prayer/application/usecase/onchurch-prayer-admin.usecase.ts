@@ -3,10 +3,7 @@ import {
   IOnchurchPrayerRepository,
   ONCHURCH_PRAYER_REPOSITORY,
 } from '@/onchurch/prayer/domain/repository/onchurch-prayer.repository.interface';
-import {
-  IOnchurchChurchRepository,
-  ONCHURCH_CHURCH_REPOSITORY,
-} from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
+import { OnchurchChurchManagerResolver } from '@/onchurch/church/application/service/onchurch-church-manager.resolver';
 import { OnchurchPrayerRequest, OnchurchPrayerStatus } from '@/onchurch/prayer/domain/entity/onchurch-prayer-request.entity';
 import { OnchurchPrayerChurchNotConfigured } from '@/onchurch/prayer/domain/exception/onchurch-prayer.exception';
 
@@ -15,12 +12,11 @@ export class OnchurchListMyPrayersUseCase {
   constructor(
     @Inject(ONCHURCH_PRAYER_REPOSITORY)
     private readonly prayerRepository: IOnchurchPrayerRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY)
-    private readonly churchRepository: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
 
   async execute(userId: number): Promise<OnchurchPrayerRequest[]> {
-    const church = await this.churchRepository.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) return [];
     return this.prayerRepository.findAllByChurchId(church.id);
   }
@@ -31,12 +27,11 @@ export class OnchurchUpdateMyPrayerStatusUseCase {
   constructor(
     @Inject(ONCHURCH_PRAYER_REPOSITORY)
     private readonly prayerRepository: IOnchurchPrayerRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY)
-    private readonly churchRepository: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
 
   async execute(userId: number, id: number, status: OnchurchPrayerStatus): Promise<OnchurchPrayerRequest> {
-    const church = await this.churchRepository.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchPrayerChurchNotConfigured();
     return this.prayerRepository.updateStatus(church.id, id, status);
   }
@@ -47,12 +42,11 @@ export class OnchurchDeleteMyPrayerUseCase {
   constructor(
     @Inject(ONCHURCH_PRAYER_REPOSITORY)
     private readonly prayerRepository: IOnchurchPrayerRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY)
-    private readonly churchRepository: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
 
   async execute(userId: number, id: number): Promise<void> {
-    const church = await this.churchRepository.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchPrayerChurchNotConfigured();
     await this.prayerRepository.remove(church.id, id);
   }

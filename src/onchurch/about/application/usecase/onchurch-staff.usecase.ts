@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ONCHURCH_STAFF_REPOSITORY, IOnchurchStaffRepository } from '@/onchurch/about/domain/repository/onchurch-staff.repository.interface';
-import { ONCHURCH_CHURCH_REPOSITORY, IOnchurchChurchRepository } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
+import { OnchurchChurchManagerResolver } from '@/onchurch/church/application/service/onchurch-church-manager.resolver';
 import { OnchurchStaff } from '@/onchurch/about/domain/entity/onchurch-staff.entity';
 import { OnchurchStaffWriteCommand } from '@/onchurch/about/application/command/onchurch-about-write.command';
 import { OnchurchAboutChurchNotConfigured, OnchurchStaffNotFound } from '@/onchurch/about/domain/exception/onchurch-about.exception';
@@ -9,10 +9,10 @@ import { OnchurchAboutChurchNotConfigured, OnchurchStaffNotFound } from '@/onchu
 export class OnchurchListMyStaffsUseCase {
   constructor(
     @Inject(ONCHURCH_STAFF_REPOSITORY) private readonly repo: IOnchurchStaffRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number): Promise<OnchurchStaff[]> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) return [];
     return this.repo.findAllByChurchId(church.id);
   }
@@ -22,10 +22,10 @@ export class OnchurchListMyStaffsUseCase {
 export class OnchurchCreateMyStaffUseCase {
   constructor(
     @Inject(ONCHURCH_STAFF_REPOSITORY) private readonly repo: IOnchurchStaffRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number, command: OnchurchStaffWriteCommand): Promise<OnchurchStaff> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchAboutChurchNotConfigured();
     return this.repo.create(church.id, command);
   }
@@ -35,10 +35,10 @@ export class OnchurchCreateMyStaffUseCase {
 export class OnchurchUpdateMyStaffUseCase {
   constructor(
     @Inject(ONCHURCH_STAFF_REPOSITORY) private readonly repo: IOnchurchStaffRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number, id: number, command: OnchurchStaffWriteCommand): Promise<OnchurchStaff> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchAboutChurchNotConfigured();
     const owned = await this.repo.findOwnedById(church.id, id);
     if (!owned) throw new OnchurchStaffNotFound();
@@ -50,10 +50,10 @@ export class OnchurchUpdateMyStaffUseCase {
 export class OnchurchDeleteMyStaffUseCase {
   constructor(
     @Inject(ONCHURCH_STAFF_REPOSITORY) private readonly repo: IOnchurchStaffRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number, id: number): Promise<void> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchAboutChurchNotConfigured();
     const owned = await this.repo.findOwnedById(church.id, id);
     if (!owned) throw new OnchurchStaffNotFound();

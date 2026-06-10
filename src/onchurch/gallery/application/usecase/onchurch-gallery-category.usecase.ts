@@ -3,7 +3,7 @@ import {
   ONCHURCH_GALLERY_CATEGORY_REPOSITORY,
   IOnchurchGalleryCategoryRepository,
 } from '@/onchurch/gallery/domain/repository/onchurch-gallery-category.repository.interface';
-import { ONCHURCH_CHURCH_REPOSITORY, IOnchurchChurchRepository } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
+import { OnchurchChurchManagerResolver } from '@/onchurch/church/application/service/onchurch-church-manager.resolver';
 import { OnchurchGalleryCategory } from '@/onchurch/gallery/domain/entity/onchurch-gallery-category.entity';
 import { OnchurchGalleryCategoryWriteCommand } from '@/onchurch/gallery/application/command/onchurch-gallery-write.command';
 import {
@@ -15,10 +15,10 @@ import {
 export class OnchurchListMyGalleryCategoriesUseCase {
   constructor(
     @Inject(ONCHURCH_GALLERY_CATEGORY_REPOSITORY) private readonly repo: IOnchurchGalleryCategoryRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number): Promise<OnchurchGalleryCategory[]> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) return [];
     return this.repo.findAllByChurchId(church.id);
   }
@@ -28,10 +28,10 @@ export class OnchurchListMyGalleryCategoriesUseCase {
 export class OnchurchCreateMyGalleryCategoryUseCase {
   constructor(
     @Inject(ONCHURCH_GALLERY_CATEGORY_REPOSITORY) private readonly repo: IOnchurchGalleryCategoryRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number, command: OnchurchGalleryCategoryWriteCommand): Promise<OnchurchGalleryCategory> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchGalleryChurchNotConfigured();
     return this.repo.create(church.id, command);
   }
@@ -41,10 +41,10 @@ export class OnchurchCreateMyGalleryCategoryUseCase {
 export class OnchurchUpdateMyGalleryCategoryUseCase {
   constructor(
     @Inject(ONCHURCH_GALLERY_CATEGORY_REPOSITORY) private readonly repo: IOnchurchGalleryCategoryRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number, id: number, command: OnchurchGalleryCategoryWriteCommand): Promise<OnchurchGalleryCategory> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchGalleryChurchNotConfigured();
     const owned = await this.repo.findOwnedById(church.id, id);
     if (!owned) throw new OnchurchGalleryCategoryNotFound();
@@ -56,10 +56,10 @@ export class OnchurchUpdateMyGalleryCategoryUseCase {
 export class OnchurchDeleteMyGalleryCategoryUseCase {
   constructor(
     @Inject(ONCHURCH_GALLERY_CATEGORY_REPOSITORY) private readonly repo: IOnchurchGalleryCategoryRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number, id: number): Promise<void> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchGalleryChurchNotConfigured();
     const owned = await this.repo.findOwnedById(church.id, id);
     if (!owned) throw new OnchurchGalleryCategoryNotFound();

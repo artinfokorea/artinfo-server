@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ONCHURCH_VISION_REPOSITORY, IOnchurchVisionRepository } from '@/onchurch/about/domain/repository/onchurch-vision.repository.interface';
-import { ONCHURCH_CHURCH_REPOSITORY, IOnchurchChurchRepository } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
+import { OnchurchChurchManagerResolver } from '@/onchurch/church/application/service/onchurch-church-manager.resolver';
 import { OnchurchVision } from '@/onchurch/about/domain/entity/onchurch-vision.entity';
 import { OnchurchVisionWriteCommand } from '@/onchurch/about/application/command/onchurch-about-write.command';
 import { OnchurchAboutChurchNotConfigured, OnchurchVisionNotFound } from '@/onchurch/about/domain/exception/onchurch-about.exception';
@@ -9,10 +9,10 @@ import { OnchurchAboutChurchNotConfigured, OnchurchVisionNotFound } from '@/onch
 export class OnchurchListMyVisionsUseCase {
   constructor(
     @Inject(ONCHURCH_VISION_REPOSITORY) private readonly repo: IOnchurchVisionRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number): Promise<OnchurchVision[]> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) return [];
     return this.repo.findAllByChurchId(church.id);
   }
@@ -22,10 +22,10 @@ export class OnchurchListMyVisionsUseCase {
 export class OnchurchCreateMyVisionUseCase {
   constructor(
     @Inject(ONCHURCH_VISION_REPOSITORY) private readonly repo: IOnchurchVisionRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number, command: OnchurchVisionWriteCommand): Promise<OnchurchVision> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchAboutChurchNotConfigured();
     return this.repo.create(church.id, command);
   }
@@ -35,10 +35,10 @@ export class OnchurchCreateMyVisionUseCase {
 export class OnchurchUpdateMyVisionUseCase {
   constructor(
     @Inject(ONCHURCH_VISION_REPOSITORY) private readonly repo: IOnchurchVisionRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number, id: number, command: OnchurchVisionWriteCommand): Promise<OnchurchVision> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchAboutChurchNotConfigured();
     const owned = await this.repo.findOwnedById(church.id, id);
     if (!owned) throw new OnchurchVisionNotFound();
@@ -50,10 +50,10 @@ export class OnchurchUpdateMyVisionUseCase {
 export class OnchurchDeleteMyVisionUseCase {
   constructor(
     @Inject(ONCHURCH_VISION_REPOSITORY) private readonly repo: IOnchurchVisionRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number, id: number): Promise<void> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchAboutChurchNotConfigured();
     const owned = await this.repo.findOwnedById(church.id, id);
     if (!owned) throw new OnchurchVisionNotFound();

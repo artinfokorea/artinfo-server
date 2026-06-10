@@ -3,7 +3,7 @@ import {
   ONCHURCH_SERMON_SERIES_REPOSITORY,
   IOnchurchSermonSeriesRepository,
 } from '@/onchurch/sermon/domain/repository/onchurch-sermon-series.repository.interface';
-import { ONCHURCH_CHURCH_REPOSITORY, IOnchurchChurchRepository } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
+import { OnchurchChurchManagerResolver } from '@/onchurch/church/application/service/onchurch-church-manager.resolver';
 import { OnchurchSermonSeries } from '@/onchurch/sermon/domain/entity/onchurch-sermon-series.entity';
 import { OnchurchSermonSeriesWriteCommand } from '@/onchurch/sermon/application/command/onchurch-sermon-write.command';
 import { OnchurchSermonChurchNotConfigured, OnchurchSermonSeriesNotFound } from '@/onchurch/sermon/domain/exception/onchurch-sermon.exception';
@@ -12,10 +12,10 @@ import { OnchurchSermonChurchNotConfigured, OnchurchSermonSeriesNotFound } from 
 export class OnchurchListMySermonSeriesUseCase {
   constructor(
     @Inject(ONCHURCH_SERMON_SERIES_REPOSITORY) private readonly repo: IOnchurchSermonSeriesRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number): Promise<OnchurchSermonSeries[]> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) return [];
     return this.repo.findAllByChurchId(church.id);
   }
@@ -25,10 +25,10 @@ export class OnchurchListMySermonSeriesUseCase {
 export class OnchurchCreateMySermonSeriesUseCase {
   constructor(
     @Inject(ONCHURCH_SERMON_SERIES_REPOSITORY) private readonly repo: IOnchurchSermonSeriesRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number, command: OnchurchSermonSeriesWriteCommand): Promise<OnchurchSermonSeries> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchSermonChurchNotConfigured();
     return this.repo.create(church.id, command);
   }
@@ -38,10 +38,10 @@ export class OnchurchCreateMySermonSeriesUseCase {
 export class OnchurchUpdateMySermonSeriesUseCase {
   constructor(
     @Inject(ONCHURCH_SERMON_SERIES_REPOSITORY) private readonly repo: IOnchurchSermonSeriesRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number, id: number, command: OnchurchSermonSeriesWriteCommand): Promise<OnchurchSermonSeries> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchSermonChurchNotConfigured();
     const owned = await this.repo.findOwnedById(church.id, id);
     if (!owned) throw new OnchurchSermonSeriesNotFound();
@@ -53,10 +53,10 @@ export class OnchurchUpdateMySermonSeriesUseCase {
 export class OnchurchDeleteMySermonSeriesUseCase {
   constructor(
     @Inject(ONCHURCH_SERMON_SERIES_REPOSITORY) private readonly repo: IOnchurchSermonSeriesRepository,
-    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
   async execute(userId: number, id: number): Promise<void> {
-    const church = await this.churchRepo.findByOwnerId(userId);
+    const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchSermonChurchNotConfigured();
     const owned = await this.repo.findOwnedById(church.id, id);
     if (!owned) throw new OnchurchSermonSeriesNotFound();
