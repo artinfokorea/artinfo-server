@@ -37,8 +37,8 @@ export class OnchurchResetPasswordUseCase {
       const belongs = !!church && (user.churchId === church.id || church.ownerId === user.id);
       if (!belongs) throw new OnchurchAccountNotMatched();
     } else {
-      // 랜딩(관리 콘솔)에서 재설정하는 경우, 관리자(ADMIN) 계정만 허용한다.
-      if (user.role !== ONCHURCH_USER_ROLE.ADMIN) throw new OnchurchAccountNotMatched();
+      // 랜딩(관리 콘솔)에서 재설정하는 경우, 오너/관리자 계정만 허용한다.
+      if (user.role !== ONCHURCH_USER_ROLE.OWNER && user.role !== ONCHURCH_USER_ROLE.ADMIN) throw new OnchurchAccountNotMatched();
     }
 
     user.password = await bcrypt.hash(params.newPassword, this.BCRYPT_ROUNDS);

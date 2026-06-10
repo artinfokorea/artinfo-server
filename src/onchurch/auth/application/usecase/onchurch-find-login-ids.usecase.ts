@@ -36,8 +36,8 @@ export class OnchurchFindLoginIdsUseCase {
       const church = await this.churchRepository.findBySlug(churchSlug);
       users = church ? users.filter((user) => user.churchId === church.id || church.ownerId === user.id) : [];
     } else {
-      // 랜딩(관리 콘솔)에서 찾는 경우, 관리자(ADMIN) 계정만 노출한다.
-      users = users.filter((user) => user.role === ONCHURCH_USER_ROLE.ADMIN);
+      // 랜딩(관리 콘솔)에서 찾는 경우, 오너/관리자 계정만 노출한다.
+      users = users.filter((user) => user.role === ONCHURCH_USER_ROLE.OWNER || user.role === ONCHURCH_USER_ROLE.ADMIN);
     }
 
     // 인증 플래그는 1회성으로 소비한다.
