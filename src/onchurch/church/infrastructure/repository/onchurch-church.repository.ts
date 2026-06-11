@@ -32,7 +32,7 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
   async findAllPublished(): Promise<OnchurchChurch[]> {
     return this.churchRepository.find({
       where: { isPublished: true },
-      order: { createdAt: 'DESC', id: 'DESC' },
+      order: { sortOrder: { direction: 'ASC', nulls: 'LAST' }, createdAt: 'DESC', id: 'DESC' },
     });
   }
 

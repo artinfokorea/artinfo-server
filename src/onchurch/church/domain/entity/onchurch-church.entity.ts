@@ -47,6 +47,9 @@ export class OnchurchChurch extends BaseEntity {
   @Column({ type: 'jsonb', name: 'home_section_order', default: () => "'[]'::jsonb" })
   homeSectionOrder: string[];
 
+  @Column({ type: 'int', name: 'sort_order', nullable: true })
+  sortOrder: number | null;
+
   @Column({ type: 'boolean', name: 'is_published', default: false })
   isPublished: boolean;
 
