@@ -76,19 +76,23 @@ export class OnchurchSignupUseCase {
 
     await this.redisRepository.delete(verifiedKey);
 
-    // 가입 알림 메일 — 실패해도 가입 자체는 통과시킨다.
-    try {
-      const html = [
-        `<h3>온교회 신규 회원 가입</h3>`,
-        `<p><b>아이디</b>: ${user.loginId}</p>`,
-        `<p><b>이름</b>: ${user.name}</p>`,
-        `<p><b>연락처</b>: ${user.phone}</p>`,
-        `<p><b>마케팅 수신 동의</b>: ${user.marketingConsent ? '예' : '아니오'}</p>`,
-        `<p><b>가입 일시</b>: ${new Date().toISOString()}</p>`,
-      ].join('');
-      await this.sesService.send(SIGNUP_NOTIFY_TO, `[온교회 가입] ${user.name}`, html);
-    } catch (err) {
-      this.logger.error(`가입 알림 메일 발송 실패: userId=${user.id}`, err as any);
+    // 가입 알림 메일 — 운영자(교회 개설자) 가입 시에만 발송한다.
+    // 성도(MEMBER) 가입은 알림 대상이 아니다. 가입 시점엔 OWNER 승격 전이라 운영자는 ADMIN 역할이다.
+    // 실패해도 가입 자체는 통과시킨다.
+    if (user.role !== ONCHURCH_USER_ROLE.MEMBER) {
+      try {
+        const html = [
+          `<h3>온교회 신규 회원 가입</h3>`,
+          `<p><b>아이디</b>: ${user.loginId}</p>`,
+          `<p><b>이름</b>: ${user.name}</p>`,
+          `<p><b>연락처</b>: ${user.phone}</p>`,
+          `<p><b>마케팅 수신 동의</b>: ${user.marketingConsent ? '예' : '아니오'}</p>`,
+          `<p><b>가입 일시</b>: ${new Date().toISOString()}</p>`,
+        ].join('');
+        await this.sesService.send(SIGNUP_NOTIFY_TO, `[온교회 가입] ${user.name}`, html);
+      } catch (err) {
+        this.logger.error(`가입 알림 메일 발송 실패: userId=${user.id}`, err as any);
+      }
     }
 
     return await this.authRepository.create({ userId: user.id }, user);
