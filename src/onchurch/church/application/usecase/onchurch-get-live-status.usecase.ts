@@ -18,7 +18,11 @@ export class OnchurchGetLiveStatusUseCase {
     const church = await this.churchRepository.findPublishedBySlug(slug.trim());
     if (!church || !church.isLive || !church.liveStartedAt) return { isLive: false, videoId: null };
     const expired = Date.now() - church.liveStartedAt.getTime() >= LIVE_AUTO_OFF_MS;
-    if (expired) return { isLive: false, videoId: null };
+    if (expired) {
+      // 2시간 경과 → 상태를 실제 OFF로 변경(관리자 토글도 꺼진 것으로 반영).
+      await this.churchRepository.turnOffLive(church.id);
+      return { isLive: false, videoId: null };
+    }
     return { isLive: true, videoId: parseYouTubeVideoId(church.liveUrl) };
   }
 }

@@ -30,4 +30,5 @@ export interface IOnchurchChurchRepository {
   bulkUnpublishByOwnerIds(ownerIds: number[]): Promise<number>;
   upsertByOwnerId(ownerId: number, params: OnchurchChurchUpsertParams): Promise<OnchurchChurch>;
   updatePublished(ownerId: number, isPublished: boolean, firstPublishedAt?: Date): Promise<OnchurchChurch>;
+  turnOffLive(churchId: number): Promise<void>;
 }

@@ -98,4 +98,8 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
     }
     return this.churchRepository.save(church);
   }
+
+  async turnOffLive(churchId: number): Promise<void> {
+    await this.churchRepository.update({ id: churchId }, { isLive: false, liveStartedAt: null });
+  }
 }
