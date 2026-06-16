@@ -72,7 +72,7 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
         businessNo: params.businessNo,
         logoUrl: params.logoUrl,
         youtubeUrl: params.youtubeUrl,
-        liveChannelId: params.liveChannelId,
+        liveUrl: params.liveUrl,
         isLive: params.isLive,
         liveStartedAt,
         enabledPages: params.enabledPages,

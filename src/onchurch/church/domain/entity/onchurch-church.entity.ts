@@ -41,9 +41,9 @@ export class OnchurchChurch extends BaseEntity {
   @Column({ type: 'varchar', name: 'youtube_url', nullable: true })
   youtubeUrl: string | null;
 
-  // 유튜브 채널 라이브 임베드용으로 youtubeUrl에서 1회 해석한 채널ID(UC...). 해석 실패 시 null.
-  @Column({ type: 'varchar', name: 'live_channel_id', nullable: true })
-  liveChannelId: string | null;
+  // 관리자가 등록하는 라이브 영상 URL(watch?v=...). 켤 때 이 영상으로 임베드한다.
+  @Column({ type: 'varchar', name: 'live_url', nullable: true })
+  liveUrl: string | null;
 
   // 관리자가 켠 '실시간 방송' 상태. 켠 시각으로부터 일정 시간 경과 시 표시 단계에서 자동 종료 처리.
   @Column({ type: 'boolean', name: 'is_live', default: false })

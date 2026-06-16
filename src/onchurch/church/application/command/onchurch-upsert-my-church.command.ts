@@ -10,6 +10,7 @@ export class OnchurchUpsertMyChurchCommand {
   businessNo: string | null;
   logoUrl: string | null;
   youtubeUrl: string | null;
+  liveUrl: string | null;
   isLive: boolean;
   enabledPages: string[];
   homeSectionOrder: string[];
@@ -26,6 +27,7 @@ export class OnchurchUpsertMyChurchCommand {
     businessNo: string | null;
     logoUrl: string | null;
     youtubeUrl: string | null;
+    liveUrl: string | null;
     isLive: boolean;
     enabledPages: string[];
     homeSectionOrder: string[];
@@ -41,6 +43,7 @@ export class OnchurchUpsertMyChurchCommand {
     this.businessNo = params.businessNo;
     this.logoUrl = params.logoUrl;
     this.youtubeUrl = params.youtubeUrl;
+    this.liveUrl = params.liveUrl;
     this.isLive = params.isLive;
     this.enabledPages = params.enabledPages;
     this.homeSectionOrder = params.homeSectionOrder;

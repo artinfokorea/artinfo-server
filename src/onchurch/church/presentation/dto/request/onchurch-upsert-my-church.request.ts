@@ -38,6 +38,9 @@ export class OnchurchUpsertMyChurchRequest {
   @ApiProperty({ type: String, required: false, description: '유튜브 채널 URL', nullable: true })
   youtubeUrl: string | null;
 
+  @ApiProperty({ type: String, required: false, description: '라이브 영상 URL (watch?v=...)', nullable: true })
+  liveUrl: string | null;
+
   @ApiProperty({ type: Boolean, required: false, description: '실시간 방송(라이브) 켜짐 여부', default: false })
   isLive?: boolean;
 
@@ -62,6 +65,7 @@ export class OnchurchUpsertMyChurchRequest {
       businessNo: this.businessNo ?? null,
       logoUrl: this.logoUrl ?? null,
       youtubeUrl: this.youtubeUrl ?? null,
+      liveUrl: this.liveUrl ?? null,
       isLive: this.isLive ?? false,
       enabledPages: this.enabledPages ?? [],
       homeSectionOrder: this.homeSectionOrder ?? [],

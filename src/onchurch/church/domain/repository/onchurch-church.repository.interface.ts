@@ -14,7 +14,7 @@ export interface OnchurchChurchUpsertParams {
   businessNo: string | null;
   logoUrl: string | null;
   youtubeUrl: string | null;
-  liveChannelId: string | null;
+  liveUrl: string | null;
   isLive: boolean;
   enabledPages: string[];
   homeSectionOrder: string[];

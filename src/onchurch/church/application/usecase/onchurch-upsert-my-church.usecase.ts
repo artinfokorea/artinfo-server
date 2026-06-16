@@ -7,7 +7,6 @@ import { OnchurchUpsertMyChurchCommand } from '@/onchurch/church/application/com
 import { OnchurchChurchSlugAlreadyTaken } from '@/onchurch/church/domain/exception/onchurch-church.exception';
 import { OnchurchChurchRequiredService } from '@/onchurch/church/application/service/onchurch-church-required.service';
 import { OnchurchChurchManagerResolver } from '@/onchurch/church/application/service/onchurch-church-manager.resolver';
-import { resolveYoutubeChannelId } from '@/onchurch/church/application/service/youtube-channel.resolver';
 
 @Injectable()
 export class OnchurchUpsertMyChurchUseCase {
@@ -41,12 +40,6 @@ export class OnchurchUpsertMyChurchUseCase {
 
     const isCreate = !existing;
 
-    // youtubeUrl이 바뀐 경우에만 채널ID를 다시 해석한다(네트워크 1회). 동일하면 기존 값 재사용.
-    const youtubeChanged = (existing?.youtubeUrl ?? null) !== (command.youtubeUrl ?? null);
-    const liveChannelId = youtubeChanged
-      ? await resolveYoutubeChannelId(command.youtubeUrl)
-      : existing?.liveChannelId ?? null;
-
     const saved = await this.churchRepository.upsertByOwnerId(ownerId, {
       slug,
       name: command.name,
@@ -59,7 +52,7 @@ export class OnchurchUpsertMyChurchUseCase {
       businessNo: command.businessNo,
       logoUrl: command.logoUrl,
       youtubeUrl: command.youtubeUrl,
-      liveChannelId,
+      liveUrl: command.liveUrl,
       isLive: command.isLive,
       enabledPages: command.enabledPages,
       homeSectionOrder: command.homeSectionOrder,

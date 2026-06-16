@@ -39,8 +39,8 @@ export class OnchurchChurchResponse {
   @ApiProperty({ type: String, required: false, nullable: true, description: '유튜브 채널 URL' })
   youtubeUrl: string | null;
 
-  @ApiProperty({ type: String, required: false, nullable: true, description: '라이브 임베드용 채널ID(UC...)' })
-  liveChannelId: string | null;
+  @ApiProperty({ type: String, required: false, nullable: true, description: '라이브 영상 URL' })
+  liveUrl: string | null;
 
   @ApiProperty({ type: Boolean, required: true, description: '실시간 방송 켜짐 여부' })
   isLive: boolean;
@@ -70,7 +70,7 @@ export class OnchurchChurchResponse {
     this.businessNo = church.businessNo;
     this.logoUrl = church.logoUrl;
     this.youtubeUrl = church.youtubeUrl;
-    this.liveChannelId = church.liveChannelId;
+    this.liveUrl = church.liveUrl;
     this.isLive = church.isLive ?? false;
     this.liveStartedAt = church.liveStartedAt ? church.liveStartedAt.toISOString() : null;
     this.enabledPages = church.enabledPages ?? [];
@@ -107,15 +107,11 @@ export class OnchurchLiveStatusResponse {
   @ApiProperty({ type: Boolean, description: '현재 라이브 방송 중 여부(자동 종료 반영)' })
   isLive: boolean;
 
-  @ApiProperty({ type: String, nullable: true, description: '라이브 임베드용 채널ID(UC...)' })
-  channelId: string | null;
-
   @ApiProperty({ type: String, nullable: true, description: '현재 라이브 영상ID(watch?v=...)' })
   videoId: string | null;
 
-  constructor(status: { isLive: boolean; channelId: string | null; videoId: string | null }) {
+  constructor(status: { isLive: boolean; videoId: string | null }) {
     this.isLive = status.isLive;
-    this.channelId = status.channelId;
     this.videoId = status.videoId;
   }
 }
