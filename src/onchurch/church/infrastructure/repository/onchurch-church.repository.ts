@@ -57,6 +57,9 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
     const existing = await this.churchRepository.findOneBy({ ownerId });
 
     if (existing) {
+      // 라이브가 꺼짐→켜짐으로 바뀔 때만 시작 시각을 갱신한다(다른 항목 저장 시 리셋 방지).
+      const liveStartedAt =
+        params.isLive && !existing.isLive ? new Date() : params.isLive ? existing.liveStartedAt : null;
       Object.assign(existing, {
         slug: params.slug,
         name: params.name,
@@ -69,13 +72,20 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
         businessNo: params.businessNo,
         logoUrl: params.logoUrl,
         youtubeUrl: params.youtubeUrl,
+        liveChannelId: params.liveChannelId,
+        isLive: params.isLive,
+        liveStartedAt,
         enabledPages: params.enabledPages,
         homeSectionOrder: params.homeSectionOrder,
       });
       return this.churchRepository.save(existing);
     }
 
-    const created = this.churchRepository.create({ ownerId, ...params });
+    const created = this.churchRepository.create({
+      ownerId,
+      ...params,
+      liveStartedAt: params.isLive ? new Date() : null,
+    });
     return this.churchRepository.save(created);
   }
 
