@@ -110,9 +110,13 @@ export class OnchurchLiveStatusResponse {
   @ApiProperty({ type: String, nullable: true, description: '라이브 임베드용 채널ID(UC...)' })
   channelId: string | null;
 
-  constructor(status: { isLive: boolean; channelId: string | null }) {
+  @ApiProperty({ type: String, nullable: true, description: '현재 라이브 영상ID(watch?v=...)' })
+  videoId: string | null;
+
+  constructor(status: { isLive: boolean; channelId: string | null; videoId: string | null }) {
     this.isLive = status.isLive;
     this.channelId = status.channelId;
+    this.videoId = status.videoId;
   }
 }
 
