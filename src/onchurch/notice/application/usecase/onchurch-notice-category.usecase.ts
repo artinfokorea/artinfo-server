@@ -3,6 +3,7 @@ import {
   ONCHURCH_NOTICE_CATEGORY_REPOSITORY,
   IOnchurchNoticeCategoryRepository,
 } from '@/onchurch/notice/domain/repository/onchurch-notice-category.repository.interface';
+import { ONCHURCH_CHURCH_REPOSITORY, IOnchurchChurchRepository } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
 import { OnchurchChurchManagerResolver } from '@/onchurch/church/application/service/onchurch-church-manager.resolver';
 import { OnchurchNoticeCategory } from '@/onchurch/notice/domain/entity/onchurch-notice-category.entity';
 import { OnchurchNoticeCategoryWriteCommand } from '@/onchurch/notice/application/command/onchurch-notice-category-write.command';
@@ -18,6 +19,19 @@ export class OnchurchListMyNoticeCategoriesUseCase {
     const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) return [];
     return this.repo.findAllByChurchId(church.id);
+  }
+}
+
+@Injectable()
+export class OnchurchListPublicNoticeCategoriesUseCase {
+  constructor(
+    @Inject(ONCHURCH_NOTICE_CATEGORY_REPOSITORY) private readonly repo: IOnchurchNoticeCategoryRepository,
+    @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+  ) {}
+  async execute(slug: string): Promise<OnchurchNoticeCategory[]> {
+    const church = await this.churchRepo.findBySlug(slug);
+    if (!church) return [];
+    return this.repo.findActiveByChurchId(church.id);
   }
 }
 

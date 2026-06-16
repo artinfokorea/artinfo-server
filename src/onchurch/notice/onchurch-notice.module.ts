@@ -16,6 +16,7 @@ import { OnchurchDeleteMyNoticeUseCase } from '@/onchurch/notice/application/use
 import { OnchurchListPublicNoticesUseCase } from '@/onchurch/notice/application/usecase/onchurch-list-public-notices.usecase';
 import {
   OnchurchListMyNoticeCategoriesUseCase,
+  OnchurchListPublicNoticeCategoriesUseCase,
   OnchurchCreateMyNoticeCategoryUseCase,
   OnchurchUpdateMyNoticeCategoryUseCase,
   OnchurchDeleteMyNoticeCategoryUseCase,
@@ -34,6 +35,7 @@ import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
     OnchurchDeleteMyNoticeUseCase,
     OnchurchListPublicNoticesUseCase,
     OnchurchListMyNoticeCategoriesUseCase,
+    OnchurchListPublicNoticeCategoriesUseCase,
     OnchurchCreateMyNoticeCategoryUseCase,
     OnchurchUpdateMyNoticeCategoryUseCase,
     OnchurchDeleteMyNoticeCategoryUseCase,
