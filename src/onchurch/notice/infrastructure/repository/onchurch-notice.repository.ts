@@ -21,7 +21,7 @@ export class OnchurchNoticeRepository implements IOnchurchNoticeRepository {
 
   async findActivePagedByChurchId(
     churchId: number,
-    params: { category?: string; skip: number; take: number },
+    params: { category?: string; keyword?: string; skip: number; take: number },
   ): Promise<{ items: OnchurchNotice[]; totalCount: number }> {
     const qb = this.noticeRepository
       .createQueryBuilder('n')
@@ -34,6 +34,11 @@ export class OnchurchNoticeRepository implements IOnchurchNoticeRepository {
 
     if (params.category && params.category !== '전체') {
       qb.andWhere('n.category = :category', { category: params.category });
+    }
+
+    const keyword = params.keyword?.trim();
+    if (keyword) {
+      qb.andWhere('(n.title LIKE :kw OR n.content LIKE :kw OR n.author LIKE :kw)', { kw: `%${keyword}%` });
     }
 
     const [items, totalCount] = await qb.getManyAndCount();

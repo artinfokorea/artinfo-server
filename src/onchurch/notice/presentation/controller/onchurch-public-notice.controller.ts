@@ -11,12 +11,13 @@ export class OnchurchPublicNoticeController {
   async listPublic(
     @Param('slug') slug: string,
     @Query('category') category?: string,
+    @Query('keyword') keyword?: string,
     @Query('page') pageRaw?: string,
     @Query('size') sizeRaw?: string,
   ) {
     const page = Math.max(1, parseInt(pageRaw ?? '1', 10) || 1);
     const size = Math.max(1, Math.min(100, parseInt(sizeRaw ?? '20', 10) || 20));
-    const { items, totalCount } = await this.listPublicUseCase.execute(slug, { category, page, size });
+    const { items, totalCount } = await this.listPublicUseCase.execute(slug, { category, keyword, page, size });
     return new OnchurchPublicNoticeListResponse(items, totalCount);
   }
 }

@@ -13,13 +13,14 @@ export class OnchurchListPublicNoticesUseCase {
     private readonly churchRepository: IOnchurchChurchRepository,
   ) {}
 
-  async execute(slug: string, params: { category?: string; page: number; size: number }): Promise<{ items: OnchurchNotice[]; totalCount: number }> {
+  async execute(slug: string, params: { category?: string; keyword?: string; page: number; size: number }): Promise<{ items: OnchurchNotice[]; totalCount: number }> {
     const church = await this.churchRepository.findBySlug(slug);
     if (!church) return { items: [], totalCount: 0 };
     const skip = Math.max(0, (params.page - 1) * params.size);
     const take = Math.min(100, Math.max(1, params.size));
     return this.noticeRepository.findActivePagedByChurchId(church.id, {
       category: params.category,
+      keyword: params.keyword,
       skip,
       take,
     });
