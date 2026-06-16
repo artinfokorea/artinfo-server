@@ -3,7 +3,7 @@ import { ONCHURCH_CHURCH_REPOSITORY, IOnchurchChurchRepository } from '@/onchurc
 import { parseYouTubeVideoId } from '@/onchurch/church/application/service/youtube-channel.resolver';
 
 // 라이브를 켜둔 채 끄는 것을 깜빡해도, 시작 후 이 시간이 지나면 표시 단계에서 자동 종료 처리한다.
-const LIVE_AUTO_OFF_MS = 3 * 60 * 60 * 1000;
+const LIVE_AUTO_OFF_MS = 2 * 60 * 60 * 1000;
 
 export type OnchurchLiveStatus = { isLive: boolean; videoId: string | null };
 
