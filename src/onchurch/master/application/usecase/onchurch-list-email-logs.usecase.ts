@@ -9,6 +9,7 @@ import {
   ONCHURCH_EMAIL_LOG_REPOSITORY,
 } from '@/onchurch/master/domain/repository/onchurch-email-log.repository.interface';
 import { OnchurchEmailLog } from '@/onchurch/master/domain/entity/onchurch-email-log.entity';
+import { PagingItems } from '@/common/type/type';
 
 @Injectable()
 export class OnchurchListEmailLogsUseCase {
@@ -19,12 +20,15 @@ export class OnchurchListEmailLogsUseCase {
     private readonly emailLogRepository: IOnchurchEmailLogRepository,
   ) {}
 
-  async execute(userId: number): Promise<OnchurchEmailLog[]> {
+  async execute(
+    userId: number,
+    params: { keyword: string | null; page: number; size: number },
+  ): Promise<PagingItems<OnchurchEmailLog>> {
     const user = await this.userRepository.findOneOrThrowById(userId);
     if (user.role !== ONCHURCH_USER_ROLE.MASTER) {
       throw new ForbiddenException('마스터 권한이 필요합니다.');
     }
 
-    return this.emailLogRepository.findAll();
+    return this.emailLogRepository.findPage(params);
   }
 }

@@ -1,4 +1,4 @@
-import { Body } from '@nestjs/common';
+import { Body, Query } from '@nestjs/common';
 import { RestApiController, RestApiGet, RestApiPost } from '@/common/decorator/rest-api';
 import { AuthSignature } from '@/common/decorator/AuthSignature';
 import { UserSignature } from '@/common/type/type';
@@ -6,6 +6,7 @@ import { USER_TYPE } from '@/user/entity/user.entity';
 import { OnchurchSendBulkEmailUseCase } from '@/onchurch/master/application/usecase/onchurch-send-bulk-email.usecase';
 import { OnchurchListEmailLogsUseCase } from '@/onchurch/master/application/usecase/onchurch-list-email-logs.usecase';
 import { OnchurchSendBulkEmailRequest } from '@/onchurch/master/presentation/dto/request/onchurch-send-bulk-email.request';
+import { OnchurchListEmailLogsRequest } from '@/onchurch/master/presentation/dto/request/onchurch-list-email-logs.request';
 import { OnchurchBulkEmailResultResponse } from '@/onchurch/master/presentation/dto/response/onchurch-bulk-email-result.response';
 import { OnchurchEmailLogListResponse } from '@/onchurch/master/presentation/dto/response/onchurch-email-log.response';
 
@@ -27,8 +28,12 @@ export class OnchurchMasterController {
   }
 
   @RestApiGet(OnchurchEmailLogListResponse, { path: '/emails', description: '마스터 전용 메일 발송 내역 조회', auth: [USER_TYPE.CLIENT] })
-  async listEmailLogs(@AuthSignature() signature: UserSignature) {
-    const logs = await this.listEmailLogsUseCase.execute(signature.id);
-    return new OnchurchEmailLogListResponse(logs);
+  async listEmailLogs(@AuthSignature() signature: UserSignature, @Query() request: OnchurchListEmailLogsRequest) {
+    const result = await this.listEmailLogsUseCase.execute(signature.id, {
+      keyword: request.keyword?.trim() || null,
+      page: request.page,
+      size: request.size,
+    });
+    return new OnchurchEmailLogListResponse(result);
   }
 }

@@ -36,8 +36,10 @@ export class OnchurchEmailLogResponse {
 
 export class OnchurchEmailLogListResponse {
   @ApiProperty({ type: [OnchurchEmailLogResponse] }) items: OnchurchEmailLogResponse[];
+  @ApiProperty({ type: Number, description: '검색 조건에 해당하는 전체 건수' }) totalCount: number;
 
-  constructor(logs: OnchurchEmailLog[]) {
-    this.items = logs.map((log) => new OnchurchEmailLogResponse(log));
+  constructor(params: { items: OnchurchEmailLog[]; totalCount: number }) {
+    this.items = params.items.map((log) => new OnchurchEmailLogResponse(log));
+    this.totalCount = params.totalCount;
   }
 }
