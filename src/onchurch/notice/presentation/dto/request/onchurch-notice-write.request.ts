@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsISO8601, IsOptional, MaxLength } from 'class-validator';
+import { IsArray, IsBoolean, IsISO8601, IsOptional, IsString, MaxLength } from 'class-validator';
 import { NotBlank } from '@/common/decorator/validator';
 import { OnchurchNoticeWriteCommand } from '@/onchurch/notice/application/command/onchurch-notice-write.command';
 
@@ -17,6 +17,12 @@ export class OnchurchNoticeWriteRequest {
   @IsOptional()
   @ApiProperty({ type: String, required: false, description: '본문', nullable: true })
   content: string | null;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @ApiProperty({ type: [String], required: false, description: '첨부 이미지 URL 목록' })
+  imageUrls?: string[];
 
   @IsOptional()
   @MaxLength(80)
@@ -41,6 +47,7 @@ export class OnchurchNoticeWriteRequest {
       category: (this.category ?? '').trim() || null,
       title: this.title.trim(),
       content: this.content ?? null,
+      imageUrls: Array.isArray(this.imageUrls) ? this.imageUrls : [],
       author: (this.author ?? '').trim() || null,
       isPinned: !!this.isPinned,
       isActive: !!this.isActive,

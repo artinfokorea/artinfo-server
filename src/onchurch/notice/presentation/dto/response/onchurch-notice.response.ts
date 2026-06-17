@@ -40,6 +40,9 @@ export class OnchurchNoticeResponse {
   @ApiProperty({ type: String, required: false, nullable: true })
   content: string | null;
 
+  @ApiProperty({ type: [String], required: true, description: '첨부 이미지 URL 목록' })
+  imageUrls: string[];
+
   @ApiProperty({ type: String, required: false, nullable: true })
   author: string | null;
 
@@ -61,6 +64,7 @@ export class OnchurchNoticeResponse {
     this.category = notice.category;
     this.title = notice.title;
     this.content = notice.content;
+    this.imageUrls = notice.imageUrls ?? [];
     this.author = notice.author;
     this.isPinned = notice.isPinned;
     this.isActive = notice.isActive;

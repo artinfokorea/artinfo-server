@@ -21,6 +21,9 @@ export class OnchurchNotice extends BaseEntity {
   @Column({ type: 'text', name: 'content', nullable: true })
   content: string | null;
 
+  @Column({ type: 'jsonb', name: 'image_urls', default: () => "'[]'::jsonb" })
+  imageUrls: string[];
+
   @Column({ type: 'varchar', name: 'author', nullable: true, length: 80 })
   author: string | null;
 
