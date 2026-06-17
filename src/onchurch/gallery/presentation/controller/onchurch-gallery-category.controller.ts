@@ -9,6 +9,7 @@ import {
   OnchurchCreateMyGalleryCategoryUseCase,
   OnchurchUpdateMyGalleryCategoryUseCase,
   OnchurchDeleteMyGalleryCategoryUseCase,
+  OnchurchRestoreMyGalleryAllCategoryUseCase,
 } from '@/onchurch/gallery/application/usecase/onchurch-gallery-category.usecase';
 import { OnchurchGalleryCategoryWriteRequest } from '@/onchurch/gallery/presentation/dto/request/onchurch-gallery-category-write.request';
 import { OnchurchGalleryCategoryListResponse, OnchurchGalleryCategoryResponse } from '@/onchurch/gallery/presentation/dto/response/onchurch-gallery.response';
@@ -20,6 +21,7 @@ export class OnchurchGalleryCategoryController {
     private readonly createUseCase: OnchurchCreateMyGalleryCategoryUseCase,
     private readonly updateUseCase: OnchurchUpdateMyGalleryCategoryUseCase,
     private readonly deleteUseCase: OnchurchDeleteMyGalleryCategoryUseCase,
+    private readonly restoreAllUseCase: OnchurchRestoreMyGalleryAllCategoryUseCase,
   ) {}
 
   @RestApiGet(OnchurchGalleryCategoryListResponse, { path: '/me', description: '내 교회 갤러리 카테고리 목록', auth: [USER_TYPE.CLIENT] })
@@ -30,6 +32,11 @@ export class OnchurchGalleryCategoryController {
   @RestApiPost(OnchurchGalleryCategoryResponse, { path: '/me', description: '카테고리 추가', auth: [USER_TYPE.CLIENT] })
   async createMine(@AuthSignature() s: UserSignature, @Body() req: OnchurchGalleryCategoryWriteRequest) {
     return new OnchurchGalleryCategoryResponse(await this.createUseCase.execute(s.id, req.toCommand()));
+  }
+
+  @RestApiPost(OnchurchGalleryCategoryListResponse, { path: '/me/all', description: "'전체' 보기 카테고리 복구/생성", auth: [USER_TYPE.CLIENT] })
+  async restoreAllMine(@AuthSignature() s: UserSignature) {
+    return new OnchurchGalleryCategoryListResponse(await this.restoreAllUseCase.execute(s.id));
   }
 
   @RestApiPut(OnchurchGalleryCategoryResponse, { path: '/me/:id', description: '카테고리 수정', auth: [USER_TYPE.CLIENT] })

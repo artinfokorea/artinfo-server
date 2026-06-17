@@ -20,6 +20,7 @@ import {
   OnchurchCreateMyGalleryCategoryUseCase,
   OnchurchUpdateMyGalleryCategoryUseCase,
   OnchurchDeleteMyGalleryCategoryUseCase,
+  OnchurchRestoreMyGalleryAllCategoryUseCase,
 } from '@/onchurch/gallery/application/usecase/onchurch-gallery-category.usecase';
 import { OnchurchListPublicGalleryUseCase } from '@/onchurch/gallery/application/usecase/onchurch-list-public-gallery.usecase';
 import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
@@ -38,6 +39,7 @@ import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
     OnchurchCreateMyGalleryCategoryUseCase,
     OnchurchUpdateMyGalleryCategoryUseCase,
     OnchurchDeleteMyGalleryCategoryUseCase,
+    OnchurchRestoreMyGalleryAllCategoryUseCase,
     OnchurchListPublicGalleryUseCase,
   ],
 })

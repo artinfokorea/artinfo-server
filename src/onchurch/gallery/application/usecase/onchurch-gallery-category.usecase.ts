@@ -55,6 +55,20 @@ export class OnchurchUpdateMyGalleryCategoryUseCase {
 }
 
 @Injectable()
+export class OnchurchRestoreMyGalleryAllCategoryUseCase {
+  constructor(
+    @Inject(ONCHURCH_GALLERY_CATEGORY_REPOSITORY) private readonly repo: IOnchurchGalleryCategoryRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
+  ) {}
+  async execute(userId: number): Promise<OnchurchGalleryCategory[]> {
+    const church = await this.managerResolver.resolveManagedChurch(userId);
+    if (!church) throw new OnchurchGalleryChurchNotConfigured();
+    await this.repo.restoreAllCategory(church.id);
+    return this.repo.findAllByChurchId(church.id);
+  }
+}
+
+@Injectable()
 export class OnchurchDeleteMyGalleryCategoryUseCase {
   constructor(
     @Inject(ONCHURCH_GALLERY_CATEGORY_REPOSITORY) private readonly repo: IOnchurchGalleryCategoryRepository,

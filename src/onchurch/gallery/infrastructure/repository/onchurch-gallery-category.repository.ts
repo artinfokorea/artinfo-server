@@ -22,6 +22,16 @@ export class OnchurchGalleryCategoryRepository implements IOnchurchGalleryCatego
     await this.repo.save({ churchId, name: '전체', sortOrder: 0, isActive: true, isAll: true });
   }
 
+  // 관리자가 명시적으로 '전체' 보기를 다시 켜는 경우: 삭제했던 것을 복구하거나 없으면 새로 만든다.
+  async restoreAllCategory(churchId: number): Promise<void> {
+    const existing = await this.repo.findOne({ where: { churchId, isAll: true }, withDeleted: true });
+    if (existing) {
+      if (existing.deletedAt) await this.repo.recover(existing);
+      return;
+    }
+    await this.repo.save({ churchId, name: '전체', sortOrder: 0, isActive: true, isAll: true });
+  }
+
   async findAllByChurchId(churchId: number): Promise<OnchurchGalleryCategory[]> {
     return this.repo.find({ where: { churchId }, order: { isAll: 'DESC', createdAt: 'DESC', id: 'DESC' } });
   }
