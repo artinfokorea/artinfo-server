@@ -6,6 +6,10 @@ import {
 } from '@/onchurch/user/domain/repository/onchurch-user.repository.interface';
 import { ONCHURCH_USER_ROLE } from '@/onchurch/user/domain/entity/onchurch-user.entity';
 import { BulkEmailResult } from '@/onchurch/master/presentation/dto/response/onchurch-bulk-email-result.response';
+import {
+  IOnchurchEmailLogRepository,
+  ONCHURCH_EMAIL_LOG_REPOSITORY,
+} from '@/onchurch/master/domain/repository/onchurch-email-log.repository.interface';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAIL_FROM = '온교회 <artinfokorea2022@gmail.com>';
@@ -17,6 +21,8 @@ export class OnchurchSendBulkEmailUseCase {
   constructor(
     @Inject(ONCHURCH_USER_REPOSITORY)
     private readonly userRepository: IOnchurchUserRepository,
+    @Inject(ONCHURCH_EMAIL_LOG_REPOSITORY)
+    private readonly emailLogRepository: IOnchurchEmailLogRepository,
     private readonly sesService: AwsSesService,
   ) {}
 
@@ -57,7 +63,22 @@ export class OnchurchSendBulkEmailUseCase {
     }
 
     const total = recipients.length + failures.filter((f) => f.reason === '이메일 형식 오류').length;
-    return { total, sent, failed: failures.length, failures };
+    const result: BulkEmailResult = { total, sent, failed: failures.length, failures };
+
+    // 발송 내역 기록 — 누구에게 어떤 내용을 보냈는지 추후 확인할 수 있도록 저장한다.
+    await this.emailLogRepository.create({
+      senderId: user.id,
+      senderName: user.name,
+      subject: params.subject,
+      content: params.content,
+      recipients,
+      total,
+      sent,
+      failed: failures.length,
+      failures,
+    });
+
+    return result;
   }
 
   // 본문은 마스터가 직접 작성한 신뢰 콘텐츠. 줄바꿈만 <br>로 변환해 감싼다. (HTML 직접 작성도 허용)
