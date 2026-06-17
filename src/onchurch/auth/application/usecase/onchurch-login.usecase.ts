@@ -34,8 +34,13 @@ export class OnchurchLoginUseCase {
       const belongs = !!church && (user.churchId === church.id || church.ownerId === user.id);
       if (!belongs) throw new OnchurchNotChurchMember();
     } else {
-      // 랜딩(관리 콘솔)에서 로그인하는 경우, 오너/관리자 계정만 허용한다.
-      if (user.role !== ONCHURCH_USER_ROLE.OWNER && user.role !== ONCHURCH_USER_ROLE.ADMIN) throw new OnchurchNotAdmin();
+      // 랜딩(관리 콘솔)에서 로그인하는 경우, 오너/관리자/마스터 계정만 허용한다.
+      if (
+        user.role !== ONCHURCH_USER_ROLE.OWNER &&
+        user.role !== ONCHURCH_USER_ROLE.ADMIN &&
+        user.role !== ONCHURCH_USER_ROLE.MASTER
+      )
+        throw new OnchurchNotAdmin();
     }
 
     return await this.authRepository.create({ userId: user.id }, user);
