@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { OnchurchEmailLog } from '@/onchurch/master/domain/entity/onchurch-email-log.entity';
+import { OnchurchEmailLog, OnchurchEmailRecipientStatus } from '@/onchurch/master/domain/entity/onchurch-email-log.entity';
 
-class EmailLogFailure {
+class EmailLogRecipientResult {
   @ApiProperty({ type: String }) email: string;
-  @ApiProperty({ type: String }) reason: string;
+  @ApiProperty({ type: String, enum: ['sent', 'failed', 'excluded'] }) status: OnchurchEmailRecipientStatus;
+  @ApiProperty({ type: String, nullable: true }) reason: string | null;
 }
 
 export class OnchurchEmailLogResponse {
@@ -12,11 +13,11 @@ export class OnchurchEmailLogResponse {
   @ApiProperty({ type: String, description: '발송한 마스터 이름' }) senderName: string;
   @ApiProperty({ type: String, description: '메일 제목' }) subject: string;
   @ApiProperty({ type: String, description: '메일 본문' }) content: string;
-  @ApiProperty({ type: [String], description: '수신자 이메일 목록' }) recipients: string[];
+  @ApiProperty({ type: [EmailLogRecipientResult], description: '수신자별 결과(성공/실패/제외)' }) results: EmailLogRecipientResult[];
   @ApiProperty({ type: Number }) total: number;
   @ApiProperty({ type: Number }) sent: number;
   @ApiProperty({ type: Number }) failed: number;
-  @ApiProperty({ type: [EmailLogFailure] }) failures: EmailLogFailure[];
+  @ApiProperty({ type: Number }) excluded: number;
   @ApiProperty({ type: String, description: '발송 일시 (ISO)' }) createdAt: string;
 
   constructor(log: OnchurchEmailLog) {
@@ -25,11 +26,11 @@ export class OnchurchEmailLogResponse {
     this.senderName = log.senderName;
     this.subject = log.subject;
     this.content = log.content;
-    this.recipients = log.recipients;
+    this.results = log.results;
     this.total = log.total;
     this.sent = log.sent;
     this.failed = log.failed;
-    this.failures = log.failures;
+    this.excluded = log.excluded;
     this.createdAt = log.createdAt.toISOString();
   }
 }

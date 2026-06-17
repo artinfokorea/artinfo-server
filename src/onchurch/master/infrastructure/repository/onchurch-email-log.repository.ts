@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IOnchurchEmailLogRepository } from '@/onchurch/master/domain/repository/onchurch-email-log.repository.interface';
-import { OnchurchEmailFailure, OnchurchEmailLog } from '@/onchurch/master/domain/entity/onchurch-email-log.entity';
+import { OnchurchEmailLog, OnchurchEmailRecipientResult } from '@/onchurch/master/domain/entity/onchurch-email-log.entity';
 import { PagingItems } from '@/common/type/type';
 
 @Injectable()
@@ -17,11 +17,11 @@ export class OnchurchEmailLogRepository implements IOnchurchEmailLogRepository {
     senderName: string;
     subject: string;
     content: string;
-    recipients: string[];
+    results: OnchurchEmailRecipientResult[];
     total: number;
     sent: number;
     failed: number;
-    failures: OnchurchEmailFailure[];
+    excluded: number;
   }): Promise<number> {
     const log = await this.emailLogRepository.save(params);
     return log.id;
@@ -32,8 +32,8 @@ export class OnchurchEmailLogRepository implements IOnchurchEmailLogRepository {
 
     const keyword = params.keyword?.trim();
     if (keyword) {
-      // 제목·본문·수신자(jsonb 배열은 ::text로 캐스팅해 부분 일치) 검색
-      qb.andWhere('(log.subject ILIKE :kw OR log.content ILIKE :kw OR log.recipients::text ILIKE :kw)', {
+      // 제목·본문·수신자(results jsonb를 ::text로 캐스팅해 이메일 부분 일치) 검색
+      qb.andWhere('(log.subject ILIKE :kw OR log.content ILIKE :kw OR log.results::text ILIKE :kw)', {
         kw: `%${keyword}%`,
       });
     }

@@ -10,8 +10,9 @@ import {
   IOnchurchEmailLogRepository,
   ONCHURCH_EMAIL_LOG_REPOSITORY,
 } from '@/onchurch/master/domain/repository/onchurch-email-log.repository.interface';
+import { OnchurchEmailRecipientResult } from '@/onchurch/master/domain/entity/onchurch-email-log.entity';
+import { OnchurchEmailVerificationService } from '@/onchurch/master/application/service/onchurch-email-verification.service';
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAIL_FROM = '온교회 <artinfokorea2022@gmail.com>';
 
 @Injectable()
@@ -23,6 +24,7 @@ export class OnchurchSendBulkEmailUseCase {
     private readonly userRepository: IOnchurchUserRepository,
     @Inject(ONCHURCH_EMAIL_LOG_REPOSITORY)
     private readonly emailLogRepository: IOnchurchEmailLogRepository,
+    private readonly verificationService: OnchurchEmailVerificationService,
     private readonly sesService: AwsSesService,
   ) {}
 
@@ -34,48 +36,54 @@ export class OnchurchSendBulkEmailUseCase {
 
     // 정규화 + 중복 제거
     const seen = new Set<string>();
-    const recipients: string[] = [];
-    const failures: { email: string; reason: string }[] = [];
+    const candidates: string[] = [];
     for (const raw of params.recipients) {
       const email = (raw ?? '').trim().toLowerCase();
-      if (!email) continue;
-      if (seen.has(email)) continue;
+      if (!email || seen.has(email)) continue;
       seen.add(email);
-      if (!EMAIL_REGEX.test(email)) {
-        failures.push({ email, reason: '이메일 형식 오류' });
-        continue;
-      }
-      recipients.push(email);
+      candidates.push(email);
     }
+
+    // 1+2+3단계 수신 가능 검증
+    const verifications = await this.verificationService.verifyMany(candidates);
 
     const html = this.buildHtml(params.content);
-
-    // 수신자별 개별 발송 (서로의 주소가 노출되지 않도록)
+    const results: OnchurchEmailRecipientResult[] = [];
     let sent = 0;
-    for (const email of recipients) {
+    let failed = 0;
+    let excluded = 0;
+
+    for (const v of verifications) {
+      if (v.status === 'excluded') {
+        results.push({ email: v.email, status: 'excluded', reason: v.reason });
+        excluded += 1;
+        continue;
+      }
       try {
-        await this.sesService.send(email, params.subject, html, MAIL_FROM);
+        await this.sesService.send(v.email, params.subject, html, MAIL_FROM);
+        results.push({ email: v.email, status: 'sent', reason: null });
         sent += 1;
       } catch (err) {
-        this.logger.error(`대량메일 발송 실패: ${email}`, err as any);
-        failures.push({ email, reason: (err as Error)?.message ?? '발송 실패' });
+        this.logger.error(`대량메일 발송 실패: ${v.email}`, err as any);
+        results.push({ email: v.email, status: 'failed', reason: (err as Error)?.message ?? '발송 실패' });
+        failed += 1;
       }
     }
 
-    const total = recipients.length + failures.filter((f) => f.reason === '이메일 형식 오류').length;
-    const result: BulkEmailResult = { total, sent, failed: failures.length, failures };
+    const total = candidates.length;
+    const result: BulkEmailResult = { total, sent, failed, excluded, results };
 
-    // 발송 내역 기록 — 누구에게 어떤 내용을 보냈는지 추후 확인할 수 있도록 저장한다.
+    // 발송 내역 기록 — 누구에게 어떤 내용을 보냈고 각 주소가 성공/제외/실패였는지 저장
     await this.emailLogRepository.create({
       senderId: user.id,
       senderName: user.name,
       subject: params.subject,
       content: params.content,
-      recipients,
+      results,
       total,
       sent,
-      failed: failures.length,
-      failures,
+      failed,
+      excluded,
     });
 
     return result;
