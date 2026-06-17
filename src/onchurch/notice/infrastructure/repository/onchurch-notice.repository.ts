@@ -50,7 +50,19 @@ export class OnchurchNoticeRepository implements IOnchurchNoticeRepository {
   }
 
   async create(churchId: number, params: OnchurchNoticeWriteParams): Promise<OnchurchNotice> {
-    return this.noticeRepository.save({ churchId, ...params });
+    const seqNo = await this.nextSeqNo(churchId);
+    return this.noticeRepository.save({ churchId, seqNo, ...params });
+  }
+
+  // 해당 교회의 가장 높은 순번 + 1. (삭제된 글까지 포함해 순번을 재사용하지 않는다)
+  private async nextSeqNo(churchId: number): Promise<number> {
+    const row = await this.noticeRepository
+      .createQueryBuilder('n')
+      .select('MAX(n.seqNo)', 'max')
+      .where('n.churchId = :churchId', { churchId })
+      .withDeleted()
+      .getRawOne<{ max: string | null }>();
+    return (row?.max ? Number(row.max) : 0) + 1;
   }
 
   async update(churchId: number, id: number, params: OnchurchNoticeWriteParams): Promise<OnchurchNotice> {

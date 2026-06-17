@@ -28,6 +28,9 @@ export class OnchurchNoticeResponse {
   @ApiProperty({ type: Number, required: true })
   id: number;
 
+  @ApiProperty({ type: Number, required: false, nullable: true, description: '교회별 게시판 순번' })
+  seqNo: number | null;
+
   @ApiProperty({ type: String, required: false, nullable: true })
   category: string | null;
 
@@ -54,6 +57,7 @@ export class OnchurchNoticeResponse {
 
   constructor(notice: OnchurchNotice) {
     this.id = notice.id;
+    this.seqNo = notice.seqNo ?? null;
     this.category = notice.category;
     this.title = notice.title;
     this.content = notice.content;

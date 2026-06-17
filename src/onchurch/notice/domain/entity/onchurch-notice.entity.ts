@@ -8,6 +8,10 @@ export class OnchurchNotice extends BaseEntity {
   @Column({ type: 'int', name: 'church_id' })
   churchId: number;
 
+  // 교회별 게시판 순번. 글 작성 시 (해당 교회 최대값 + 1)로 채번한다. (전역 id와 별개)
+  @Column({ type: 'int', name: 'seq_no', nullable: true })
+  seqNo: number | null;
+
   @Column({ type: 'varchar', name: 'category', nullable: true, length: 50 })
   category: string | null;
 
