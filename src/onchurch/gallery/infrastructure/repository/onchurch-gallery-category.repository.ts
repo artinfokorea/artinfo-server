@@ -15,12 +15,19 @@ export class OnchurchGalleryCategoryRepository implements IOnchurchGalleryCatego
     private readonly repo: Repository<OnchurchGalleryCategory>,
   ) {}
 
+  // '전체' 보기('전체') 카테고리를 한 번이라도 만든 적 있으면(삭제 포함) 다시 만들지 않는다.
+  async ensureAllCategory(churchId: number): Promise<void> {
+    const existing = await this.repo.findOne({ where: { churchId, isAll: true }, withDeleted: true });
+    if (existing) return;
+    await this.repo.save({ churchId, name: '전체', sortOrder: 0, isActive: true, isAll: true });
+  }
+
   async findAllByChurchId(churchId: number): Promise<OnchurchGalleryCategory[]> {
-    return this.repo.find({ where: { churchId }, order: { createdAt: 'DESC', id: 'DESC' } });
+    return this.repo.find({ where: { churchId }, order: { isAll: 'DESC', createdAt: 'DESC', id: 'DESC' } });
   }
 
   async findActiveByChurchId(churchId: number): Promise<OnchurchGalleryCategory[]> {
-    return this.repo.find({ where: { churchId, isActive: true }, order: { createdAt: 'DESC', id: 'DESC' } });
+    return this.repo.find({ where: { churchId, isActive: true }, order: { isAll: 'DESC', createdAt: 'DESC', id: 'DESC' } });
   }
 
   async findOwnedById(churchId: number, id: number): Promise<OnchurchGalleryCategory | null> {

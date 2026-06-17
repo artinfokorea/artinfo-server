@@ -9,6 +9,8 @@ export interface OnchurchGalleryCategoryWriteParams {
 }
 
 export interface IOnchurchGalleryCategoryRepository {
+  /** 교회에 '전체' 보기 카테고리가 한 번도 없었다면 자동 생성한다(삭제된 적 있으면 재생성하지 않음). */
+  ensureAllCategory(churchId: number): Promise<void>;
   findAllByChurchId(churchId: number): Promise<OnchurchGalleryCategory[]>;
   findActiveByChurchId(churchId: number): Promise<OnchurchGalleryCategory[]>;
   findOwnedById(churchId: number, id: number): Promise<OnchurchGalleryCategory | null>;
