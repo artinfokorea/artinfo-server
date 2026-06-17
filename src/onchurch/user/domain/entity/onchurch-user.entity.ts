@@ -1,6 +1,7 @@
 import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 export enum ONCHURCH_USER_ROLE {
+  MASTER = 'master',
   OWNER = 'owner',
   ADMIN = 'admin',
   MEMBER = 'member',
