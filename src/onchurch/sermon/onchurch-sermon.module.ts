@@ -20,6 +20,7 @@ import {
   OnchurchCreateMySermonSeriesUseCase,
   OnchurchUpdateMySermonSeriesUseCase,
   OnchurchDeleteMySermonSeriesUseCase,
+  OnchurchRestoreMySermonAllSeriesUseCase,
 } from '@/onchurch/sermon/application/usecase/onchurch-sermon-series.usecase';
 import { OnchurchListPublicSermonsUseCase } from '@/onchurch/sermon/application/usecase/onchurch-list-public-sermons.usecase';
 import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
@@ -38,6 +39,7 @@ import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
     OnchurchCreateMySermonSeriesUseCase,
     OnchurchUpdateMySermonSeriesUseCase,
     OnchurchDeleteMySermonSeriesUseCase,
+    OnchurchRestoreMySermonAllSeriesUseCase,
     OnchurchListPublicSermonsUseCase,
   ],
 })

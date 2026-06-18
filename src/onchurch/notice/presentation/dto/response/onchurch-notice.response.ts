@@ -7,12 +7,14 @@ export class OnchurchNoticeCategoryResponse {
   @ApiProperty({ type: String }) name: string;
   @ApiProperty({ type: Number }) sortOrder: number;
   @ApiProperty({ type: Boolean }) isActive: boolean;
+  @ApiProperty({ type: Boolean, description: "'전체' 보기 특수 카테고리 여부" }) isAll: boolean;
 
   constructor(c: OnchurchNoticeCategory) {
     this.id = c.id;
     this.name = c.name;
     this.sortOrder = c.sortOrder;
     this.isActive = c.isActive;
+    this.isAll = c.isAll;
   }
 }
 

@@ -17,6 +17,10 @@ export class OnchurchNoticeCategory extends BaseEntity {
   @Column({ type: 'boolean', name: 'is_active', default: true })
   isActive: boolean;
 
+  // '전체' 보기 칩을 나타내는 특수 카테고리. 공지를 담지 않으며 클릭 시 필터 없이 전부 조회한다.
+  @Column({ type: 'boolean', name: 'is_all', default: false })
+  isAll: boolean;
+
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 

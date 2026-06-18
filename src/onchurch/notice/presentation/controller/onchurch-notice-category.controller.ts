@@ -9,6 +9,7 @@ import {
   OnchurchCreateMyNoticeCategoryUseCase,
   OnchurchUpdateMyNoticeCategoryUseCase,
   OnchurchDeleteMyNoticeCategoryUseCase,
+  OnchurchRestoreMyNoticeAllCategoryUseCase,
 } from '@/onchurch/notice/application/usecase/onchurch-notice-category.usecase';
 import { OnchurchNoticeCategoryWriteRequest } from '@/onchurch/notice/presentation/dto/request/onchurch-notice-category-write.request';
 import { OnchurchNoticeCategoryListResponse, OnchurchNoticeCategoryResponse } from '@/onchurch/notice/presentation/dto/response/onchurch-notice.response';
@@ -20,6 +21,7 @@ export class OnchurchNoticeCategoryController {
     private readonly createUseCase: OnchurchCreateMyNoticeCategoryUseCase,
     private readonly updateUseCase: OnchurchUpdateMyNoticeCategoryUseCase,
     private readonly deleteUseCase: OnchurchDeleteMyNoticeCategoryUseCase,
+    private readonly restoreAllUseCase: OnchurchRestoreMyNoticeAllCategoryUseCase,
   ) {}
 
   @RestApiGet(OnchurchNoticeCategoryListResponse, { path: '/me', description: '내 교회 공지 카테고리 목록', auth: [USER_TYPE.CLIENT] })
@@ -30,6 +32,11 @@ export class OnchurchNoticeCategoryController {
   @RestApiPost(OnchurchNoticeCategoryResponse, { path: '/me', description: '카테고리 추가', auth: [USER_TYPE.CLIENT] })
   async createMine(@AuthSignature() s: UserSignature, @Body() req: OnchurchNoticeCategoryWriteRequest) {
     return new OnchurchNoticeCategoryResponse(await this.createUseCase.execute(s.id, req.toCommand()));
+  }
+
+  @RestApiPost(OnchurchNoticeCategoryListResponse, { path: '/me/all', description: "'전체' 보기 카테고리 복구/생성", auth: [USER_TYPE.CLIENT] })
+  async restoreAllMine(@AuthSignature() s: UserSignature) {
+    return new OnchurchNoticeCategoryListResponse(await this.restoreAllUseCase.execute(s.id));
   }
 
   @RestApiPut(OnchurchNoticeCategoryResponse, { path: '/me/:id', description: '카테고리 수정', auth: [USER_TYPE.CLIENT] })

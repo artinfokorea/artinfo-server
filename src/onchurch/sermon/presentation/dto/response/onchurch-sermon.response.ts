@@ -8,12 +8,14 @@ export class OnchurchSermonSeriesResponse {
   @ApiProperty({ type: String }) name: string;
   @ApiProperty({ type: Number }) sortOrder: number;
   @ApiProperty({ type: Boolean }) isActive: boolean;
+  @ApiProperty({ type: Boolean, description: "'전체' 보기 특수 카테고리 여부" }) isAll: boolean;
 
   constructor(s: OnchurchSermonSeries) {
     this.id = s.id;
     this.name = s.name;
     this.sortOrder = s.sortOrder;
     this.isActive = s.isActive;
+    this.isAll = s.isAll;
   }
 }
 

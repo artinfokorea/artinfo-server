@@ -9,6 +9,7 @@ import {
   OnchurchCreateMySermonSeriesUseCase,
   OnchurchUpdateMySermonSeriesUseCase,
   OnchurchDeleteMySermonSeriesUseCase,
+  OnchurchRestoreMySermonAllSeriesUseCase,
 } from '@/onchurch/sermon/application/usecase/onchurch-sermon-series.usecase';
 import { OnchurchSermonSeriesWriteRequest } from '@/onchurch/sermon/presentation/dto/request/onchurch-sermon-series-write.request';
 import { OnchurchSermonSeriesListResponse, OnchurchSermonSeriesResponse } from '@/onchurch/sermon/presentation/dto/response/onchurch-sermon.response';
@@ -20,6 +21,7 @@ export class OnchurchSermonSeriesController {
     private readonly createUseCase: OnchurchCreateMySermonSeriesUseCase,
     private readonly updateUseCase: OnchurchUpdateMySermonSeriesUseCase,
     private readonly deleteUseCase: OnchurchDeleteMySermonSeriesUseCase,
+    private readonly restoreAllUseCase: OnchurchRestoreMySermonAllSeriesUseCase,
   ) {}
 
   @RestApiGet(OnchurchSermonSeriesListResponse, { path: '/me', description: '내 교회 설교 카테고리 목록', auth: [USER_TYPE.CLIENT] })
@@ -30,6 +32,11 @@ export class OnchurchSermonSeriesController {
   @RestApiPost(OnchurchSermonSeriesResponse, { path: '/me', description: '카테고리 추가', auth: [USER_TYPE.CLIENT] })
   async createMine(@AuthSignature() s: UserSignature, @Body() req: OnchurchSermonSeriesWriteRequest) {
     return new OnchurchSermonSeriesResponse(await this.createUseCase.execute(s.id, req.toCommand()));
+  }
+
+  @RestApiPost(OnchurchSermonSeriesListResponse, { path: '/me/all', description: "'전체' 보기 카테고리 복구/생성", auth: [USER_TYPE.CLIENT] })
+  async restoreAllMine(@AuthSignature() s: UserSignature) {
+    return new OnchurchSermonSeriesListResponse(await this.restoreAllUseCase.execute(s.id));
   }
 
   @RestApiPut(OnchurchSermonSeriesResponse, { path: '/me/:id', description: '카테고리 수정', auth: [USER_TYPE.CLIENT] })

@@ -9,6 +9,8 @@ export interface OnchurchSermonSeriesWriteParams {
 }
 
 export interface IOnchurchSermonSeriesRepository {
+  ensureAllCategory(churchId: number): Promise<void>;
+  restoreAllCategory(churchId: number): Promise<void>;
   findAllByChurchId(churchId: number): Promise<OnchurchSermonSeries[]>;
   findActiveByChurchId(churchId: number): Promise<OnchurchSermonSeries[]>;
   findOwnedById(churchId: number, id: number): Promise<OnchurchSermonSeries | null>;

@@ -20,6 +20,7 @@ import {
   OnchurchCreateMyNoticeCategoryUseCase,
   OnchurchUpdateMyNoticeCategoryUseCase,
   OnchurchDeleteMyNoticeCategoryUseCase,
+  OnchurchRestoreMyNoticeAllCategoryUseCase,
 } from '@/onchurch/notice/application/usecase/onchurch-notice-category.usecase';
 import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
 
@@ -39,6 +40,7 @@ import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
     OnchurchCreateMyNoticeCategoryUseCase,
     OnchurchUpdateMyNoticeCategoryUseCase,
     OnchurchDeleteMyNoticeCategoryUseCase,
+    OnchurchRestoreMyNoticeAllCategoryUseCase,
   ],
 })
 export class OnchurchNoticeModule {}

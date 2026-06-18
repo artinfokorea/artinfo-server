@@ -9,6 +9,8 @@ export interface OnchurchNoticeCategoryWriteParams {
 }
 
 export interface IOnchurchNoticeCategoryRepository {
+  ensureAllCategory(churchId: number): Promise<void>;
+  restoreAllCategory(churchId: number): Promise<void>;
   findAllByChurchId(churchId: number): Promise<OnchurchNoticeCategory[]>;
   findActiveByChurchId(churchId: number): Promise<OnchurchNoticeCategory[]>;
   findOwnedById(churchId: number, id: number): Promise<OnchurchNoticeCategory | null>;

@@ -18,6 +18,22 @@ export class OnchurchListMyNoticeCategoriesUseCase {
   async execute(userId: number): Promise<OnchurchNoticeCategory[]> {
     const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) return [];
+    // 카테고리를 처음 열 때 '전체' 보기 카테고리를 자동 생성한다(이미 삭제했다면 재생성하지 않음).
+    await this.repo.ensureAllCategory(church.id);
+    return this.repo.findAllByChurchId(church.id);
+  }
+}
+
+@Injectable()
+export class OnchurchRestoreMyNoticeAllCategoryUseCase {
+  constructor(
+    @Inject(ONCHURCH_NOTICE_CATEGORY_REPOSITORY) private readonly repo: IOnchurchNoticeCategoryRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
+  ) {}
+  async execute(userId: number): Promise<OnchurchNoticeCategory[]> {
+    const church = await this.managerResolver.resolveManagedChurch(userId);
+    if (!church) throw new OnchurchNoticeChurchNotConfigured();
+    await this.repo.restoreAllCategory(church.id);
     return this.repo.findAllByChurchId(church.id);
   }
 }
