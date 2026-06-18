@@ -22,7 +22,7 @@ export class OnchurchListChurchesUseCase {
 
   async execute(
     userId: number,
-    params: { keyword: string | null; page: number; size: number },
+    params: { keyword: string | null; publishedOnly: boolean; page: number; size: number },
   ): Promise<PagingItems<OnchurchChurchOverviewRow>> {
     const user = await this.userRepository.findOneOrThrowById(userId);
     if (user.role !== ONCHURCH_USER_ROLE.MASTER) {

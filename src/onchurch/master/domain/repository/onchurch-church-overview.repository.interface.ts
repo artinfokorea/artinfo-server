@@ -18,6 +18,7 @@ export type OnchurchChurchOverviewRow = {
 export interface IOnchurchChurchOverviewRepository {
   findPage(params: {
     keyword: string | null;
+    publishedOnly: boolean;
     page: number;
     size: number;
   }): Promise<PagingItems<OnchurchChurchOverviewRow>>;

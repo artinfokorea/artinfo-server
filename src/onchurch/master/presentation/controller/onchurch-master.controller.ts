@@ -144,6 +144,7 @@ export class OnchurchMasterController {
   async listChurches(@AuthSignature() signature: UserSignature, @Query() request: OnchurchListChurchesRequest) {
     const result = await this.listChurchesUseCase.execute(signature.id, {
       keyword: request.keyword?.trim() || null,
+      publishedOnly: request.publishedOnly ?? true,
       page: request.page,
       size: request.size,
     });

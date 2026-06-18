@@ -18,6 +18,7 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
 
   async findPage(params: {
     keyword: string | null;
+    publishedOnly: boolean;
     page: number;
     size: number;
   }): Promise<PagingItems<OnchurchChurchOverviewRow>> {
@@ -28,8 +29,11 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
       const qb = this.churchRepository
         .createQueryBuilder('church')
         .leftJoin(OnchurchUser, 'owner', 'owner.id = church.owner_id');
+      if (params.publishedOnly) {
+        qb.andWhere('church.is_published = :published', { published: true });
+      }
       if (keyword) {
-        qb.where('(church.name ILIKE :kw OR owner.name ILIKE :kw OR owner.phone ILIKE :kw)', {
+        qb.andWhere('(church.name ILIKE :kw OR owner.name ILIKE :kw OR owner.phone ILIKE :kw)', {
           kw: `%${keyword}%`,
         });
       }
