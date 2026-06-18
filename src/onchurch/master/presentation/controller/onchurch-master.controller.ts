@@ -18,6 +18,9 @@ import {
   OnchurchListSmsTemplatesUseCase,
   OnchurchDeleteSmsTemplateUseCase,
 } from '@/onchurch/master/application/usecase/onchurch-sms-template.usecase';
+import { OnchurchListChurchesUseCase } from '@/onchurch/master/application/usecase/onchurch-list-churches.usecase';
+import { OnchurchListChurchesRequest } from '@/onchurch/master/presentation/dto/request/onchurch-list-churches.request';
+import { OnchurchChurchOverviewListResponse } from '@/onchurch/master/presentation/dto/response/onchurch-church-overview.response';
 import { OnchurchSendBulkEmailRequest } from '@/onchurch/master/presentation/dto/request/onchurch-send-bulk-email.request';
 import { OnchurchListEmailLogsRequest } from '@/onchurch/master/presentation/dto/request/onchurch-list-email-logs.request';
 import { OnchurchCreateEmailTemplateRequest } from '@/onchurch/master/presentation/dto/request/onchurch-create-email-template.request';
@@ -50,6 +53,7 @@ export class OnchurchMasterController {
     private readonly createSmsTemplateUseCase: OnchurchCreateSmsTemplateUseCase,
     private readonly listSmsTemplatesUseCase: OnchurchListSmsTemplatesUseCase,
     private readonly deleteSmsTemplateUseCase: OnchurchDeleteSmsTemplateUseCase,
+    private readonly listChurchesUseCase: OnchurchListChurchesUseCase,
   ) {}
 
   @RestApiPost(OnchurchBulkEmailResultResponse, { path: '/emails', description: '마스터 전용 대량 메일 발송', auth: [USER_TYPE.CLIENT] })
@@ -134,5 +138,15 @@ export class OnchurchMasterController {
   async deleteSmsTemplate(@AuthSignature() signature: UserSignature, @Param('id', ParseIntPipe) id: number) {
     await this.deleteSmsTemplateUseCase.execute(signature.id, id);
     return new OkResponse();
+  }
+
+  @RestApiGet(OnchurchChurchOverviewListResponse, { path: '/churches', description: '마스터 전용 교회 목록 조회(소유자·구독 현황)', auth: [USER_TYPE.CLIENT] })
+  async listChurches(@AuthSignature() signature: UserSignature, @Query() request: OnchurchListChurchesRequest) {
+    const result = await this.listChurchesUseCase.execute(signature.id, {
+      keyword: request.keyword?.trim() || null,
+      page: request.page,
+      size: request.size,
+    });
+    return new OnchurchChurchOverviewListResponse(result);
   }
 }
