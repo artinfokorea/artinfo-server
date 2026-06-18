@@ -21,6 +21,17 @@ import {
 import { OnchurchListChurchesUseCase } from '@/onchurch/master/application/usecase/onchurch-list-churches.usecase';
 import { OnchurchListChurchesRequest } from '@/onchurch/master/presentation/dto/request/onchurch-list-churches.request';
 import { OnchurchChurchOverviewListResponse } from '@/onchurch/master/presentation/dto/response/onchurch-church-overview.response';
+import {
+  OnchurchCreateLedgerEntryUseCase,
+  OnchurchListLedgerEntriesUseCase,
+  OnchurchDeleteLedgerEntryUseCase,
+} from '@/onchurch/master/application/usecase/onchurch-ledger.usecase';
+import { OnchurchCreateLedgerEntryRequest } from '@/onchurch/master/presentation/dto/request/onchurch-create-ledger-entry.request';
+import { OnchurchListLedgerEntriesRequest } from '@/onchurch/master/presentation/dto/request/onchurch-list-ledger-entries.request';
+import {
+  OnchurchLedgerEntryResponse,
+  OnchurchLedgerListResponse,
+} from '@/onchurch/master/presentation/dto/response/onchurch-ledger-entry.response';
 import { OnchurchSendBulkEmailRequest } from '@/onchurch/master/presentation/dto/request/onchurch-send-bulk-email.request';
 import { OnchurchListEmailLogsRequest } from '@/onchurch/master/presentation/dto/request/onchurch-list-email-logs.request';
 import { OnchurchCreateEmailTemplateRequest } from '@/onchurch/master/presentation/dto/request/onchurch-create-email-template.request';
@@ -54,6 +65,9 @@ export class OnchurchMasterController {
     private readonly listSmsTemplatesUseCase: OnchurchListSmsTemplatesUseCase,
     private readonly deleteSmsTemplateUseCase: OnchurchDeleteSmsTemplateUseCase,
     private readonly listChurchesUseCase: OnchurchListChurchesUseCase,
+    private readonly createLedgerEntryUseCase: OnchurchCreateLedgerEntryUseCase,
+    private readonly listLedgerEntriesUseCase: OnchurchListLedgerEntriesUseCase,
+    private readonly deleteLedgerEntryUseCase: OnchurchDeleteLedgerEntryUseCase,
   ) {}
 
   @RestApiPost(OnchurchBulkEmailResultResponse, { path: '/emails', description: '마스터 전용 대량 메일 발송', auth: [USER_TYPE.CLIENT] })
@@ -149,5 +163,33 @@ export class OnchurchMasterController {
       size: request.size,
     });
     return new OnchurchChurchOverviewListResponse(result);
+  }
+
+  @RestApiPost(OnchurchLedgerEntryResponse, { path: '/ledger', description: '가계부 항목 등록', auth: [USER_TYPE.CLIENT] })
+  async createLedgerEntry(@AuthSignature() signature: UserSignature, @Body() request: OnchurchCreateLedgerEntryRequest) {
+    const entry = await this.createLedgerEntryUseCase.execute(signature.id, {
+      entryDate: request.entryDate,
+      type: request.type,
+      amount: request.amount,
+      category: request.category.trim(),
+      memo: request.memo?.trim() || null,
+    });
+    return new OnchurchLedgerEntryResponse(entry);
+  }
+
+  @RestApiGet(OnchurchLedgerListResponse, { path: '/ledger', description: '가계부 목록 조회(월 필터·합계 포함)', auth: [USER_TYPE.CLIENT] })
+  async listLedgerEntries(@AuthSignature() signature: UserSignature, @Query() request: OnchurchListLedgerEntriesRequest) {
+    const result = await this.listLedgerEntriesUseCase.execute(signature.id, {
+      month: request.month?.trim() || null,
+      page: request.page,
+      size: request.size,
+    });
+    return new OnchurchLedgerListResponse(result);
+  }
+
+  @RestApiDelete(OkResponse, { path: '/ledger/:id', description: '가계부 항목 삭제', auth: [USER_TYPE.CLIENT] })
+  async deleteLedgerEntry(@AuthSignature() signature: UserSignature, @Param('id', ParseIntPipe) id: number) {
+    await this.deleteLedgerEntryUseCase.execute(signature.id, id);
+    return new OkResponse();
   }
 }
