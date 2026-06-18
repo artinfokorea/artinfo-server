@@ -23,6 +23,7 @@ export class OnchurchChurchOverviewResponse {
     this.id = row.id;
     this.name = row.name;
     this.slug = row.slug;
+    this.address = row.address;
     this.isPublished = row.isPublished;
     this.ownerName = row.ownerName;
     this.ownerPhone = row.ownerPhone;
