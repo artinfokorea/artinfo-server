@@ -63,6 +63,9 @@ export class OnchurchChurchResponse {
   @ApiProperty({ type: Boolean, required: true, description: '사이트 운영 중 여부' })
   isPublished: boolean;
 
+  @ApiProperty({ type: String, required: false, nullable: true, description: '최초 사이트 오픈(첫 공개) 시각 — 한 번이라도 오픈하면 채워지고 이후 OFF해도 유지' })
+  firstPublishedAt: string | null;
+
   constructor(church: OnchurchChurch) {
     this.id = church.id;
     this.slug = church.slug;
@@ -84,6 +87,8 @@ export class OnchurchChurchResponse {
     this.homeSectionOrder = church.homeSectionOrder ?? [];
     this.homeQuickLinks = church.homeQuickLinks ?? [];
     this.isPublished = church.isPublished ?? false;
+    // 한 번이라도 사이트를 오픈(첫 publish)하면 채워지고, 이후 OFF해도 유지된다.
+    this.firstPublishedAt = church.firstPublishedAt ? church.firstPublishedAt.toISOString() : null;
   }
 }
 
