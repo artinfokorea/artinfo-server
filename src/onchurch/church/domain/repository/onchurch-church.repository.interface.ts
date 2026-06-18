@@ -14,10 +14,12 @@ export interface OnchurchChurchUpsertParams {
   businessNo: string | null;
   logoUrl: string | null;
   youtubeUrl: string | null;
+  instagramUrl: string | null;
   liveUrl: string | null;
   isLive: boolean;
   enabledPages: string[];
   homeSectionOrder: string[];
+  homeQuickLinks: string[];
 }
 
 export interface IOnchurchChurchRepository {

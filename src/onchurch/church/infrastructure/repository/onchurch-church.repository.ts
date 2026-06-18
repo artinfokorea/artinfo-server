@@ -72,11 +72,13 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
         businessNo: params.businessNo,
         logoUrl: params.logoUrl,
         youtubeUrl: params.youtubeUrl,
+        instagramUrl: params.instagramUrl,
         liveUrl: params.liveUrl,
         isLive: params.isLive,
         liveStartedAt,
         enabledPages: params.enabledPages,
         homeSectionOrder: params.homeSectionOrder,
+        homeQuickLinks: params.homeQuickLinks,
       });
       return this.churchRepository.save(existing);
     }

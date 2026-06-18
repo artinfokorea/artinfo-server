@@ -52,10 +52,12 @@ export class OnchurchUpsertMyChurchUseCase {
       businessNo: command.businessNo,
       logoUrl: command.logoUrl,
       youtubeUrl: command.youtubeUrl,
+      instagramUrl: command.instagramUrl,
       liveUrl: command.liveUrl,
       isLive: command.isLive,
       enabledPages: command.enabledPages,
       homeSectionOrder: command.homeSectionOrder,
+      homeQuickLinks: command.homeQuickLinks,
     });
 
     // 교회를 처음 생성한 사용자는 오너 등급으로 승격한다.

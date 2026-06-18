@@ -38,6 +38,9 @@ export class OnchurchUpsertMyChurchRequest {
   @ApiProperty({ type: String, required: false, description: '유튜브 채널 URL', nullable: true })
   youtubeUrl: string | null;
 
+  @ApiProperty({ type: String, required: false, description: '인스타그램 URL', nullable: true })
+  instagramUrl: string | null;
+
   @ApiProperty({ type: String, required: false, description: '라이브 영상 URL (watch?v=...)', nullable: true })
   liveUrl: string | null;
 
@@ -52,6 +55,10 @@ export class OnchurchUpsertMyChurchRequest {
   @ApiProperty({ type: [String], required: false, description: '홈페이지 섹션 노출 순서', example: ['banner', 'hero', 'worship', 'sermons', 'visit', 'pastor'] })
   homeSectionOrder?: string[];
 
+  @ArrayType()
+  @ApiProperty({ type: [String], required: false, description: "홈 '바로가기' 노출 항목(순서 포함). 비면 기본", example: ['worship', 'sermons', 'gallery', 'instagram'] })
+  homeQuickLinks?: string[];
+
   toCommand(): OnchurchUpsertMyChurchCommand {
     return new OnchurchUpsertMyChurchCommand({
       slug: this.slug,
@@ -65,10 +72,12 @@ export class OnchurchUpsertMyChurchRequest {
       businessNo: this.businessNo ?? null,
       logoUrl: this.logoUrl ?? null,
       youtubeUrl: this.youtubeUrl ?? null,
+      instagramUrl: this.instagramUrl ?? null,
       liveUrl: this.liveUrl ?? null,
       isLive: this.isLive ?? false,
       enabledPages: this.enabledPages ?? [],
       homeSectionOrder: this.homeSectionOrder ?? [],
+      homeQuickLinks: this.homeQuickLinks ?? [],
     });
   }
 }

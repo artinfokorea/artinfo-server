@@ -39,6 +39,9 @@ export class OnchurchChurchResponse {
   @ApiProperty({ type: String, required: false, nullable: true, description: '유튜브 채널 URL' })
   youtubeUrl: string | null;
 
+  @ApiProperty({ type: String, required: false, nullable: true, description: '인스타그램 URL' })
+  instagramUrl: string | null;
+
   @ApiProperty({ type: String, required: false, nullable: true, description: '라이브 영상 URL' })
   liveUrl: string | null;
 
@@ -53,6 +56,9 @@ export class OnchurchChurchResponse {
 
   @ApiProperty({ type: [String], required: true, description: '홈페이지 섹션 노출 순서' })
   homeSectionOrder: string[];
+
+  @ApiProperty({ type: [String], required: true, description: "홈 '바로가기' 노출 항목" })
+  homeQuickLinks: string[];
 
   @ApiProperty({ type: Boolean, required: true, description: '사이트 운영 중 여부' })
   isPublished: boolean;
@@ -70,11 +76,13 @@ export class OnchurchChurchResponse {
     this.businessNo = church.businessNo;
     this.logoUrl = church.logoUrl;
     this.youtubeUrl = church.youtubeUrl;
+    this.instagramUrl = church.instagramUrl;
     this.liveUrl = church.liveUrl;
     this.isLive = church.isLive ?? false;
     this.liveStartedAt = church.liveStartedAt ? church.liveStartedAt.toISOString() : null;
     this.enabledPages = church.enabledPages ?? [];
     this.homeSectionOrder = church.homeSectionOrder ?? [];
+    this.homeQuickLinks = church.homeQuickLinks ?? [];
     this.isPublished = church.isPublished ?? false;
   }
 }

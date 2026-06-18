@@ -10,10 +10,12 @@ export class OnchurchUpsertMyChurchCommand {
   businessNo: string | null;
   logoUrl: string | null;
   youtubeUrl: string | null;
+  instagramUrl: string | null;
   liveUrl: string | null;
   isLive: boolean;
   enabledPages: string[];
   homeSectionOrder: string[];
+  homeQuickLinks: string[];
 
   constructor(params: {
     slug: string;
@@ -27,10 +29,12 @@ export class OnchurchUpsertMyChurchCommand {
     businessNo: string | null;
     logoUrl: string | null;
     youtubeUrl: string | null;
+    instagramUrl: string | null;
     liveUrl: string | null;
     isLive: boolean;
     enabledPages: string[];
     homeSectionOrder: string[];
+    homeQuickLinks: string[];
   }) {
     this.slug = params.slug;
     this.name = params.name;
@@ -43,9 +47,11 @@ export class OnchurchUpsertMyChurchCommand {
     this.businessNo = params.businessNo;
     this.logoUrl = params.logoUrl;
     this.youtubeUrl = params.youtubeUrl;
+    this.instagramUrl = params.instagramUrl;
     this.liveUrl = params.liveUrl;
     this.isLive = params.isLive;
     this.enabledPages = params.enabledPages;
     this.homeSectionOrder = params.homeSectionOrder;
+    this.homeQuickLinks = params.homeQuickLinks;
   }
 }

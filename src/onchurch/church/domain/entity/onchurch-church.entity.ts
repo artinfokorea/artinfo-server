@@ -41,6 +41,9 @@ export class OnchurchChurch extends BaseEntity {
   @Column({ type: 'varchar', name: 'youtube_url', nullable: true })
   youtubeUrl: string | null;
 
+  @Column({ type: 'varchar', name: 'instagram_url', nullable: true })
+  instagramUrl: string | null;
+
   // 관리자가 등록하는 라이브 영상 URL(watch?v=...). 켤 때 이 영상으로 임베드한다.
   @Column({ type: 'varchar', name: 'live_url', nullable: true })
   liveUrl: string | null;
@@ -57,6 +60,10 @@ export class OnchurchChurch extends BaseEntity {
 
   @Column({ type: 'jsonb', name: 'home_section_order', default: () => "'[]'::jsonb" })
   homeSectionOrder: string[];
+
+  // 홈 '바로가기'에 노출할 항목 키 배열(순서 포함). 비어 있으면 기본 항목을 노출한다.
+  @Column({ type: 'jsonb', name: 'home_quick_links', default: () => "'[]'::jsonb" })
+  homeQuickLinks: string[];
 
   @Column({ type: 'int', name: 'sort_order', nullable: true })
   sortOrder: number | null;
