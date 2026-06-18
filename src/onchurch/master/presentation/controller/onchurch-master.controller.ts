@@ -175,8 +175,9 @@ export class OnchurchMasterController {
     @Param('id', ParseIntPipe) id: number,
     @Body() request: OnchurchUpdateChurchPaidUntilRequest,
   ) {
-    // 'YYYY-MM-DD' → 해당 일자 종료시각(23:59:59)으로 저장해 그 날짜까지 결제 유효로 본다.
-    const paidUntil = request.paidUntil ? new Date(`${request.paidUntil}T23:59:59`) : null;
+    // 'YYYY-MM-DD' → 한국시간(KST, +09:00) 해당 일자 23:59:59로 저장해 그 날짜까지 결제 유효로 본다.
+    // (오프셋을 명시하지 않으면 서버 타임존 기준이 되어 KST로는 하루 밀릴 수 있음)
+    const paidUntil = request.paidUntil ? new Date(`${request.paidUntil}T23:59:59+09:00`) : null;
     const result = await this.updateChurchPaidUntilUseCase.execute(signature.id, id, paidUntil);
     return new OnchurchChurchPaidUntilResponse(result.paidUntil);
   }
