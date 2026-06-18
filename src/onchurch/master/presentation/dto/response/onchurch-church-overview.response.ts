@@ -9,6 +9,7 @@ export class OnchurchChurchOverviewResponse {
   @ApiProperty({ type: Number }) id: number;
   @ApiProperty({ type: String, description: '교회 이름' }) name: string;
   @ApiProperty({ type: String, description: '서브도메인 슬러그' }) slug: string;
+  @ApiProperty({ type: String, nullable: true, description: '교회 주소' }) address: string | null;
   @ApiProperty({ type: Boolean, description: '사이트 운영(공개) 여부' }) isPublished: boolean;
   @ApiProperty({ type: String, nullable: true, description: '소유자 이름' }) ownerName: string | null;
   @ApiProperty({ type: String, nullable: true, description: '소유자 연락처' }) ownerPhone: string | null;

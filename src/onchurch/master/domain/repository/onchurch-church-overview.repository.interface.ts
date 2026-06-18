@@ -7,6 +7,7 @@ export type OnchurchChurchOverviewRow = {
   id: number;
   name: string;
   slug: string;
+  address: string | null;
   isPublished: boolean;
   firstPublishedAt: Date | null;
   ownerName: string | null;
@@ -22,4 +23,5 @@ export interface IOnchurchChurchOverviewRepository {
     page: number;
     size: number;
   }): Promise<PagingItems<OnchurchChurchOverviewRow>>;
+  findOwnerIdByChurchId(churchId: number): Promise<number | null>;
 }

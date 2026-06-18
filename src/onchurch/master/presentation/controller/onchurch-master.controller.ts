@@ -1,5 +1,5 @@
 import { Body, Param, ParseIntPipe, Query } from '@nestjs/common';
-import { RestApiController, RestApiDelete, RestApiGet, RestApiPost } from '@/common/decorator/rest-api';
+import { RestApiController, RestApiDelete, RestApiGet, RestApiPost, RestApiPut } from '@/common/decorator/rest-api';
 import { AuthSignature } from '@/common/decorator/AuthSignature';
 import { UserSignature } from '@/common/type/type';
 import { USER_TYPE } from '@/user/entity/user.entity';
@@ -19,8 +19,11 @@ import {
   OnchurchDeleteSmsTemplateUseCase,
 } from '@/onchurch/master/application/usecase/onchurch-sms-template.usecase';
 import { OnchurchListChurchesUseCase } from '@/onchurch/master/application/usecase/onchurch-list-churches.usecase';
+import { OnchurchUpdateChurchPaidUntilUseCase } from '@/onchurch/master/application/usecase/onchurch-update-church-paid-until.usecase';
 import { OnchurchListChurchesRequest } from '@/onchurch/master/presentation/dto/request/onchurch-list-churches.request';
+import { OnchurchUpdateChurchPaidUntilRequest } from '@/onchurch/master/presentation/dto/request/onchurch-update-church-paid-until.request';
 import { OnchurchChurchOverviewListResponse } from '@/onchurch/master/presentation/dto/response/onchurch-church-overview.response';
+import { OnchurchChurchPaidUntilResponse } from '@/onchurch/master/presentation/dto/response/onchurch-church-paid-until.response';
 import {
   OnchurchCreateLedgerEntryUseCase,
   OnchurchListLedgerEntriesUseCase,
@@ -65,6 +68,7 @@ export class OnchurchMasterController {
     private readonly listSmsTemplatesUseCase: OnchurchListSmsTemplatesUseCase,
     private readonly deleteSmsTemplateUseCase: OnchurchDeleteSmsTemplateUseCase,
     private readonly listChurchesUseCase: OnchurchListChurchesUseCase,
+    private readonly updateChurchPaidUntilUseCase: OnchurchUpdateChurchPaidUntilUseCase,
     private readonly createLedgerEntryUseCase: OnchurchCreateLedgerEntryUseCase,
     private readonly listLedgerEntriesUseCase: OnchurchListLedgerEntriesUseCase,
     private readonly deleteLedgerEntryUseCase: OnchurchDeleteLedgerEntryUseCase,
@@ -163,6 +167,18 @@ export class OnchurchMasterController {
       size: request.size,
     });
     return new OnchurchChurchOverviewListResponse(result);
+  }
+
+  @RestApiPut(OnchurchChurchPaidUntilResponse, { path: '/churches/:id/paid-until', description: '교회 결제 만료일 변경', auth: [USER_TYPE.CLIENT] })
+  async updateChurchPaidUntil(
+    @AuthSignature() signature: UserSignature,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() request: OnchurchUpdateChurchPaidUntilRequest,
+  ) {
+    // 'YYYY-MM-DD' → 해당 일자 종료시각(23:59:59)으로 저장해 그 날짜까지 결제 유효로 본다.
+    const paidUntil = request.paidUntil ? new Date(`${request.paidUntil}T23:59:59`) : null;
+    const result = await this.updateChurchPaidUntilUseCase.execute(signature.id, id, paidUntil);
+    return new OnchurchChurchPaidUntilResponse(result.paidUntil);
   }
 
   @RestApiPost(OnchurchLedgerEntryResponse, { path: '/ledger', description: '가계부 항목 등록', auth: [USER_TYPE.CLIENT] })

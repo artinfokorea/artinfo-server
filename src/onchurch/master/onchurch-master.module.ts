@@ -20,6 +20,7 @@ import {
   OnchurchDeleteSmsTemplateUseCase,
 } from '@/onchurch/master/application/usecase/onchurch-sms-template.usecase';
 import { OnchurchListChurchesUseCase } from '@/onchurch/master/application/usecase/onchurch-list-churches.usecase';
+import { OnchurchUpdateChurchPaidUntilUseCase } from '@/onchurch/master/application/usecase/onchurch-update-church-paid-until.usecase';
 import {
   OnchurchCreateLedgerEntryUseCase,
   OnchurchListLedgerEntriesUseCase,
@@ -71,6 +72,7 @@ import { OnchurchLedgerRepository } from '@/onchurch/master/infrastructure/repos
     OnchurchListSmsTemplatesUseCase,
     OnchurchDeleteSmsTemplateUseCase,
     OnchurchListChurchesUseCase,
+    OnchurchUpdateChurchPaidUntilUseCase,
     OnchurchCreateLedgerEntryUseCase,
     OnchurchListLedgerEntriesUseCase,
     OnchurchDeleteLedgerEntryUseCase,

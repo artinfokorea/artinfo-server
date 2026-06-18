@@ -46,6 +46,7 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
       .select('church.id', 'id')
       .addSelect('church.name', 'name')
       .addSelect('church.slug', 'slug')
+      .addSelect('church.address', 'address')
       .addSelect('church.is_published', 'isPublished')
       .addSelect('church.first_published_at', 'firstPublishedAt')
       .addSelect('owner.name', 'ownerName')
@@ -61,6 +62,7 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
       id: Number(r.id),
       name: r.name,
       slug: r.slug,
+      address: r.address ?? null,
       isPublished: !!r.isPublished,
       firstPublishedAt: r.firstPublishedAt ? new Date(r.firstPublishedAt) : null,
       ownerName: r.ownerName ?? null,
@@ -70,5 +72,10 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
     }));
 
     return { items, totalCount };
+  }
+
+  async findOwnerIdByChurchId(churchId: number): Promise<number | null> {
+    const church = await this.churchRepository.findOne({ where: { id: churchId }, select: { id: true, ownerId: true } });
+    return church?.ownerId ?? null;
   }
 }
