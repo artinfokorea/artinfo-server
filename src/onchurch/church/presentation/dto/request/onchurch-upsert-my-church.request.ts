@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsOptional } from 'class-validator';
 import { ArrayType, NotBlank } from '@/common/decorator/validator';
 import { OnchurchUpsertMyChurchCommand } from '@/onchurch/church/application/command/onchurch-upsert-my-church.command';
 
@@ -55,6 +56,7 @@ export class OnchurchUpsertMyChurchRequest {
   @ApiProperty({ type: [String], required: false, description: '홈페이지 섹션 노출 순서', example: ['banner', 'hero', 'worship', 'sermons', 'visit', 'pastor'] })
   homeSectionOrder?: string[];
 
+  @IsOptional()
   @ArrayType()
   @ApiProperty({ type: [String], required: false, description: "홈 '바로가기' 노출 항목(순서 포함). 비면 기본", example: ['worship', 'sermons', 'gallery', 'instagram'] })
   homeQuickLinks?: string[];
