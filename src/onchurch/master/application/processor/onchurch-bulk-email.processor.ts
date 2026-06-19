@@ -84,9 +84,12 @@ export class OnchurchBulkEmailProcessor extends WorkerHost {
     return promise;
   }
 
-  // 본문은 마스터가 직접 작성한 신뢰 콘텐츠. 줄바꿈만 <br>로 변환해 감싼다. (HTML 직접 작성도 허용)
+  // 본문은 마스터가 직접 작성한 신뢰 콘텐츠.
+  //  - HTML 태그가 포함된 경우: 직접 디자인한 HTML이므로 그대로 사용(줄바꿈은 HTML상 공백이라 변환하지 않음)
+  //  - 일반 텍스트인 경우: 줄바꿈만 <br>로 변환해 가독성 유지
   private buildHtml(content: string): string {
-    const body = content.replace(/\r\n/g, '\n').replace(/\n/g, '<br />');
+    const looksLikeHtml = /<\/?[a-z][^>]*>/i.test(content);
+    const body = looksLikeHtml ? content : content.replace(/\r\n/g, '\n').replace(/\n/g, '<br />');
     return [
       '<div style="font-family: \'Apple SD Gothic Neo\', sans-serif; font-size: 15px; line-height: 1.7; color: #222;">',
       body,
