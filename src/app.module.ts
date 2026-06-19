@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { BullModule } from '@nestjs/bullmq';
 import { User } from './user/entity/user.entity';
 import { UserModule } from '@/user/user.module';
 import { AuthModule } from '@/auth/auth.module';
@@ -156,6 +157,12 @@ const modules = [
     ConfigModule.forRoot({
       cache: true,
       isGlobal: true,
+    }),
+    BullModule.forRoot({
+      connection: {
+        host: process.env['REDIS_HOST'],
+        port: parseInt(process.env['REDIS_PORT'] ?? '6379', 10),
+      },
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',

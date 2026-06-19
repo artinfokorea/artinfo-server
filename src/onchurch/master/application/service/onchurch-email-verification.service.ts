@@ -27,47 +27,49 @@ type ProbeResult = 'ok' | 'no-mailbox' | 'unknown' | 'unavailable';
 export class OnchurchEmailVerificationService {
   private readonly logger = new Logger(OnchurchEmailVerificationService.name);
 
-  async verifyMany(emails: string[]): Promise<EmailVerifyResult[]> {
-    const mxCache = new Map<string, string | null>(); // domain → 우선순위 최상 MX host (null = 없음)
-    let smtpProbeAvailable = true; // 연결 자체가 막힌 환경으로 판단되면 false로 바꿔 이후 떠보기 생략
+  // 큐 워커가 수신자별로 verifyOne을 호출하므로, 도메인 MX 결과와 "25 차단 감지" 플래그를
+  // 인스턴스(프로세스) 레벨로 유지해 건마다 재탐색/재타임아웃하지 않도록 한다.
+  private readonly mxCache = new Map<string, string | null>(); // domain → 우선순위 최상 MX host (null = 없음)
+  private smtpProbeAvailable = true; // 연결 자체가 막힌 환경으로 판단되면 false로 바꿔 이후 떠보기 생략
 
+  async verifyMany(emails: string[]): Promise<EmailVerifyResult[]> {
     const results: EmailVerifyResult[] = [];
     for (const email of emails) {
-      // 1) 형식
-      if (!EMAIL_REGEX.test(email)) {
-        results.push({ email, status: 'excluded', reason: '이메일 형식 오류' });
-        continue;
-      }
-      const domain = email.split('@')[1].toLowerCase();
+      results.push(await this.verifyOne(email));
+    }
+    return results;
+  }
 
-      // 2) MX 레코드
-      if (!mxCache.has(domain)) {
-        mxCache.set(domain, await this.resolvePrimaryMx(domain));
-      }
-      const mxHost = mxCache.get(domain) ?? null;
-      if (!mxHost) {
-        results.push({ email, status: 'excluded', reason: '메일 도메인 없음 (MX 레코드 없음)' });
-        continue;
-      }
+  async verifyOne(email: string): Promise<EmailVerifyResult> {
+    // 1) 형식
+    if (!EMAIL_REGEX.test(email)) {
+      return { email, status: 'excluded', reason: '이메일 형식 오류' };
+    }
+    const domain = email.split('@')[1].toLowerCase();
 
-      // 3) SMTP RCPT 떠보기 (가능한 환경에서만)
-      if (smtpProbeAvailable) {
-        const probe = await this.probeMailbox(mxHost, email);
-        if (probe === 'no-mailbox') {
-          results.push({ email, status: 'excluded', reason: '존재하지 않는 메일함' });
-          continue;
-        }
-        if (probe === 'unavailable') {
-          smtpProbeAvailable = false;
-          this.logger.warn('SMTP 떠보기 불가(아웃바운드 25 차단 등 추정) — 이후 RCPT 검증을 생략합니다.');
-        }
-        // 'ok' | 'unknown' | 'unavailable' → 통과
-      }
-
-      results.push({ email, status: 'ok', reason: null });
+    // 2) MX 레코드
+    if (!this.mxCache.has(domain)) {
+      this.mxCache.set(domain, await this.resolvePrimaryMx(domain));
+    }
+    const mxHost = this.mxCache.get(domain) ?? null;
+    if (!mxHost) {
+      return { email, status: 'excluded', reason: '메일 도메인 없음 (MX 레코드 없음)' };
     }
 
-    return results;
+    // 3) SMTP RCPT 떠보기 (가능한 환경에서만)
+    if (this.smtpProbeAvailable) {
+      const probe = await this.probeMailbox(mxHost, email);
+      if (probe === 'no-mailbox') {
+        return { email, status: 'excluded', reason: '존재하지 않는 메일함' };
+      }
+      if (probe === 'unavailable') {
+        this.smtpProbeAvailable = false;
+        this.logger.warn('SMTP 떠보기 불가(아웃바운드 25 차단 등 추정) — 이후 RCPT 검증을 생략합니다.');
+      }
+      // 'ok' | 'unknown' | 'unavailable' → 통과
+    }
+
+    return { email, status: 'ok', reason: null };
   }
 
   private async resolvePrimaryMx(domain: string): Promise<string | null> {

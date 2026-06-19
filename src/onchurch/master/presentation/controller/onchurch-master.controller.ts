@@ -4,8 +4,9 @@ import { AuthSignature } from '@/common/decorator/AuthSignature';
 import { UserSignature } from '@/common/type/type';
 import { USER_TYPE } from '@/user/entity/user.entity';
 import { OkResponse } from '@/common/response/ok.response';
-import { OnchurchSendBulkEmailUseCase } from '@/onchurch/master/application/usecase/onchurch-send-bulk-email.usecase';
+import { OnchurchEnqueueBulkEmailUseCase } from '@/onchurch/master/application/usecase/onchurch-enqueue-bulk-email.usecase';
 import { OnchurchListEmailLogsUseCase } from '@/onchurch/master/application/usecase/onchurch-list-email-logs.usecase';
+import { OnchurchGetEmailLogUseCase } from '@/onchurch/master/application/usecase/onchurch-get-email-log.usecase';
 import {
   OnchurchCreateEmailTemplateUseCase,
   OnchurchListEmailTemplatesUseCase,
@@ -41,8 +42,8 @@ import { OnchurchCreateEmailTemplateRequest } from '@/onchurch/master/presentati
 import { OnchurchSendBulkSmsRequest } from '@/onchurch/master/presentation/dto/request/onchurch-send-bulk-sms.request';
 import { OnchurchListSmsLogsRequest } from '@/onchurch/master/presentation/dto/request/onchurch-list-sms-logs.request';
 import { OnchurchCreateSmsTemplateRequest } from '@/onchurch/master/presentation/dto/request/onchurch-create-sms-template.request';
-import { OnchurchBulkEmailResultResponse } from '@/onchurch/master/presentation/dto/response/onchurch-bulk-email-result.response';
-import { OnchurchEmailLogListResponse } from '@/onchurch/master/presentation/dto/response/onchurch-email-log.response';
+import { OnchurchEnqueueBulkEmailResponse } from '@/onchurch/master/presentation/dto/response/onchurch-enqueue-bulk-email.response';
+import { OnchurchEmailLogListResponse, OnchurchEmailLogResponse } from '@/onchurch/master/presentation/dto/response/onchurch-email-log.response';
 import {
   OnchurchEmailTemplateListResponse,
   OnchurchEmailTemplateResponse,
@@ -57,8 +58,9 @@ import {
 @RestApiController('/onchurch/master', 'Onchurch Master')
 export class OnchurchMasterController {
   constructor(
-    private readonly sendBulkEmailUseCase: OnchurchSendBulkEmailUseCase,
+    private readonly enqueueBulkEmailUseCase: OnchurchEnqueueBulkEmailUseCase,
     private readonly listEmailLogsUseCase: OnchurchListEmailLogsUseCase,
+    private readonly getEmailLogUseCase: OnchurchGetEmailLogUseCase,
     private readonly createEmailTemplateUseCase: OnchurchCreateEmailTemplateUseCase,
     private readonly listEmailTemplatesUseCase: OnchurchListEmailTemplatesUseCase,
     private readonly deleteEmailTemplateUseCase: OnchurchDeleteEmailTemplateUseCase,
@@ -74,14 +76,14 @@ export class OnchurchMasterController {
     private readonly deleteLedgerEntryUseCase: OnchurchDeleteLedgerEntryUseCase,
   ) {}
 
-  @RestApiPost(OnchurchBulkEmailResultResponse, { path: '/emails', description: '마스터 전용 대량 메일 발송', auth: [USER_TYPE.CLIENT] })
+  @RestApiPost(OnchurchEnqueueBulkEmailResponse, { path: '/emails', description: '마스터 전용 대량 메일 발송(큐 적재)', auth: [USER_TYPE.CLIENT] })
   async sendBulkEmail(@AuthSignature() signature: UserSignature, @Body() request: OnchurchSendBulkEmailRequest) {
-    const result = await this.sendBulkEmailUseCase.execute(signature.id, {
+    const result = await this.enqueueBulkEmailUseCase.execute(signature.id, {
       subject: request.subject.trim(),
       content: request.content,
       recipients: request.recipients,
     });
-    return new OnchurchBulkEmailResultResponse(result);
+    return new OnchurchEnqueueBulkEmailResponse(result);
   }
 
   @RestApiGet(OnchurchEmailLogListResponse, { path: '/emails', description: '마스터 전용 메일 발송 내역 조회', auth: [USER_TYPE.CLIENT] })
@@ -92,6 +94,12 @@ export class OnchurchMasterController {
       size: request.size,
     });
     return new OnchurchEmailLogListResponse(result);
+  }
+
+  @RestApiGet(OnchurchEmailLogResponse, { path: '/emails/:id', description: '마스터 전용 메일 발송 진행 상황 조회(폴링)', auth: [USER_TYPE.CLIENT] })
+  async getEmailLog(@AuthSignature() signature: UserSignature, @Param('id', ParseIntPipe) id: number) {
+    const log = await this.getEmailLogUseCase.execute(signature.id, id);
+    return new OnchurchEmailLogResponse(log);
   }
 
   @RestApiGet(OnchurchEmailTemplateListResponse, { path: '/email-templates', description: '메일 템플릿 목록 조회', auth: [USER_TYPE.CLIENT] })

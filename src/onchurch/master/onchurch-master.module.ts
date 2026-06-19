@@ -1,10 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BullModule } from '@nestjs/bullmq';
 import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
 import { AwsSesService } from '@/aws/ses/aws-ses.service';
 import { SystemModule } from '@/system/module/system.module';
 import { OnchurchMasterController } from '@/onchurch/master/presentation/controller/onchurch-master.controller';
-import { OnchurchSendBulkEmailUseCase } from '@/onchurch/master/application/usecase/onchurch-send-bulk-email.usecase';
+import { OnchurchEnqueueBulkEmailUseCase } from '@/onchurch/master/application/usecase/onchurch-enqueue-bulk-email.usecase';
+import { OnchurchGetEmailLogUseCase } from '@/onchurch/master/application/usecase/onchurch-get-email-log.usecase';
+import { OnchurchBulkEmailProcessor } from '@/onchurch/master/application/processor/onchurch-bulk-email.processor';
+import { ONCHURCH_BULK_EMAIL_QUEUE } from '@/onchurch/master/application/queue/onchurch-bulk-email.queue';
 import { OnchurchListEmailLogsUseCase } from '@/onchurch/master/application/usecase/onchurch-list-email-logs.usecase';
 import { OnchurchEmailVerificationService } from '@/onchurch/master/application/service/onchurch-email-verification.service';
 import {
@@ -57,10 +61,13 @@ import { OnchurchLedgerRepository } from '@/onchurch/master/infrastructure/repos
       OnchurchChurch,
       OnchurchLedgerEntry,
     ]),
+    BullModule.registerQueue({ name: ONCHURCH_BULK_EMAIL_QUEUE }),
   ],
   controllers: [OnchurchMasterController],
   providers: [
-    OnchurchSendBulkEmailUseCase,
+    OnchurchEnqueueBulkEmailUseCase,
+    OnchurchGetEmailLogUseCase,
+    OnchurchBulkEmailProcessor,
     OnchurchListEmailLogsUseCase,
     OnchurchEmailVerificationService,
     OnchurchCreateEmailTemplateUseCase,

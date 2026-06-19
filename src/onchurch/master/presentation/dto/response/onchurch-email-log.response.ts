@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { OnchurchEmailLog, OnchurchEmailRecipientStatus } from '@/onchurch/master/domain/entity/onchurch-email-log.entity';
+import { OnchurchEmailLog, OnchurchEmailLogStatus, OnchurchEmailRecipientStatus } from '@/onchurch/master/domain/entity/onchurch-email-log.entity';
 
 class EmailLogRecipientResult {
   @ApiProperty({ type: String }) email: string;
@@ -18,6 +18,7 @@ export class OnchurchEmailLogResponse {
   @ApiProperty({ type: Number }) sent: number;
   @ApiProperty({ type: Number }) failed: number;
   @ApiProperty({ type: Number }) excluded: number;
+  @ApiProperty({ type: String, enum: ['queued', 'processing', 'completed'], description: '발송 진행 상태' }) status: OnchurchEmailLogStatus;
   @ApiProperty({ type: String, description: '발송 일시 (ISO)' }) createdAt: string;
 
   constructor(log: OnchurchEmailLog) {
@@ -31,6 +32,7 @@ export class OnchurchEmailLogResponse {
     this.sent = log.sent;
     this.failed = log.failed;
     this.excluded = log.excluded;
+    this.status = log.status;
     this.createdAt = log.createdAt.toISOString();
   }
 }

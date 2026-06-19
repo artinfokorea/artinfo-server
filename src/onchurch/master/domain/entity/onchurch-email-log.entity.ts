@@ -12,6 +12,10 @@ export type OnchurchEmailRecipientResult = {
   reason: string | null;
 };
 
+// 발송 작업 전체의 진행 상태 (큐 기반 비동기 발송)
+//  - queued: 큐 적재 완료(발송 시작 전) / processing: 발송 중 / completed: 발송 종료
+export type OnchurchEmailLogStatus = 'queued' | 'processing' | 'completed';
+
 @Entity('onchurch_email_logs')
 export class OnchurchEmailLog extends BaseEntity {
   @PrimaryGeneratedColumn('increment', { name: 'id' })
@@ -43,6 +47,9 @@ export class OnchurchEmailLog extends BaseEntity {
 
   @Column({ type: 'int', name: 'excluded' })
   excluded: number;
+
+  @Column({ type: 'varchar', name: 'status', default: 'completed' })
+  status: OnchurchEmailLogStatus;
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
