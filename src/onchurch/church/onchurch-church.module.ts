@@ -21,6 +21,7 @@ import { OnchurchAutoUnpublishExpiredUseCase } from '@/onchurch/church/applicati
 import { OnchurchChurchRequiredService } from '@/onchurch/church/application/service/onchurch-church-required.service';
 import { OnchurchSubscriptionScheduler } from '@/onchurch/church/scheduler/onchurch-subscription.scheduler';
 import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
+import { AwsSesService } from '@/aws/ses/aws-ses.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([OnchurchChurch, OnchurchPastor, OnchurchWorshipService]), OnchurchUserModule],
@@ -41,6 +42,7 @@ import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
     OnchurchRemoveChurchMemberUseCase,
     OnchurchChangeChurchMemberRoleUseCase,
     OnchurchChurchManagerResolver,
+    AwsSesService,
   ],
   exports: [ONCHURCH_CHURCH_REPOSITORY, OnchurchChurchRequiredService, OnchurchChurchManagerResolver],
 })
