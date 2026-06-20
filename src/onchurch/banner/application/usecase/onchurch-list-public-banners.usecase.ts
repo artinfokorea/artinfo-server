@@ -27,14 +27,14 @@ export class OnchurchListPublicBannersUseCase {
   async execute(slug: string): Promise<PublicBannerView[]> {
     const church = await this.churchRepository.findBySlug(slug);
     if (!church) {
-      return [this.buildDefault('우리 교회에 오신 것을 환영합니다', '온교회와 함께 시작하세요.')];
+      return [this.buildDefault('', '온교회와 함께 시작하세요.')];
     }
 
     const banners = await this.bannerRepository.findActiveByChurchId(church.id);
     if (banners.length === 0) {
       return [
         this.buildDefault(
-          `${church.name}에 오신 것을 환영합니다`,
+          '',
           church.tagline ?? '함께 예배하고 성장하는 공동체입니다.',
         ),
       ];
