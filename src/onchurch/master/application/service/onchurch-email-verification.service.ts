@@ -5,7 +5,11 @@ import * as net from 'net';
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PROBE_HELO_DOMAIN = 'onchurch.kr';
 const PROBE_FROM = `no-reply@${PROBE_HELO_DOMAIN}`;
-const SMTP_TIMEOUT_MS = 5000;
+// 25번 아웃바운드가 막힌 환경(클라우드 대부분)을 빠르게 감지하기 위한 연결 타임아웃.
+// 연결이 이 시간 내에 맺어지지 않으면 차단 환경으로 보고 떠보기를 즉시 비활성화한다.
+const SMTP_CONNECT_TIMEOUT_MS = 1500;
+// 연결 이후 핸드셰이크(HELO/MAIL/RCPT) 단계의 무응답 타임아웃.
+const SMTP_TIMEOUT_MS = 1500;
 
 export type EmailVerifyStatus = 'ok' | 'excluded';
 
@@ -101,7 +105,10 @@ export class OnchurchEmailVerificationService {
         resolve(r);
       };
 
-      socket.setTimeout(SMTP_TIMEOUT_MS);
+      // 연결 단계는 짧은 타임아웃으로 차단 환경을 빠르게 감지(→ unavailable),
+      // 연결이 맺어지면 핸드셰이크 무응답 타임아웃으로 전환한다.
+      socket.setTimeout(SMTP_CONNECT_TIMEOUT_MS);
+      socket.on('connect', () => socket.setTimeout(SMTP_TIMEOUT_MS));
       socket.on('timeout', () => done(stage === 0 ? 'unavailable' : 'unknown'));
       socket.on('error', () => done('unavailable'));
 
