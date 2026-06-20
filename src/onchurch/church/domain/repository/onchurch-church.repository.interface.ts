@@ -15,6 +15,7 @@ export interface OnchurchChurchUpsertParams {
   logoUrl: string | null;
   youtubeUrl: string | null;
   instagramUrl: string | null;
+  naverVerification: string | null;
   liveUrl: string | null;
   isLive: boolean;
   enabledPages: string[];

@@ -53,6 +53,7 @@ export class OnchurchUpsertMyChurchUseCase {
       logoUrl: command.logoUrl,
       youtubeUrl: command.youtubeUrl,
       instagramUrl: command.instagramUrl,
+      naverVerification: command.naverVerification,
       liveUrl: command.liveUrl,
       isLive: command.isLive,
       enabledPages: command.enabledPages,

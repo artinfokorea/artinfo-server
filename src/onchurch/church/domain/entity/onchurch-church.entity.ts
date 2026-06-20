@@ -44,6 +44,9 @@ export class OnchurchChurch extends BaseEntity {
   @Column({ type: 'varchar', name: 'instagram_url', nullable: true })
   instagramUrl: string | null;
 
+  @Column({ type: 'varchar', name: 'naver_verification', nullable: true })
+  naverVerification: string | null;
+
   // 관리자가 등록하는 라이브 영상 URL(watch?v=...). 켤 때 이 영상으로 임베드한다.
   @Column({ type: 'varchar', name: 'live_url', nullable: true })
   liveUrl: string | null;

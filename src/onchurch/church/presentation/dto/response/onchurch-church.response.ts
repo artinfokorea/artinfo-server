@@ -42,6 +42,9 @@ export class OnchurchChurchResponse {
   @ApiProperty({ type: String, required: false, nullable: true, description: '인스타그램 URL' })
   instagramUrl: string | null;
 
+  @ApiProperty({ type: String, required: false, nullable: true, description: '네이버 사이트 인증 코드' })
+  naverVerification: string | null;
+
   @ApiProperty({ type: String, required: false, nullable: true, description: '라이브 영상 URL' })
   liveUrl: string | null;
 
@@ -80,6 +83,7 @@ export class OnchurchChurchResponse {
     this.logoUrl = church.logoUrl;
     this.youtubeUrl = church.youtubeUrl;
     this.instagramUrl = church.instagramUrl;
+    this.naverVerification = church.naverVerification;
     this.liveUrl = church.liveUrl;
     this.isLive = church.isLive ?? false;
     this.liveStartedAt = church.liveStartedAt ? church.liveStartedAt.toISOString() : null;

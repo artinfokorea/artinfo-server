@@ -11,6 +11,7 @@ export class OnchurchUpsertMyChurchCommand {
   logoUrl: string | null;
   youtubeUrl: string | null;
   instagramUrl: string | null;
+  naverVerification: string | null;
   liveUrl: string | null;
   isLive: boolean;
   enabledPages: string[];
@@ -30,6 +31,7 @@ export class OnchurchUpsertMyChurchCommand {
     logoUrl: string | null;
     youtubeUrl: string | null;
     instagramUrl: string | null;
+    naverVerification: string | null;
     liveUrl: string | null;
     isLive: boolean;
     enabledPages: string[];
@@ -48,6 +50,7 @@ export class OnchurchUpsertMyChurchCommand {
     this.logoUrl = params.logoUrl;
     this.youtubeUrl = params.youtubeUrl;
     this.instagramUrl = params.instagramUrl;
+    this.naverVerification = params.naverVerification;
     this.liveUrl = params.liveUrl;
     this.isLive = params.isLive;
     this.enabledPages = params.enabledPages;
