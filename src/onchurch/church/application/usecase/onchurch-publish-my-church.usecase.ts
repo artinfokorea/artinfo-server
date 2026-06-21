@@ -10,6 +10,7 @@ import {
 import { OnchurchChurchRequiredService } from '@/onchurch/church/application/service/onchurch-church-required.service';
 import { OnchurchChurchManagerResolver } from '@/onchurch/church/application/service/onchurch-church-manager.resolver';
 import { AwsSesService } from '@/aws/ses/aws-ses.service';
+import { ONCHURCH_MAIL_FROM } from '@/onchurch/onchurch-mail.constant';
 
 const FREE_TRIAL_DAYS = 7;
 
@@ -90,7 +91,7 @@ export class OnchurchPublishMyChurchUseCase {
           `<p><b>연락처</b>: ${user.phone}</p>`,
           `<p><b>오픈 일시</b>: ${now.toISOString()}</p>`,
         ].join('');
-        await this.sesService.send(FIRST_PUBLISH_NOTIFY_TO, `[온교회 오픈] ${church.name}`, html);
+        await this.sesService.send(FIRST_PUBLISH_NOTIFY_TO, `[온교회 오픈] ${church.name}`, html, ONCHURCH_MAIL_FROM);
       } catch (err) {
         this.logger.error(`첫 오픈 알림 메일 발송 실패: ownerId=${ownerId}`, err as any);
       }

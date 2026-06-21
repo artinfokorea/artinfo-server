@@ -9,6 +9,7 @@ import {
   IOnchurchUserRepository,
   ONCHURCH_USER_REPOSITORY,
 } from '@/onchurch/user/domain/repository/onchurch-user.repository.interface';
+import { ONCHURCH_MAIL_FROM } from '@/onchurch/onchurch-mail.constant';
 
 const SUPPORT_NOTIFY_TO = 'chorales@naver.com';
 
@@ -39,7 +40,7 @@ export class OnchurchCreateMyInquiryUseCase {
         `<hr />`,
         `<pre style="white-space: pre-wrap; font-family: inherit;">${safeQuestion}</pre>`,
       ].join('');
-      await this.sesService.send(SUPPORT_NOTIFY_TO, `[온교회 문의] ${user.churchName ?? user.name}`, html);
+      await this.sesService.send(SUPPORT_NOTIFY_TO, `[온교회 문의] ${user.churchName ?? user.name}`, html, ONCHURCH_MAIL_FROM);
     } catch (err) {
       this.logger.error(`문의 알림 메일 발송 실패: inquiryId=${inquiry.id}`, err as any);
     }

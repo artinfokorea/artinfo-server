@@ -9,6 +9,7 @@ import { OnchurchSignupCommand } from '@/onchurch/auth/application/command/onchu
 import { OnchurchPhoneNotVerified, OnchurchUserIdAlreadyExist } from '@/onchurch/auth/domain/exception/onchurch-auth.exception';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { AwsSesService } from '@/aws/ses/aws-ses.service';
+import { ONCHURCH_MAIL_FROM } from '@/onchurch/onchurch-mail.constant';
 
 const SIGNUP_NOTIFY_TO = 'chorales@naver.com';
 
@@ -89,7 +90,7 @@ export class OnchurchSignupUseCase {
           `<p><b>마케팅 수신 동의</b>: ${user.marketingConsent ? '예' : '아니오'}</p>`,
           `<p><b>가입 일시</b>: ${new Date().toISOString()}</p>`,
         ].join('');
-        await this.sesService.send(SIGNUP_NOTIFY_TO, `[온교회 가입] ${user.name}`, html);
+        await this.sesService.send(SIGNUP_NOTIFY_TO, `[온교회 가입] ${user.name}`, html, ONCHURCH_MAIL_FROM);
       } catch (err) {
         this.logger.error(`가입 알림 메일 발송 실패: userId=${user.id}`, err as any);
       }
