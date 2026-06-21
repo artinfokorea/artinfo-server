@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /server/
 
-COPY package.json ./
+COPY package.json .npmrc ./
 
 RUN npm install -g pnpm
 ENV CI=true
