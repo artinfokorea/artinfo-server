@@ -1,4 +1,4 @@
-import { OnchurchNotice } from '@/onchurch/notice/domain/entity/onchurch-notice.entity';
+import { OnchurchNotice, OnchurchNoticeAttachment } from '@/onchurch/notice/domain/entity/onchurch-notice.entity';
 
 export const ONCHURCH_NOTICE_REPOSITORY = Symbol('ONCHURCH_NOTICE_REPOSITORY');
 
@@ -7,6 +7,7 @@ export interface OnchurchNoticeWriteParams {
   title: string;
   content: string | null;
   imageUrls: string[];
+  attachments: OnchurchNoticeAttachment[];
   author: string | null;
   isPinned: boolean;
   isActive: boolean;

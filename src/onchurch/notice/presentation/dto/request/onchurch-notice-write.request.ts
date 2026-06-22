@@ -1,7 +1,28 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsBoolean, IsISO8601, IsOptional, IsString, MaxLength } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsArray, IsBoolean, IsISO8601, IsInt, IsOptional, IsString, MaxLength, Min, ValidateNested } from 'class-validator';
 import { NotBlank } from '@/common/decorator/validator';
 import { OnchurchNoticeWriteCommand } from '@/onchurch/notice/application/command/onchurch-notice-write.command';
+
+export class OnchurchNoticeAttachmentDto {
+  @IsString()
+  @ApiProperty({ type: String, description: '다운로드 URL' })
+  url: string;
+
+  @IsString()
+  @MaxLength(255)
+  @ApiProperty({ type: String, description: '원본 파일명' })
+  name: string;
+
+  @IsInt()
+  @Min(0)
+  @ApiProperty({ type: Number, description: '파일 크기(byte)' })
+  size: number;
+
+  @IsString()
+  @ApiProperty({ type: String, description: 'MIME 타입' })
+  mimeType: string;
+}
 
 export class OnchurchNoticeWriteRequest {
   @IsOptional()
@@ -23,6 +44,13 @@ export class OnchurchNoticeWriteRequest {
   @IsString({ each: true })
   @ApiProperty({ type: [String], required: false, description: '첨부 이미지 URL 목록' })
   imageUrls?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => OnchurchNoticeAttachmentDto)
+  @ApiProperty({ type: [OnchurchNoticeAttachmentDto], required: false, description: '이미지 외 첨부파일(다운로드용)' })
+  attachments?: OnchurchNoticeAttachmentDto[];
 
   @IsOptional()
   @MaxLength(80)
@@ -48,6 +76,9 @@ export class OnchurchNoticeWriteRequest {
       title: this.title.trim(),
       content: this.content ?? null,
       imageUrls: Array.isArray(this.imageUrls) ? this.imageUrls : [],
+      attachments: Array.isArray(this.attachments)
+        ? this.attachments.map((a) => ({ url: a.url, name: a.name, size: a.size, mimeType: a.mimeType }))
+        : [],
       author: (this.author ?? '').trim() || null,
       isPinned: !!this.isPinned,
       isActive: !!this.isActive,

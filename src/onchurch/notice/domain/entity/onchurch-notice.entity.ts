@@ -1,5 +1,12 @@
 import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
+export type OnchurchNoticeAttachment = {
+  url: string;
+  name: string;
+  size: number;
+  mimeType: string;
+};
+
 @Entity('onchurch_notices')
 export class OnchurchNotice extends BaseEntity {
   @PrimaryGeneratedColumn('increment', { name: 'id' })
@@ -23,6 +30,10 @@ export class OnchurchNotice extends BaseEntity {
 
   @Column({ type: 'jsonb', name: 'image_urls', default: () => "'[]'::jsonb" })
   imageUrls: string[];
+
+  // 이미지 외 일반 첨부파일(다운로드용). 원본 파일명·크기·MIME을 함께 보관한다.
+  @Column({ type: 'jsonb', name: 'attachments', default: () => "'[]'::jsonb" })
+  attachments: OnchurchNoticeAttachment[];
 
   @Column({ type: 'varchar', name: 'author', nullable: true, length: 80 })
   author: string | null;

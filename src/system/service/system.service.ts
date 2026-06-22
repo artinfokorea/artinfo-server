@@ -177,7 +177,42 @@ export class SystemService {
     return this.imageRepository.findManyByIds(imageIds);
   }
 
+  // 이미지가 아닌 일반 첨부파일을 S3에 업로드한다. 이미지 처리(Sharp)를 거치지 않으며,
+  // 다운로드 시 원본 파일명이 유지되도록 Content-Disposition(attachment)을 지정한다.
+  async uploadFiles(userId: number, files: UploadFile[]): Promise<UploadedFileMeta[]> {
+    const results: UploadedFileMeta[] = [];
+
+    for (const file of files) {
+      const originalFilename = Buffer.from(file.originalname, 'ascii').toString('utf8');
+      const extension = originalFilename.includes('.') ? originalFilename.split('.').pop()! : 'bin';
+      const hash = new Util().generateRandomString(11);
+      const groupPath = ['upload', userId, 'files', moment().format('YYYYMMDD')].join('/');
+      const savedFilename = hash + '.' + Date.now() + '.' + extension;
+      const path = [groupPath, savedFilename].join('/');
+
+      // RFC 5987 형식으로 한글 등 비ASCII 파일명을 안전하게 인코딩한다.
+      const disposition = `attachment; filename*=UTF-8''${encodeURIComponent(originalFilename)}`;
+      const mimeType = file.mimetype || 'application/octet-stream';
+
+      const result = await this.awsS3Service.uploadStream(file.buffer, mimeType, path, disposition);
+      if (result == null) {
+        throw new UploadImageIsNotValid();
+      }
+
+      results.push({ url: result.location, name: originalFilename, size: file.size, mimeType });
+    }
+
+    return results;
+  }
+
   async deleteCaching() {
     await this.redisRepository.deleteAll();
   }
 }
+
+export type UploadedFileMeta = {
+  url: string;
+  name: string;
+  size: number;
+  mimeType: string;
+};

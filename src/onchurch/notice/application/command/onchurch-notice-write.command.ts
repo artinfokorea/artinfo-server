@@ -1,8 +1,11 @@
+import { OnchurchNoticeAttachment } from '@/onchurch/notice/domain/entity/onchurch-notice.entity';
+
 export class OnchurchNoticeWriteCommand {
   category: string | null;
   title: string;
   content: string | null;
   imageUrls: string[];
+  attachments: OnchurchNoticeAttachment[];
   author: string | null;
   isPinned: boolean;
   isActive: boolean;
@@ -13,6 +16,7 @@ export class OnchurchNoticeWriteCommand {
     title: string;
     content: string | null;
     imageUrls: string[];
+    attachments: OnchurchNoticeAttachment[];
     author: string | null;
     isPinned: boolean;
     isActive: boolean;
@@ -22,6 +26,7 @@ export class OnchurchNoticeWriteCommand {
     this.title = params.title;
     this.content = params.content;
     this.imageUrls = params.imageUrls;
+    this.attachments = params.attachments;
     this.author = params.author;
     this.isPinned = params.isPinned;
     this.isActive = params.isActive;

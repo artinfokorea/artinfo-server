@@ -24,13 +24,20 @@ export class AwsS3Service {
     });
   }
 
-  async uploadStream(buffer: Buffer, mimetype: string, uploadFilePath: string): Promise<AwsS3UploadResult | null> {
+  async uploadStream(
+    buffer: Buffer,
+    mimetype: string,
+    uploadFilePath: string,
+    contentDisposition?: string,
+  ): Promise<AwsS3UploadResult | null> {
     const uploadParams = {
       Bucket: this.BUCKET,
       Body: buffer,
       ContentType: mimetype,
       Key: path.posix.join(process.env['NODE_ENV']!, uploadFilePath),
       ACL: ObjectCannedACL.public_read,
+      // 첨부파일 다운로드 시 원본 파일명을 강제하기 위해 Content-Disposition을 지정한다(이미지 등은 미지정).
+      ...(contentDisposition ? { ContentDisposition: contentDisposition } : {}),
     };
 
     const command = new PutObjectCommand(uploadParams);

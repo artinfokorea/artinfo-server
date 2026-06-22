@@ -3,10 +3,12 @@ import { ApiConsumes } from '@nestjs/swagger';
 import { Body, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { UploadImagesResponse } from '@/system/dto/response/upload-images.response';
+import { UploadFilesResponse } from '@/system/dto/response/upload-files.response';
 import { USER_TYPE } from '@/user/entity/user.entity';
 import { AuthSignature } from '@/common/decorator/AuthSignature';
 import { UploadFile, UserSignature } from '@/common/type/type';
 import { UploadImagesRequest } from '@/system/dto/request/upload-images.request';
+import { UploadFilesRequest } from '@/system/dto/request/upload-files.request';
 import { SystemService } from '@/system/service/system.service';
 import { OkResponse } from '@/common/response/ok.response';
 
@@ -42,6 +44,26 @@ export class SystemController {
     const uploadImages = await this.systemService.createImageMany(request.toCreateImagesCommand(signature.id, files));
 
     return new UploadImagesResponse(uploadImages);
+  }
+
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FilesInterceptor('files', 10, {
+      limits: {
+        fileSize: 32 * 1024 * 1024,
+        files: 10,
+      },
+    }),
+  )
+  @RestApiPost(UploadFilesResponse, {
+    path: '/upload/files',
+    description: '일반 첨부파일 업로드(이미지 외 형식, 다운로드용)',
+    auth: [USER_TYPE.CLIENT],
+  })
+  async uploadFiles(@AuthSignature() signature: UserSignature, @Body() _request: UploadFilesRequest, @UploadedFiles() files: UploadFile[]) {
+    const uploaded = await this.systemService.uploadFiles(signature.id, files);
+
+    return new UploadFilesResponse(uploaded);
   }
 
   @RestApiDelete(OkResponse, {
