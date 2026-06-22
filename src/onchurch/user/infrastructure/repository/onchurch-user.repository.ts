@@ -65,6 +65,16 @@ export class OnchurchUserRepository implements IOnchurchUserRepository {
     await this.userRepository.save(user);
   }
 
+  async searchCandidates(keyword: string, limit: number): Promise<OnchurchUser[]> {
+    return this.userRepository
+      .createQueryBuilder('u')
+      .where('u.role != :master', { master: ONCHURCH_USER_ROLE.MASTER })
+      .andWhere('(u.name ILIKE :kw OR u.loginId ILIKE :kw OR u.phone ILIKE :kw)', { kw: `%${keyword}%` })
+      .orderBy('u.createdAt', 'DESC')
+      .limit(limit)
+      .getMany();
+  }
+
   async findMembersByChurchId(churchId: number): Promise<OnchurchUser[]> {
     return this.userRepository.find({
       where: { churchId },

@@ -19,6 +19,8 @@ export interface IOnchurchUserRepository {
   findByPhone(phone: string): Promise<OnchurchUser[]>;
   existsByLoginId(loginId: string): Promise<boolean>;
   saveEntity(user: OnchurchUser): Promise<void>;
+  // 마스터(MASTER)를 제외한 사용자 중 이름·아이디·연락처로 검색(오너 이관 대상 후보).
+  searchCandidates(keyword: string, limit: number): Promise<OnchurchUser[]>;
   findMembersByChurchId(churchId: number): Promise<OnchurchUser[]>;
   findMemberByChurchId(churchId: number, id: number): Promise<OnchurchUser | null>;
   softDeleteById(id: number): Promise<void>;
