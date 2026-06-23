@@ -43,7 +43,7 @@ export class OnchurchSignupUseCase {
 
     const hashedPassword = await bcrypt.hash(command.password, this.BCRYPT_ROUNDS);
 
-    const FREE_TRIAL_DAYS = 14;
+    const FREE_TRIAL_DAYS = 7;
     const freeTrialUntil = new Date(Date.now() + FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000);
 
     // 가입 경로에 따라 역할을 구분한다.
