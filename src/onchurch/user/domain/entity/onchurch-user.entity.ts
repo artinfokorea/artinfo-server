@@ -36,6 +36,12 @@ export class OnchurchUser extends BaseEntity {
   @Column({ type: 'boolean', name: 'marketing_consent', default: false })
   marketingConsent: boolean;
 
+  @Column({ type: 'varchar', name: 'referral_source', nullable: true })
+  referralSource: string | null;
+
+  @Column({ type: 'varchar', name: 'referral_source_etc', nullable: true })
+  referralSourceEtc: string | null;
+
   @Column({ type: 'timestamp', name: 'free_trial_until', nullable: true })
   freeTrialUntil: Date | null;
 

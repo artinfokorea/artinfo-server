@@ -71,6 +71,8 @@ export class OnchurchSignupUseCase {
       churchId,
       marketingConsent: command.marketingConsent,
       freeTrialUntil,
+      referralSource: command.referralSource,
+      referralSourceEtc: command.referralSourceEtc,
     });
 
     const user = await this.userRepository.findOneOrThrowById(userId);
@@ -82,11 +84,15 @@ export class OnchurchSignupUseCase {
     // 실패해도 가입 자체는 통과시킨다.
     if (user.role !== ONCHURCH_USER_ROLE.MEMBER) {
       try {
+        const referralLabelMap: Record<string, string> = { naver: '네이버', instagram: '인스타그램', mail: '메일', etc: '기타' };
+        const referralLabel = referralLabelMap[user.referralSource ?? ''] ?? user.referralSource ?? '-';
+        const referralText = user.referralSource === 'etc' ? `${referralLabel} (${user.referralSourceEtc ?? ''})` : referralLabel;
         const html = [
           `<h3>온교회 신규 회원 가입</h3>`,
           `<p><b>아이디</b>: ${user.loginId}</p>`,
           `<p><b>이름</b>: ${user.name}</p>`,
           `<p><b>연락처</b>: ${user.phone}</p>`,
+          `<p><b>유입경로</b>: ${referralText}</p>`,
           `<p><b>마케팅 수신 동의</b>: ${user.marketingConsent ? '예' : '아니오'}</p>`,
           `<p><b>가입 일시</b>: ${new Date().toISOString()}</p>`,
         ].join('');
