@@ -8,6 +8,7 @@ import {
   OnchurchGetAttendanceSessionUseCase,
   OnchurchMarkAttendanceUseCase,
   OnchurchListAttendanceSessionsUseCase,
+  OnchurchGetAttendanceStatsUseCase,
 } from '@/onchurch/attendance/application/usecase/onchurch-attendance.usecase';
 import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
 
@@ -19,6 +20,7 @@ import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
     OnchurchGetAttendanceSessionUseCase,
     OnchurchMarkAttendanceUseCase,
     OnchurchListAttendanceSessionsUseCase,
+    OnchurchGetAttendanceStatsUseCase,
   ],
 })
 export class OnchurchAttendanceModule {}

@@ -8,11 +8,13 @@ import {
   OnchurchGetAttendanceSessionUseCase,
   OnchurchMarkAttendanceUseCase,
   OnchurchListAttendanceSessionsUseCase,
+  OnchurchGetAttendanceStatsUseCase,
 } from '@/onchurch/attendance/application/usecase/onchurch-attendance.usecase';
 import { OnchurchAttendanceMarkRequest } from '@/onchurch/attendance/presentation/dto/request/onchurch-attendance-mark.request';
 import {
   OnchurchAttendanceSessionListResponse,
   OnchurchAttendanceSessionResponse,
+  OnchurchAttendanceStatsResponse,
 } from '@/onchurch/attendance/presentation/dto/response/onchurch-attendance.response';
 
 @RestApiController('/onchurch/attendances', 'Onchurch Attendance')
@@ -21,6 +23,7 @@ export class OnchurchAttendanceController {
     private readonly getSessionUseCase: OnchurchGetAttendanceSessionUseCase,
     private readonly markUseCase: OnchurchMarkAttendanceUseCase,
     private readonly listSessionsUseCase: OnchurchListAttendanceSessionsUseCase,
+    private readonly getStatsUseCase: OnchurchGetAttendanceStatsUseCase,
   ) {}
 
   @RestApiGet(OnchurchAttendanceSessionResponse, { path: '/me', description: '특정 날짜·예배의 출석 성도 목록', auth: [USER_TYPE.CLIENT] })
@@ -41,5 +44,10 @@ export class OnchurchAttendanceController {
   @RestApiGet(OnchurchAttendanceSessionListResponse, { path: '/me/sessions', description: '출석 이력(세션별 인원수)', auth: [USER_TYPE.CLIENT] })
   async listSessions(@AuthSignature() s: UserSignature) {
     return new OnchurchAttendanceSessionListResponse(await this.listSessionsUseCase.execute(s.id));
+  }
+
+  @RestApiGet(OnchurchAttendanceStatsResponse, { path: '/me/stats', description: '출석 통계(추이·예배별·성도별)', auth: [USER_TYPE.CLIENT] })
+  async stats(@AuthSignature() s: UserSignature, @Query('weeks') weeks?: string) {
+    return new OnchurchAttendanceStatsResponse(await this.getStatsUseCase.execute(s.id, Number(weeks) || 4));
   }
 }
