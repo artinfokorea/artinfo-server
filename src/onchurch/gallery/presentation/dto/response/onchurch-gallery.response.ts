@@ -1,7 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { OnchurchGallery } from '@/onchurch/gallery/domain/entity/onchurch-gallery.entity';
 import { OnchurchGalleryCategory } from '@/onchurch/gallery/domain/entity/onchurch-gallery-category.entity';
-import { PublicGalleryView } from '@/onchurch/gallery/application/usecase/onchurch-list-public-gallery.usecase';
+import {
+  PublicGalleryView,
+  PublicGalleryGroup,
+  PublicGalleryPhoto,
+} from '@/onchurch/gallery/application/usecase/onchurch-list-public-gallery.usecase';
 
 export class OnchurchGalleryCategoryResponse {
   @ApiProperty({ type: Number }) id: number;
@@ -59,19 +63,57 @@ export class OnchurchGalleryListResponse {
   }
 }
 
+export class OnchurchGalleryGroupPhotoResponse {
+  @ApiProperty({ type: Number }) id: number;
+  @ApiProperty({ type: String, nullable: true }) photoUrl: string | null;
+  @ApiProperty({ type: String, nullable: true }) grad: string | null;
+  @ApiProperty({ type: String }) title: string;
+  @ApiProperty({ type: String, nullable: true }) date: string | null;
+
+  constructor(p: PublicGalleryPhoto) {
+    this.id = p.id;
+    this.photoUrl = p.photoUrl;
+    this.grad = p.grad;
+    this.title = p.title;
+    this.date = p.date;
+  }
+}
+
+export class OnchurchGalleryGroupResponse {
+  @ApiProperty({ type: String }) groupKey: string;
+  @ApiProperty({ type: Number, nullable: true }) categoryId: number | null;
+  @ApiProperty({ type: String }) title: string;
+  @ApiProperty({ type: String, nullable: true }) date: string | null;
+  @ApiProperty({ type: String, nullable: true }) coverUrl: string | null;
+  @ApiProperty({ type: String, nullable: true }) grad: string | null;
+  @ApiProperty({ type: Number }) count: number;
+  @ApiProperty({ type: [OnchurchGalleryGroupPhotoResponse] }) photos: OnchurchGalleryGroupPhotoResponse[];
+
+  constructor(g: PublicGalleryGroup) {
+    this.groupKey = g.groupKey;
+    this.categoryId = g.categoryId;
+    this.title = g.title;
+    this.date = g.date;
+    this.coverUrl = g.coverUrl;
+    this.grad = g.grad;
+    this.count = g.count;
+    this.photos = g.photos.map(p => new OnchurchGalleryGroupPhotoResponse(p));
+  }
+}
+
 export class OnchurchPublicGalleryResponse {
   @ApiProperty({ type: [OnchurchGalleryCategoryResponse] })
   categories: OnchurchGalleryCategoryResponse[];
 
-  @ApiProperty({ type: [OnchurchGalleryResponse] })
-  galleries: OnchurchGalleryResponse[];
+  @ApiProperty({ type: [OnchurchGalleryGroupResponse] })
+  groups: OnchurchGalleryGroupResponse[];
 
   @ApiProperty({ type: Number })
   totalCount: number;
 
   constructor(view: PublicGalleryView) {
     this.categories = view.categories.map(c => new OnchurchGalleryCategoryResponse(c));
-    this.galleries = view.galleries.map(g => new OnchurchGalleryResponse(g));
+    this.groups = view.groups.map(g => new OnchurchGalleryGroupResponse(g));
     this.totalCount = view.totalCount;
   }
 }
