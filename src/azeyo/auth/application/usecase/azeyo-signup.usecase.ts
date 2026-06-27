@@ -16,6 +16,14 @@ import { AzeyoAlimtalkHistory } from '@/azeyo/notification/domain/entity/azeyo-a
 import { ALIMTALK_TEMPLATE } from '@/azeyo/notification/domain/constant/alimtalk-template.constant';
 import { AZEYO_NOTIFICATION_SETTING_REPOSITORY, IAzeyoNotificationSettingRepository } from '@/azeyo/notification/domain/repository/azeyo-notification-setting.repository.interface';
 
+const DEFAULT_PROFILE_IMAGE_URLS = [
+  'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/4637/images/20260627/original/8nmcrT4tcLK.1782573331128.png',
+  'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/4637/images/20260627/original/PVOFkW14vLV.1782573361028.png',
+  'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/4637/images/20260627/original/YKaQ-nVFxnk.1782573378515.png',
+  'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/4637/images/20260627/original/EPvU9CMs78Y.1782573390162.png',
+  'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/4637/images/20260627/original/X58jfl85W8o.1782573400930.png',
+];
+
 @Injectable()
 export class AzeyoSignupUseCase {
   constructor(
@@ -59,8 +67,7 @@ export class AzeyoSignupUseCase {
       return await this.authRepository.create({ type: command.snsType as AZEYO_AUTH_TYPE, userId: existingUser.id }, existingUser);
     }
 
-    const randomProfileNumber = Math.floor(Math.random() * 12) + 1;
-    const defaultIconUrl = `https://azeyo-storage.s3.ap-northeast-2.amazonaws.com/prod/azeyo/system/profiles/${randomProfileNumber}.jpg`;
+    const defaultIconUrl = DEFAULT_PROFILE_IMAGE_URLS[Math.floor(Math.random() * DEFAULT_PROFILE_IMAGE_URLS.length)];
 
     const userId = await this.userRepository.create({
       name: snsUserInfo.name,
