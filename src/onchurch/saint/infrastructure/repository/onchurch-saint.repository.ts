@@ -42,6 +42,13 @@ export class OnchurchSaintRepository implements IOnchurchSaintRepository {
     return this.repo.save(v);
   }
 
+  async updateMemo(churchId: number, id: number, memo: string | null): Promise<OnchurchSaint> {
+    const v = await this.repo.findOneBy({ id, churchId });
+    if (!v) throw new OnchurchSaintNotFound();
+    v.memo = memo;
+    return this.repo.save(v);
+  }
+
   async remove(churchId: number, id: number): Promise<void> {
     const v = await this.repo.findOneBy({ id, churchId });
     if (!v) throw new OnchurchSaintNotFound();

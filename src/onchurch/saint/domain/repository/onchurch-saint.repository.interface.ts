@@ -21,5 +21,6 @@ export interface IOnchurchSaintRepository {
   findByIds(churchId: number, ids: number[]): Promise<OnchurchSaint[]>;
   create(churchId: number, params: OnchurchSaintWriteParams): Promise<OnchurchSaint>;
   update(churchId: number, id: number, params: OnchurchSaintWriteParams): Promise<OnchurchSaint>;
+  updateMemo(churchId: number, id: number, memo: string | null): Promise<OnchurchSaint>;
   remove(churchId: number, id: number): Promise<void>;
 }

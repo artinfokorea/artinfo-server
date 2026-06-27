@@ -8,6 +8,7 @@ import {
   OnchurchListMySaintsUseCase,
   OnchurchCreateMySaintUseCase,
   OnchurchUpdateMySaintUseCase,
+  OnchurchUpdateMySaintMemoUseCase,
   OnchurchDeleteMySaintUseCase,
 } from '@/onchurch/saint/application/usecase/onchurch-saint.usecase';
 import {
@@ -15,12 +16,20 @@ import {
   OnchurchCreateMySaintRelationUseCase,
   OnchurchDeleteMySaintRelationUseCase,
 } from '@/onchurch/saint/application/usecase/onchurch-saint-relation.usecase';
+import {
+  OnchurchListMySaintPrayersUseCase,
+  OnchurchCreateMySaintPrayerUseCase,
+  OnchurchDeleteMySaintPrayerUseCase,
+} from '@/onchurch/saint/application/usecase/onchurch-saint-prayer.usecase';
 import { OnchurchSaintWriteRequest } from '@/onchurch/saint/presentation/dto/request/onchurch-saint-write.request';
 import { OnchurchSaintRelationCreateRequest } from '@/onchurch/saint/presentation/dto/request/onchurch-saint-relation-create.request';
+import { OnchurchSaintPrayerCreateRequest } from '@/onchurch/saint/presentation/dto/request/onchurch-saint-prayer-create.request';
+import { OnchurchSaintMemoUpdateRequest } from '@/onchurch/saint/presentation/dto/request/onchurch-saint-memo-update.request';
 import {
   OnchurchSaintListResponse,
   OnchurchSaintRelationListResponse,
   OnchurchSaintResponse,
+  OnchurchSaintPrayerListResponse,
 } from '@/onchurch/saint/presentation/dto/response/onchurch-saint.response';
 
 @RestApiController('/onchurch/saints', 'Onchurch Saint')
@@ -33,6 +42,10 @@ export class OnchurchSaintController {
     private readonly listRelationsUseCase: OnchurchListMySaintRelationsUseCase,
     private readonly createRelationUseCase: OnchurchCreateMySaintRelationUseCase,
     private readonly deleteRelationUseCase: OnchurchDeleteMySaintRelationUseCase,
+    private readonly updateMemoUseCase: OnchurchUpdateMySaintMemoUseCase,
+    private readonly listPrayersUseCase: OnchurchListMySaintPrayersUseCase,
+    private readonly createPrayerUseCase: OnchurchCreateMySaintPrayerUseCase,
+    private readonly deletePrayerUseCase: OnchurchDeleteMySaintPrayerUseCase,
   ) {}
 
   @RestApiGet(OnchurchSaintListResponse, { path: '/me', description: '내 교회 성도 목록', auth: [USER_TYPE.CLIENT] })
@@ -70,6 +83,29 @@ export class OnchurchSaintController {
   @RestApiDelete(OkResponse, { path: '/me/relations/:relationId', description: '성도 가족관계 삭제', auth: [USER_TYPE.CLIENT] })
   async deleteRelation(@AuthSignature() s: UserSignature, @Param('relationId', ParseIntPipe) relationId: number) {
     await this.deleteRelationUseCase.execute(s.id, relationId);
+    return new OkResponse();
+  }
+
+  @RestApiPut(OnchurchSaintResponse, { path: '/me/:id/memo', description: '성도 메모 저장', auth: [USER_TYPE.CLIENT] })
+  async updateMemo(@AuthSignature() s: UserSignature, @Param('id', ParseIntPipe) id: number, @Body() req: OnchurchSaintMemoUpdateRequest) {
+    const memo = (req.memo ?? '').trim() || null;
+    return new OnchurchSaintResponse(await this.updateMemoUseCase.execute(s.id, id, memo));
+  }
+
+  @RestApiGet(OnchurchSaintPrayerListResponse, { path: '/me/:id/prayers', description: '성도 기도목록', auth: [USER_TYPE.CLIENT] })
+  async listPrayers(@AuthSignature() s: UserSignature, @Param('id', ParseIntPipe) id: number) {
+    return new OnchurchSaintPrayerListResponse(await this.listPrayersUseCase.execute(s.id, id));
+  }
+
+  @RestApiPost(OkResponse, { path: '/me/:id/prayers', description: '성도 기도 추가', auth: [USER_TYPE.CLIENT] })
+  async createPrayer(@AuthSignature() s: UserSignature, @Param('id', ParseIntPipe) id: number, @Body() req: OnchurchSaintPrayerCreateRequest) {
+    await this.createPrayerUseCase.execute(s.id, id, req.content.trim());
+    return new OkResponse();
+  }
+
+  @RestApiDelete(OkResponse, { path: '/me/prayers/:prayerId', description: '성도 기도 삭제', auth: [USER_TYPE.CLIENT] })
+  async deletePrayer(@AuthSignature() s: UserSignature, @Param('prayerId', ParseIntPipe) prayerId: number) {
+    await this.deletePrayerUseCase.execute(s.id, prayerId);
     return new OkResponse();
   }
 }

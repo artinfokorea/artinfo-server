@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { OnchurchSaint, OnchurchSaintGender } from '@/onchurch/saint/domain/entity/onchurch-saint.entity';
+import { OnchurchSaintPrayer } from '@/onchurch/saint/domain/entity/onchurch-saint-prayer.entity';
 import { OnchurchSaintRelationView } from '@/onchurch/saint/application/usecase/onchurch-saint-relation.usecase';
 
 export class OnchurchSaintResponse {
@@ -14,6 +15,7 @@ export class OnchurchSaintResponse {
   @ApiProperty({ type: String, nullable: true }) position: string | null;
   @ApiProperty({ type: String, nullable: true }) ordinationDate: string | null;
   @ApiProperty({ type: String, nullable: true }) faithLevel: string | null;
+  @ApiProperty({ type: String, nullable: true }) memo: string | null;
 
   constructor(s: OnchurchSaint) {
     this.id = s.id;
@@ -27,6 +29,7 @@ export class OnchurchSaintResponse {
     this.position = s.position;
     this.ordinationDate = s.ordinationDate;
     this.faithLevel = s.faithLevel;
+    this.memo = s.memo;
   }
 }
 
@@ -59,5 +62,25 @@ export class OnchurchSaintRelationListResponse {
   relations: OnchurchSaintRelationResponse[];
   constructor(items: OnchurchSaintRelationView[]) {
     this.relations = items.map((v) => new OnchurchSaintRelationResponse(v));
+  }
+}
+
+export class OnchurchSaintPrayerResponse {
+  @ApiProperty({ type: Number }) id: number;
+  @ApiProperty({ type: String }) content: string;
+  @ApiProperty({ type: String }) createdAt: string;
+
+  constructor(p: OnchurchSaintPrayer) {
+    this.id = p.id;
+    this.content = p.content;
+    this.createdAt = p.createdAt instanceof Date ? p.createdAt.toISOString() : String(p.createdAt);
+  }
+}
+
+export class OnchurchSaintPrayerListResponse {
+  @ApiProperty({ type: [OnchurchSaintPrayerResponse] })
+  prayers: OnchurchSaintPrayerResponse[];
+  constructor(items: OnchurchSaintPrayer[]) {
+    this.prayers = items.map((p) => new OnchurchSaintPrayerResponse(p));
   }
 }

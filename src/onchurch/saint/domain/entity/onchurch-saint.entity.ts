@@ -40,6 +40,10 @@ export class OnchurchSaint extends BaseEntity {
   @Column({ type: 'varchar', name: 'faith_level', nullable: true, length: 40 })
   faithLevel: string | null;
 
+  // 관리자용 자유 메모.
+  @Column({ type: 'text', name: 'memo', nullable: true })
+  memo: string | null;
+
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 

@@ -47,3 +47,15 @@ export class OnchurchSaintRelationInvalid extends HttpException {
     );
   }
 }
+
+export class OnchurchSaintPrayerNotFound extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-SAINT-005',
+        message: '기도 항목을 찾을 수 없습니다.',
+      },
+      HttpStatus.NOT_FOUND,
+    );
+  }
+}
