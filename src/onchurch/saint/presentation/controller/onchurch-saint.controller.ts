@@ -9,6 +9,7 @@ import {
   OnchurchCreateMySaintUseCase,
   OnchurchUpdateMySaintUseCase,
   OnchurchUpdateMySaintMemoUseCase,
+  OnchurchUpdateMySaintFavoriteUseCase,
   OnchurchDeleteMySaintUseCase,
 } from '@/onchurch/saint/application/usecase/onchurch-saint.usecase';
 import {
@@ -25,6 +26,7 @@ import { OnchurchSaintWriteRequest } from '@/onchurch/saint/presentation/dto/req
 import { OnchurchSaintRelationCreateRequest } from '@/onchurch/saint/presentation/dto/request/onchurch-saint-relation-create.request';
 import { OnchurchSaintPrayerCreateRequest } from '@/onchurch/saint/presentation/dto/request/onchurch-saint-prayer-create.request';
 import { OnchurchSaintMemoUpdateRequest } from '@/onchurch/saint/presentation/dto/request/onchurch-saint-memo-update.request';
+import { OnchurchSaintFavoriteUpdateRequest } from '@/onchurch/saint/presentation/dto/request/onchurch-saint-favorite-update.request';
 import {
   OnchurchSaintListResponse,
   OnchurchSaintRelationListResponse,
@@ -43,6 +45,7 @@ export class OnchurchSaintController {
     private readonly createRelationUseCase: OnchurchCreateMySaintRelationUseCase,
     private readonly deleteRelationUseCase: OnchurchDeleteMySaintRelationUseCase,
     private readonly updateMemoUseCase: OnchurchUpdateMySaintMemoUseCase,
+    private readonly updateFavoriteUseCase: OnchurchUpdateMySaintFavoriteUseCase,
     private readonly listPrayersUseCase: OnchurchListMySaintPrayersUseCase,
     private readonly createPrayerUseCase: OnchurchCreateMySaintPrayerUseCase,
     private readonly deletePrayerUseCase: OnchurchDeleteMySaintPrayerUseCase,
@@ -90,6 +93,11 @@ export class OnchurchSaintController {
   async updateMemo(@AuthSignature() s: UserSignature, @Param('id', ParseIntPipe) id: number, @Body() req: OnchurchSaintMemoUpdateRequest) {
     const memo = (req.memo ?? '').trim() || null;
     return new OnchurchSaintResponse(await this.updateMemoUseCase.execute(s.id, id, memo));
+  }
+
+  @RestApiPut(OnchurchSaintResponse, { path: '/me/:id/favorite', description: '성도 즐겨찾기 설정', auth: [USER_TYPE.CLIENT] })
+  async updateFavorite(@AuthSignature() s: UserSignature, @Param('id', ParseIntPipe) id: number, @Body() req: OnchurchSaintFavoriteUpdateRequest) {
+    return new OnchurchSaintResponse(await this.updateFavoriteUseCase.execute(s.id, id, !!req.isFavorite));
   }
 
   @RestApiGet(OnchurchSaintPrayerListResponse, { path: '/me/:id/prayers', description: '성도 기도목록', auth: [USER_TYPE.CLIENT] })

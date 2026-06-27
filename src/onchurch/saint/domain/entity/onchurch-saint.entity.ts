@@ -44,6 +44,10 @@ export class OnchurchSaint extends BaseEntity {
   @Column({ type: 'text', name: 'memo', nullable: true })
   memo: string | null;
 
+  // 출석체크 등에서 상단 고정용 즐겨찾기.
+  @Column({ type: 'boolean', name: 'is_favorite', default: false })
+  isFavorite: boolean;
+
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 

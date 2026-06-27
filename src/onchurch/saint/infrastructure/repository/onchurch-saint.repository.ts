@@ -49,6 +49,13 @@ export class OnchurchSaintRepository implements IOnchurchSaintRepository {
     return this.repo.save(v);
   }
 
+  async updateFavorite(churchId: number, id: number, isFavorite: boolean): Promise<OnchurchSaint> {
+    const v = await this.repo.findOneBy({ id, churchId });
+    if (!v) throw new OnchurchSaintNotFound();
+    v.isFavorite = isFavorite;
+    return this.repo.save(v);
+  }
+
   async remove(churchId: number, id: number): Promise<void> {
     const v = await this.repo.findOneBy({ id, churchId });
     if (!v) throw new OnchurchSaintNotFound();

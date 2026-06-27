@@ -15,6 +15,7 @@ import {
   OnchurchCreateMySaintUseCase,
   OnchurchUpdateMySaintUseCase,
   OnchurchUpdateMySaintMemoUseCase,
+  OnchurchUpdateMySaintFavoriteUseCase,
   OnchurchDeleteMySaintUseCase,
 } from '@/onchurch/saint/application/usecase/onchurch-saint.usecase';
 import {
@@ -40,6 +41,7 @@ import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
     OnchurchCreateMySaintUseCase,
     OnchurchUpdateMySaintUseCase,
     OnchurchUpdateMySaintMemoUseCase,
+    OnchurchUpdateMySaintFavoriteUseCase,
     OnchurchDeleteMySaintUseCase,
     OnchurchListMySaintRelationsUseCase,
     OnchurchCreateMySaintRelationUseCase,

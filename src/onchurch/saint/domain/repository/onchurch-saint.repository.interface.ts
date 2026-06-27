@@ -22,5 +22,6 @@ export interface IOnchurchSaintRepository {
   create(churchId: number, params: OnchurchSaintWriteParams): Promise<OnchurchSaint>;
   update(churchId: number, id: number, params: OnchurchSaintWriteParams): Promise<OnchurchSaint>;
   updateMemo(churchId: number, id: number, memo: string | null): Promise<OnchurchSaint>;
+  updateFavorite(churchId: number, id: number, isFavorite: boolean): Promise<OnchurchSaint>;
   remove(churchId: number, id: number): Promise<void>;
 }

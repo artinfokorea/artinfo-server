@@ -16,6 +16,7 @@ export class OnchurchSaintResponse {
   @ApiProperty({ type: String, nullable: true }) ordinationDate: string | null;
   @ApiProperty({ type: String, nullable: true }) faithLevel: string | null;
   @ApiProperty({ type: String, nullable: true }) memo: string | null;
+  @ApiProperty({ type: Boolean }) isFavorite: boolean;
 
   constructor(s: OnchurchSaint) {
     this.id = s.id;
@@ -30,6 +31,7 @@ export class OnchurchSaintResponse {
     this.ordinationDate = s.ordinationDate;
     this.faithLevel = s.faithLevel;
     this.memo = s.memo;
+    this.isFavorite = s.isFavorite ?? false;
   }
 }
 

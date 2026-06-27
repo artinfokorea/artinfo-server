@@ -76,6 +76,21 @@ export class OnchurchUpdateMySaintMemoUseCase {
 }
 
 @Injectable()
+export class OnchurchUpdateMySaintFavoriteUseCase {
+  constructor(
+    @Inject(ONCHURCH_SAINT_REPOSITORY) private readonly repo: IOnchurchSaintRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
+  ) {}
+  async execute(userId: number, id: number, isFavorite: boolean): Promise<OnchurchSaint> {
+    const church = await this.managerResolver.resolveManagedChurch(userId);
+    if (!church) throw new OnchurchSaintChurchNotConfigured();
+    const owned = await this.repo.findOwnedById(church.id, id);
+    if (!owned) throw new OnchurchSaintNotFound();
+    return this.repo.updateFavorite(church.id, id, isFavorite);
+  }
+}
+
+@Injectable()
 export class OnchurchDeleteMySaintUseCase {
   constructor(
     @Inject(ONCHURCH_SAINT_REPOSITORY) private readonly repo: IOnchurchSaintRepository,
