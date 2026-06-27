@@ -15,6 +15,7 @@ import { OnchurchInquiryModule } from '@/onchurch/inquiry/onchurch-inquiry.modul
 import { OnchurchBulletinModule } from '@/onchurch/bulletin/onchurch-bulletin.module';
 import { OnchurchCommunityModule } from '@/onchurch/community/onchurch-community.module';
 import { OnchurchSaintModule } from '@/onchurch/saint/onchurch-saint.module';
+import { OnchurchVisitationModule } from '@/onchurch/visitation/onchurch-visitation.module';
 import { OnchurchAttendanceModule } from '@/onchurch/attendance/onchurch-attendance.module';
 import { OnchurchMasterModule } from '@/onchurch/master/onchurch-master.module';
 
@@ -36,6 +37,7 @@ import { OnchurchMasterModule } from '@/onchurch/master/onchurch-master.module';
     OnchurchBulletinModule,
     OnchurchCommunityModule,
     OnchurchSaintModule,
+    OnchurchVisitationModule,
     OnchurchAttendanceModule,
     OnchurchMasterModule,
   ],
