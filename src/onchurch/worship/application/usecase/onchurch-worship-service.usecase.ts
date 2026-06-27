@@ -11,6 +11,10 @@ import {
   OnchurchWorshipServiceNotFound,
 } from '@/onchurch/worship/domain/exception/onchurch-worship.exception';
 import { OnchurchChurchRequiredService } from '@/onchurch/church/application/service/onchurch-church-required.service';
+import {
+  ONCHURCH_ATTENDANCE_REPOSITORY,
+  IOnchurchAttendanceRepository,
+} from '@/onchurch/attendance/domain/repository/onchurch-attendance.repository.interface';
 
 @Injectable()
 export class OnchurchListMyWorshipServicesUseCase {
@@ -60,6 +64,7 @@ export class OnchurchUpdateMyWorshipServiceUseCase {
 export class OnchurchDeleteMyWorshipServiceUseCase {
   constructor(
     @Inject(ONCHURCH_WORSHIP_SERVICE_REPOSITORY) private readonly repo: IOnchurchWorshipServiceRepository,
+    @Inject(ONCHURCH_ATTENDANCE_REPOSITORY) private readonly attendanceRepo: IOnchurchAttendanceRepository,
     private readonly managerResolver: OnchurchChurchManagerResolver,
     private readonly requiredService: OnchurchChurchRequiredService,
   ) {}
@@ -69,6 +74,8 @@ export class OnchurchDeleteMyWorshipServiceUseCase {
     const owned = await this.repo.findOwnedById(church.id, id);
     if (!owned) throw new OnchurchWorshipServiceNotFound();
     await this.repo.remove(church.id, id);
+    // 예배와 연결된(같은 예배 이름) 성도 출석 기록도 함께 soft delete.
+    await this.attendanceRepo.softRemoveByServiceType(church.id, owned.name);
     await this.requiredService.autoUnpublishIfMissing(church);
   }
 }

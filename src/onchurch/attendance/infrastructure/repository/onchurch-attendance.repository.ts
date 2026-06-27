@@ -35,6 +35,12 @@ export class OnchurchAttendanceRepository implements IOnchurchAttendanceReposito
     if (v) await this.repo.softRemove(v);
   }
 
+  // 예배(serviceType)가 삭제될 때 해당 예배의 모든 출석 기록을 함께 soft delete 한다.
+  async softRemoveByServiceType(churchId: number, serviceType: string): Promise<number> {
+    const result = await this.repo.softDelete({ churchId, serviceType });
+    return result.affected ?? 0;
+  }
+
   async listSessions(churchId: number): Promise<OnchurchAttendanceSessionCount[]> {
     const rows = await this.repo
       .createQueryBuilder('a')

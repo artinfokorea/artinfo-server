@@ -29,6 +29,7 @@ export interface IOnchurchAttendanceRepository {
   findOne(churchId: number, saintId: number, date: string, serviceType: string): Promise<OnchurchAttendance | null>;
   create(churchId: number, saintId: number, date: string, serviceType: string): Promise<OnchurchAttendance>;
   removeById(churchId: number, id: number): Promise<void>;
+  softRemoveByServiceType(churchId: number, serviceType: string): Promise<number>;
   listSessions(churchId: number): Promise<OnchurchAttendanceSessionCount[]>;
   trendByDate(churchId: number, fromDate: string): Promise<OnchurchAttendanceDateCount[]>;
   statsByService(churchId: number, fromDate: string): Promise<OnchurchAttendanceServiceStat[]>;

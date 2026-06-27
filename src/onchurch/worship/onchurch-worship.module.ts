@@ -23,9 +23,14 @@ import {
 } from '@/onchurch/worship/application/usecase/onchurch-worship-order.usecase';
 import { OnchurchListPublicWorshipUseCase } from '@/onchurch/worship/application/usecase/onchurch-list-public-worship.usecase';
 import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
+import { OnchurchAttendanceModule } from '@/onchurch/attendance/onchurch-attendance.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OnchurchWorshipService, OnchurchWorshipOrder]), OnchurchChurchModule],
+  imports: [
+    TypeOrmModule.forFeature([OnchurchWorshipService, OnchurchWorshipOrder]),
+    OnchurchChurchModule,
+    OnchurchAttendanceModule,
+  ],
   controllers: [OnchurchWorshipServiceController, OnchurchWorshipOrderController, OnchurchPublicWorshipController],
   providers: [
     { provide: ONCHURCH_WORSHIP_SERVICE_REPOSITORY, useClass: OnchurchWorshipServiceRepository },

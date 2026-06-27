@@ -22,5 +22,6 @@ import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
     OnchurchListAttendanceSessionsUseCase,
     OnchurchGetAttendanceStatsUseCase,
   ],
+  exports: [ONCHURCH_ATTENDANCE_REPOSITORY],
 })
 export class OnchurchAttendanceModule {}
