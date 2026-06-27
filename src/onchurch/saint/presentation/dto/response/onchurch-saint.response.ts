@@ -1,7 +1,27 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { OnchurchSaint, OnchurchSaintGender } from '@/onchurch/saint/domain/entity/onchurch-saint.entity';
 import { OnchurchSaintPrayer } from '@/onchurch/saint/domain/entity/onchurch-saint-prayer.entity';
+import { OnchurchSaintTag } from '@/onchurch/saint/domain/entity/onchurch-saint-tag.entity';
+import { OnchurchSaintWithTags } from '@/onchurch/saint/application/usecase/onchurch-saint.usecase';
 import { OnchurchSaintRelationView } from '@/onchurch/saint/application/usecase/onchurch-saint-relation.usecase';
+
+export class OnchurchSaintTagResponse {
+  @ApiProperty({ type: Number }) id: number;
+  @ApiProperty({ type: String }) name: string;
+
+  constructor(t: OnchurchSaintTag) {
+    this.id = t.id;
+    this.name = t.name;
+  }
+}
+
+export class OnchurchSaintTagListResponse {
+  @ApiProperty({ type: [OnchurchSaintTagResponse] })
+  tags: OnchurchSaintTagResponse[];
+  constructor(items: OnchurchSaintTag[]) {
+    this.tags = items.map((t) => new OnchurchSaintTagResponse(t));
+  }
+}
 
 export class OnchurchSaintResponse {
   @ApiProperty({ type: Number }) id: number;
@@ -17,8 +37,9 @@ export class OnchurchSaintResponse {
   @ApiProperty({ type: String, nullable: true }) faithLevel: string | null;
   @ApiProperty({ type: String, nullable: true }) memo: string | null;
   @ApiProperty({ type: Boolean }) isFavorite: boolean;
+  @ApiProperty({ type: [OnchurchSaintTagResponse] }) tags: OnchurchSaintTagResponse[];
 
-  constructor(s: OnchurchSaint) {
+  constructor(s: OnchurchSaint, tags: OnchurchSaintTag[] = []) {
     this.id = s.id;
     this.name = s.name;
     this.photoUrl = s.photoUrl;
@@ -32,14 +53,15 @@ export class OnchurchSaintResponse {
     this.faithLevel = s.faithLevel;
     this.memo = s.memo;
     this.isFavorite = s.isFavorite ?? false;
+    this.tags = tags.map((t) => new OnchurchSaintTagResponse(t));
   }
 }
 
 export class OnchurchSaintListResponse {
   @ApiProperty({ type: [OnchurchSaintResponse] })
   saints: OnchurchSaintResponse[];
-  constructor(items: OnchurchSaint[]) {
-    this.saints = items.map((s) => new OnchurchSaintResponse(s));
+  constructor(items: OnchurchSaintWithTags[]) {
+    this.saints = items.map((v) => new OnchurchSaintResponse(v.saint, v.tags));
   }
 }
 

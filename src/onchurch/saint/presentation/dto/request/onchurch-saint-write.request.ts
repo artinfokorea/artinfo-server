@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsIn, IsOptional, MaxLength } from 'class-validator';
+import { IsArray, IsEmail, IsIn, IsInt, IsOptional, MaxLength } from 'class-validator';
 import { NotBlank } from '@/common/decorator/validator';
 import { OnchurchSaintGender } from '@/onchurch/saint/domain/entity/onchurch-saint.entity';
 import { OnchurchSaintWriteCommand } from '@/onchurch/saint/application/command/onchurch-saint-write.command';
@@ -61,6 +61,12 @@ export class OnchurchSaintWriteRequest {
   @MaxLength(40)
   @ApiProperty({ type: String, required: false, nullable: true, description: '신급', example: '세례' })
   faithLevel: string | null;
+
+  @IsOptional()
+  @IsArray()
+  @IsInt({ each: true })
+  @ApiProperty({ type: [Number], required: false, description: '연결할 태그 ID 목록', example: [1, 2] })
+  tagIds?: number[];
 
   toCommand(): OnchurchSaintWriteCommand {
     return new OnchurchSaintWriteCommand({

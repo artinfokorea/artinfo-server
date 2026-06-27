@@ -53,3 +53,30 @@ CREATE TABLE IF NOT EXISTS onchurch_saint_prayers (
 );
 CREATE INDEX IF NOT EXISTS idx_onchurch_saint_prayers_church ON onchurch_saint_prayers (church_id);
 CREATE INDEX IF NOT EXISTS idx_onchurch_saint_prayers_saint ON onchurch_saint_prayers (church_id, saint_id);
+
+-- 교회별 커스터마이징 가능한 성도 태그 정의
+-- 기본값(청년부·여전도회·남전도회)은 최초 조회 시 서버가 자동 시드한다.
+CREATE TABLE IF NOT EXISTS onchurch_saint_tags (
+  id          SERIAL PRIMARY KEY,
+  church_id   INTEGER NOT NULL,
+  name        VARCHAR(40) NOT NULL,
+  sort_order  INTEGER NOT NULL DEFAULT 0,
+  created_at  TIMESTAMP NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMP NOT NULL DEFAULT now(),
+  deleted_at  TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_onchurch_saint_tags_church ON onchurch_saint_tags (church_id);
+
+-- 성도 ↔ 태그 연결(다대다)
+CREATE TABLE IF NOT EXISTS onchurch_saint_tag_links (
+  id          SERIAL PRIMARY KEY,
+  church_id   INTEGER NOT NULL,
+  saint_id    INTEGER NOT NULL,
+  tag_id      INTEGER NOT NULL,
+  created_at  TIMESTAMP NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMP NOT NULL DEFAULT now(),
+  deleted_at  TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_onchurch_saint_tag_links_church ON onchurch_saint_tag_links (church_id);
+CREATE INDEX IF NOT EXISTS idx_onchurch_saint_tag_links_saint ON onchurch_saint_tag_links (church_id, saint_id);
+CREATE INDEX IF NOT EXISTS idx_onchurch_saint_tag_links_tag ON onchurch_saint_tag_links (church_id, tag_id);

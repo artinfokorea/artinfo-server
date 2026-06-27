@@ -59,3 +59,27 @@ export class OnchurchSaintPrayerNotFound extends HttpException {
     );
   }
 }
+
+export class OnchurchSaintTagNotFound extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-SAINT-006',
+        message: '태그를 찾을 수 없습니다.',
+      },
+      HttpStatus.NOT_FOUND,
+    );
+  }
+}
+
+export class OnchurchSaintTagDuplicated extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-SAINT-007',
+        message: '이미 등록된 태그입니다.',
+      },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+}

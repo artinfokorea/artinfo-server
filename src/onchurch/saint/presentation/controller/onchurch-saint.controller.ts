@@ -22,16 +22,26 @@ import {
   OnchurchCreateMySaintPrayerUseCase,
   OnchurchDeleteMySaintPrayerUseCase,
 } from '@/onchurch/saint/application/usecase/onchurch-saint-prayer.usecase';
+import {
+  OnchurchListMySaintTagsUseCase,
+  OnchurchCreateMySaintTagUseCase,
+  OnchurchDeleteMySaintTagUseCase,
+  OnchurchSetMySaintTagsUseCase,
+} from '@/onchurch/saint/application/usecase/onchurch-saint-tag.usecase';
 import { OnchurchSaintWriteRequest } from '@/onchurch/saint/presentation/dto/request/onchurch-saint-write.request';
 import { OnchurchSaintRelationCreateRequest } from '@/onchurch/saint/presentation/dto/request/onchurch-saint-relation-create.request';
 import { OnchurchSaintPrayerCreateRequest } from '@/onchurch/saint/presentation/dto/request/onchurch-saint-prayer-create.request';
 import { OnchurchSaintMemoUpdateRequest } from '@/onchurch/saint/presentation/dto/request/onchurch-saint-memo-update.request';
 import { OnchurchSaintFavoriteUpdateRequest } from '@/onchurch/saint/presentation/dto/request/onchurch-saint-favorite-update.request';
+import { OnchurchSaintTagCreateRequest } from '@/onchurch/saint/presentation/dto/request/onchurch-saint-tag-create.request';
+import { OnchurchSaintTagsSetRequest } from '@/onchurch/saint/presentation/dto/request/onchurch-saint-tags-set.request';
 import {
   OnchurchSaintListResponse,
   OnchurchSaintRelationListResponse,
   OnchurchSaintResponse,
   OnchurchSaintPrayerListResponse,
+  OnchurchSaintTagListResponse,
+  OnchurchSaintTagResponse,
 } from '@/onchurch/saint/presentation/dto/response/onchurch-saint.response';
 
 @RestApiController('/onchurch/saints', 'Onchurch Saint')
@@ -49,6 +59,10 @@ export class OnchurchSaintController {
     private readonly listPrayersUseCase: OnchurchListMySaintPrayersUseCase,
     private readonly createPrayerUseCase: OnchurchCreateMySaintPrayerUseCase,
     private readonly deletePrayerUseCase: OnchurchDeleteMySaintPrayerUseCase,
+    private readonly listTagsUseCase: OnchurchListMySaintTagsUseCase,
+    private readonly createTagUseCase: OnchurchCreateMySaintTagUseCase,
+    private readonly deleteTagUseCase: OnchurchDeleteMySaintTagUseCase,
+    private readonly setTagsUseCase: OnchurchSetMySaintTagsUseCase,
   ) {}
 
   @RestApiGet(OnchurchSaintListResponse, { path: '/me', description: '내 교회 성도 목록', auth: [USER_TYPE.CLIENT] })
@@ -56,14 +70,40 @@ export class OnchurchSaintController {
     return new OnchurchSaintListResponse(await this.listUseCase.execute(s.id));
   }
 
+  @RestApiGet(OnchurchSaintTagListResponse, { path: '/me/tags', description: '성도 태그 목록', auth: [USER_TYPE.CLIENT] })
+  async listTags(@AuthSignature() s: UserSignature) {
+    return new OnchurchSaintTagListResponse(await this.listTagsUseCase.execute(s.id));
+  }
+
+  @RestApiPost(OnchurchSaintTagResponse, { path: '/me/tags', description: '성도 태그 추가', auth: [USER_TYPE.CLIENT] })
+  async createTag(@AuthSignature() s: UserSignature, @Body() req: OnchurchSaintTagCreateRequest) {
+    return new OnchurchSaintTagResponse(await this.createTagUseCase.execute(s.id, req.name.trim()));
+  }
+
+  @RestApiDelete(OkResponse, { path: '/me/tags/:tagId', description: '성도 태그 삭제', auth: [USER_TYPE.CLIENT] })
+  async deleteTag(@AuthSignature() s: UserSignature, @Param('tagId', ParseIntPipe) tagId: number) {
+    await this.deleteTagUseCase.execute(s.id, tagId);
+    return new OkResponse();
+  }
+
   @RestApiPost(OnchurchSaintResponse, { path: '/me', description: '성도 추가', auth: [USER_TYPE.CLIENT] })
   async createMine(@AuthSignature() s: UserSignature, @Body() req: OnchurchSaintWriteRequest) {
-    return new OnchurchSaintResponse(await this.createUseCase.execute(s.id, req.toCommand()));
+    const created = await this.createUseCase.execute(s.id, req.toCommand());
+    if (req.tagIds && req.tagIds.length) await this.setTagsUseCase.execute(s.id, created.id, req.tagIds);
+    return new OnchurchSaintResponse(created);
   }
 
   @RestApiPut(OnchurchSaintResponse, { path: '/me/:id', description: '성도 수정', auth: [USER_TYPE.CLIENT] })
   async updateMine(@AuthSignature() s: UserSignature, @Param('id', ParseIntPipe) id: number, @Body() req: OnchurchSaintWriteRequest) {
-    return new OnchurchSaintResponse(await this.updateUseCase.execute(s.id, id, req.toCommand()));
+    const updated = await this.updateUseCase.execute(s.id, id, req.toCommand());
+    await this.setTagsUseCase.execute(s.id, id, req.tagIds ?? []);
+    return new OnchurchSaintResponse(updated);
+  }
+
+  @RestApiPut(OkResponse, { path: '/me/:id/tags', description: '성도 태그 설정', auth: [USER_TYPE.CLIENT] })
+  async setTags(@AuthSignature() s: UserSignature, @Param('id', ParseIntPipe) id: number, @Body() req: OnchurchSaintTagsSetRequest) {
+    await this.setTagsUseCase.execute(s.id, id, req.tagIds ?? []);
+    return new OkResponse();
   }
 
   @RestApiDelete(OkResponse, { path: '/me/:id', description: '성도 삭제', auth: [USER_TYPE.CLIENT] })
