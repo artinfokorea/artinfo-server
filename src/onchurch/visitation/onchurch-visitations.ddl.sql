@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS onchurch_visitations (
   church_id   INTEGER NOT NULL,
   saint_id    INTEGER,
   saint_name  VARCHAR(80) NOT NULL,
+  participants TEXT,
   minister    VARCHAR(80) NOT NULL,
   type        VARCHAR(40) NOT NULL,
   visit_date  VARCHAR(10) NOT NULL,
@@ -30,3 +31,6 @@ CREATE TABLE IF NOT EXISTS onchurch_visitation_types (
   deleted_at  TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_onchurch_visitation_types_church ON onchurch_visitation_types (church_id);
+
+-- 이미 onchurch_visitations 를 만든 뒤 participants 컬럼이 추가된 경우:
+ALTER TABLE onchurch_visitations ADD COLUMN IF NOT EXISTS participants TEXT;

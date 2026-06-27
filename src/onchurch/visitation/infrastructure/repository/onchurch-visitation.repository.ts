@@ -22,6 +22,13 @@ export class OnchurchVisitationRepository implements IOnchurchVisitationReposito
     });
   }
 
+  async findAllBySaintId(churchId: number, saintId: number): Promise<OnchurchVisitation[]> {
+    return this.repo.find({
+      where: { churchId, saintId },
+      order: { date: 'DESC', id: 'DESC' },
+    });
+  }
+
   async findOwnedById(churchId: number, id: number): Promise<OnchurchVisitation | null> {
     return this.repo.findOneBy({ id, churchId });
   }

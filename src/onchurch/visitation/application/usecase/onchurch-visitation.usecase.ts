@@ -25,6 +25,19 @@ export class OnchurchListMyVisitationsUseCase {
 }
 
 @Injectable()
+export class OnchurchListMyVisitationsBySaintUseCase {
+  constructor(
+    @Inject(ONCHURCH_VISITATION_REPOSITORY) private readonly repo: IOnchurchVisitationRepository,
+    private readonly managerResolver: OnchurchChurchManagerResolver,
+  ) {}
+  async execute(userId: number, saintId: number): Promise<OnchurchVisitation[]> {
+    const church = await this.managerResolver.resolveManagedChurch(userId);
+    if (!church) return [];
+    return this.repo.findAllBySaintId(church.id, saintId);
+  }
+}
+
+@Injectable()
 export class OnchurchCreateMyVisitationUseCase {
   constructor(
     @Inject(ONCHURCH_VISITATION_REPOSITORY) private readonly repo: IOnchurchVisitationRepository,

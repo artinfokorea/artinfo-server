@@ -6,6 +6,7 @@ import { USER_TYPE } from '@/user/entity/user.entity';
 import { OkResponse } from '@/common/response/ok.response';
 import {
   OnchurchListMyVisitationsUseCase,
+  OnchurchListMyVisitationsBySaintUseCase,
   OnchurchCreateMyVisitationUseCase,
   OnchurchUpdateMyVisitationUseCase,
   OnchurchDeleteMyVisitationUseCase,
@@ -28,6 +29,7 @@ import {
 export class OnchurchVisitationController {
   constructor(
     private readonly listUseCase: OnchurchListMyVisitationsUseCase,
+    private readonly listBySaintUseCase: OnchurchListMyVisitationsBySaintUseCase,
     private readonly createUseCase: OnchurchCreateMyVisitationUseCase,
     private readonly updateUseCase: OnchurchUpdateMyVisitationUseCase,
     private readonly deleteUseCase: OnchurchDeleteMyVisitationUseCase,
@@ -55,6 +57,11 @@ export class OnchurchVisitationController {
   @RestApiGet(OnchurchVisitationListResponse, { path: '/me', description: '내 교회 심방 기록 목록', auth: [USER_TYPE.CLIENT] })
   async listMine(@AuthSignature() s: UserSignature) {
     return new OnchurchVisitationListResponse(await this.listUseCase.execute(s.id));
+  }
+
+  @RestApiGet(OnchurchVisitationListResponse, { path: '/me/by-saint/:saintId', description: '특정 성도의 심방 기록 목록', auth: [USER_TYPE.CLIENT] })
+  async listBySaint(@AuthSignature() s: UserSignature, @Param('saintId', ParseIntPipe) saintId: number) {
+    return new OnchurchVisitationListResponse(await this.listBySaintUseCase.execute(s.id, saintId));
   }
 
   @RestApiPost(OnchurchVisitationResponse, { path: '/me', description: '심방 기록 추가', auth: [USER_TYPE.CLIENT] })

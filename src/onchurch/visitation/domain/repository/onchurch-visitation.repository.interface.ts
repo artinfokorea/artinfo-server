@@ -5,6 +5,7 @@ export const ONCHURCH_VISITATION_REPOSITORY = Symbol('ONCHURCH_VISITATION_REPOSI
 export interface OnchurchVisitationWriteParams {
   saintId: number | null;
   saintName: string;
+  participants: string | null;
   minister: string;
   type: string;
   date: string;
@@ -13,6 +14,7 @@ export interface OnchurchVisitationWriteParams {
 
 export interface IOnchurchVisitationRepository {
   findAllByChurchId(churchId: number): Promise<OnchurchVisitation[]>;
+  findAllBySaintId(churchId: number, saintId: number): Promise<OnchurchVisitation[]>;
   findOwnedById(churchId: number, id: number): Promise<OnchurchVisitation | null>;
   create(churchId: number, params: OnchurchVisitationWriteParams): Promise<OnchurchVisitation>;
   update(churchId: number, id: number, params: OnchurchVisitationWriteParams): Promise<OnchurchVisitation>;

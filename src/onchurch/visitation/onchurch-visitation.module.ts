@@ -9,6 +9,7 @@ import { OnchurchVisitationTypeRepository } from '@/onchurch/visitation/infrastr
 import { OnchurchVisitationController } from '@/onchurch/visitation/presentation/controller/onchurch-visitation.controller';
 import {
   OnchurchListMyVisitationsUseCase,
+  OnchurchListMyVisitationsBySaintUseCase,
   OnchurchCreateMyVisitationUseCase,
   OnchurchUpdateMyVisitationUseCase,
   OnchurchDeleteMyVisitationUseCase,
@@ -27,6 +28,7 @@ import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
     { provide: ONCHURCH_VISITATION_REPOSITORY, useClass: OnchurchVisitationRepository },
     { provide: ONCHURCH_VISITATION_TYPE_REPOSITORY, useClass: OnchurchVisitationTypeRepository },
     OnchurchListMyVisitationsUseCase,
+    OnchurchListMyVisitationsBySaintUseCase,
     OnchurchCreateMyVisitationUseCase,
     OnchurchUpdateMyVisitationUseCase,
     OnchurchDeleteMyVisitationUseCase,

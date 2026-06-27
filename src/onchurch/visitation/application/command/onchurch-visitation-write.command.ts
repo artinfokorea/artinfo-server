@@ -1,6 +1,7 @@
 export class OnchurchVisitationWriteCommand {
   saintId: number | null;
   saintName: string;
+  participants: string | null;
   minister: string;
   type: string;
   date: string;
@@ -9,6 +10,7 @@ export class OnchurchVisitationWriteCommand {
   constructor(p: {
     saintId: number | null;
     saintName: string;
+    participants: string | null;
     minister: string;
     type: string;
     date: string;
@@ -16,6 +18,7 @@ export class OnchurchVisitationWriteCommand {
   }) {
     this.saintId = p.saintId;
     this.saintName = p.saintName;
+    this.participants = p.participants;
     this.minister = p.minister;
     this.type = p.type;
     this.date = p.date;

@@ -6,6 +6,7 @@ export class OnchurchVisitationResponse {
   @ApiProperty({ type: Number }) id: number;
   @ApiProperty({ type: Number, nullable: true }) saintId: number | null;
   @ApiProperty({ type: String }) saintName: string;
+  @ApiProperty({ type: String, nullable: true }) participants: string | null;
   @ApiProperty({ type: String }) minister: string;
   @ApiProperty({ type: String }) type: string;
   @ApiProperty({ type: String }) date: string;
@@ -15,6 +16,7 @@ export class OnchurchVisitationResponse {
     this.id = v.id;
     this.saintId = v.saintId;
     this.saintName = v.saintName;
+    this.participants = v.participants;
     this.minister = v.minister;
     this.type = v.type;
     this.date = v.date;

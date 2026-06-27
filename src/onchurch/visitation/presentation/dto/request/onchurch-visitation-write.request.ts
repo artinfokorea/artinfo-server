@@ -8,15 +8,19 @@ function nullableTrim(v: string | null | undefined): string | null {
 }
 
 export class OnchurchVisitationWriteRequest {
-  @IsOptional()
   @IsInt()
-  @ApiProperty({ type: Number, required: false, nullable: true, description: '성도 ID(성도명부에서 선택 시)' })
-  saintId: number | null;
+  @ApiProperty({ type: Number, required: true, description: '심방 대상 성도 ID(성도명부 연결)' })
+  saintId: number;
 
   @NotBlank()
   @MaxLength(80)
-  @ApiProperty({ type: String, required: true, description: '성도(심방 대상)', example: '홍길동' })
+  @ApiProperty({ type: String, required: true, description: '심방 대상 성도 이름(스냅샷)', example: '홍길동' })
   saintName: string;
+
+  @IsOptional()
+  @MaxLength(2000)
+  @ApiProperty({ type: String, required: false, nullable: true, description: '심방에 참여한 성도들(텍스트)', example: '홍길동, 김영희' })
+  participants: string | null;
 
   @NotBlank()
   @MaxLength(80)
@@ -39,8 +43,9 @@ export class OnchurchVisitationWriteRequest {
 
   toCommand(): OnchurchVisitationWriteCommand {
     return new OnchurchVisitationWriteCommand({
-      saintId: this.saintId ?? null,
+      saintId: this.saintId,
       saintName: this.saintName.trim(),
+      participants: nullableTrim(this.participants),
       minister: this.minister.trim(),
       type: this.type.trim(),
       date: this.date.trim(),

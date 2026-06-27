@@ -8,12 +8,16 @@ export class OnchurchVisitation extends BaseEntity {
   @Column({ type: 'int', name: 'church_id' })
   churchId: number;
 
-  // 심방 대상 성도. 성도명부에서 선택해 만들지만 이름은 스냅샷(텍스트)으로 보관한다.
+  // 심방 대상 성도(성도명부와 연결). 이름은 스냅샷(텍스트)으로 함께 보관한다.
   @Column({ type: 'int', name: 'saint_id', nullable: true })
   saintId: number | null;
 
   @Column({ type: 'varchar', name: 'saint_name', length: 80 })
   saintName: string;
+
+  // 심방에 참여한 성도들 — 텍스트 기입(여러 명 자유 입력).
+  @Column({ type: 'text', name: 'participants', nullable: true })
+  participants: string | null;
 
   // 교역자(심방한 사람) — 텍스트 기입.
   @Column({ type: 'varchar', name: 'minister', length: 80 })
