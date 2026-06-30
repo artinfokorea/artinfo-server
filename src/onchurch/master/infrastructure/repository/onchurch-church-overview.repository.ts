@@ -53,6 +53,7 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
       .addSelect('owner.phone', 'ownerPhone')
       .addSelect('owner.free_trial_until', 'freeTrialUntil')
       .addSelect('owner.paid_until', 'paidUntil')
+      .addSelect('church.naver_verification', 'naverVerification')
       .orderBy('church.id', 'DESC')
       .offset((params.page - 1) * params.size)
       .limit(params.size)
@@ -69,6 +70,7 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
       ownerPhone: r.ownerPhone ?? null,
       freeTrialUntil: r.freeTrialUntil ? new Date(r.freeTrialUntil) : null,
       paidUntil: r.paidUntil ? new Date(r.paidUntil) : null,
+      naverVerification: r.naverVerification ?? null,
     }));
 
     return { items, totalCount };
@@ -77,5 +79,10 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
   async findOwnerIdByChurchId(churchId: number): Promise<number | null> {
     const church = await this.churchRepository.findOne({ where: { id: churchId }, select: { id: true, ownerId: true } });
     return church?.ownerId ?? null;
+  }
+
+  async updateNaverVerification(churchId: number, naverVerification: string | null): Promise<boolean> {
+    const result = await this.churchRepository.update({ id: churchId }, { naverVerification });
+    return (result.affected ?? 0) > 0;
   }
 }

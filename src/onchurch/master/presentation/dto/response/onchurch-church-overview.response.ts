@@ -18,6 +18,7 @@ export class OnchurchChurchOverviewResponse {
   @ApiProperty({ type: String, nullable: true, description: '결제 만료 시각(ISO)' }) paidUntil: string | null;
   @ApiProperty({ type: Boolean, description: '프리티어 유효 여부' }) isFreeTrialActive: boolean;
   @ApiProperty({ type: Boolean, description: '유료 결제 유효 여부' }) isPaidActive: boolean;
+  @ApiProperty({ type: String, nullable: true, description: '네이버 사이트 인증 코드' }) naverVerification: string | null;
 
   constructor(row: OnchurchChurchOverviewRow, now: Date) {
     this.id = row.id;
@@ -32,6 +33,7 @@ export class OnchurchChurchOverviewResponse {
     this.paidUntil = toIso(row.paidUntil);
     this.isFreeTrialActive = !!row.freeTrialUntil && row.freeTrialUntil.getTime() > now.getTime();
     this.isPaidActive = !!row.paidUntil && row.paidUntil.getTime() > now.getTime();
+    this.naverVerification = row.naverVerification;
   }
 }
 
