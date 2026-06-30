@@ -73,7 +73,6 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
         logoUrl: params.logoUrl,
         youtubeUrl: params.youtubeUrl,
         instagramUrl: params.instagramUrl,
-        naverVerification: params.naverVerification,
         liveUrl: params.liveUrl,
         isLive: params.isLive,
         liveStartedAt,

@@ -42,9 +42,6 @@ export class OnchurchUpsertMyChurchRequest {
   @ApiProperty({ type: String, required: false, description: '인스타그램 URL', nullable: true })
   instagramUrl: string | null;
 
-  @ApiProperty({ type: String, required: false, description: '네이버 사이트 인증 코드(naver-site-verification content 값)', nullable: true })
-  naverVerification: string | null;
-
   @ApiProperty({ type: String, required: false, description: '라이브 영상 URL (watch?v=...)', nullable: true })
   liveUrl: string | null;
 
@@ -78,7 +75,6 @@ export class OnchurchUpsertMyChurchRequest {
       logoUrl: this.logoUrl ?? null,
       youtubeUrl: this.youtubeUrl ?? null,
       instagramUrl: this.instagramUrl ?? null,
-      naverVerification: this.naverVerification ?? null,
       liveUrl: this.liveUrl ?? null,
       isLive: this.isLive ?? false,
       enabledPages: this.enabledPages ?? [],
