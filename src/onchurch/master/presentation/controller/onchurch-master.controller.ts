@@ -39,6 +39,9 @@ import {
   OnchurchListLedgerEntriesUseCase,
   OnchurchDeleteLedgerEntryUseCase,
 } from '@/onchurch/master/application/usecase/onchurch-ledger.usecase';
+import { OnchurchGetDashboardUseCase } from '@/onchurch/master/application/usecase/onchurch-dashboard.usecase';
+import { OnchurchDashboardRequest } from '@/onchurch/master/presentation/dto/request/onchurch-dashboard.request';
+import { OnchurchDashboardResponse } from '@/onchurch/master/presentation/dto/response/onchurch-dashboard.response';
 import { OnchurchCreateLedgerEntryRequest } from '@/onchurch/master/presentation/dto/request/onchurch-create-ledger-entry.request';
 import { OnchurchListLedgerEntriesRequest } from '@/onchurch/master/presentation/dto/request/onchurch-list-ledger-entries.request';
 import {
@@ -86,7 +89,14 @@ export class OnchurchMasterController {
     private readonly createLedgerEntryUseCase: OnchurchCreateLedgerEntryUseCase,
     private readonly listLedgerEntriesUseCase: OnchurchListLedgerEntriesUseCase,
     private readonly deleteLedgerEntryUseCase: OnchurchDeleteLedgerEntryUseCase,
+    private readonly getDashboardUseCase: OnchurchGetDashboardUseCase,
   ) {}
+
+  @RestApiGet(OnchurchDashboardResponse, { path: '/dashboard', description: '마스터 대시보드 통계(월별 재무·가입 퍼널·결제 교회 유입)', auth: [USER_TYPE.CLIENT] })
+  async getDashboard(@AuthSignature() signature: UserSignature, @Query() request: OnchurchDashboardRequest) {
+    const result = await this.getDashboardUseCase.execute(signature.id, { month: request.month });
+    return new OnchurchDashboardResponse(result);
+  }
 
   @RestApiPost(OnchurchEnqueueBulkEmailResponse, { path: '/emails', description: '마스터 전용 대량 메일 발송(큐 적재)', auth: [USER_TYPE.CLIENT] })
   async sendBulkEmail(@AuthSignature() signature: UserSignature, @Body() request: OnchurchSendBulkEmailRequest) {

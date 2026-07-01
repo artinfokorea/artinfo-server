@@ -34,11 +34,13 @@ import {
   OnchurchListLedgerEntriesUseCase,
   OnchurchDeleteLedgerEntryUseCase,
 } from '@/onchurch/master/application/usecase/onchurch-ledger.usecase';
+import { OnchurchGetDashboardUseCase } from '@/onchurch/master/application/usecase/onchurch-dashboard.usecase';
 import { OnchurchEmailLog } from '@/onchurch/master/domain/entity/onchurch-email-log.entity';
 import { OnchurchEmailTemplate } from '@/onchurch/master/domain/entity/onchurch-email-template.entity';
 import { OnchurchSmsLog } from '@/onchurch/master/domain/entity/onchurch-sms-log.entity';
 import { OnchurchSmsTemplate } from '@/onchurch/master/domain/entity/onchurch-sms-template.entity';
 import { OnchurchChurch } from '@/onchurch/church/domain/entity/onchurch-church.entity';
+import { OnchurchUser } from '@/onchurch/user/domain/entity/onchurch-user.entity';
 import { OnchurchLedgerEntry } from '@/onchurch/master/domain/entity/onchurch-ledger-entry.entity';
 import { ONCHURCH_EMAIL_LOG_REPOSITORY } from '@/onchurch/master/domain/repository/onchurch-email-log.repository.interface';
 import { ONCHURCH_EMAIL_TEMPLATE_REPOSITORY } from '@/onchurch/master/domain/repository/onchurch-email-template.repository.interface';
@@ -46,12 +48,14 @@ import { ONCHURCH_SMS_LOG_REPOSITORY } from '@/onchurch/master/domain/repository
 import { ONCHURCH_SMS_TEMPLATE_REPOSITORY } from '@/onchurch/master/domain/repository/onchurch-sms-template.repository.interface';
 import { ONCHURCH_CHURCH_OVERVIEW_REPOSITORY } from '@/onchurch/master/domain/repository/onchurch-church-overview.repository.interface';
 import { ONCHURCH_LEDGER_REPOSITORY } from '@/onchurch/master/domain/repository/onchurch-ledger.repository.interface';
+import { ONCHURCH_DASHBOARD_REPOSITORY } from '@/onchurch/master/domain/repository/onchurch-dashboard.repository.interface';
 import { OnchurchEmailLogRepository } from '@/onchurch/master/infrastructure/repository/onchurch-email-log.repository';
 import { OnchurchEmailTemplateRepository } from '@/onchurch/master/infrastructure/repository/onchurch-email-template.repository';
 import { OnchurchSmsLogRepository } from '@/onchurch/master/infrastructure/repository/onchurch-sms-log.repository';
 import { OnchurchSmsTemplateRepository } from '@/onchurch/master/infrastructure/repository/onchurch-sms-template.repository';
 import { OnchurchChurchOverviewRepository } from '@/onchurch/master/infrastructure/repository/onchurch-church-overview.repository';
 import { OnchurchLedgerRepository } from '@/onchurch/master/infrastructure/repository/onchurch-ledger.repository';
+import { OnchurchDashboardRepository } from '@/onchurch/master/infrastructure/repository/onchurch-dashboard.repository';
 
 @Module({
   imports: [
@@ -64,6 +68,7 @@ import { OnchurchLedgerRepository } from '@/onchurch/master/infrastructure/repos
       OnchurchSmsLog,
       OnchurchSmsTemplate,
       OnchurchChurch,
+      OnchurchUser,
       OnchurchLedgerEntry,
     ]),
     BullModule.registerQueue({ name: ONCHURCH_BULK_EMAIL_QUEUE }),
@@ -91,6 +96,7 @@ import { OnchurchLedgerRepository } from '@/onchurch/master/infrastructure/repos
     OnchurchCreateLedgerEntryUseCase,
     OnchurchListLedgerEntriesUseCase,
     OnchurchDeleteLedgerEntryUseCase,
+    OnchurchGetDashboardUseCase,
     AwsSesService,
     { provide: ONCHURCH_EMAIL_LOG_REPOSITORY, useClass: OnchurchEmailLogRepository },
     { provide: ONCHURCH_EMAIL_TEMPLATE_REPOSITORY, useClass: OnchurchEmailTemplateRepository },
@@ -98,6 +104,7 @@ import { OnchurchLedgerRepository } from '@/onchurch/master/infrastructure/repos
     { provide: ONCHURCH_SMS_TEMPLATE_REPOSITORY, useClass: OnchurchSmsTemplateRepository },
     { provide: ONCHURCH_CHURCH_OVERVIEW_REPOSITORY, useClass: OnchurchChurchOverviewRepository },
     { provide: ONCHURCH_LEDGER_REPOSITORY, useClass: OnchurchLedgerRepository },
+    { provide: ONCHURCH_DASHBOARD_REPOSITORY, useClass: OnchurchDashboardRepository },
   ],
 })
 export class OnchurchMasterModule {}

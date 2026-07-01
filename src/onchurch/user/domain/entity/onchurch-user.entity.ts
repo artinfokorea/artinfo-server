@@ -48,6 +48,10 @@ export class OnchurchUser extends BaseEntity {
   @Column({ type: 'timestamp', name: 'paid_until', nullable: true })
   paidUntil: Date | null;
 
+  // 테스트용 계정 여부. true면 마스터 대시보드 통계에서 해당 유저와 그 교회를 제외한다.
+  @Column({ type: 'boolean', name: 'is_test', default: false })
+  isTest: boolean;
+
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 
