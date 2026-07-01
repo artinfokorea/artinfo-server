@@ -20,9 +20,6 @@ export class OnchurchHistory extends BaseEntity {
   @Column({ type: 'int', name: 'sort_order', default: 0 })
   sortOrder: number;
 
-  @Column({ type: 'boolean', name: 'is_active', default: true })
-  isActive: boolean;
-
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 

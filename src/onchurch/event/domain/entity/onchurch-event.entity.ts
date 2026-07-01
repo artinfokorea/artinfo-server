@@ -26,9 +26,6 @@ export class OnchurchEvent extends BaseEntity {
   @Column({ type: 'boolean', name: 'is_all_day', default: false })
   isAllDay: boolean;
 
-  @Column({ type: 'boolean', name: 'is_active', default: true })
-  isActive: boolean;
-
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 

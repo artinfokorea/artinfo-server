@@ -19,11 +19,10 @@ export class OnchurchEventRepository implements IOnchurchEventRepository {
     });
   }
 
-  async findActiveByChurchIdInRange(churchId: number, from: Date | null, to: Date | null): Promise<OnchurchEvent[]> {
+  async findByChurchIdInRange(churchId: number, from: Date | null, to: Date | null): Promise<OnchurchEvent[]> {
     const qb = this.eventRepository
       .createQueryBuilder('e')
       .where('e.churchId = :churchId', { churchId })
-      .andWhere('e.isActive = true')
       .orderBy('e.startAt', 'ASC');
 
     if (from) qb.andWhere('e.startAt >= :from', { from });

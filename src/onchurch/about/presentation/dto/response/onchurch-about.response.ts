@@ -31,7 +31,6 @@ export class OnchurchVisionResponse {
   @ApiProperty({ type: String, nullable: true }) en: string | null;
   @ApiProperty({ type: String, nullable: true }) description: string | null;
   @ApiProperty({ type: Number }) sortOrder: number;
-  @ApiProperty({ type: Boolean }) isActive: boolean;
 
   constructor(v: OnchurchVision) {
     this.id = v.id;
@@ -39,7 +38,6 @@ export class OnchurchVisionResponse {
     this.en = v.en;
     this.description = v.description;
     this.sortOrder = v.sortOrder;
-    this.isActive = v.isActive;
   }
 }
 
@@ -49,7 +47,6 @@ export class OnchurchHistoryResponse {
   @ApiProperty({ type: String }) title: string;
   @ApiProperty({ type: String, nullable: true }) description: string | null;
   @ApiProperty({ type: Number }) sortOrder: number;
-  @ApiProperty({ type: Boolean }) isActive: boolean;
 
   constructor(h: OnchurchHistory) {
     this.id = h.id;
@@ -57,7 +54,6 @@ export class OnchurchHistoryResponse {
     this.title = h.title;
     this.description = h.description;
     this.sortOrder = h.sortOrder;
-    this.isActive = h.isActive;
   }
 }
 
@@ -67,8 +63,9 @@ export class OnchurchStaffResponse {
   @ApiProperty({ type: String, nullable: true }) role: string | null;
   @ApiProperty({ type: String, nullable: true }) area: string | null;
   @ApiProperty({ type: String, nullable: true }) photoUrl: string | null;
+  @ApiProperty({ type: String, nullable: true }) phone: string | null;
+  @ApiProperty({ type: String, nullable: true }) email: string | null;
   @ApiProperty({ type: Number }) sortOrder: number;
-  @ApiProperty({ type: Boolean }) isActive: boolean;
 
   constructor(s: OnchurchStaff) {
     this.id = s.id;
@@ -76,8 +73,9 @@ export class OnchurchStaffResponse {
     this.role = s.role;
     this.area = s.area;
     this.photoUrl = s.photoUrl;
+    this.phone = s.phone;
+    this.email = s.email;
     this.sortOrder = s.sortOrder;
-    this.isActive = s.isActive;
   }
 }
 

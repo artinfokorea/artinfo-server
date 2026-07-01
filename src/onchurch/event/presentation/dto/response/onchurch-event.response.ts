@@ -23,9 +23,6 @@ export class OnchurchEventResponse {
   @ApiProperty({ type: Boolean, required: true })
   isAllDay: boolean;
 
-  @ApiProperty({ type: Boolean, required: true })
-  isActive: boolean;
-
   constructor(event: OnchurchEvent) {
     this.id = event.id;
     this.title = event.title;
@@ -34,7 +31,6 @@ export class OnchurchEventResponse {
     this.startAt = event.startAt.toISOString();
     this.endAt = event.endAt ? event.endAt.toISOString() : null;
     this.isAllDay = event.isAllDay;
-    this.isActive = event.isActive;
   }
 }
 

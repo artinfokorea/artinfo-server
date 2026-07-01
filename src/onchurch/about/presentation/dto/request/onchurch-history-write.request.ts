@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsInt, IsOptional, MaxLength } from 'class-validator';
+import { IsInt, IsOptional, MaxLength } from 'class-validator';
 import { NotBlank } from '@/common/decorator/validator';
 import { OnchurchHistoryWriteCommand } from '@/onchurch/about/application/command/onchurch-about-write.command';
 
@@ -22,17 +22,12 @@ export class OnchurchHistoryWriteRequest {
   @ApiProperty({ type: Number, required: true, description: '정렬 순서' })
   sortOrder: number;
 
-  @IsBoolean()
-  @ApiProperty({ type: Boolean, required: true, description: '활성 여부' })
-  isActive: boolean;
-
   toCommand(): OnchurchHistoryWriteCommand {
     return new OnchurchHistoryWriteCommand({
       year: this.year.trim(),
       title: this.title.trim(),
       description: this.description ?? null,
       sortOrder: this.sortOrder ?? 0,
-      isActive: !!this.isActive,
     });
   }
 }

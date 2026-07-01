@@ -20,11 +20,14 @@ export class OnchurchStaff extends BaseEntity {
   @Column({ type: 'varchar', name: 'photo_url', nullable: true, length: 1000 })
   photoUrl: string | null;
 
+  @Column({ type: 'varchar', name: 'phone', nullable: true, length: 40 })
+  phone: string | null;
+
+  @Column({ type: 'varchar', name: 'email', nullable: true, length: 200 })
+  email: string | null;
+
   @Column({ type: 'int', name: 'sort_order', default: 0 })
   sortOrder: number;
-
-  @Column({ type: 'boolean', name: 'is_active', default: true })
-  isActive: boolean;
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;

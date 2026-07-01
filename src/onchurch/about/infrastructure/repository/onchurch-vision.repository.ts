@@ -19,13 +19,6 @@ export class OnchurchVisionRepository implements IOnchurchVisionRepository {
     });
   }
 
-  async findActiveByChurchId(churchId: number): Promise<OnchurchVision[]> {
-    return this.visionRepository.find({
-      where: { churchId, isActive: true },
-      order: { sortOrder: 'ASC', id: 'ASC' },
-    });
-  }
-
   async findOwnedById(churchId: number, id: number): Promise<OnchurchVision | null> {
     return this.visionRepository.findOneBy({ id, churchId });
   }

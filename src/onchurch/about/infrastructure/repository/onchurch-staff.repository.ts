@@ -19,13 +19,6 @@ export class OnchurchStaffRepository implements IOnchurchStaffRepository {
     });
   }
 
-  async findActiveByChurchId(churchId: number): Promise<OnchurchStaff[]> {
-    return this.staffRepository.find({
-      where: { churchId, isActive: true },
-      order: { sortOrder: 'ASC', id: 'ASC' },
-    });
-  }
-
   async findOwnedById(churchId: number, id: number): Promise<OnchurchStaff | null> {
     return this.staffRepository.findOneBy({ id, churchId });
   }

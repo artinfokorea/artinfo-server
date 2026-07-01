@@ -5,7 +5,6 @@ export class OnchurchEventWriteCommand {
   startAt: Date;
   endAt: Date | null;
   isAllDay: boolean;
-  isActive: boolean;
 
   constructor(params: {
     title: string;
@@ -14,7 +13,6 @@ export class OnchurchEventWriteCommand {
     startAt: Date;
     endAt: Date | null;
     isAllDay: boolean;
-    isActive: boolean;
   }) {
     this.title = params.title;
     this.description = params.description;
@@ -22,6 +20,5 @@ export class OnchurchEventWriteCommand {
     this.startAt = params.startAt;
     this.endAt = params.endAt;
     this.isAllDay = params.isAllDay;
-    this.isActive = params.isActive;
   }
 }

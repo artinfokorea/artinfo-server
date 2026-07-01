@@ -7,13 +7,13 @@ export interface OnchurchStaffWriteParams {
   role: string | null;
   area: string | null;
   photoUrl: string | null;
+  phone: string | null;
+  email: string | null;
   sortOrder: number;
-  isActive: boolean;
 }
 
 export interface IOnchurchStaffRepository {
   findAllByChurchId(churchId: number): Promise<OnchurchStaff[]>;
-  findActiveByChurchId(churchId: number): Promise<OnchurchStaff[]>;
   findOwnedById(churchId: number, id: number): Promise<OnchurchStaff | null>;
   create(churchId: number, params: OnchurchStaffWriteParams): Promise<OnchurchStaff>;
   update(churchId: number, id: number, params: OnchurchStaffWriteParams): Promise<OnchurchStaff>;

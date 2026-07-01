@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsInt, IsOptional, MaxLength } from 'class-validator';
+import { IsInt, IsOptional, MaxLength } from 'class-validator';
 import { NotBlank } from '@/common/decorator/validator';
 import { OnchurchStaffWriteCommand } from '@/onchurch/about/application/command/onchurch-about-write.command';
 
@@ -24,13 +24,19 @@ export class OnchurchStaffWriteRequest {
   @ApiProperty({ type: String, required: false, description: '사진 URL', nullable: true })
   photoUrl: string | null;
 
+  @IsOptional()
+  @MaxLength(40)
+  @ApiProperty({ type: String, required: false, description: '연락처', nullable: true })
+  phone: string | null;
+
+  @IsOptional()
+  @MaxLength(200)
+  @ApiProperty({ type: String, required: false, description: '이메일', nullable: true })
+  email: string | null;
+
   @IsInt()
   @ApiProperty({ type: Number, required: true, description: '정렬 순서' })
   sortOrder: number;
-
-  @IsBoolean()
-  @ApiProperty({ type: Boolean, required: true, description: '활성 여부' })
-  isActive: boolean;
 
   toCommand(): OnchurchStaffWriteCommand {
     return new OnchurchStaffWriteCommand({
@@ -38,8 +44,9 @@ export class OnchurchStaffWriteRequest {
       role: (this.role ?? '').trim() || null,
       area: (this.area ?? '').trim() || null,
       photoUrl: (this.photoUrl ?? '').trim() || null,
+      phone: (this.phone ?? '').trim() || null,
+      email: (this.email ?? '').trim() || null,
       sortOrder: this.sortOrder ?? 0,
-      isActive: !!this.isActive,
     });
   }
 }

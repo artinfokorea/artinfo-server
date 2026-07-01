@@ -7,12 +7,10 @@ export interface OnchurchHistoryWriteParams {
   title: string;
   description: string | null;
   sortOrder: number;
-  isActive: boolean;
 }
 
 export interface IOnchurchHistoryRepository {
   findAllByChurchId(churchId: number): Promise<OnchurchHistory[]>;
-  findActiveByChurchId(churchId: number): Promise<OnchurchHistory[]>;
   findOwnedById(churchId: number, id: number): Promise<OnchurchHistory | null>;
   create(churchId: number, params: OnchurchHistoryWriteParams): Promise<OnchurchHistory>;
   update(churchId: number, id: number, params: OnchurchHistoryWriteParams): Promise<OnchurchHistory>;

@@ -16,6 +16,6 @@ export class OnchurchListPublicEventsUseCase {
   async execute(slug: string, params: { from: Date | null; to: Date | null }): Promise<OnchurchEvent[]> {
     const church = await this.churchRepository.findBySlug(slug);
     if (!church) return [];
-    return this.eventRepository.findActiveByChurchIdInRange(church.id, params.from, params.to);
+    return this.eventRepository.findByChurchIdInRange(church.id, params.from, params.to);
   }
 }

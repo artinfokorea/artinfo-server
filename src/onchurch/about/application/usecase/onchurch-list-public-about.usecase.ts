@@ -33,9 +33,9 @@ export class OnchurchListPublicAboutUseCase {
     }
     const [pastor, visions, histories, staffs] = await Promise.all([
       this.pastorRepo.findByChurchId(church.id),
-      this.visionRepo.findActiveByChurchId(church.id),
-      this.historyRepo.findActiveByChurchId(church.id),
-      this.staffRepo.findActiveByChurchId(church.id),
+      this.visionRepo.findAllByChurchId(church.id),
+      this.historyRepo.findAllByChurchId(church.id),
+      this.staffRepo.findAllByChurchId(church.id),
     ]);
     return { pastor, visions, histories, staffs };
   }

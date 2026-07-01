@@ -31,10 +31,6 @@ export class OnchurchEventWriteRequest {
   @ApiProperty({ type: Boolean, required: true, description: '종일 일정 여부' })
   isAllDay: boolean;
 
-  @IsBoolean()
-  @ApiProperty({ type: Boolean, required: true, description: '활성 여부' })
-  isActive: boolean;
-
   toCommand(): OnchurchEventWriteCommand {
     return new OnchurchEventWriteCommand({
       title: this.title.trim(),
@@ -43,7 +39,6 @@ export class OnchurchEventWriteRequest {
       startAt: new Date(this.startAt),
       endAt: this.endAt ? new Date(this.endAt) : null,
       isAllDay: !!this.isAllDay,
-      isActive: !!this.isActive,
     });
   }
 }

@@ -19,13 +19,6 @@ export class OnchurchHistoryRepository implements IOnchurchHistoryRepository {
     });
   }
 
-  async findActiveByChurchId(churchId: number): Promise<OnchurchHistory[]> {
-    return this.historyRepository.find({
-      where: { churchId, isActive: true },
-      order: { sortOrder: 'ASC', year: 'ASC', id: 'ASC' },
-    });
-  }
-
   async findOwnedById(churchId: number, id: number): Promise<OnchurchHistory | null> {
     return this.historyRepository.findOneBy({ id, churchId });
   }

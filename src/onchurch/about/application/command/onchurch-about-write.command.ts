@@ -21,14 +21,12 @@ export class OnchurchVisionWriteCommand {
   en: string | null;
   description: string | null;
   sortOrder: number;
-  isActive: boolean;
 
-  constructor(p: { ko: string; en: string | null; description: string | null; sortOrder: number; isActive: boolean }) {
+  constructor(p: { ko: string; en: string | null; description: string | null; sortOrder: number }) {
     this.ko = p.ko;
     this.en = p.en;
     this.description = p.description;
     this.sortOrder = p.sortOrder;
-    this.isActive = p.isActive;
   }
 }
 
@@ -37,14 +35,12 @@ export class OnchurchHistoryWriteCommand {
   title: string;
   description: string | null;
   sortOrder: number;
-  isActive: boolean;
 
-  constructor(p: { year: string; title: string; description: string | null; sortOrder: number; isActive: boolean }) {
+  constructor(p: { year: string; title: string; description: string | null; sortOrder: number }) {
     this.year = p.year;
     this.title = p.title;
     this.description = p.description;
     this.sortOrder = p.sortOrder;
-    this.isActive = p.isActive;
   }
 }
 
@@ -53,15 +49,17 @@ export class OnchurchStaffWriteCommand {
   role: string | null;
   area: string | null;
   photoUrl: string | null;
+  phone: string | null;
+  email: string | null;
   sortOrder: number;
-  isActive: boolean;
 
-  constructor(p: { name: string; role: string | null; area: string | null; photoUrl: string | null; sortOrder: number; isActive: boolean }) {
+  constructor(p: { name: string; role: string | null; area: string | null; photoUrl: string | null; phone: string | null; email: string | null; sortOrder: number }) {
     this.name = p.name;
     this.role = p.role;
     this.area = p.area;
     this.photoUrl = p.photoUrl;
+    this.phone = p.phone;
+    this.email = p.email;
     this.sortOrder = p.sortOrder;
-    this.isActive = p.isActive;
   }
 }
