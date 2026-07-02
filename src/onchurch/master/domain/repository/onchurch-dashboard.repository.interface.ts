@@ -16,4 +16,6 @@ export type OnchurchPaidChurchInflowDay = {
 export interface IOnchurchDashboardRepository {
   signupFunnel(params: { month: string }): Promise<OnchurchSignupFunnel>;
   paidChurchInflowByDay(params: { month: string }): Promise<OnchurchPaidChurchInflowDay[]>;
+  // 전체 결제 교회 수(월 무관, owner.paid_until 존재, 테스트 계정 제외).
+  paidChurchTotal(): Promise<number>;
 }

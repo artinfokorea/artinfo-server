@@ -59,4 +59,17 @@ export class OnchurchDashboardRepository implements IOnchurchDashboardRepository
 
     return rows.map((r) => ({ date: r.date, count: Number(r.count) || 0 }));
   }
+
+  async paidChurchTotal(): Promise<number> {
+    // 전체 결제 교회 수 = owner.paid_until이 존재하는 교회, 테스트 계정 제외.
+    const count = await this.userRepository.manager
+      .createQueryBuilder(OnchurchChurch, 'c')
+      .innerJoin(OnchurchUser, 'owner', 'owner.id = c.owner_id')
+      .where('owner.paid_until IS NOT NULL')
+      .andWhere('owner.is_test = false')
+      .andWhere('c.deleted_at IS NULL')
+      .getCount();
+
+    return count;
+  }
 }

@@ -1,6 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { OnchurchDashboardResult } from '@/onchurch/master/application/usecase/onchurch-dashboard.usecase';
 
+class OnchurchDashboardOverallResponse {
+  @ApiProperty({ type: Number, description: '전체 결제 교회 수(월 무관)' }) paidChurchTotal: number;
+  @ApiProperty({ type: Number, description: '전체 수입 합계(원, 월 무관)' }) totalIncome: number;
+  @ApiProperty({ type: Number, description: '전체 지출 합계(원, 월 무관)' }) totalExpense: number;
+
+  constructor(paidChurchTotal: number, totalIncome: number, totalExpense: number) {
+    this.paidChurchTotal = paidChurchTotal;
+    this.totalIncome = totalIncome;
+    this.totalExpense = totalExpense;
+  }
+}
+
 class OnchurchDashboardLedgerResponse {
   @ApiProperty({ type: Number, description: '수입 합계(원)' }) totalIncome: number;
   @ApiProperty({ type: Number, description: '지출 합계(원)' }) totalExpense: number;
@@ -35,6 +47,8 @@ class OnchurchDashboardInflowDayResponse {
 
 export class OnchurchDashboardResponse {
   @ApiProperty({ type: String, description: '조회 월 (YYYY-MM)' }) month: string;
+  @ApiProperty({ type: OnchurchDashboardOverallResponse, description: '전체 누적 통계(월 무관)' })
+  overall: OnchurchDashboardOverallResponse;
   @ApiProperty({ type: OnchurchDashboardLedgerResponse }) ledger: OnchurchDashboardLedgerResponse;
   @ApiProperty({ type: OnchurchDashboardFunnelResponse }) funnel: OnchurchDashboardFunnelResponse;
   @ApiProperty({ type: [OnchurchDashboardInflowDayResponse], description: '결제 교회 유입(일별)' })
@@ -42,6 +56,11 @@ export class OnchurchDashboardResponse {
 
   constructor(result: OnchurchDashboardResult) {
     this.month = result.month;
+    this.overall = new OnchurchDashboardOverallResponse(
+      result.overall.paidChurchTotal,
+      result.overall.totalIncome,
+      result.overall.totalExpense,
+    );
     this.ledger = new OnchurchDashboardLedgerResponse(result.ledger.totalIncome, result.ledger.totalExpense);
     this.funnel = new OnchurchDashboardFunnelResponse(
       result.funnel.signups,

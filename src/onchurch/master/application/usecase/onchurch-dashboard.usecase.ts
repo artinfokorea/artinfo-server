@@ -18,6 +18,11 @@ import {
 
 export type OnchurchDashboardResult = {
   month: string;
+  overall: {
+    paidChurchTotal: number; // 전체 결제 교회 수(월 무관)
+    totalIncome: number; // 전체 수입(월 무관)
+    totalExpense: number; // 전체 지출(월 무관)
+  };
   ledger: OnchurchLedgerSummary;
   funnel: OnchurchSignupFunnel;
   paidChurchInflow: OnchurchPaidChurchInflowDay[];
@@ -37,12 +42,20 @@ export class OnchurchGetDashboardUseCase {
       throw new ForbiddenException('마스터 권한이 필요합니다.');
     }
 
-    const [ledger, funnel, paidChurchInflow] = await Promise.all([
+    const [ledger, funnel, paidChurchInflow, overallLedger, paidChurchTotal] = await Promise.all([
       this.ledgerRepository.summary({ month: params.month }),
       this.dashboardRepository.signupFunnel({ month: params.month }),
       this.dashboardRepository.paidChurchInflowByDay({ month: params.month }),
+      this.ledgerRepository.summary({ month: null }),
+      this.dashboardRepository.paidChurchTotal(),
     ]);
 
-    return { month: params.month, ledger, funnel, paidChurchInflow };
+    const overall = {
+      paidChurchTotal,
+      totalIncome: overallLedger.totalIncome,
+      totalExpense: overallLedger.totalExpense,
+    };
+
+    return { month: params.month, overall, ledger, funnel, paidChurchInflow };
   }
 }
