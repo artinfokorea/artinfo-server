@@ -3,7 +3,7 @@ import { ONCHURCH_BANNER_REPOSITORY, IOnchurchBannerRepository } from '@/onchurc
 import { ONCHURCH_CHURCH_REPOSITORY, IOnchurchChurchRepository } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
 
 const DEFAULT_BANNER_IMAGE_URL =
-  'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/4637/images/20260507/original/tncw9_mUrfv.1778160778436.jpeg';
+  'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/4637/images/20260703/original/29FaVsUTRgU.1783042917571.png';
 
 export interface PublicBannerView {
   id: number | null;
@@ -27,17 +27,12 @@ export class OnchurchListPublicBannersUseCase {
   async execute(slug: string): Promise<PublicBannerView[]> {
     const church = await this.churchRepository.findBySlug(slug);
     if (!church) {
-      return [this.buildDefault('우리 교회에 오신 것을 환영합니다', '온교회와 함께 시작하세요.')];
+      return [this.buildDefault()];
     }
 
     const banners = await this.bannerRepository.findActiveByChurchId(church.id);
     if (banners.length === 0) {
-      return [
-        this.buildDefault(
-          `${church.name}에 오신 것을 환영합니다`,
-          church.tagline ?? '함께 예배하고 성장하는 공동체입니다.',
-        ),
-      ];
+      return [this.buildDefault()];
     }
 
     return banners.map(b => ({
@@ -50,7 +45,8 @@ export class OnchurchListPublicBannersUseCase {
     }));
   }
 
-  private buildDefault(title: string, description: string): PublicBannerView {
-    return { id: null, title, description, imageUrl: DEFAULT_BANNER_IMAGE_URL, linkUrl: null, isDefault: true };
+  // 기본 배너는 이미지만 노출한다(제목/설명 없음 → 프론트에서 텍스트 오버레이 미표시).
+  private buildDefault(): PublicBannerView {
+    return { id: null, title: '', description: null, imageUrl: DEFAULT_BANNER_IMAGE_URL, linkUrl: null, isDefault: true };
   }
 }
