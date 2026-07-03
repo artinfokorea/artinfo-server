@@ -3,7 +3,7 @@ import { ONCHURCH_BANNER_REPOSITORY, IOnchurchBannerRepository } from '@/onchurc
 import { ONCHURCH_CHURCH_REPOSITORY, IOnchurchChurchRepository } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
 
 const DEFAULT_BANNER_IMAGE_URL =
-  'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/4637/images/20260703/original/29FaVsUTRgU.1783042917571.png';
+  'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/4637/images/20260703/original/l4lj_M38dun.1783117768493.webp';
 
 export interface PublicBannerView {
   id: number | null;
