@@ -10,8 +10,30 @@ import { OnchurchPhoneNotVerified, OnchurchUserIdAlreadyExist } from '@/onchurch
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { AwsSesService } from '@/aws/ses/aws-ses.service';
 import { ONCHURCH_MAIL_FROM } from '@/onchurch/onchurch-mail.constant';
+import { SystemService } from '@/system/service/system.service';
 
 const SIGNUP_NOTIFY_TO = 'chorales@naver.com';
+
+// 랜딩 가입(교회 운영자) 시 가입자 본인에게 발송하는 환영 문자.
+const WELCOME_SMS_SUBJECT = '[온교회] 가입을 환영합니다';
+const WELCOME_SMS_CONTENT = `안녕하세요. 온교회입니다.
+
+온교회에 가입해 주셔서 감사합니다!
+
+온교회는 많은 목사님들께서 직접 쉽고 빠르게 홈페이지를 구축하여 사용하고 있는 서비스입니다. 전문 지식이 없어도 누구나 손쉽게 시작하실 수 있습니다.
+
+지금부터 7일 무료체험으로 교회 홈페이지 제작과 성도 관리 기능을 모두 이용해 보세요.
+
+홈페이지는 약 5분이면 우리 교회에 맞게 완성할 수 있으며, 컴퓨터(PC)에서 진행하시면 더욱 편리합니다.
+
+▶ 지금 시작하기
+https://everychurch.co.kr
+
+이용 중 궁금한 점이나 도움이 필요하시면 언제든 편하게 문의해 주세요.
+http://pf.kakao.com/_slJXX/chat
+
+감사합니다.
+온교회 드림`;
 
 @Injectable()
 export class OnchurchSignupUseCase {
@@ -31,6 +53,8 @@ export class OnchurchSignupUseCase {
     private readonly redisRepository: RedisRepository,
 
     private readonly sesService: AwsSesService,
+
+    private readonly systemService: SystemService,
   ) {}
 
   async execute(command: OnchurchSignupCommand): Promise<OnchurchAuth> {
@@ -99,6 +123,13 @@ export class OnchurchSignupUseCase {
         await this.sesService.send(SIGNUP_NOTIFY_TO, `[온교회 가입] ${user.name}`, html, ONCHURCH_MAIL_FROM);
       } catch (err) {
         this.logger.error(`가입 알림 메일 발송 실패: userId=${user.id}`, err as any);
+      }
+
+      // 가입자 본인에게 환영 문자 발송 — 실패해도 가입은 통과시킨다.
+      try {
+        await this.systemService.sendSMS(user.phone, WELCOME_SMS_CONTENT, WELCOME_SMS_SUBJECT);
+      } catch (err) {
+        this.logger.error(`가입 환영 문자 발송 실패: userId=${user.id}`, err as any);
       }
     }
 
