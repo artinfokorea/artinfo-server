@@ -45,6 +45,16 @@ class OnchurchDashboardInflowDayResponse {
   }
 }
 
+class OnchurchDashboardMonthlyPaidResponse {
+  @ApiProperty({ type: String, description: '월 (YYYY-MM, KST)' }) month: string;
+  @ApiProperty({ type: Number, description: '해당 월 결제 교회 수' }) count: number;
+
+  constructor(month: string, count: number) {
+    this.month = month;
+    this.count = count;
+  }
+}
+
 export class OnchurchDashboardResponse {
   @ApiProperty({ type: String, description: '조회 월 (YYYY-MM)' }) month: string;
   @ApiProperty({ type: OnchurchDashboardOverallResponse, description: '전체 누적 통계(월 무관)' })
@@ -53,6 +63,8 @@ export class OnchurchDashboardResponse {
   @ApiProperty({ type: OnchurchDashboardFunnelResponse }) funnel: OnchurchDashboardFunnelResponse;
   @ApiProperty({ type: [OnchurchDashboardInflowDayResponse], description: '결제 교회 유입(일별)' })
   paidChurchInflow: OnchurchDashboardInflowDayResponse[];
+  @ApiProperty({ type: [OnchurchDashboardMonthlyPaidResponse], description: '최근 12개월 월별 결제 교회 수' })
+  monthlyPaidChurches: OnchurchDashboardMonthlyPaidResponse[];
 
   constructor(result: OnchurchDashboardResult) {
     this.month = result.month;
@@ -68,5 +80,8 @@ export class OnchurchDashboardResponse {
       result.funnel.paid,
     );
     this.paidChurchInflow = result.paidChurchInflow.map((d) => new OnchurchDashboardInflowDayResponse(d.date, d.count));
+    this.monthlyPaidChurches = result.monthlyPaidChurches.map(
+      (m) => new OnchurchDashboardMonthlyPaidResponse(m.month, m.count),
+    );
   }
 }

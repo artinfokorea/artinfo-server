@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import {
   IOnchurchDashboardRepository,
   OnchurchPaidChurchInflowDay,
+  OnchurchPaidChurchMonth,
   OnchurchSignupFunnel,
 } from '@/onchurch/master/domain/repository/onchurch-dashboard.repository.interface';
 import { OnchurchUser } from '@/onchurch/user/domain/entity/onchurch-user.entity';
@@ -58,6 +59,23 @@ export class OnchurchDashboardRepository implements IOnchurchDashboardRepository
       .getRawMany<{ date: string; count: string }>();
 
     return rows.map((r) => ({ date: r.date, count: Number(r.count) || 0 }));
+  }
+
+  async paidChurchCountByMonth(): Promise<OnchurchPaidChurchMonth[]> {
+    // 결제 교회(owner.paid_until 존재, 테스트 제외)를 church.created_at의 KST 월로 집계.
+    const rows = await this.userRepository.manager
+      .createQueryBuilder(OnchurchChurch, 'c')
+      .innerJoin(OnchurchUser, 'owner', 'owner.id = c.owner_id')
+      .select(`to_char(c.created_at ${KST}, 'YYYY-MM')`, 'month')
+      .addSelect('COUNT(*)', 'count')
+      .where('owner.paid_until IS NOT NULL')
+      .andWhere('owner.is_test = false')
+      .andWhere('c.deleted_at IS NULL')
+      .groupBy('month')
+      .orderBy('month', 'ASC')
+      .getRawMany<{ month: string; count: string }>();
+
+    return rows.map((r) => ({ month: r.month, count: Number(r.count) || 0 }));
   }
 
   async paidChurchTotal(): Promise<number> {

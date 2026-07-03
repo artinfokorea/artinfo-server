@@ -13,9 +13,17 @@ export type OnchurchPaidChurchInflowDay = {
   count: number;
 };
 
+// 결제 교회 유입 월별 건수(결제 교회 = owner.paid_until 존재).
+export type OnchurchPaidChurchMonth = {
+  month: string; // YYYY-MM (KST)
+  count: number;
+};
+
 export interface IOnchurchDashboardRepository {
   signupFunnel(params: { month: string }): Promise<OnchurchSignupFunnel>;
   paidChurchInflowByDay(params: { month: string }): Promise<OnchurchPaidChurchInflowDay[]>;
   // 전체 결제 교회 수(월 무관, owner.paid_until 존재, 테스트 계정 제외).
   paidChurchTotal(): Promise<number>;
+  // 결제 교회 유입을 월(KST)별로 집계(존재하는 월만 반환, 오름차순).
+  paidChurchCountByMonth(): Promise<OnchurchPaidChurchMonth[]>;
 }
