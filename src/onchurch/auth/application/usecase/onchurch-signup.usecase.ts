@@ -27,7 +27,7 @@ const WELCOME_SMS_CONTENT = `안녕하세요. 온교회입니다.
 홈페이지는 약 5분이면 우리 교회에 맞게 완성할 수 있으며, 컴퓨터(PC)에서 진행하시면 더욱 편리합니다.
 
 ▶ 지금 시작하기
-https://everychurch.co.kr
+https://everychurch.co.kr/admin
 
 이용 중 궁금한 점이나 도움이 필요하시면 언제든 편하게 문의해 주세요.
 http://pf.kakao.com/_slJXX/chat
