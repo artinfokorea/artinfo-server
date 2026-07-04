@@ -6,6 +6,7 @@ import { ONCHURCH_AUTH_REPOSITORY } from '@/onchurch/auth/domain/repository/onch
 import { OnchurchAuthRepository } from '@/onchurch/auth/infrastructure/repository/onchurch-auth.repository';
 import { OnchurchAuthController } from '@/onchurch/auth/presentation/controller/onchurch-auth.controller';
 import { OnchurchSignupUseCase } from '@/onchurch/auth/application/usecase/onchurch-signup.usecase';
+import { OnchurchCheckLoginIdUseCase } from '@/onchurch/auth/application/usecase/onchurch-check-login-id.usecase';
 import { OnchurchLoginUseCase } from '@/onchurch/auth/application/usecase/onchurch-login.usecase';
 import { OnchurchRefreshTokensUseCase } from '@/onchurch/auth/application/usecase/onchurch-refresh-tokens.usecase';
 import { OnchurchSendVerificationUseCase } from '@/onchurch/auth/application/usecase/onchurch-send-verification.usecase';
@@ -24,6 +25,7 @@ import { AwsSesService } from '@/aws/ses/aws-ses.service';
   providers: [
     JwtService,
     OnchurchSignupUseCase,
+    OnchurchCheckLoginIdUseCase,
     OnchurchLoginUseCase,
     OnchurchRefreshTokensUseCase,
     OnchurchSendVerificationUseCase,

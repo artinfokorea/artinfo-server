@@ -1,6 +1,7 @@
 import { RestApiController, RestApiPost, RestApiPut } from '@/common/decorator/rest-api';
 import { Body } from '@nestjs/common';
 import { OnchurchSignupUseCase } from '@/onchurch/auth/application/usecase/onchurch-signup.usecase';
+import { OnchurchCheckLoginIdUseCase } from '@/onchurch/auth/application/usecase/onchurch-check-login-id.usecase';
 import { OnchurchLoginUseCase } from '@/onchurch/auth/application/usecase/onchurch-login.usecase';
 import { OnchurchRefreshTokensUseCase } from '@/onchurch/auth/application/usecase/onchurch-refresh-tokens.usecase';
 import { OnchurchSendVerificationUseCase } from '@/onchurch/auth/application/usecase/onchurch-send-verification.usecase';
@@ -17,12 +18,15 @@ import { OnchurchResetPasswordRequest } from '@/onchurch/auth/presentation/dto/r
 import { OnchurchAuthTokensResponse } from '@/onchurch/auth/presentation/dto/response/onchurch-auth-tokens.response';
 import { OnchurchSendVerificationResponse, OnchurchVerifyCodeResponse } from '@/onchurch/auth/presentation/dto/response/onchurch-send-verification.response';
 import { OnchurchFindLoginIdsResponse } from '@/onchurch/auth/presentation/dto/response/onchurch-find-login-ids.response';
+import { OnchurchCheckLoginIdRequest } from '@/onchurch/auth/presentation/dto/request/onchurch-check-login-id.request';
+import { OnchurchCheckLoginIdResponse } from '@/onchurch/auth/presentation/dto/response/onchurch-check-login-id.response';
 import { OkResponse } from '@/common/response/ok.response';
 
 @RestApiController('/onchurch/auths', 'Onchurch Auth')
 export class OnchurchAuthController {
   constructor(
     private readonly signupUseCase: OnchurchSignupUseCase,
+    private readonly checkLoginIdUseCase: OnchurchCheckLoginIdUseCase,
     private readonly loginUseCase: OnchurchLoginUseCase,
     private readonly refreshTokensUseCase: OnchurchRefreshTokensUseCase,
     private readonly sendVerificationUseCase: OnchurchSendVerificationUseCase,
@@ -62,6 +66,13 @@ export class OnchurchAuthController {
     });
 
     return new OkResponse();
+  }
+
+  @RestApiPost(OnchurchCheckLoginIdResponse, { path: '/check-id', description: '온처치 아이디 중복 확인 (available=true면 사용 가능)' })
+  async checkLoginId(@Body() request: OnchurchCheckLoginIdRequest) {
+    const available = await this.checkLoginIdUseCase.execute(request.loginId);
+
+    return new OnchurchCheckLoginIdResponse(available);
   }
 
   @RestApiPost(OnchurchAuthTokensResponse, { path: '/sign-up', description: '온처치 회원가입' })
