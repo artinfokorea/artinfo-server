@@ -6,7 +6,10 @@
 export class OnchurchSignupWithChurchCommand {
   slug: string;
   churchName: string;
+  // 가입자 휴대폰 — 본인 인증 대상이자 계정 연락처.
   phone: string;
+  // 교회 대표 연락처 — 홈페이지에 노출되는 값(유선 등 자유 형식).
+  churchPhone: string;
   email: string;
   address: string;
   pastorName: string;
@@ -17,6 +20,7 @@ export class OnchurchSignupWithChurchCommand {
     slug: string;
     churchName: string;
     phone: string;
+    churchPhone: string;
     email: string;
     address: string;
     pastorName: string;
@@ -26,6 +30,7 @@ export class OnchurchSignupWithChurchCommand {
     this.slug = params.slug;
     this.churchName = params.churchName;
     this.phone = params.phone;
+    this.churchPhone = params.churchPhone;
     this.email = params.email;
     this.address = params.address;
     this.pastorName = params.pastorName;

@@ -112,7 +112,7 @@ export class OnchurchSignupWithChurchUseCase {
       name: command.churchName,
       eng: null,
       tagline: null,
-      phone: command.phone,
+      phone: command.churchPhone,
       email: command.email,
       address: command.address,
       representative: null,

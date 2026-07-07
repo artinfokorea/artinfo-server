@@ -19,8 +19,13 @@ export class OnchurchSignupWithChurchRequest {
 
   @NotBlank()
   @IsPhone()
-  @ApiProperty({ type: String, required: true, description: '휴대폰 번호 (010-XXXX-XXXX)', example: '010-1234-5678' })
+  @ApiProperty({ type: String, required: true, description: '가입자 휴대폰 (본인 인증 대상, 010-XXXX-XXXX)', example: '010-1234-5678' })
   phone: string;
+
+  @NotBlank()
+  @MaxLength(40)
+  @ApiProperty({ type: String, required: true, description: '교회 대표 연락처 (자유 형식)', example: '02-1234-5678' })
+  churchPhone: string;
 
   @NotBlank()
   @Email()
@@ -56,6 +61,7 @@ export class OnchurchSignupWithChurchRequest {
       slug: this.slug.trim().toLowerCase(),
       churchName: this.churchName.trim(),
       phone: this.phone.trim(),
+      churchPhone: this.churchPhone.trim(),
       email: this.email.trim(),
       address: this.address.trim(),
       pastorName: this.pastorName.trim(),
