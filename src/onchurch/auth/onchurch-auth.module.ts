@@ -6,6 +6,7 @@ import { ONCHURCH_AUTH_REPOSITORY } from '@/onchurch/auth/domain/repository/onch
 import { OnchurchAuthRepository } from '@/onchurch/auth/infrastructure/repository/onchurch-auth.repository';
 import { OnchurchAuthController } from '@/onchurch/auth/presentation/controller/onchurch-auth.controller';
 import { OnchurchSignupUseCase } from '@/onchurch/auth/application/usecase/onchurch-signup.usecase';
+import { OnchurchSignupWithChurchUseCase } from '@/onchurch/auth/application/usecase/onchurch-signup-with-church.usecase';
 import { OnchurchCheckLoginIdUseCase } from '@/onchurch/auth/application/usecase/onchurch-check-login-id.usecase';
 import { OnchurchLoginUseCase } from '@/onchurch/auth/application/usecase/onchurch-login.usecase';
 import { OnchurchRefreshTokensUseCase } from '@/onchurch/auth/application/usecase/onchurch-refresh-tokens.usecase';
@@ -15,16 +16,27 @@ import { OnchurchFindLoginIdsUseCase } from '@/onchurch/auth/application/usecase
 import { OnchurchResetPasswordUseCase } from '@/onchurch/auth/application/usecase/onchurch-reset-password.usecase';
 import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
 import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
+import { OnchurchAboutModule } from '@/onchurch/about/onchurch-about.module';
+import { OnchurchWorshipModule } from '@/onchurch/worship/onchurch-worship.module';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { SystemModule } from '@/system/module/system.module';
 import { AwsSesService } from '@/aws/ses/aws-ses.service';
 
 @Module({
-  imports: [JwtModule.register({}), TypeOrmModule.forFeature([OnchurchAuth]), OnchurchUserModule, OnchurchChurchModule, SystemModule],
+  imports: [
+    JwtModule.register({}),
+    TypeOrmModule.forFeature([OnchurchAuth]),
+    OnchurchUserModule,
+    OnchurchChurchModule,
+    OnchurchAboutModule,
+    OnchurchWorshipModule,
+    SystemModule,
+  ],
   controllers: [OnchurchAuthController],
   providers: [
     JwtService,
     OnchurchSignupUseCase,
+    OnchurchSignupWithChurchUseCase,
     OnchurchCheckLoginIdUseCase,
     OnchurchLoginUseCase,
     OnchurchRefreshTokensUseCase,

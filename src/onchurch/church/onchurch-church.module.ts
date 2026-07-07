@@ -44,6 +44,12 @@ import { AwsSesService } from '@/aws/ses/aws-ses.service';
     OnchurchChurchManagerResolver,
     AwsSesService,
   ],
-  exports: [ONCHURCH_CHURCH_REPOSITORY, OnchurchChurchRequiredService, OnchurchChurchManagerResolver],
+  exports: [
+    ONCHURCH_CHURCH_REPOSITORY,
+    OnchurchChurchRequiredService,
+    OnchurchChurchManagerResolver,
+    OnchurchUpsertMyChurchUseCase,
+    OnchurchPublishMyChurchUseCase,
+  ],
 })
 export class OnchurchChurchModule {}

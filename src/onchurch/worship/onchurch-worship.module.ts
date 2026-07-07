@@ -45,5 +45,6 @@ import { OnchurchAttendanceModule } from '@/onchurch/attendance/onchurch-attenda
     OnchurchDeleteMyWorshipOrderUseCase,
     OnchurchListPublicWorshipUseCase,
   ],
+  exports: [OnchurchCreateMyWorshipServiceUseCase],
 })
 export class OnchurchWorshipModule {}

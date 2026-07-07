@@ -75,5 +75,6 @@ import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
     OnchurchDeleteMyStaffUseCase,
     OnchurchListPublicAboutUseCase,
   ],
+  exports: [OnchurchUpsertMyPastorUseCase],
 })
 export class OnchurchAboutModule {}

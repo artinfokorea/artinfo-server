@@ -1,6 +1,7 @@
 import { RestApiController, RestApiPost, RestApiPut } from '@/common/decorator/rest-api';
 import { Body } from '@nestjs/common';
 import { OnchurchSignupUseCase } from '@/onchurch/auth/application/usecase/onchurch-signup.usecase';
+import { OnchurchSignupWithChurchUseCase } from '@/onchurch/auth/application/usecase/onchurch-signup-with-church.usecase';
 import { OnchurchCheckLoginIdUseCase } from '@/onchurch/auth/application/usecase/onchurch-check-login-id.usecase';
 import { OnchurchLoginUseCase } from '@/onchurch/auth/application/usecase/onchurch-login.usecase';
 import { OnchurchRefreshTokensUseCase } from '@/onchurch/auth/application/usecase/onchurch-refresh-tokens.usecase';
@@ -9,6 +10,7 @@ import { OnchurchVerifyCodeUseCase } from '@/onchurch/auth/application/usecase/o
 import { OnchurchFindLoginIdsUseCase } from '@/onchurch/auth/application/usecase/onchurch-find-login-ids.usecase';
 import { OnchurchResetPasswordUseCase } from '@/onchurch/auth/application/usecase/onchurch-reset-password.usecase';
 import { OnchurchSignupRequest } from '@/onchurch/auth/presentation/dto/request/onchurch-signup.request';
+import { OnchurchSignupWithChurchRequest } from '@/onchurch/auth/presentation/dto/request/onchurch-signup-with-church.request';
 import { OnchurchLoginRequest } from '@/onchurch/auth/presentation/dto/request/onchurch-login.request';
 import { OnchurchRefreshTokensRequest } from '@/onchurch/auth/presentation/dto/request/onchurch-refresh-tokens.request';
 import { OnchurchSendVerificationRequest } from '@/onchurch/auth/presentation/dto/request/onchurch-send-verification.request';
@@ -26,6 +28,7 @@ import { OkResponse } from '@/common/response/ok.response';
 export class OnchurchAuthController {
   constructor(
     private readonly signupUseCase: OnchurchSignupUseCase,
+    private readonly signupWithChurchUseCase: OnchurchSignupWithChurchUseCase,
     private readonly checkLoginIdUseCase: OnchurchCheckLoginIdUseCase,
     private readonly loginUseCase: OnchurchLoginUseCase,
     private readonly refreshTokensUseCase: OnchurchRefreshTokensUseCase,
@@ -78,6 +81,13 @@ export class OnchurchAuthController {
   @RestApiPost(OnchurchAuthTokensResponse, { path: '/sign-up', description: '온처치 회원가입' })
   async signup(@Body() request: OnchurchSignupRequest) {
     const auth = await this.signupUseCase.execute(request.toCommand());
+
+    return new OnchurchAuthTokensResponse(auth);
+  }
+
+  @RestApiPost(OnchurchAuthTokensResponse, { path: '/sign-up-with-church', description: '온처치 랜딩 위저드 통합 가입 (교회 정보 입력 후 계정 자동 생성 + 자동 공개)' })
+  async signupWithChurch(@Body() request: OnchurchSignupWithChurchRequest) {
+    const auth = await this.signupWithChurchUseCase.execute(request.toCommand());
 
     return new OnchurchAuthTokensResponse(auth);
   }
