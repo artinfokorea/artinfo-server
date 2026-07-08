@@ -15,6 +15,8 @@ export type OnchurchChurchOverviewRow = {
   freeTrialUntil: Date | null;
   paidUntil: Date | null;
   naverVerification: string | null;
+  // 소유자가 테스트 계정인지 여부(owner.is_test). 달력 등에서 제외 판단에 사용.
+  isTest: boolean;
 };
 
 export interface IOnchurchChurchOverviewRepository {

@@ -53,6 +53,7 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
       .addSelect('owner.phone', 'ownerPhone')
       .addSelect('owner.free_trial_until', 'freeTrialUntil')
       .addSelect('owner.paid_until', 'paidUntil')
+      .addSelect('owner.is_test', 'isTest')
       .addSelect('church.naver_verification', 'naverVerification')
       .orderBy('church.id', 'DESC')
       .offset((params.page - 1) * params.size)
@@ -71,6 +72,7 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
       freeTrialUntil: r.freeTrialUntil ? new Date(r.freeTrialUntil) : null,
       paidUntil: r.paidUntil ? new Date(r.paidUntil) : null,
       naverVerification: r.naverVerification ?? null,
+      isTest: !!r.isTest,
     }));
 
     return { items, totalCount };
