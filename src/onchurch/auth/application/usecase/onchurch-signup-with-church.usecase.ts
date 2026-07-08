@@ -98,7 +98,7 @@ export class OnchurchSignupWithChurchUseCase {
 
     // 가입자 본인에게 아이디·임시비밀번호를 문자로 발송한다. 실패해도 가입은 통과시킨다.
     try {
-      await this.systemService.sendSMS(user.phone, this.buildWelcomeSms(command.slug, user.loginId, tempPassword), WELCOME_SMS_SUBJECT);
+      await this.systemService.sendSMS(user.phone, this.buildWelcomeSms(user.loginId, tempPassword), WELCOME_SMS_SUBJECT);
     } catch (err) {
       this.logger.error(`가입 환영 문자 발송 실패: userId=${user.id}`, err as any);
     }
@@ -159,23 +159,26 @@ export class OnchurchSignupWithChurchUseCase {
     return pw;
   }
 
-  private buildWelcomeSms(slug: string, loginId: string, tempPassword: string): string {
+  private buildWelcomeSms(loginId: string, tempPassword: string): string {
     return `안녕하세요. 온교회입니다.
 
-온교회에 가입해 주셔서 감사합니다! 7일 무료체험이 시작되었습니다.
+온교회에 가입해 주셔서 감사합니다!
+
+온교회는 많은 목사님들께서 직접 쉽고 빠르게 홈페이지를 구축하여 사용하고 있는 서비스입니다. 전문 지식이 없어도 누구나 손쉽게 시작하실 수 있습니다.
+
+지금부터 7일 무료체험으로 교회 홈페이지 제작과 성도 관리 기능을 모두 이용해 보세요.
+
+홈페이지는 약 5분이면 우리 교회에 맞게 완성할 수 있으며, 컴퓨터(PC)에서 진행하시면 더욱 편리합니다.
 
 ▶ 로그인 정보
 · 아이디: ${loginId}
 · 임시 비밀번호: ${tempPassword}
 로그인 후 마이페이지에서 비밀번호를 변경해 주세요.
 
-▶ 우리 교회 홈페이지
-https://${slug}.everychurch.co.kr
-
-▶ 관리자 콘솔
+▶ 지금 시작하기
 https://everychurch.co.kr/admin
 
-궁금한 점은 언제든 문의해 주세요.
+이용 중 궁금한 점이나 도움이 필요하시면 언제든 편하게 문의해 주세요.
 http://pf.kakao.com/_slJXX/chat
 
 감사합니다.
