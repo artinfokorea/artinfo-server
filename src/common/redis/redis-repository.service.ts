@@ -32,6 +32,12 @@ export class RedisRepository implements OnModuleDestroy {
     await this.redisClient.set(command.key, valueJSON, 'EX', command.ttl);
   }
 
+  // 분산 락 획득 시도. 이미 잡혀 있으면 false. (SET key 1 PX ttl NX)
+  async acquireLock(key: string, ttlMs: number): Promise<boolean> {
+    const result = await this.redisClient.set(key, '1', 'PX', ttlMs, 'NX');
+    return result === 'OK';
+  }
+
   async delete(key: string) {
     await this.redisClient.del(key);
   }
