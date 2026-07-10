@@ -22,16 +22,19 @@ import {
 import { OnchurchListChurchesUseCase } from '@/onchurch/master/application/usecase/onchurch-list-churches.usecase';
 import { OnchurchUpdateChurchPaidUntilUseCase } from '@/onchurch/master/application/usecase/onchurch-update-church-paid-until.usecase';
 import { OnchurchUpdateChurchNaverVerificationUseCase } from '@/onchurch/master/application/usecase/onchurch-update-church-naver-verification.usecase';
+import { OnchurchUpdateChurchPublishedUseCase } from '@/onchurch/master/application/usecase/onchurch-update-church-published.usecase';
 import { OnchurchTransferChurchOwnerUseCase } from '@/onchurch/master/application/usecase/onchurch-transfer-church-owner.usecase';
 import { OnchurchSearchUsersUseCase } from '@/onchurch/master/application/usecase/onchurch-search-users.usecase';
 import { OnchurchListChurchesRequest } from '@/onchurch/master/presentation/dto/request/onchurch-list-churches.request';
 import { OnchurchUpdateChurchPaidUntilRequest } from '@/onchurch/master/presentation/dto/request/onchurch-update-church-paid-until.request';
 import { OnchurchUpdateChurchNaverVerificationRequest } from '@/onchurch/master/presentation/dto/request/onchurch-update-church-naver-verification.request';
+import { OnchurchUpdateChurchPublishedRequest } from '@/onchurch/master/presentation/dto/request/onchurch-update-church-published.request';
 import { OnchurchTransferChurchOwnerRequest } from '@/onchurch/master/presentation/dto/request/onchurch-transfer-church-owner.request';
 import { OnchurchSearchUsersRequest } from '@/onchurch/master/presentation/dto/request/onchurch-search-users.request';
 import { OnchurchChurchOverviewListResponse } from '@/onchurch/master/presentation/dto/response/onchurch-church-overview.response';
 import { OnchurchChurchPaidUntilResponse } from '@/onchurch/master/presentation/dto/response/onchurch-church-paid-until.response';
 import { OnchurchChurchNaverVerificationResponse } from '@/onchurch/master/presentation/dto/response/onchurch-church-naver-verification.response';
+import { OnchurchChurchPublishedResponse } from '@/onchurch/master/presentation/dto/response/onchurch-church-published.response';
 import { OnchurchTransferChurchOwnerResponse } from '@/onchurch/master/presentation/dto/response/onchurch-transfer-church-owner.response';
 import { OnchurchUserCandidateListResponse } from '@/onchurch/master/presentation/dto/response/onchurch-user-candidate.response';
 import {
@@ -84,6 +87,7 @@ export class OnchurchMasterController {
     private readonly listChurchesUseCase: OnchurchListChurchesUseCase,
     private readonly updateChurchPaidUntilUseCase: OnchurchUpdateChurchPaidUntilUseCase,
     private readonly updateChurchNaverVerificationUseCase: OnchurchUpdateChurchNaverVerificationUseCase,
+    private readonly updateChurchPublishedUseCase: OnchurchUpdateChurchPublishedUseCase,
     private readonly transferChurchOwnerUseCase: OnchurchTransferChurchOwnerUseCase,
     private readonly searchUsersUseCase: OnchurchSearchUsersUseCase,
     private readonly createLedgerEntryUseCase: OnchurchCreateLedgerEntryUseCase,
@@ -220,6 +224,16 @@ export class OnchurchMasterController {
   ) {
     const result = await this.updateChurchNaverVerificationUseCase.execute(signature.id, id, request.naverVerification);
     return new OnchurchChurchNaverVerificationResponse(result.naverVerification);
+  }
+
+  @RestApiPut(OnchurchChurchPublishedResponse, { path: '/churches/:id/published', description: '교회 운영 여부(공개/비공개) 변경', auth: [USER_TYPE.CLIENT] })
+  async updateChurchPublished(
+    @AuthSignature() signature: UserSignature,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() request: OnchurchUpdateChurchPublishedRequest,
+  ) {
+    const result = await this.updateChurchPublishedUseCase.execute(signature.id, id, request.isPublished);
+    return new OnchurchChurchPublishedResponse(result.isPublished);
   }
 
   @RestApiGet(OnchurchUserCandidateListResponse, { path: '/users', description: '마스터 전용 사용자 검색(오너 이관 대상)', auth: [USER_TYPE.CLIENT] })

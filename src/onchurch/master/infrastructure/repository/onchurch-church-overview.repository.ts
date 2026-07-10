@@ -87,4 +87,9 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
     const result = await this.churchRepository.update({ id: churchId }, { naverVerification });
     return (result.affected ?? 0) > 0;
   }
+
+  async updatePublished(churchId: number, isPublished: boolean): Promise<boolean> {
+    const result = await this.churchRepository.update({ id: churchId }, { isPublished });
+    return (result.affected ?? 0) > 0;
+  }
 }

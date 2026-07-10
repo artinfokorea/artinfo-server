@@ -29,4 +29,6 @@ export interface IOnchurchChurchOverviewRepository {
   findOwnerIdByChurchId(churchId: number): Promise<number | null>;
   // 교회의 네이버 사이트 인증 코드를 갱신한다. 대상 교회가 없으면 false.
   updateNaverVerification(churchId: number, naverVerification: string | null): Promise<boolean>;
+  // 교회의 운영 여부(is_published)를 갱신한다. 대상 교회가 없으면 false.
+  updatePublished(churchId: number, isPublished: boolean): Promise<boolean>;
 }
