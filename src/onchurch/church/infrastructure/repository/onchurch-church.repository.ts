@@ -79,6 +79,7 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
         enabledPages: params.enabledPages,
         homeSectionOrder: params.homeSectionOrder,
         homeQuickLinks: params.homeQuickLinks,
+        siteLang: params.siteLang,
       });
       return this.churchRepository.save(existing);
     }

@@ -61,6 +61,10 @@ export class OnchurchUpsertMyChurchRequest {
   @ApiProperty({ type: [String], required: false, description: "홈 '바로가기' 노출 항목(순서 포함). 비면 기본", example: ['worship', 'sermons', 'gallery', 'instagram'] })
   homeQuickLinks?: string[];
 
+  @IsOptional()
+  @ApiProperty({ type: String, required: false, description: "공개 사이트 고정 UI 문구 언어 ('ko' | 'en'). 기본 'ko'", example: 'ko' })
+  siteLang?: string;
+
   toCommand(): OnchurchUpsertMyChurchCommand {
     return new OnchurchUpsertMyChurchCommand({
       slug: this.slug,
@@ -80,6 +84,7 @@ export class OnchurchUpsertMyChurchRequest {
       enabledPages: this.enabledPages ?? [],
       homeSectionOrder: this.homeSectionOrder ?? [],
       homeQuickLinks: this.homeQuickLinks ?? [],
+      siteLang: this.siteLang === 'en' ? 'en' : 'ko',
     });
   }
 }

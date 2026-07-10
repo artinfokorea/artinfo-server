@@ -68,6 +68,10 @@ export class OnchurchChurch extends BaseEntity {
   @Column({ type: 'jsonb', name: 'home_quick_links', default: () => "'[]'::jsonb" })
   homeQuickLinks: string[];
 
+  // 공개 사이트 고정 UI 문구 언어. 'ko' | 'en'. 교회 입력 콘텐츠는 이 값과 무관하게 원문 유지.
+  @Column({ type: 'varchar', name: 'site_lang', default: () => "'ko'" })
+  siteLang: string;
+
   @Column({ type: 'int', name: 'sort_order', nullable: true })
   sortOrder: number | null;
 

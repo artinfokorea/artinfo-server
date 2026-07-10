@@ -20,6 +20,7 @@ export interface OnchurchChurchUpsertParams {
   enabledPages: string[];
   homeSectionOrder: string[];
   homeQuickLinks: string[];
+  siteLang: string;
 }
 
 export interface IOnchurchChurchRepository {

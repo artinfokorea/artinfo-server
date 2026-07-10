@@ -16,6 +16,7 @@ export class OnchurchUpsertMyChurchCommand {
   enabledPages: string[];
   homeSectionOrder: string[];
   homeQuickLinks: string[];
+  siteLang: string;
 
   constructor(params: {
     slug: string;
@@ -35,6 +36,7 @@ export class OnchurchUpsertMyChurchCommand {
     enabledPages: string[];
     homeSectionOrder: string[];
     homeQuickLinks: string[];
+    siteLang: string;
   }) {
     this.slug = params.slug;
     this.name = params.name;
@@ -53,5 +55,6 @@ export class OnchurchUpsertMyChurchCommand {
     this.enabledPages = params.enabledPages;
     this.homeSectionOrder = params.homeSectionOrder;
     this.homeQuickLinks = params.homeQuickLinks;
+    this.siteLang = params.siteLang;
   }
 }

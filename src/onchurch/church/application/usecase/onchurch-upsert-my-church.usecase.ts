@@ -58,6 +58,7 @@ export class OnchurchUpsertMyChurchUseCase {
       enabledPages: command.enabledPages,
       homeSectionOrder: command.homeSectionOrder,
       homeQuickLinks: command.homeQuickLinks,
+      siteLang: command.siteLang,
     });
 
     // 교회를 처음 생성한 사용자는 오너 등급으로 승격한다.

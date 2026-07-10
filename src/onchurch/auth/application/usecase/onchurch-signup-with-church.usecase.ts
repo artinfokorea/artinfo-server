@@ -125,6 +125,7 @@ export class OnchurchSignupWithChurchUseCase {
       enabledPages: DEFAULT_ENABLED_PAGES,
       homeSectionOrder: [],
       homeQuickLinks: [],
+      siteLang: 'ko',
     });
   }
 
