@@ -28,7 +28,6 @@ const DEFAULT_ENABLED_PAGES = [
   'schedule',
   'gallery',
   'community',
-  'prayer',
   'directions',
   'about-vision',
   'about-history',

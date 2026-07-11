@@ -10,7 +10,6 @@ import { OnchurchTransportationModule } from '@/onchurch/transportation/onchurch
 import { OnchurchWorshipModule } from '@/onchurch/worship/onchurch-worship.module';
 import { OnchurchSermonModule } from '@/onchurch/sermon/onchurch-sermon.module';
 import { OnchurchGalleryModule } from '@/onchurch/gallery/onchurch-gallery.module';
-import { OnchurchPrayerModule } from '@/onchurch/prayer/onchurch-prayer.module';
 import { OnchurchInquiryModule } from '@/onchurch/inquiry/onchurch-inquiry.module';
 import { OnchurchBulletinModule } from '@/onchurch/bulletin/onchurch-bulletin.module';
 import { OnchurchCommunityModule } from '@/onchurch/community/onchurch-community.module';
@@ -32,7 +31,6 @@ import { OnchurchMasterModule } from '@/onchurch/master/onchurch-master.module';
     OnchurchWorshipModule,
     OnchurchSermonModule,
     OnchurchGalleryModule,
-    OnchurchPrayerModule,
     OnchurchInquiryModule,
     OnchurchBulletinModule,
     OnchurchCommunityModule,
