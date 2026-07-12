@@ -8,6 +8,7 @@ import {
   OnchurchGetMyProfileUseCase,
   OnchurchUpdateMyProfileUseCase,
   OnchurchChangeMyPasswordUseCase,
+  OnchurchSetInitialPasswordUseCase,
 } from '@/onchurch/user/application/usecase/onchurch-user-profile.usecase';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 
@@ -19,6 +20,7 @@ import { RedisRepository } from '@/common/redis/redis-repository.service';
     OnchurchGetMyProfileUseCase,
     OnchurchUpdateMyProfileUseCase,
     OnchurchChangeMyPasswordUseCase,
+    OnchurchSetInitialPasswordUseCase,
     RedisRepository,
   ],
   exports: [ONCHURCH_USER_REPOSITORY],

@@ -23,3 +23,15 @@ export class OnchurchUserPasswordMismatch extends HttpException {
     );
   }
 }
+
+export class OnchurchInitialPasswordNotAllowed extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-USER-003',
+        message: '초기 비밀번호 설정 대상이 아닙니다.',
+      },
+      HttpStatus.FORBIDDEN,
+    );
+  }
+}
