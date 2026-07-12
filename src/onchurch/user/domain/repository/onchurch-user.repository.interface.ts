@@ -15,6 +15,7 @@ export interface IOnchurchUserRepository {
     freeTrialUntil: Date | null;
     referralSource: string | null;
     referralSourceEtc: string | null;
+    mustChangePassword?: boolean;
   }): Promise<number>;
   findOneOrThrowById(id: number): Promise<OnchurchUser>;
   findByLoginId(loginId: string): Promise<OnchurchUser | null>;

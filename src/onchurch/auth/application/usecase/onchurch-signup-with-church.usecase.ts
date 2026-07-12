@@ -81,6 +81,8 @@ export class OnchurchSignupWithChurchUseCase {
       freeTrialUntil: null,
       referralSource: null,
       referralSourceEtc: null,
+      // 임시비밀번호로 생성 → 최초 로그인 시 비밀번호 변경을 강제한다.
+      mustChangePassword: true,
     });
 
     await this.redisRepository.delete(verifiedKey);

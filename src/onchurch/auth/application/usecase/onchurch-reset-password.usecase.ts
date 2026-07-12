@@ -42,6 +42,8 @@ export class OnchurchResetPasswordUseCase {
     }
 
     user.password = await bcrypt.hash(params.newPassword, this.BCRYPT_ROUNDS);
+    // 비밀번호를 재설정했으므로 강제 변경 플래그를 소비한다.
+    user.mustChangePassword = false;
     await this.userRepository.saveEntity(user);
 
     // 인증 플래그는 1회성으로 소비한다.

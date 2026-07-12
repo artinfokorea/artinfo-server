@@ -47,6 +47,8 @@ export class OnchurchChangeMyPasswordUseCase {
     const matches = await bcrypt.compare(params.currentPassword, user.password);
     if (!matches) throw new OnchurchUserPasswordMismatch();
     user.password = await bcrypt.hash(params.newPassword, this.BCRYPT_ROUNDS);
+    // 비밀번호를 바꿨으므로 강제 변경 플래그를 소비한다.
+    user.mustChangePassword = false;
     await this.userRepository.saveEntity(user);
   }
 }

@@ -36,6 +36,11 @@ export class OnchurchUser extends BaseEntity {
   @Column({ type: 'boolean', name: 'marketing_consent', default: false })
   marketingConsent: boolean;
 
+  // 위저드(임시비밀번호)로 생성된 계정이 최초 로그인 시 비밀번호 변경을 강제당하는지 여부.
+  // 비밀번호를 한 번이라도 변경/재설정하면 false로 소비된다.
+  @Column({ type: 'boolean', name: 'must_change_password', default: false })
+  mustChangePassword: boolean;
+
   @Column({ type: 'varchar', name: 'referral_source', nullable: true })
   referralSource: string | null;
 

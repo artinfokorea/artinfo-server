@@ -24,6 +24,7 @@ export class OnchurchUserRepository implements IOnchurchUserRepository {
     freeTrialUntil: Date | null;
     referralSource: string | null;
     referralSourceEtc: string | null;
+    mustChangePassword?: boolean;
   }): Promise<number> {
     const user = await this.userRepository.save({
       loginId: params.loginId,
@@ -37,6 +38,7 @@ export class OnchurchUserRepository implements IOnchurchUserRepository {
       freeTrialUntil: params.freeTrialUntil,
       referralSource: params.referralSource,
       referralSourceEtc: params.referralSourceEtc,
+      mustChangePassword: params.mustChangePassword ?? false,
     });
 
     return user.id;

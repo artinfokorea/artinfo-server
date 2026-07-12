@@ -8,6 +8,7 @@ export class OnchurchUserProfileResponse {
   @ApiProperty({ type: String }) phone: string;
   @ApiProperty({ type: String }) role: string;
   @ApiProperty({ type: String, nullable: true }) churchName: string | null;
+  @ApiProperty({ type: Boolean }) mustChangePassword: boolean;
 
   constructor(user: OnchurchUser) {
     this.id = user.id;
@@ -16,5 +17,6 @@ export class OnchurchUserProfileResponse {
     this.phone = user.phone;
     this.role = user.role;
     this.churchName = user.churchName;
+    this.mustChangePassword = user.mustChangePassword;
   }
 }
