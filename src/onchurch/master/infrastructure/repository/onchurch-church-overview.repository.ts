@@ -7,6 +7,7 @@ import {
 } from '@/onchurch/master/domain/repository/onchurch-church-overview.repository.interface';
 import { OnchurchChurch } from '@/onchurch/church/domain/entity/onchurch-church.entity';
 import { OnchurchUser } from '@/onchurch/user/domain/entity/onchurch-user.entity';
+import { OnchurchAuth } from '@/onchurch/auth/domain/entity/onchurch-auth.entity';
 import { PagingItems } from '@/common/type/type';
 
 @Injectable()
@@ -43,6 +44,18 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
     const totalCount = await base().getCount();
 
     const rows = await base()
+      // 소유자(owner)의 마지막 세션 갱신 시각 = 마지막 접속(활동) 근사치.
+      // 로그인 시 onchurch_auths 행이 INSERT되고, 토큰 갱신 시 updated_at이 UPDATE된다.
+      .leftJoin(
+        (sub) =>
+          sub
+            .select('auth.user_id', 'user_id')
+            .addSelect('MAX(auth.updated_at)', 'last_activity')
+            .from(OnchurchAuth, 'auth')
+            .groupBy('auth.user_id'),
+        'sess',
+        'sess.user_id = church.owner_id',
+      )
       .select('church.id', 'id')
       .addSelect('church.name', 'name')
       .addSelect('church.slug', 'slug')
@@ -55,6 +68,7 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
       .addSelect('owner.paid_until', 'paidUntil')
       .addSelect('owner.is_test', 'isTest')
       .addSelect('church.naver_verification', 'naverVerification')
+      .addSelect('sess.last_activity', 'lastActivity')
       .orderBy('church.id', 'DESC')
       .offset((params.page - 1) * params.size)
       .limit(params.size)
@@ -73,6 +87,7 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
       paidUntil: r.paidUntil ? new Date(r.paidUntil) : null,
       naverVerification: r.naverVerification ?? null,
       isTest: !!r.isTest,
+      lastActivity: r.lastActivity ? new Date(r.lastActivity) : null,
     }));
 
     return { items, totalCount };

@@ -17,6 +17,8 @@ export type OnchurchChurchOverviewRow = {
   naverVerification: string | null;
   // 소유자가 테스트 계정인지 여부(owner.is_test). 달력 등에서 제외 판단에 사용.
   isTest: boolean;
+  // 소유자의 마지막 세션 갱신 시각(onchurch_auths.updated_at 최대값) = 마지막 접속 근사치. 접속 이력 없으면 null.
+  lastActivity: Date | null;
 };
 
 export interface IOnchurchChurchOverviewRepository {
