@@ -37,13 +37,15 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
   }
 
   async findPublishedWithExpiredSubscription(now: Date): Promise<OnchurchChurch[]> {
-    // free_trial / paid 둘 다 만료(null 이거나 now 이하)인 published 교회만.
+    // 무료체험 대상자(결제 이력이 아예 없는 사용자)만 자동 OFF 대상.
+    //  - free_trial 만료(null 이거나 now 이하)
+    //  - paid_until IS NULL(결제한 적 없음) — 결제 만료는 조건에서 제외하여 결제 이력이 있으면 자동으로 닫지 않는다.
     return this.churchRepository
       .createQueryBuilder('church')
       .innerJoin(OnchurchUser, 'u', 'u.id = church.owner_id AND u.deleted_at IS NULL')
       .where('church.is_published = :pub', { pub: true })
       .andWhere('(u.free_trial_until IS NULL OR u.free_trial_until <= :now)', { now })
-      .andWhere('(u.paid_until IS NULL OR u.paid_until <= :now)', { now })
+      .andWhere('u.paid_until IS NULL')
       .getMany();
   }
 
