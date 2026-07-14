@@ -72,6 +72,11 @@ export class OnchurchChurch extends BaseEntity {
   @Column({ type: 'varchar', name: 'site_lang', default: () => "'ko'" })
   siteLang: string;
 
+  // 공개 홈페이지 렌더링 템플릿. 'default'(기본 모던) | 'classic'(충현교회 스타일 전통형).
+  // 값 지정은 운영자가 DB에서 직접 변경한다(관리자 UI/일반 저장 경로에서는 건드리지 않음).
+  @Column({ type: 'varchar', name: 'site_template', default: () => "'default'" })
+  siteTemplate: string;
+
   @Column({ type: 'int', name: 'sort_order', nullable: true })
   sortOrder: number | null;
 

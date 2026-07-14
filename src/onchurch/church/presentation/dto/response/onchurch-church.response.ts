@@ -66,6 +66,9 @@ export class OnchurchChurchResponse {
   @ApiProperty({ type: String, required: true, description: "공개 사이트 고정 UI 문구 언어 ('ko' | 'en')" })
   siteLang: string;
 
+  @ApiProperty({ type: String, required: true, description: "공개 홈페이지 템플릿 ('default' | 'classic')" })
+  siteTemplate: string;
+
   @ApiProperty({ type: Boolean, required: true, description: '사이트 운영 중 여부' })
   isPublished: boolean;
 
@@ -94,6 +97,7 @@ export class OnchurchChurchResponse {
     this.homeSectionOrder = church.homeSectionOrder ?? [];
     this.homeQuickLinks = church.homeQuickLinks ?? [];
     this.siteLang = church.siteLang === 'en' ? 'en' : 'ko';
+    this.siteTemplate = church.siteTemplate === 'classic' ? 'classic' : 'default';
     this.isPublished = church.isPublished ?? false;
     // 한 번이라도 사이트를 오픈(첫 publish)하면 채워지고, 이후 OFF해도 유지된다.
     this.firstPublishedAt = church.firstPublishedAt ? church.firstPublishedAt.toISOString() : null;
