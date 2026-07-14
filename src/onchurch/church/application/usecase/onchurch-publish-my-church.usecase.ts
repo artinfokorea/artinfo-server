@@ -14,6 +14,13 @@ import { ONCHURCH_MAIL_FROM } from '@/onchurch/onchurch-mail.constant';
 
 const FREE_TRIAL_DAYS = 7;
 
+// 만료 시각을 해당 날짜(KST) 23:59:59로 맞춘다. (마스터 결제 만료일과 동일 규칙)
+// KST=UTC+9(DST 없음)이므로 23:59:59 KST == 같은 날짜 14:59:59 UTC.
+function endOfDayKst(base: Date): Date {
+  const kst = new Date(base.getTime() + 9 * 60 * 60 * 1000);
+  return new Date(Date.UTC(kst.getUTCFullYear(), kst.getUTCMonth(), kst.getUTCDate(), 14, 59, 59, 0));
+}
+
 // 회원가입 알림과 동일한 운영자 수신 주소.
 const FIRST_PUBLISH_NOTIFY_TO = 'chorales@naver.com';
 
@@ -68,7 +75,8 @@ export class OnchurchPublishMyChurchUseCase {
     const isFirstPublish = !existing.firstPublishedAt;
     const now = new Date();
     if (isFirstPublish) {
-      user.freeTrialUntil = new Date(now.getTime() + FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000);
+      // 7일 후 날짜의 한국시간 23:59:59까지 무료체험.
+      user.freeTrialUntil = endOfDayKst(new Date(now.getTime() + FREE_TRIAL_DAYS * 24 * 60 * 60 * 1000));
       await this.userRepository.saveEntity(user);
     }
 
