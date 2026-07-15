@@ -22,18 +22,21 @@ import {
 import { OnchurchListChurchesUseCase } from '@/onchurch/master/application/usecase/onchurch-list-churches.usecase';
 import { OnchurchUpdateChurchPaidUntilUseCase } from '@/onchurch/master/application/usecase/onchurch-update-church-paid-until.usecase';
 import { OnchurchUpdateChurchNaverVerificationUseCase } from '@/onchurch/master/application/usecase/onchurch-update-church-naver-verification.usecase';
+import { OnchurchUpdateChurchSiteTemplateUseCase } from '@/onchurch/master/application/usecase/onchurch-update-church-site-template.usecase';
 import { OnchurchUpdateChurchPublishedUseCase } from '@/onchurch/master/application/usecase/onchurch-update-church-published.usecase';
 import { OnchurchTransferChurchOwnerUseCase } from '@/onchurch/master/application/usecase/onchurch-transfer-church-owner.usecase';
 import { OnchurchSearchUsersUseCase } from '@/onchurch/master/application/usecase/onchurch-search-users.usecase';
 import { OnchurchListChurchesRequest } from '@/onchurch/master/presentation/dto/request/onchurch-list-churches.request';
 import { OnchurchUpdateChurchPaidUntilRequest } from '@/onchurch/master/presentation/dto/request/onchurch-update-church-paid-until.request';
 import { OnchurchUpdateChurchNaverVerificationRequest } from '@/onchurch/master/presentation/dto/request/onchurch-update-church-naver-verification.request';
+import { OnchurchUpdateChurchSiteTemplateRequest } from '@/onchurch/master/presentation/dto/request/onchurch-update-church-site-template.request';
 import { OnchurchUpdateChurchPublishedRequest } from '@/onchurch/master/presentation/dto/request/onchurch-update-church-published.request';
 import { OnchurchTransferChurchOwnerRequest } from '@/onchurch/master/presentation/dto/request/onchurch-transfer-church-owner.request';
 import { OnchurchSearchUsersRequest } from '@/onchurch/master/presentation/dto/request/onchurch-search-users.request';
 import { OnchurchChurchOverviewListResponse } from '@/onchurch/master/presentation/dto/response/onchurch-church-overview.response';
 import { OnchurchChurchPaidUntilResponse } from '@/onchurch/master/presentation/dto/response/onchurch-church-paid-until.response';
 import { OnchurchChurchNaverVerificationResponse } from '@/onchurch/master/presentation/dto/response/onchurch-church-naver-verification.response';
+import { OnchurchChurchSiteTemplateResponse } from '@/onchurch/master/presentation/dto/response/onchurch-church-site-template.response';
 import { OnchurchChurchPublishedResponse } from '@/onchurch/master/presentation/dto/response/onchurch-church-published.response';
 import { OnchurchTransferChurchOwnerResponse } from '@/onchurch/master/presentation/dto/response/onchurch-transfer-church-owner.response';
 import { OnchurchUserCandidateListResponse } from '@/onchurch/master/presentation/dto/response/onchurch-user-candidate.response';
@@ -87,6 +90,7 @@ export class OnchurchMasterController {
     private readonly listChurchesUseCase: OnchurchListChurchesUseCase,
     private readonly updateChurchPaidUntilUseCase: OnchurchUpdateChurchPaidUntilUseCase,
     private readonly updateChurchNaverVerificationUseCase: OnchurchUpdateChurchNaverVerificationUseCase,
+    private readonly updateChurchSiteTemplateUseCase: OnchurchUpdateChurchSiteTemplateUseCase,
     private readonly updateChurchPublishedUseCase: OnchurchUpdateChurchPublishedUseCase,
     private readonly transferChurchOwnerUseCase: OnchurchTransferChurchOwnerUseCase,
     private readonly searchUsersUseCase: OnchurchSearchUsersUseCase,
@@ -224,6 +228,16 @@ export class OnchurchMasterController {
   ) {
     const result = await this.updateChurchNaverVerificationUseCase.execute(signature.id, id, request.naverVerification);
     return new OnchurchChurchNaverVerificationResponse(result.naverVerification);
+  }
+
+  @RestApiPut(OnchurchChurchSiteTemplateResponse, { path: '/churches/:id/site-template', description: '교회 공개 홈페이지 템플릿 변경', auth: [USER_TYPE.CLIENT] })
+  async updateChurchSiteTemplate(
+    @AuthSignature() signature: UserSignature,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() request: OnchurchUpdateChurchSiteTemplateRequest,
+  ) {
+    const result = await this.updateChurchSiteTemplateUseCase.execute(signature.id, id, request.siteTemplate);
+    return new OnchurchChurchSiteTemplateResponse(result.siteTemplate);
   }
 
   @RestApiPut(OnchurchChurchPublishedResponse, { path: '/churches/:id/published', description: '교회 운영 여부(공개/비공개) 변경', auth: [USER_TYPE.CLIENT] })

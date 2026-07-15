@@ -68,6 +68,7 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
       .addSelect('owner.paid_until', 'paidUntil')
       .addSelect('owner.is_test', 'isTest')
       .addSelect('church.naver_verification', 'naverVerification')
+      .addSelect('church.site_template', 'siteTemplate')
       .addSelect('sess.last_activity', 'lastActivity')
       .orderBy('church.id', 'DESC')
       .offset((params.page - 1) * params.size)
@@ -86,6 +87,7 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
       freeTrialUntil: r.freeTrialUntil ? new Date(r.freeTrialUntil) : null,
       paidUntil: r.paidUntil ? new Date(r.paidUntil) : null,
       naverVerification: r.naverVerification ?? null,
+      siteTemplate: r.siteTemplate?.trim() || 'default',
       isTest: !!r.isTest,
       lastActivity: r.lastActivity ? new Date(r.lastActivity) : null,
     }));
@@ -100,6 +102,11 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
 
   async updateNaverVerification(churchId: number, naverVerification: string | null): Promise<boolean> {
     const result = await this.churchRepository.update({ id: churchId }, { naverVerification });
+    return (result.affected ?? 0) > 0;
+  }
+
+  async updateSiteTemplate(churchId: number, siteTemplate: string): Promise<boolean> {
+    const result = await this.churchRepository.update({ id: churchId }, { siteTemplate });
     return (result.affected ?? 0) > 0;
   }
 

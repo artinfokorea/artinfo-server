@@ -66,7 +66,7 @@ export class OnchurchChurchResponse {
   @ApiProperty({ type: String, required: true, description: "공개 사이트 고정 UI 문구 언어 ('ko' | 'en')" })
   siteLang: string;
 
-  @ApiProperty({ type: String, required: true, description: "공개 홈페이지 템플릿 ('default' | 'classic')" })
+  @ApiProperty({ type: String, required: true, description: "공개 홈페이지 템플릿 ID (미지정 시 'default'). 지원 템플릿 목록은 프론트 레지스트리가 관리하며, 미지원 값은 프론트에서 default로 폴백" })
   siteTemplate: string;
 
   @ApiProperty({ type: Boolean, required: true, description: '사이트 운영 중 여부' })
@@ -97,7 +97,9 @@ export class OnchurchChurchResponse {
     this.homeSectionOrder = church.homeSectionOrder ?? [];
     this.homeQuickLinks = church.homeQuickLinks ?? [];
     this.siteLang = church.siteLang === 'en' ? 'en' : 'ko';
-    this.siteTemplate = church.siteTemplate === 'classic' ? 'classic' : 'default';
+    // 서버는 템플릿 ID를 화이트리스트하지 않고 그대로 전달한다(새 템플릿 추가 시 서버 배포 불필요).
+    // 미지원 값 처리는 프론트 템플릿 레지스트리의 default 폴백이 담당한다.
+    this.siteTemplate = church.siteTemplate?.trim() || 'default';
     this.isPublished = church.isPublished ?? false;
     // 한 번이라도 사이트를 오픈(첫 publish)하면 채워지고, 이후 OFF해도 유지된다.
     this.firstPublishedAt = church.firstPublishedAt ? church.firstPublishedAt.toISOString() : null;
