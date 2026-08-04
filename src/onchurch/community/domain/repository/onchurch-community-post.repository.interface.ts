@@ -9,6 +9,7 @@ export interface OnchurchCommunityPostWriteParams {
   title: string;
   content: string | null;
   photoUrls: string[];
+  photoRatio: string;
   videoUrl: string | null;
 }
 
@@ -17,6 +18,7 @@ export interface OnchurchCommunityPostUpdateParams {
   title: string;
   content: string | null;
   photoUrls: string[];
+  photoRatio: string;
   videoUrl: string | null;
 }
 

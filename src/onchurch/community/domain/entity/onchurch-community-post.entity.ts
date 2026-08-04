@@ -29,6 +29,10 @@ export class OnchurchCommunityPost extends BaseEntity {
   @Column({ type: 'jsonb', name: 'photo_urls', default: () => "'[]'::jsonb" })
   photoUrls: string[];
 
+  // 사진 표시 비율 ('1:1' 정사각형 | '4:5' 세로)
+  @Column({ type: 'varchar', name: 'photo_ratio', length: 8, default: '1:1' })
+  photoRatio: string;
+
   // 외부 동영상 링크 (YouTube/Vimeo 등)
   @Column({ type: 'varchar', name: 'video_url', nullable: true, length: 1000 })
   videoUrl: string | null;

@@ -3,6 +3,7 @@ export class OnchurchCommunityPostWriteCommand {
   title: string;
   content: string | null;
   photoUrls: string[];
+  photoRatio: string;
   videoUrl: string | null;
 
   constructor(params: {
@@ -10,12 +11,14 @@ export class OnchurchCommunityPostWriteCommand {
     title: string;
     content: string | null;
     photoUrls: string[];
+    photoRatio: string;
     videoUrl: string | null;
   }) {
     this.category = params.category;
     this.title = params.title;
     this.content = params.content;
     this.photoUrls = params.photoUrls;
+    this.photoRatio = params.photoRatio;
     this.videoUrl = params.videoUrl;
   }
 }

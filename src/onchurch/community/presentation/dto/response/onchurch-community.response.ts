@@ -34,6 +34,7 @@ export class OnchurchCommunityPostResponse {
   @ApiProperty({ type: String }) title: string;
   @ApiProperty({ type: String, nullable: true }) content: string | null;
   @ApiProperty({ type: [String] }) photoUrls: string[];
+  @ApiProperty({ type: String }) photoRatio: string;
   @ApiProperty({ type: String, nullable: true }) videoUrl: string | null;
   @ApiProperty({ type: String }) createdAt: string;
 
@@ -45,6 +46,7 @@ export class OnchurchCommunityPostResponse {
     this.title = post.title;
     this.content = post.content;
     this.photoUrls = post.photoUrls ?? [];
+    this.photoRatio = post.photoRatio ?? '1:1';
     this.videoUrl = post.videoUrl;
     this.createdAt = post.createdAt.toISOString();
   }
@@ -72,6 +74,7 @@ export class OnchurchCommunityPostManageResponse {
   @ApiProperty({ type: String }) title: string;
   @ApiProperty({ type: String, nullable: true }) content: string | null;
   @ApiProperty({ type: [String] }) photoUrls: string[];
+  @ApiProperty({ type: String }) photoRatio: string;
   @ApiProperty({ type: String, nullable: true }) videoUrl: string | null;
   @ApiProperty({ type: Boolean }) isHidden: boolean;
   @ApiProperty({ type: Number }) reportCount: number;
@@ -85,6 +88,7 @@ export class OnchurchCommunityPostManageResponse {
     this.title = post.title;
     this.content = post.content;
     this.photoUrls = post.photoUrls ?? [];
+    this.photoRatio = post.photoRatio ?? '1:1';
     this.videoUrl = post.videoUrl;
     this.isHidden = post.isHidden;
     this.reportCount = post.reportCount;

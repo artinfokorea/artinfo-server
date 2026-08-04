@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsArray, IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
 import { NotBlank } from '@/common/decorator/validator';
 import { OnchurchCommunityPostWriteCommand } from '@/onchurch/community/application/command/onchurch-community-post-write.command';
 
@@ -25,6 +25,11 @@ export class OnchurchCommunityPostWriteRequest {
   photoUrls?: string[];
 
   @IsOptional()
+  @IsIn(['1:1', '4:5'])
+  @ApiProperty({ type: String, required: false, description: "사진 표시 비율 ('1:1' | '4:5')", example: '1:1' })
+  photoRatio?: string;
+
+  @IsOptional()
   @MaxLength(1000)
   @ApiProperty({ type: String, required: false, description: '외부 동영상 링크(YouTube/Vimeo 등)', nullable: true })
   videoUrl: string | null;
@@ -35,6 +40,7 @@ export class OnchurchCommunityPostWriteRequest {
       title: this.title.trim(),
       content: this.content ?? null,
       photoUrls: Array.isArray(this.photoUrls) ? this.photoUrls.filter((u) => typeof u === 'string' && u.trim()) : [],
+      photoRatio: this.photoRatio === '4:5' ? '4:5' : '1:1',
       videoUrl: (this.videoUrl ?? '').trim() || null,
     });
   }

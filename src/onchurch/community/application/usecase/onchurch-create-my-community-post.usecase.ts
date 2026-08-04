@@ -24,6 +24,7 @@ export class OnchurchCreateMyCommunityPostUseCase {
       title: command.title,
       content: command.content,
       photoUrls: command.photoUrls,
+      photoRatio: command.photoRatio,
       videoUrl: command.videoUrl,
     });
   }

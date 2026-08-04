@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS onchurch_community_posts (
   title        VARCHAR(300) NOT NULL,
   content      TEXT,
   photo_urls   JSONB NOT NULL DEFAULT '[]'::jsonb,
+  photo_ratio  VARCHAR(8) NOT NULL DEFAULT '1:1',
   video_url    VARCHAR(1000),
   is_hidden    BOOLEAN NOT NULL DEFAULT false,
   report_count INTEGER NOT NULL DEFAULT 0,
@@ -33,6 +34,9 @@ CREATE TABLE IF NOT EXISTS onchurch_community_posts (
 );
 CREATE INDEX IF NOT EXISTS idx_onchurch_community_posts_church ON onchurch_community_posts (church_id);
 CREATE INDEX IF NOT EXISTS idx_onchurch_community_posts_church_created ON onchurch_community_posts (church_id, created_at DESC);
+
+-- (기존 테이블 마이그레이션) 사진 표시 비율 컬럼 추가
+ALTER TABLE onchurch_community_posts ADD COLUMN IF NOT EXISTS photo_ratio VARCHAR(8) NOT NULL DEFAULT '1:1';
 
 -- 3) 기존 모든 교회에 기본 카테고리 시드 (이미 카테고리가 있는 교회는 건너뜀)
 --    신규 가입 교회는 프론트 기본 카테고리 폴백 + 관리자 '기본 카테고리 추가' 버튼으로 처리됨.
