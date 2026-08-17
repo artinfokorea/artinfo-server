@@ -73,6 +73,16 @@ import { OnchurchPastor } from '@/onchurch/about/domain/entity/onchurch-pastor.e
 import { OnchurchVision } from '@/onchurch/about/domain/entity/onchurch-vision.entity';
 import { OnchurchHistory } from '@/onchurch/about/domain/entity/onchurch-history.entity';
 import { OnchurchStaff } from '@/onchurch/about/domain/entity/onchurch-staff.entity';
+import { OngiModule } from '@/ongi/ongi.module';
+import { OngiUser } from '@/ongi/user/domain/entity/ongi-user.entity';
+import { OngiAuth } from '@/ongi/auth/domain/entity/ongi-auth.entity';
+import { OngiGroup } from '@/ongi/group/domain/entity/ongi-group.entity';
+import { OngiMember } from '@/ongi/group/domain/entity/ongi-member.entity';
+import { OngiPerson } from '@/ongi/person/domain/entity/ongi-person.entity';
+import { OngiAlbum } from '@/ongi/album/domain/entity/ongi-album.entity';
+import { OngiPhoto } from '@/ongi/photo/domain/entity/ongi-photo.entity';
+import { OngiPhotoLike } from '@/ongi/photo/domain/entity/ongi-photo-like.entity';
+import { OngiPhotoComment } from '@/ongi/photo/domain/entity/ongi-photo-comment.entity';
 
 const entities = [
   User,
@@ -125,6 +135,15 @@ const entities = [
   OnchurchVision,
   OnchurchHistory,
   OnchurchStaff,
+  OngiUser,
+  OngiAuth,
+  OngiGroup,
+  OngiMember,
+  OngiPerson,
+  OngiAlbum,
+  OngiPhoto,
+  OngiPhotoLike,
+  OngiPhotoComment,
 ];
 const modules = [
   SchedulerModule,
@@ -148,6 +167,7 @@ const modules = [
   TovModule,
   AzeyoModule,
   OnchurchModule,
+  OngiModule,
 ];
 
 @Module({
