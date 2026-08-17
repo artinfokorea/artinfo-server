@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsInt, IsOptional, MaxLength } from 'class-validator';
+import { IsBoolean, IsInt, IsOptional, MaxLength, ValidateIf } from 'class-validator';
 import { NotBlank } from '@/common/decorator/validator';
 import { OnchurchBannerWriteCommand } from '@/onchurch/banner/application/command/onchurch-banner-write.command';
 
@@ -14,10 +14,16 @@ export class OnchurchBannerWriteRequest {
   @ApiProperty({ type: String, required: false, description: '배너 설명', nullable: true })
   description?: string | null;
 
+  @ValidateIf(o => !o.videoUrl)
   @NotBlank()
   @MaxLength(1000)
-  @ApiProperty({ type: String, required: true, description: '배너 이미지 URL' })
-  imageUrl: string;
+  @ApiProperty({ type: String, required: false, description: '배너 이미지 URL (영상 배너가 아니면 필수)', nullable: true })
+  imageUrl?: string | null;
+
+  @IsOptional()
+  @MaxLength(1000)
+  @ApiProperty({ type: String, required: false, description: '배너 영상 URL (mp4 등, 이미지 대신 사용)', nullable: true })
+  videoUrl?: string | null;
 
   @IsOptional()
   @MaxLength(1000)
@@ -37,7 +43,8 @@ export class OnchurchBannerWriteRequest {
     return new OnchurchBannerWriteCommand({
       title: this.title ?? '',
       description: this.description ?? null,
-      imageUrl: this.imageUrl,
+      imageUrl: this.imageUrl ?? null,
+      videoUrl: this.videoUrl ?? null,
       linkUrl: this.linkUrl ?? null,
       sortOrder: this.sortOrder ?? 0,
       isActive: this.isActive ?? true,

@@ -36,6 +36,7 @@ export class OnchurchBannerRepository implements IOnchurchBannerRepository {
       title: params.title,
       description: params.description,
       imageUrl: params.imageUrl,
+      videoUrl: params.videoUrl,
       linkUrl: params.linkUrl,
       sortOrder: params.sortOrder,
       isActive: params.isActive,

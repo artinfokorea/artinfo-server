@@ -16,6 +16,9 @@ export class OnchurchBannerResponse {
   imageUrl: string | null;
 
   @ApiProperty({ type: String, required: false, nullable: true })
+  videoUrl: string | null;
+
+  @ApiProperty({ type: String, required: false, nullable: true })
   linkUrl: string | null;
 
   @ApiProperty({ type: Number, required: true })
@@ -29,6 +32,7 @@ export class OnchurchBannerResponse {
     this.title = banner.title;
     this.description = banner.description;
     this.imageUrl = banner.imageUrl;
+    this.videoUrl = banner.videoUrl;
     this.linkUrl = banner.linkUrl;
     this.sortOrder = banner.sortOrder;
     this.isActive = banner.isActive;
@@ -58,6 +62,9 @@ export class OnchurchPublicBannerResponse {
   imageUrl: string | null;
 
   @ApiProperty({ type: String, required: false, nullable: true })
+  videoUrl: string | null;
+
+  @ApiProperty({ type: String, required: false, nullable: true })
   linkUrl: string | null;
 
   @ApiProperty({ type: Boolean, required: true, description: '기본 배너(미등록 시 fallback) 여부' })
@@ -68,6 +75,7 @@ export class OnchurchPublicBannerResponse {
     this.title = view.title;
     this.description = view.description;
     this.imageUrl = view.imageUrl;
+    this.videoUrl = view.videoUrl;
     this.linkUrl = view.linkUrl;
     this.isDefault = view.isDefault;
   }

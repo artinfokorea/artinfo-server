@@ -17,6 +17,9 @@ export class OnchurchBanner extends BaseEntity {
   @Column({ type: 'varchar', name: 'image_url', nullable: true, length: 1000 })
   imageUrl: string | null;
 
+  @Column({ type: 'varchar', name: 'video_url', nullable: true, length: 1000 })
+  videoUrl: string | null;
+
   @Column({ type: 'varchar', name: 'link_url', nullable: true, length: 1000 })
   linkUrl: string | null;
 

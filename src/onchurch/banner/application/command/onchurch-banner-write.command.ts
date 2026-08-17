@@ -2,6 +2,7 @@ export class OnchurchBannerWriteCommand {
   title: string;
   description: string | null;
   imageUrl: string | null;
+  videoUrl: string | null;
   linkUrl: string | null;
   sortOrder: number;
   isActive: boolean;
@@ -10,6 +11,7 @@ export class OnchurchBannerWriteCommand {
     title: string;
     description: string | null;
     imageUrl: string | null;
+    videoUrl: string | null;
     linkUrl: string | null;
     sortOrder: number;
     isActive: boolean;
@@ -17,6 +19,7 @@ export class OnchurchBannerWriteCommand {
     this.title = params.title;
     this.description = params.description;
     this.imageUrl = params.imageUrl;
+    this.videoUrl = params.videoUrl;
     this.linkUrl = params.linkUrl;
     this.sortOrder = params.sortOrder;
     this.isActive = params.isActive;

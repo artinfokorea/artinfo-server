@@ -10,6 +10,7 @@ export interface PublicBannerView {
   title: string;
   description: string | null;
   imageUrl: string | null;
+  videoUrl: string | null;
   linkUrl: string | null;
   isDefault: boolean;
 }
@@ -40,6 +41,7 @@ export class OnchurchListPublicBannersUseCase {
       title: b.title,
       description: b.description,
       imageUrl: b.imageUrl,
+      videoUrl: b.videoUrl,
       linkUrl: b.linkUrl,
       isDefault: false,
     }));
@@ -47,6 +49,6 @@ export class OnchurchListPublicBannersUseCase {
 
   // 기본 배너는 이미지만 노출한다(제목/설명 없음 → 프론트에서 텍스트 오버레이 미표시).
   private buildDefault(): PublicBannerView {
-    return { id: null, title: '', description: null, imageUrl: DEFAULT_BANNER_IMAGE_URL, linkUrl: null, isDefault: true };
+    return { id: null, title: '', description: null, imageUrl: DEFAULT_BANNER_IMAGE_URL, videoUrl: null, linkUrl: null, isDefault: true };
   }
 }

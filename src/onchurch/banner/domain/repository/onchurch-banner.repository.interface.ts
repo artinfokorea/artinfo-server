@@ -6,6 +6,7 @@ export interface OnchurchBannerWriteParams {
   title: string;
   description: string | null;
   imageUrl: string | null;
+  videoUrl: string | null;
   linkUrl: string | null;
   sortOrder: number;
   isActive: boolean;
