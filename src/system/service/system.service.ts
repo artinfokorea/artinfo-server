@@ -205,6 +205,34 @@ export class SystemService {
     return results;
   }
 
+  // 배너 등 페이지에서 바로 재생하는 영상 업로드. 첨부파일과 달리 Content-Disposition을
+  // 지정하지 않아 브라우저에서 인라인 스트리밍 재생된다.
+  async uploadVideos(userId: number, files: UploadFile[]): Promise<UploadedFileMeta[]> {
+    const results: UploadedFileMeta[] = [];
+
+    for (const file of files) {
+      const mimeType = file.mimetype || '';
+      if (!mimeType.startsWith('video/')) {
+        throw new UploadImageIsNotValid();
+      }
+      const originalFilename = Buffer.from(file.originalname, 'ascii').toString('utf8');
+      const extension = originalFilename.includes('.') ? originalFilename.split('.').pop()! : 'mp4';
+      const hash = new Util().generateRandomString(11);
+      const groupPath = ['upload', userId, 'videos', moment().format('YYYYMMDD')].join('/');
+      const savedFilename = hash + '.' + Date.now() + '.' + extension;
+      const path = [groupPath, savedFilename].join('/');
+
+      const result = await this.awsS3Service.uploadStream(file.buffer, mimeType, path);
+      if (result == null) {
+        throw new UploadImageIsNotValid();
+      }
+
+      results.push({ url: result.location, name: originalFilename, size: file.size, mimeType });
+    }
+
+    return results;
+  }
+
   async deleteCaching() {
     await this.redisRepository.deleteAll();
   }

@@ -66,6 +66,26 @@ export class SystemController {
     return new UploadFilesResponse(uploaded);
   }
 
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FilesInterceptor('videoFiles', 1, {
+      limits: {
+        fileSize: 200 * 1024 * 1024,
+        files: 1,
+      },
+    }),
+  )
+  @RestApiPost(UploadFilesResponse, {
+    path: '/upload/videos',
+    description: '영상 업로드(페이지 내 인라인 재생용, 최대 200MB)',
+    auth: [USER_TYPE.CLIENT],
+  })
+  async uploadVideos(@AuthSignature() signature: UserSignature, @UploadedFiles() files: UploadFile[]) {
+    const uploaded = await this.systemService.uploadVideos(signature.id, files);
+
+    return new UploadFilesResponse(uploaded);
+  }
+
   @RestApiDelete(OkResponse, {
     path: '/caching',
     description: '캐싱 삭제',
