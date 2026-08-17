@@ -40,10 +40,14 @@ export class OnchurchBannerResponse {
 }
 
 export class OnchurchBannerListResponse {
+  @ApiProperty({ type: String, required: true, description: '홈에 노출할 배너 타입', enum: ['image', 'video'] })
+  bannerType: string;
+
   @ApiProperty({ type: [OnchurchBannerResponse], required: true })
   banners: OnchurchBannerResponse[];
 
-  constructor(banners: OnchurchBanner[]) {
+  constructor(bannerType: string, banners: OnchurchBanner[]) {
+    this.bannerType = bannerType;
     this.banners = banners.map(b => new OnchurchBannerResponse(b));
   }
 }

@@ -9,6 +9,7 @@ import { OnchurchListMyBannersUseCase } from '@/onchurch/banner/application/usec
 import { OnchurchCreateMyBannerUseCase } from '@/onchurch/banner/application/usecase/onchurch-create-my-banner.usecase';
 import { OnchurchUpdateMyBannerUseCase } from '@/onchurch/banner/application/usecase/onchurch-update-my-banner.usecase';
 import { OnchurchDeleteMyBannerUseCase } from '@/onchurch/banner/application/usecase/onchurch-delete-my-banner.usecase';
+import { OnchurchUpdateMyBannerTypeUseCase } from '@/onchurch/banner/application/usecase/onchurch-update-my-banner-type.usecase';
 import { OnchurchListPublicBannersUseCase } from '@/onchurch/banner/application/usecase/onchurch-list-public-banners.usecase';
 import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
 
@@ -21,6 +22,7 @@ import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
     OnchurchCreateMyBannerUseCase,
     OnchurchUpdateMyBannerUseCase,
     OnchurchDeleteMyBannerUseCase,
+    OnchurchUpdateMyBannerTypeUseCase,
     OnchurchListPublicBannersUseCase,
   ],
 })

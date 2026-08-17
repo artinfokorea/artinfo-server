@@ -108,6 +108,10 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
     await this.churchRepository.update({ id: churchId }, { ownerId });
   }
 
+  async updateBannerType(churchId: number, bannerType: string): Promise<void> {
+    await this.churchRepository.update({ id: churchId }, { bannerType });
+  }
+
   async turnOffLive(churchId: number): Promise<void> {
     await this.churchRepository.update({ id: churchId }, { isLive: false, liveStartedAt: null });
   }

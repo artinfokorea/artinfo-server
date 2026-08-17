@@ -31,7 +31,10 @@ export class OnchurchListPublicBannersUseCase {
       return [this.buildDefault()];
     }
 
-    const banners = await this.bannerRepository.findActiveByChurchId(church.id);
+    const all = await this.bannerRepository.findActiveByChurchId(church.id);
+    // 노출 타입(사진/영상)에 해당하는 배너만 노출. 해당 타입이 없으면 다른 타입으로 폴백.
+    const matched = all.filter(b => (church.bannerType === 'video' ? Boolean(b.videoUrl) : !b.videoUrl));
+    const banners = matched.length > 0 ? matched : all;
     if (banners.length === 0) {
       return [this.buildDefault()];
     }

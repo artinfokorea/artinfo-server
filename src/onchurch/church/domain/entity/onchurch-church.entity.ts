@@ -68,6 +68,10 @@ export class OnchurchChurch extends BaseEntity {
   @Column({ type: 'jsonb', name: 'home_quick_links', default: () => "'[]'::jsonb" })
   homeQuickLinks: string[];
 
+  // 홈 배너 노출 타입. 'image' | 'video'. 두 타입 배너를 모두 보관하고 공개 사이트에는 선택된 타입만 노출한다.
+  @Column({ type: 'varchar', name: 'banner_type', default: () => "'image'" })
+  bannerType: string;
+
   // 공개 사이트 고정 UI 문구 언어. 'ko' | 'en'. 교회 입력 콘텐츠는 이 값과 무관하게 원문 유지.
   @Column({ type: 'varchar', name: 'site_lang', default: () => "'ko'" })
   siteLang: string;

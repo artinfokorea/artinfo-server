@@ -12,9 +12,10 @@ export class OnchurchListMyBannersUseCase {
     private readonly managerResolver: OnchurchChurchManagerResolver,
   ) {}
 
-  async execute(userId: number): Promise<OnchurchBanner[]> {
+  async execute(userId: number): Promise<{ bannerType: string; banners: OnchurchBanner[] }> {
     const church = await this.managerResolver.resolveManagedChurch(userId);
-    if (!church) return [];
-    return this.bannerRepository.findAllByChurchId(church.id);
+    if (!church) return { bannerType: 'image', banners: [] };
+    const banners = await this.bannerRepository.findAllByChurchId(church.id);
+    return { bannerType: church.bannerType, banners };
   }
 }

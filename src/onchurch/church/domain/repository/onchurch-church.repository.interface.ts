@@ -34,5 +34,6 @@ export interface IOnchurchChurchRepository {
   upsertByOwnerId(ownerId: number, params: OnchurchChurchUpsertParams): Promise<OnchurchChurch>;
   updatePublished(ownerId: number, isPublished: boolean, firstPublishedAt?: Date): Promise<OnchurchChurch>;
   updateOwnerId(churchId: number, ownerId: number): Promise<void>;
+  updateBannerType(churchId: number, bannerType: string): Promise<void>;
   turnOffLive(churchId: number): Promise<void>;
 }
