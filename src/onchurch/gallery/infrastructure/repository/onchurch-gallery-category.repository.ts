@@ -32,12 +32,13 @@ export class OnchurchGalleryCategoryRepository implements IOnchurchGalleryCatego
     await this.repo.save({ churchId, name: '전체', sortOrder: 0, isActive: true, isAll: true });
   }
 
+  // '전체' 보기는 항상 맨 앞, 나머지는 관리자가 지정한 sortOrder 순.
   async findAllByChurchId(churchId: number): Promise<OnchurchGalleryCategory[]> {
-    return this.repo.find({ where: { churchId }, order: { isAll: 'DESC', createdAt: 'DESC', id: 'DESC' } });
+    return this.repo.find({ where: { churchId }, order: { isAll: 'DESC', sortOrder: 'ASC', id: 'ASC' } });
   }
 
   async findActiveByChurchId(churchId: number): Promise<OnchurchGalleryCategory[]> {
-    return this.repo.find({ where: { churchId, isActive: true }, order: { isAll: 'DESC', createdAt: 'DESC', id: 'DESC' } });
+    return this.repo.find({ where: { churchId, isActive: true }, order: { isAll: 'DESC', sortOrder: 'ASC', id: 'ASC' } });
   }
 
   async findOwnedById(churchId: number, id: number): Promise<OnchurchGalleryCategory | null> {
