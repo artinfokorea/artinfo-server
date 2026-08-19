@@ -31,6 +31,7 @@ export class OnchurchGalleryResponse {
   @ApiProperty({ type: String, nullable: true }) date: string | null;
   @ApiProperty({ type: String, nullable: true }) photoUrl: string | null;
   @ApiProperty({ type: String, nullable: true }) grad: string | null;
+  @ApiProperty({ type: String }) visibility: string;
   @ApiProperty({ type: Number }) sortOrder: number;
   @ApiProperty({ type: Boolean }) isActive: boolean;
 
@@ -42,6 +43,7 @@ export class OnchurchGalleryResponse {
     this.date = g.date;
     this.photoUrl = g.photoUrl;
     this.grad = g.grad;
+    this.visibility = g.visibility;
     this.sortOrder = g.sortOrder;
     this.isActive = g.isActive;
   }

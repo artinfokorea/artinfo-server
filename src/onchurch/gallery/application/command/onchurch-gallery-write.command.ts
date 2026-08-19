@@ -1,3 +1,5 @@
+import { ONCHURCH_GALLERY_VISIBILITY } from '@/onchurch/gallery/domain/entity/onchurch-gallery.entity';
+
 export class OnchurchGalleryCategoryWriteCommand {
   name: string;
   sortOrder: number;
@@ -17,6 +19,7 @@ export class OnchurchGalleryWriteCommand {
   date: string | null;
   photoUrl: string | null;
   grad: string | null;
+  visibility: ONCHURCH_GALLERY_VISIBILITY;
   sortOrder: number;
   isActive: boolean;
 
@@ -27,6 +30,7 @@ export class OnchurchGalleryWriteCommand {
     date: string | null;
     photoUrl: string | null;
     grad: string | null;
+    visibility: ONCHURCH_GALLERY_VISIBILITY;
     sortOrder: number;
     isActive: boolean;
   }) {
@@ -36,6 +40,7 @@ export class OnchurchGalleryWriteCommand {
     this.date = p.date;
     this.photoUrl = p.photoUrl;
     this.grad = p.grad;
+    this.visibility = p.visibility;
     this.sortOrder = p.sortOrder;
     this.isActive = p.isActive;
   }

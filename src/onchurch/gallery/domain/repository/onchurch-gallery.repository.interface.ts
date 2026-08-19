@@ -1,4 +1,4 @@
-import { OnchurchGallery } from '@/onchurch/gallery/domain/entity/onchurch-gallery.entity';
+import { ONCHURCH_GALLERY_VISIBILITY, OnchurchGallery } from '@/onchurch/gallery/domain/entity/onchurch-gallery.entity';
 
 export const ONCHURCH_GALLERY_REPOSITORY = Symbol('ONCHURCH_GALLERY_REPOSITORY');
 
@@ -9,6 +9,7 @@ export interface OnchurchGalleryWriteParams {
   date: string | null;
   photoUrl: string | null;
   grad: string | null;
+  visibility: ONCHURCH_GALLERY_VISIBILITY;
   sortOrder: number;
   isActive: boolean;
 }

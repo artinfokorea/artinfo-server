@@ -24,9 +24,10 @@ import {
 } from '@/onchurch/gallery/application/usecase/onchurch-gallery-category.usecase';
 import { OnchurchListPublicGalleryUseCase } from '@/onchurch/gallery/application/usecase/onchurch-list-public-gallery.usecase';
 import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
+import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OnchurchGallery, OnchurchGalleryCategory]), OnchurchChurchModule],
+  imports: [TypeOrmModule.forFeature([OnchurchGallery, OnchurchGalleryCategory]), OnchurchChurchModule, OnchurchUserModule],
   controllers: [OnchurchGalleryController, OnchurchGalleryCategoryController, OnchurchPublicGalleryController],
   providers: [
     { provide: ONCHURCH_GALLERY_REPOSITORY, useClass: OnchurchGalleryRepository },

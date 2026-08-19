@@ -1,5 +1,10 @@
 import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
+export enum ONCHURCH_GALLERY_VISIBILITY {
+  PUBLIC = 'public',
+  MEMBER = 'member',
+}
+
 @Entity('onchurch_galleries')
 export class OnchurchGallery extends BaseEntity {
   @PrimaryGeneratedColumn('increment', { name: 'id' })
@@ -25,6 +30,10 @@ export class OnchurchGallery extends BaseEntity {
 
   @Column({ type: 'varchar', name: 'grad', nullable: true, length: 32 })
   grad: string | null;
+
+  // 공개 범위: 전체공개(public) | 회원공개(member). 회원공개 사진은 해당 교회 소속 로그인 사용자에게만 보인다.
+  @Column({ type: 'varchar', name: 'visibility', length: 16, default: ONCHURCH_GALLERY_VISIBILITY.PUBLIC })
+  visibility: ONCHURCH_GALLERY_VISIBILITY;
 
   @Column({ type: 'int', name: 'sort_order', default: 0 })
   sortOrder: number;

@@ -8,7 +8,8 @@ import {
   IOnchurchGalleryCategoryRepository,
 } from '@/onchurch/gallery/domain/repository/onchurch-gallery-category.repository.interface';
 import { ONCHURCH_CHURCH_REPOSITORY, IOnchurchChurchRepository } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
-import { OnchurchGallery } from '@/onchurch/gallery/domain/entity/onchurch-gallery.entity';
+import { ONCHURCH_USER_REPOSITORY, IOnchurchUserRepository } from '@/onchurch/user/domain/repository/onchurch-user.repository.interface';
+import { ONCHURCH_GALLERY_VISIBILITY, OnchurchGallery } from '@/onchurch/gallery/domain/entity/onchurch-gallery.entity';
 import { OnchurchGalleryCategory } from '@/onchurch/gallery/domain/entity/onchurch-gallery-category.entity';
 
 export interface PublicGalleryPhoto {
@@ -43,14 +44,19 @@ export class OnchurchListPublicGalleryUseCase {
     @Inject(ONCHURCH_GALLERY_REPOSITORY) private readonly galleryRepo: IOnchurchGalleryRepository,
     @Inject(ONCHURCH_GALLERY_CATEGORY_REPOSITORY) private readonly categoryRepo: IOnchurchGalleryCategoryRepository,
     @Inject(ONCHURCH_CHURCH_REPOSITORY) private readonly churchRepo: IOnchurchChurchRepository,
+    @Inject(ONCHURCH_USER_REPOSITORY) private readonly userRepo: IOnchurchUserRepository,
   ) {}
 
   async execute(
     slug: string,
-    params: { categoryId?: number | null; page: number; size: number },
+    params: { categoryId?: number | null; page: number; size: number; viewerUserId?: number | null },
   ): Promise<PublicGalleryView> {
     const church = await this.churchRepo.findBySlug(slug);
     if (!church) return { categories: [], groups: [], totalCount: 0 };
+
+    // 회원공개 사진은 이 교회 소속(역할 무관) 로그인 사용자에게만 보인다.
+    const isMember =
+      params.viewerUserId != null && !!(await this.userRepo.findMemberByChurchId(church.id, params.viewerUserId));
 
     const skip = Math.max(0, (params.page - 1) * params.size);
     const take = Math.min(60, Math.max(1, params.size));
@@ -65,10 +71,14 @@ export class OnchurchListPublicGalleryUseCase {
       this.galleryRepo.findActiveByChurchId(church.id),
     ]);
 
+    const visiblePhotos = isMember
+      ? allPhotos
+      : allPhotos.filter((p) => p.visibility !== ONCHURCH_GALLERY_VISIBILITY.MEMBER);
+
     const filtered =
       params.categoryId != null
-        ? allPhotos.filter((p) => p.categoryId === params.categoryId)
-        : allPhotos;
+        ? visiblePhotos.filter((p) => p.categoryId === params.categoryId)
+        : visiblePhotos;
 
     const groups = this.groupPhotos(filtered);
     const totalCount = groups.length;

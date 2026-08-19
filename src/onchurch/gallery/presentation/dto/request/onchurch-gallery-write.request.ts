@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsInt, IsOptional, MaxLength } from 'class-validator';
+import { IsBoolean, IsIn, IsInt, IsOptional, MaxLength } from 'class-validator';
 import { NotBlank } from '@/common/decorator/validator';
 import { OnchurchGalleryWriteCommand } from '@/onchurch/gallery/application/command/onchurch-gallery-write.command';
+import { ONCHURCH_GALLERY_VISIBILITY } from '@/onchurch/gallery/domain/entity/onchurch-gallery.entity';
 
 export class OnchurchGalleryWriteRequest {
   @IsOptional()
@@ -34,6 +35,11 @@ export class OnchurchGalleryWriteRequest {
   @ApiProperty({ type: String, required: false, nullable: true, description: '그라디언트 색상 키', example: 'ph-grad-1' })
   grad: string | null;
 
+  @IsOptional()
+  @IsIn(Object.values(ONCHURCH_GALLERY_VISIBILITY))
+  @ApiProperty({ enum: ONCHURCH_GALLERY_VISIBILITY, required: false, description: '공개 범위 (public 전체공개 | member 회원공개, 기본 public)' })
+  visibility: ONCHURCH_GALLERY_VISIBILITY | null;
+
   @IsInt()
   @ApiProperty({ type: Number, required: true, description: '정렬 순서' })
   sortOrder: number;
@@ -50,6 +56,7 @@ export class OnchurchGalleryWriteRequest {
       date: (this.date ?? '').trim() || null,
       photoUrl: (this.photoUrl ?? '').trim() || null,
       grad: (this.grad ?? '').trim() || null,
+      visibility: this.visibility ?? ONCHURCH_GALLERY_VISIBILITY.PUBLIC,
       sortOrder: this.sortOrder ?? 0,
       isActive: !!this.isActive,
     });
