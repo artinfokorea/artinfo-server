@@ -7,7 +7,7 @@ import { GetTrendSummaryRequest } from '@/trend/dto/request/get-trend-summary.re
 import { TrendSummaryResponse } from '@/trend/dto/response/trend-summary.response';
 import { TrendNoArticlesFound, TrendSummaryInProgress } from '@/trend/exception/trend.exception';
 
-const CACHE_TTL_SEC = Number(process.env['TREND_SUMMARY_CACHE_TTL_SEC'] ?? 60 * 60); // 기본 1시간
+const CACHE_TTL_SEC = Number(process.env['TREND_SUMMARY_CACHE_TTL_SEC'] ?? 2 * 60 * 60); // 기본 2시간
 const LOCK_TTL_MS = 60 * 1000; // 생성 중 락 (AI 호출 + 기사 수집 최대치보다 넉넉히)
 const WAIT_FOR_OTHER_MS = 45 * 1000; // 다른 인스턴스가 생성 중일 때 캐시를 기다리는 최대 시간
 const WAIT_POLL_MS = 1000;
@@ -23,6 +23,12 @@ export class TrendService {
     private readonly fetcher: TrendNewsFetcher,
     private readonly ai: TrendSummaryAiService,
   ) {}
+
+  /** 선생성 스케줄러용 — 기본 옵션(kr, 10건) 기준 캐시 존재 여부 */
+  async isCached(keyword: string, region = 'kr', limit = 10): Promise<boolean> {
+    const normalized = keyword.trim().replace(/\s+/g, ' ');
+    return (await this.redis.redisClient.exists(this.cacheKey(region, normalized, limit))) === 1;
+  }
 
   async getSummary(request: GetTrendSummaryRequest): Promise<TrendSummaryResponse> {
     const keyword = request.keyword.trim().replace(/\s+/g, ' ');

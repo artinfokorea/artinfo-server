@@ -10,7 +10,7 @@ export class TrendController {
 
   @RestApiGet(TrendSummaryResponse, {
     path: '/summary',
-    description: '실시간 검색어가 왜 순위에 올랐는지 관련 뉴스 본문을 종합해 AI 요약 (Redis 1시간 캐시)',
+    description: '실시간 검색어가 왜 순위에 올랐는지 관련 뉴스 본문을 종합해 AI 요약 (Redis 2시간 캐시, 1~10위는 매분 선생성)',
   })
   async getSummary(@Query() request: GetTrendSummaryRequest): Promise<TrendSummaryResponse> {
     return this.trendService.getSummary(request);
