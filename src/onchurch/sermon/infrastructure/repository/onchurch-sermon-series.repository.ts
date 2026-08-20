@@ -32,12 +32,13 @@ export class OnchurchSermonSeriesRepository implements IOnchurchSermonSeriesRepo
     await this.repo.save({ churchId, name: '전체', sortOrder: 0, isActive: true, isAll: true });
   }
 
+  // 관리자가 지정한 sortOrder 순. '전체' 보기도 다른 시리즈와 동일하게 순서를 조정할 수 있다. (갤러리 카테고리와 같은 정책)
   async findAllByChurchId(churchId: number): Promise<OnchurchSermonSeries[]> {
-    return this.repo.find({ where: { churchId }, order: { isAll: 'DESC', createdAt: 'DESC', id: 'DESC' } });
+    return this.repo.find({ where: { churchId }, order: { sortOrder: 'ASC', id: 'ASC' } });
   }
 
   async findActiveByChurchId(churchId: number): Promise<OnchurchSermonSeries[]> {
-    return this.repo.find({ where: { churchId, isActive: true }, order: { isAll: 'DESC', createdAt: 'DESC', id: 'DESC' } });
+    return this.repo.find({ where: { churchId, isActive: true }, order: { sortOrder: 'ASC', id: 'ASC' } });
   }
 
   async findOwnedById(churchId: number, id: number): Promise<OnchurchSermonSeries | null> {
