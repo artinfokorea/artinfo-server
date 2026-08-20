@@ -82,14 +82,20 @@ export class TrendSummaryAiService {
           type: 'json_schema',
           json_schema: { name: 'trend_summary', strict: true, schema: RESPONSE_JSON_SCHEMA },
         },
-        max_completion_tokens: 4096,
+        // gpt-5 계열은 reasoning 토큰이 이 한도를 함께 소모하므로 넉넉히 잡고 추론 강도는 낮춘다
+        max_completion_tokens: 16000,
+        reasoning_effort: 'low',
       });
-      const content = response.choices[0]?.message?.content;
-      if (!content) throw new Error('OpenAI 응답이 비어있습니다');
+      const choice = response.choices[0];
+      const content = choice?.message?.content;
+      if (!content) {
+        throw new Error(`OpenAI 응답이 비어있습니다 (finish_reason=${choice?.finish_reason ?? 'unknown'}, refusal=${choice?.message?.refusal ?? 'none'})`);
+      }
       return content;
     } catch (e: any) {
-      this.logger.error(`OpenAI 호출 실패: ${e?.message ?? e}`);
-      throw new TrendSummaryFailed();
+      const detail: string = e?.error?.message ?? e?.message ?? String(e);
+      this.logger.error(`OpenAI 호출 실패 (${this.modelName}): ${detail}`);
+      throw new TrendSummaryFailed(detail);
     }
   }
 
@@ -132,7 +138,7 @@ export class TrendSummaryAiService {
           continue;
         }
         this.logger.error(`Google AI 호출 실패: ${msg}`);
-        throw new TrendSummaryFailed();
+        throw new TrendSummaryFailed(msg);
       }
     }
     throw new TrendSummaryFailed();

@@ -22,7 +22,10 @@ export class TrendAiNotConfigured extends HttpException {
 }
 
 export class TrendSummaryFailed extends HttpException {
-  constructor() {
-    super({ code: 'TREND-004', message: 'AI 요약 생성에 실패했습니다.' }, HttpStatus.BAD_GATEWAY);
+  constructor(detail?: string) {
+    super(
+      { code: 'TREND-004', message: detail ? `AI 요약 생성에 실패했습니다. (${detail.slice(0, 300)})` : 'AI 요약 생성에 실패했습니다.' },
+      HttpStatus.BAD_GATEWAY,
+    );
   }
 }
