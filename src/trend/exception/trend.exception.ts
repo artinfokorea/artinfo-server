@@ -14,7 +14,10 @@ export class TrendSummaryInProgress extends HttpException {
 
 export class TrendAiNotConfigured extends HttpException {
   constructor() {
-    super({ code: 'TREND-003', message: 'AI API 키가 설정되지 않았습니다.' }, HttpStatus.SERVICE_UNAVAILABLE);
+    super(
+      { code: 'TREND-003', message: 'AI API 키가 설정되지 않았습니다. (OPENAI_API_KEY 또는 TREND_AI_PROVIDER=gemini + GOOGLE_AI_API_KEY)' },
+      HttpStatus.SERVICE_UNAVAILABLE,
+    );
   }
 }
 
