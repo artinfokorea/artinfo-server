@@ -1,5 +1,8 @@
-import { Body, Param, ParseIntPipe } from '@nestjs/common';
+import { Body, Param, ParseIntPipe, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { ApiConsumes } from '@nestjs/swagger';
 import { RestApiController, RestApiGet, RestApiPost } from '@/common/decorator/rest-api';
+import { UploadFile } from '@/common/type/type';
 import { AuthSignature } from '@/common/decorator/AuthSignature';
 import { UserSignature } from '@/common/type/type';
 import { USER_TYPE } from '@/user/entity/user.entity';
@@ -11,6 +14,7 @@ import {
   OngiScanFeedUseCase,
   OngiScanPersonPhotosUseCase,
   OngiToggleLikeUseCase,
+  OngiUploadPhotoFilesUseCase,
   OngiUploadPhotosUseCase,
 } from '@/ongi/photo/application/usecase/ongi-photo.usecase';
 import { OngiUploadPhotosRequest } from '@/ongi/photo/presentation/dto/request/ongi-upload-photos.request';
@@ -20,6 +24,7 @@ import {
   OngiCommentResponse,
   OngiPhotoListResponse,
   OngiPhotoResponse,
+  OngiUploadedPhotoFilesResponse,
 } from '@/ongi/photo/presentation/dto/response/ongi-photo.response';
 
 @RestApiController('/ongi', 'Ongi Photo')
@@ -33,6 +38,7 @@ export class OngiPhotoController {
     private readonly scanCommentsUseCase: OngiScanCommentsUseCase,
     private readonly addCommentUseCase: OngiAddCommentUseCase,
     private readonly uploadPhotosUseCase: OngiUploadPhotosUseCase,
+    private readonly uploadPhotoFilesUseCase: OngiUploadPhotoFilesUseCase,
   ) {}
 
   @RestApiGet(OngiPhotoListResponse, { path: '/groups/:groupId/photos', description: '그룹 피드 (최신순)', auth: [USER_TYPE.CLIENT] })
@@ -54,6 +60,22 @@ export class OngiPhotoController {
     const views = await this.scanPersonPhotosUseCase.execute(signature.id, personId);
 
     return new OngiPhotoListResponse(views);
+  }
+
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FilesInterceptor('photoFiles', 10, {
+      limits: {
+        fileSize: 32 * 1024 * 1024,
+        files: 10,
+      },
+    }),
+  )
+  @RestApiPost(OngiUploadedPhotoFilesResponse, { path: '/photos/files', description: '사진 파일 업로드 (S3) — 게시 전에 URL 을 받는다', auth: [USER_TYPE.CLIENT] })
+  async uploadPhotoFiles(@AuthSignature() signature: UserSignature, @UploadedFiles() files: UploadFile[]) {
+    const views = await this.uploadPhotoFilesUseCase.execute(signature.id, files ?? []);
+
+    return new OngiUploadedPhotoFilesResponse(views);
   }
 
   @RestApiPost(OngiPhotoListResponse, { path: '/photos', description: '사진 올리기 (여러 그룹 동시 게시)', auth: [USER_TYPE.CLIENT] })

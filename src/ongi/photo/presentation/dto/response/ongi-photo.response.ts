@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { OngiPhotoView } from '@/ongi/photo/domain/repository/ongi-photo.repository.interface';
+import { OngiUploadedPhotoFileView } from '@/ongi/photo/application/usecase/ongi-photo.usecase';
 import { OngiPhotoComment } from '@/ongi/photo/domain/entity/ongi-photo-comment.entity';
 
 export class OngiPhotoResponse {
@@ -101,5 +102,14 @@ export class OngiCommentListResponse {
 
   constructor(comments: OngiPhotoComment[]) {
     this.comments = comments.map(comment => new OngiCommentResponse(comment));
+  }
+}
+
+export class OngiUploadedPhotoFilesResponse {
+  @ApiProperty({ type: [String], description: '업로드된 사진 URL 목록 (요청 파일 순서 그대로)' })
+  urls: string[];
+
+  constructor(views: OngiUploadedPhotoFileView[]) {
+    this.urls = views.map(view => view.url);
   }
 }

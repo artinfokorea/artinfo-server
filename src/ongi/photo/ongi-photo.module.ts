@@ -15,8 +15,10 @@ import {
   OngiScanFeedUseCase,
   OngiScanPersonPhotosUseCase,
   OngiToggleLikeUseCase,
+  OngiUploadPhotoFilesUseCase,
   OngiUploadPhotosUseCase,
 } from '@/ongi/photo/application/usecase/ongi-photo.usecase';
+import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { OngiGroupModule } from '@/ongi/group/ongi-group.module';
 import { OngiAlbumModule } from '@/ongi/album/ongi-album.module';
 import { OngiPersonModule } from '@/ongi/person/ongi-person.module';
@@ -35,6 +37,8 @@ import { OngiPersonModule } from '@/ongi/person/ongi-person.module';
     OngiScanCommentsUseCase,
     OngiAddCommentUseCase,
     OngiUploadPhotosUseCase,
+    OngiUploadPhotoFilesUseCase,
+    AwsS3Service,
   ],
 })
 export class OngiPhotoModule {}

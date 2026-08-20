@@ -11,6 +11,15 @@ import { OngiNotGroupMember } from '@/ongi/group/domain/exception/ongi-group.exc
 import { OngiAlbumNotFound } from '@/ongi/album/domain/exception/ongi-album.exception';
 import { OngiPersonNotFound } from '@/ongi/person/domain/exception/ongi-person.exception';
 import { OngiAlbumNotInGroup, OngiPhotoNotFound, OngiUploadPhotoRequired, OngiUploadTargetRequired } from '@/ongi/photo/domain/exception/ongi-photo.exception';
+import { AwsS3Service } from '@/aws/s3/aws-s3.service';
+import { UploadFile } from '@/common/type/type';
+import { Util } from '@/common/util/util';
+import * as moment from 'moment/moment';
+
+/** 사진 파일 업로드 결과 — 게시(POST /ongi/photos) 전에 앱이 URL 을 받아간다 */
+export interface OngiUploadedPhotoFileView {
+  url: string;
+}
 
 @Injectable()
 export class OngiPhotoAccessService {
@@ -227,6 +236,29 @@ export class OngiUploadPhotosUseCase {
     }
 
     return created.map(photo => ({ photo, likedByMe: false }));
+  }
+}
+
+@Injectable()
+export class OngiUploadPhotoFilesUseCase {
+  constructor(private readonly awsS3Service: AwsS3Service) {}
+
+  /** 사진 파일을 S3 에 올리고 URL 목록을 돌려준다 — 요청 순서 그대로 */
+  async execute(userId: number, files: UploadFile[]): Promise<OngiUploadedPhotoFileView[]> {
+    if (files.length === 0) throw new OngiUploadPhotoRequired();
+
+    const views: OngiUploadedPhotoFileView[] = [];
+
+    for (const file of files) {
+      const extension = file.originalname.includes('.') ? file.originalname.split('.').pop()!.toLowerCase() : 'jpg';
+      const filename = new Util().generateRandomString(11) + '.' + Date.now() + '.' + extension;
+      const path = ['ongi', 'photos', userId, moment().format('YYYYMMDD'), filename].join('/');
+
+      const result = await this.awsS3Service.uploadStream(file.buffer, file.mimetype || 'image/jpeg', path);
+      views.push({ url: result!.location });
+    }
+
+    return views;
   }
 }
 
