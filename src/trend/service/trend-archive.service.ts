@@ -3,6 +3,8 @@ import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { TrendArchiveRangeTooWide } from '@/trend/exception/trend.exception';
 import { DailyKeywordRow, TrendDailyRepository } from '@/trend/repository/trend-daily.repository';
 import { StoredSummary, TrendSummaryRepository } from '@/trend/repository/trend-summary.repository';
+import { summaryCacheKey } from '@/trend/service/trend.service';
+import { TrendSummaryResponse } from '@/trend/dto/response/trend-summary.response';
 
 /**
  * 실시간 검색어 순위 히스토리 — 결산 페이지용
@@ -174,6 +176,27 @@ export class TrendArchiveService {
         this.logger.warn(`요약 첨부 실패: ${(e as Error).message}`);
         return new Map<string, StoredSummary>();
       });
+    // DB에 없으면(테이블 미생성·이력 저장 전) 살아 있는 Redis 요약 캐시라도 붙인다 — 상위권은 선생성되어 대부분 있다
+    const missing = top.filter(t => !nearest.has(t.keyword));
+    if (missing.length > 0) {
+      const cached = await this.redis.redisClient.mget(...missing.map(t => summaryCacheKey('kr', t.keyword))).catch(() => []);
+      missing.forEach((t, i) => {
+        const raw = cached[i];
+        if (!raw) return;
+        try {
+          const r = JSON.parse(raw) as TrendSummaryResponse;
+          nearest.set(t.keyword, {
+            headline: r.headline,
+            summary: r.summary,
+            bullets: r.bullets ?? [],
+            people: r.people ?? [],
+            generatedAt: r.generatedAt,
+          });
+        } catch {
+          /* 손상된 캐시는 무시 */
+        }
+      });
+    }
     const items: ArchiveItem[] = top.map((t, i) => ({ ...t, rank: i + 1, summary: nearest.get(t.keyword) ?? null }));
 
     let hourlyTop: ArchiveResult['hourlyTop'] = [];

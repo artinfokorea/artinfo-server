@@ -8,6 +8,11 @@ import { TrendSummaryResponse } from '@/trend/dto/response/trend-summary.respons
 import { TrendNoArticlesFound, TrendSummaryInProgress } from '@/trend/exception/trend.exception';
 import { TrendSummaryRepository } from '@/trend/repository/trend-summary.repository';
 
+/** 요약 Redis 캐시 키 — 결산 서비스도 같은 키로 캐시를 읽는다 */
+export function summaryCacheKey(region: string, keyword: string, limit = 10): string {
+  return `trend:summary:v2:${region}:${limit}:${keyword.trim().replace(/\s+/g, ' ').toLowerCase()}`;
+}
+
 const CACHE_TTL_SEC = Number(process.env['TREND_SUMMARY_CACHE_TTL_SEC'] ?? 2 * 60 * 60); // 기본 2시간
 const LOCK_TTL_MS = 60 * 1000; // 생성 중 락 (AI 호출 + 기사 수집 최대치보다 넉넉히)
 const WAIT_FOR_OTHER_MS = 45 * 1000; // 다른 인스턴스가 생성 중일 때 캐시를 기다리는 최대 시간
@@ -102,6 +107,6 @@ export class TrendService {
   }
 
   private cacheKey(region: string, keyword: string, limit: number): string {
-    return `trend:summary:v2:${region}:${limit}:${keyword.toLowerCase()}`;
+    return summaryCacheKey(region, keyword, limit);
   }
 }

@@ -4,7 +4,10 @@ import { TrendArchiveService, addDays, kstDate } from './trend-archive.service';
 function fakeRedis() {
   const store = new Map<string, Map<string, string>>();
   const hgetall = async (key: string) => Object.fromEntries(store.get(key) ?? []);
+  const kv = new Map<string, string>();
   const client: any = {
+    set: async (k: string, v: string) => void kv.set(k, v),
+    mget: async (...keys: string[]) => keys.map(k => kv.get(k) ?? null),
     hmget: async (key: string, ...fields: string[]) => fields.map(f => store.get(key)?.get(f) ?? null),
     hgetall,
     pipeline() {
@@ -95,6 +98,15 @@ describe('TrendArchiveService', () => {
     const svc = make(fakeRedis());
     await expect(svc.getArchive('2026-08-01', '2026-09-01', 5)).rejects.toThrow();
     await expect(svc.getArchive('2026-08-02', '2026-08-01', 5)).rejects.toThrow();
+  });
+
+  it('DB에 요약이 없으면 Redis 요약 캐시를 붙인다', async () => {
+    const redis = fakeRedis();
+    const svc = make(redis);
+    await svc.record([{ rank: 1, keyword: '손흥민' }], new Date('2026-08-21T10:00:00+09:00'));
+    await redis.redisClient.set('trend:summary:v2:kr:10:손흥민', JSON.stringify({ headline: 'H', summary: 'S', bullets: ['b'], people: [], generatedAt: 'T' }));
+    const res = await svc.getArchive('2026-08-21', '2026-08-21', 5);
+    expect(res.items[0].summary).toEqual({ headline: 'H', summary: 'S', bullets: ['b'], people: [], generatedAt: 'T' });
   });
 
   it('롤업은 Redis 하루치를 DB upsert로 넘긴다', async () => {
