@@ -83,6 +83,7 @@ export class TrendService {
       headline: ai.headline,
       summary: ai.summary,
       bullets: ai.bullets,
+      people: ai.people,
       articles: articles.map(a => ({
         title: a.title,
         press: a.press,
@@ -97,6 +98,6 @@ export class TrendService {
   }
 
   private cacheKey(region: string, keyword: string, limit: number): string {
-    return `trend:summary:v1:${region}:${limit}:${keyword.toLowerCase()}`;
+    return `trend:summary:v2:${region}:${limit}:${keyword.toLowerCase()}`;
   }
 }

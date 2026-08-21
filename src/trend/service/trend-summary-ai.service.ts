@@ -4,11 +4,34 @@ import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 import { FetchedArticle } from '@/trend/service/trend-news.fetcher';
 import { TrendAiNotConfigured, TrendSummaryFailed } from '@/trend/exception/trend.exception';
 
+export interface AiPerson {
+  /** 기사 표기 한글 이름 */
+  name: string;
+  /** 동명이인 구분용 한 줄 — 직업·소속·대표작 등 ("축구선수, 前 토트넘·現 LAFC") */
+  disambiguation: string;
+  /** 이번 이슈에서 이 인물의 역할 (기사 근거) */
+  roleInIssue: string;
+  englishName: string | null;
+  /** "1992년 7월 8일 (33세) · 강원 춘천" */
+  birth: string | null;
+  /** "183cm · 78kg" */
+  body: string | null;
+  affiliation: string | null;
+  education: string[];
+  /** 주요 경력, 최신순 최대 5개 */
+  career: string[];
+  /** 프로필 정보의 확신도 — low면 프론트에서 상세 정보를 접어 보여준다 */
+  confidence: 'high' | 'medium' | 'low';
+}
+
 export interface AiSummary {
   headline: string;
   summary: string;
   bullets: string[];
+  people: AiPerson[];
 }
+
+const MAX_PEOPLE = 3;
 
 type Provider = 'openai' | 'gemini';
 
@@ -18,14 +41,36 @@ const DEFAULT_MODEL: Record<Provider, string> = {
   gemini: 'gemini-2.5-flash-lite',
 };
 
+const NULLABLE_STRING = { type: ['string', 'null'] } as const;
+const STRING_ARRAY = { type: 'array', items: { type: 'string' } } as const;
+
+const PERSON_JSON_SCHEMA = {
+  type: 'object',
+  properties: {
+    name: { type: 'string' },
+    disambiguation: { type: 'string' },
+    roleInIssue: { type: 'string' },
+    englishName: NULLABLE_STRING,
+    birth: NULLABLE_STRING,
+    body: NULLABLE_STRING,
+    affiliation: NULLABLE_STRING,
+    education: STRING_ARRAY,
+    career: STRING_ARRAY,
+    confidence: { type: 'string', enum: ['high', 'medium', 'low'] },
+  },
+  required: ['name', 'disambiguation', 'roleInIssue', 'englishName', 'birth', 'body', 'affiliation', 'education', 'career', 'confidence'],
+  additionalProperties: false,
+} as const;
+
 const RESPONSE_JSON_SCHEMA = {
   type: 'object',
   properties: {
     headline: { type: 'string' },
     summary: { type: 'string' },
-    bullets: { type: 'array', items: { type: 'string' } },
+    bullets: STRING_ARRAY,
+    people: { type: 'array', items: PERSON_JSON_SCHEMA },
   },
-  required: ['headline', 'summary', 'bullets'],
+  required: ['headline', 'summary', 'bullets', 'people'],
   additionalProperties: false,
 } as const;
 
@@ -62,11 +107,39 @@ export class TrendSummaryAiService {
         headline: String(parsed.headline ?? '').trim(),
         summary: String(parsed.summary ?? '').trim(),
         bullets: Array.isArray(parsed.bullets) ? parsed.bullets.map(String).filter(Boolean).slice(0, 5) : [],
+        people: this.normalizePeople(parsed.people),
       };
     } catch {
       this.logger.error(`AI 응답 파싱 실패: ${text.slice(0, 200)}`);
       throw new TrendSummaryFailed();
     }
+  }
+
+  private normalizePeople(raw: unknown): AiPerson[] {
+    if (!Array.isArray(raw)) return [];
+    const str = (v: unknown): string | null => {
+      const t = typeof v === 'string' ? v.trim() : '';
+      return t && t !== 'null' && t !== '미상' && t !== '알 수 없음' ? t : null;
+    };
+    const list = (v: unknown, max: number): string[] =>
+      Array.isArray(v) ? v.map(x => str(x)).filter((x): x is string => !!x).slice(0, max) : [];
+    return raw
+      .map(
+        (p: any): AiPerson => ({
+          name: str(p?.name) ?? '',
+          disambiguation: str(p?.disambiguation) ?? '',
+          roleInIssue: str(p?.roleInIssue) ?? '',
+          englishName: str(p?.englishName),
+          birth: str(p?.birth),
+          body: str(p?.body),
+          affiliation: str(p?.affiliation),
+          education: list(p?.education, 4),
+          career: list(p?.career, 5),
+          confidence: p?.confidence === 'high' || p?.confidence === 'medium' ? p.confidence : 'low',
+        }),
+      )
+      .filter(p => p.name && p.disambiguation)
+      .slice(0, MAX_PEOPLE);
   }
 
   private async callOpenAi(system: string, user: string): Promise<string> {
@@ -111,10 +184,29 @@ export class TrendSummaryAiService {
             headline: { type: SchemaType.STRING },
             summary: { type: SchemaType.STRING },
             bullets: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+            people: {
+              type: SchemaType.ARRAY,
+              items: {
+                type: SchemaType.OBJECT,
+                properties: {
+                  name: { type: SchemaType.STRING },
+                  disambiguation: { type: SchemaType.STRING },
+                  roleInIssue: { type: SchemaType.STRING },
+                  englishName: { type: SchemaType.STRING, nullable: true },
+                  birth: { type: SchemaType.STRING, nullable: true },
+                  body: { type: SchemaType.STRING, nullable: true },
+                  affiliation: { type: SchemaType.STRING, nullable: true },
+                  education: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+                  career: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+                  confidence: { type: SchemaType.STRING, format: 'enum', enum: ['high', 'medium', 'low'] },
+                },
+                required: ['name', 'disambiguation', 'roleInIssue', 'education', 'career', 'confidence'],
+              },
+            },
           },
-          required: ['headline', 'summary', 'bullets'],
+          required: ['headline', 'summary', 'bullets', 'people'],
         },
-        maxOutputTokens: 1024,
+        maxOutputTokens: 3072,
         temperature: 0.3,
       },
     });
@@ -160,8 +252,18 @@ export class TrendSummaryAiService {
       '- headline: 이슈의 핵심을 담은 한 줄 제목. 10~20자, 명사형으로 끝맺음. 예) "LAFC 벤치 논란 속 5경기 무득점"',
       '- summary: 2~3문장의 자연스러운 단락. 사건 경위를 먼저 쓰고, 이어서 사람들의 관심이 쏠린 배경을 쓴다. 문장 앞에 소제목이나 라벨을 붙이지 않는다.',
       '- bullets: 핵심 사실 3~5개. 각 40자 이내의 완결된 구. 날짜·숫자·인물 등 구체 정보 위주.',
+      `- people: 이슈의 중심 인물 프로필 0~${MAX_PEOPLE}명. 아래 "인물 규칙"을 따른다.`,
       '',
-      '반드시 JSON {"headline","summary","bullets"} 형식으로만 답한다.',
+      '인물 규칙:',
+      '- 대상은 공인만: 정치인, 연예인, 운동선수, 기업인, 작가, 방송인, 유튜버 등 공적 활동으로 이미 널리 알려진 인물.',
+      '- 제외 대상: 사건·사고의 피의자, 피해자, 제보자, 일반인, 미성년자, 기사에서 익명·이니셜로 처리된 사람. 기사가 실명을 썼더라도 공인이 아니면 넣지 않는다. 해당 인물이 없으면 빈 배열 [].',
+      '- 동명이인 특정: 같은 이름의 유명인이 여럿일 수 있다. 반드시 기사 문맥(직업, 소속, 나이, 작품, 사건)으로 어느 인물인지 확정하고, disambiguation에 그 근거가 되는 구분 정보를 쓴다. 예) "축구선수, 前 토트넘·現 LAFC", "배우, 드라마 <무빙> 출연". 기사 문맥으로 특정되지 않으면 프로필 항목(englishName~career)은 모두 null/[]로 두고 confidence는 low.',
+      '- name, disambiguation, roleInIssue는 반드시 기사에 근거해 쓴다.',
+      '- englishName, birth, body, affiliation, education, career는 기사에 있으면 기사를 따르고, 없으면 그 인물의 널리 알려진 공개 프로필(공식 프로필·백과사전 수준)에 한해 채운다. 확실하지 않은 항목은 null 또는 빈 배열로 둔다. 절대 추정하거나 비슷한 인물의 정보를 섞지 않는다.',
+      '- birth는 "YYYY년 M월 D일 (만 나이) · 출생지" 형식, 모르는 부분은 생략. body는 "183cm · 78kg" 형식(운동선수·연예인 등 공개 프로필에 있는 경우만). education은 최종 학력부터, career는 최신순 최대 5개.',
+      '- confidence: 기사+공개 프로필로 인물이 확실히 특정되고 항목 대부분이 확실하면 high, 인물은 확실하나 일부 항목이 불확실하면 medium, 그 외 low.',
+      '',
+      '반드시 JSON {"headline","summary","bullets","people"} 형식으로만 답한다.',
     ].join('\n');
   }
 

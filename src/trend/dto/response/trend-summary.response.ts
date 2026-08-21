@@ -17,6 +17,38 @@ export class TrendSummaryArticle {
   hasBody: boolean;
 }
 
+export class TrendSummaryPerson {
+  @ApiProperty({ description: '기사 표기 이름', example: '손흥민' })
+  name: string;
+
+  @ApiProperty({ description: '동명이인 구분 — 직업·소속·대표작', example: '축구선수, 前 토트넘·現 LAFC' })
+  disambiguation: string;
+
+  @ApiProperty({ description: '이번 이슈에서의 역할' })
+  roleInIssue: string;
+
+  @ApiProperty({ description: '영어 이름', nullable: true, example: 'Son Heung-min' })
+  englishName: string | null;
+
+  @ApiProperty({ description: '출생 — "YYYY년 M월 D일 (만 나이) · 출생지"', nullable: true })
+  birth: string | null;
+
+  @ApiProperty({ description: '신체 — "183cm · 78kg"', nullable: true })
+  body: string | null;
+
+  @ApiProperty({ description: '소속', nullable: true })
+  affiliation: string | null;
+
+  @ApiProperty({ description: '학력 (최종 학력부터)', type: [String] })
+  education: string[];
+
+  @ApiProperty({ description: '주요 경력 (최신순, 최대 5개)', type: [String] })
+  career: string[];
+
+  @ApiProperty({ description: 'AI 프로필 확신도', enum: ['high', 'medium', 'low'] })
+  confidence: 'high' | 'medium' | 'low';
+}
+
 export class TrendSummaryResponse {
   @ApiProperty({ description: '키워드', example: '손흥민' })
   keyword: string;
@@ -32,6 +64,9 @@ export class TrendSummaryResponse {
 
   @ApiProperty({ description: '핵심 포인트', type: [String] })
   bullets: string[];
+
+  @ApiProperty({ description: '이슈 중심 인물 프로필 (공인만, AI 생성, 0~3명)', type: [TrendSummaryPerson] })
+  people: TrendSummaryPerson[];
 
   @ApiProperty({ description: '요약 근거가 된 기사 목록', type: [TrendSummaryArticle] })
   articles: TrendSummaryArticle[];
