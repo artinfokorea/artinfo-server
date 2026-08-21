@@ -53,4 +53,15 @@ export class RedisRepository implements OnModuleDestroy {
   async deleteAll() {
     await this.redisClient.flushall();
   }
+
+  /** 보호 접두사로 시작하는 키만 남기고 모두 삭제 (SCAN 기반, 블로킹 없음) */
+  async deleteAllExcept(protectedPrefixes: string[]): Promise<number> {
+    let deleted = 0;
+    const stream = this.redisClient.scanStream({ count: 500 });
+    for await (const batch of stream as AsyncIterable<string[]>) {
+      const targets = batch.filter(k => !protectedPrefixes.some(p => k.startsWith(p)));
+      if (targets.length > 0) deleted += await this.redisClient.unlink(...targets);
+    }
+    return deleted;
+  }
 }

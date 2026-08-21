@@ -34,10 +34,19 @@ function fakeRedis() {
   return { redisClient: client, store };
 }
 
+/** DB 없는 환경용 스텁 — 과거 날짜도 Redis 폴백으로 읽게 한다 */
+const dailyStub: any = {
+  findRange: async () => new Map(),
+  findHourlyTop: async () => [],
+  upsertDay: jest.fn(async () => undefined),
+};
+const summaryStub: any = { findNearest: async () => new Map() };
+const make = (redis: any) => new TrendArchiveService(redis, dailyStub, summaryStub);
+
 describe('TrendArchiveService', () => {
   it('매분 표본을 누적해 최고 순위·체류·점수를 집계한다', async () => {
     const redis = fakeRedis();
-    const svc = new TrendArchiveService(redis as any);
+    const svc = make(redis);
     const t0 = new Date('2026-08-21T01:00:00+09:00');
     const at = (min: number) => new Date(t0.getTime() + min * 60_000);
 
@@ -60,7 +69,7 @@ describe('TrendArchiveService', () => {
 
   it('여러 날을 합산하고 날짜별 데이터 유무를 돌려준다', async () => {
     const redis = fakeRedis();
-    const svc = new TrendArchiveService(redis as any);
+    const svc = make(redis);
     await svc.record([{ rank: 1, keyword: 'A' }], new Date('2026-08-18T10:00:00+09:00'));
     await svc.record([{ rank: 5, keyword: 'A' }, { rank: 1, keyword: 'Z' }], new Date('2026-08-20T10:00:00+09:00'));
 
@@ -75,7 +84,7 @@ describe('TrendArchiveService', () => {
 
   it('자정 경계는 KST 기준으로 나눈다', async () => {
     const redis = fakeRedis();
-    const svc = new TrendArchiveService(redis as any);
+    const svc = make(redis);
     await svc.record([{ rank: 1, keyword: 'A' }], new Date('2026-08-21T23:59:00+09:00'));
     await svc.record([{ rank: 1, keyword: 'A' }], new Date('2026-08-22T00:01:00+09:00'));
     expect((await svc.getArchive('2026-08-21', '2026-08-21', 5)).items[0].samples).toBe(1);
@@ -83,9 +92,22 @@ describe('TrendArchiveService', () => {
   });
 
   it('31일 초과·역순 기간은 거부한다', async () => {
-    const svc = new TrendArchiveService(fakeRedis() as any);
+    const svc = make(fakeRedis());
     await expect(svc.getArchive('2026-08-01', '2026-09-01', 5)).rejects.toThrow();
     await expect(svc.getArchive('2026-08-02', '2026-08-01', 5)).rejects.toThrow();
+  });
+
+  it('롤업은 Redis 하루치를 DB upsert로 넘긴다', async () => {
+    const redis = fakeRedis();
+    const svc = make(redis);
+    await svc.record([{ rank: 1, keyword: 'A' }, { rank: 4, keyword: 'B' }], new Date('2026-08-21T10:00:00+09:00'));
+    expect(await svc.rollupDay('2026-08-21')).toBe(2);
+    expect(dailyStub.upsertDay).toHaveBeenCalledWith(
+      '2026-08-21',
+      expect.arrayContaining([expect.objectContaining({ keyword: 'A', peak: 1, score: 20 })]),
+      [{ hour: 10, keyword: 'A' }],
+    );
+    expect(await svc.rollupDay('2026-08-20')).toBe(0);
   });
 
   it('날짜 유틸', () => {

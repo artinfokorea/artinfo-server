@@ -6,6 +6,7 @@ import { TrendSummaryAiService } from '@/trend/service/trend-summary-ai.service'
 import { GetTrendSummaryRequest } from '@/trend/dto/request/get-trend-summary.request';
 import { TrendSummaryResponse } from '@/trend/dto/response/trend-summary.response';
 import { TrendNoArticlesFound, TrendSummaryInProgress } from '@/trend/exception/trend.exception';
+import { TrendSummaryRepository } from '@/trend/repository/trend-summary.repository';
 
 const CACHE_TTL_SEC = Number(process.env['TREND_SUMMARY_CACHE_TTL_SEC'] ?? 2 * 60 * 60); // 기본 2시간
 const LOCK_TTL_MS = 60 * 1000; // 생성 중 락 (AI 호출 + 기사 수집 최대치보다 넉넉히)
@@ -22,6 +23,7 @@ export class TrendService {
     private readonly redis: RedisRepository,
     private readonly fetcher: TrendNewsFetcher,
     private readonly ai: TrendSummaryAiService,
+    private readonly summaryRepository: TrendSummaryRepository,
   ) {}
 
   /** 선생성 스케줄러용 — 기본 옵션(kr, 10건) 기준 캐시 존재 여부 */
@@ -63,6 +65,8 @@ export class TrendService {
     try {
       const result = await this.generate(keyword, request);
       await this.redis.setValue(new RedisSetCommand({ key: cacheKey, value: result, ttl: CACHE_TTL_SEC }));
+      // 영구 이력 — 결산·키워드 히스토리에 쓰인다. 저장 실패가 응답을 막진 않는다
+      this.summaryRepository.save(result).catch(e => this.logger.warn(`요약 이력 저장 실패 "${keyword}": ${(e as Error).message}`));
       return result;
     } finally {
       await this.redis.delete(lockKey).catch(() => {});

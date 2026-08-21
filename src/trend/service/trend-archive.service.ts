@@ -1,28 +1,32 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { TrendArchiveRangeTooWide } from '@/trend/exception/trend.exception';
+import { DailyKeywordRow, TrendDailyRepository } from '@/trend/repository/trend-daily.repository';
+import { StoredSummary, TrendSummaryRepository } from '@/trend/repository/trend-summary.repository';
 
 /**
- * 실시간 검색어 순위 히스토리(일간 누적) — 결산 페이지용
+ * 실시간 검색어 순위 히스토리 — 결산 페이지용
  *
- * 저장 구조 (Redis)
- *   trend:archive:v1:{YYYY-MM-DD}         HASH  keyword → ArchiveEntry(JSON)
- *   trend:archive:v1:{YYYY-MM-DD}:hourly  HASH  "HH"    → 해당 시각대 마지막 표본의 1위 키워드
- * 매분 스케줄러가 통합 순위를 한 번 기록한다(표본 1개 = 1분).
+ * 1) 누적: 매분 스케줄러가 통합 순위를 Redis 해시에 일자별(KST)로 쌓는다 (표본 1개 = 1분)
+ *      trend:archive:v1:{YYYY-MM-DD}         HASH keyword → ArchiveEntry(JSON)
+ *      trend:archive:v1:{YYYY-MM-DD}:hourly  HASH "HH" → 해당 시각대 마지막 표본의 1위
+ * 2) 확정: 매일 00:10 KST 롤업이 어제(및 최근 며칠)치를 Postgres에 저장한다 (rollupDay)
+ * 3) 조회: 오늘은 Redis, 지난 날짜는 DB(없으면 Redis 폴백). 키워드별로 최고 순위 시각에 가장 가까운 AI 요약을 붙인다
  */
 export interface ArchiveEntry {
-  peak: number; // 최고 순위 (작을수록 높음)
-  peakAt: string; // 최고 순위 최초 도달 시각 (ISO)
+  peak: number;
+  peakAt: string;
   firstSeen: string;
   lastSeen: string;
-  samples: number; // 차트 체류 표본 수 (≈ 분)
-  score: number; // Σ (MAX_RANK + 1 - rank)
+  samples: number;
+  score: number;
 }
 
 export interface ArchiveItem extends ArchiveEntry {
   rank: number;
   keyword: string;
-  days: number; // 기간 내 차트에 오른 날 수
+  days: number;
+  summary: StoredSummary | null;
 }
 
 export interface ArchiveResult {
@@ -30,24 +34,22 @@ export interface ArchiveResult {
   to: string;
   days: { date: string; hasData: boolean }[];
   items: ArchiveItem[];
-  hourlyTop: { hour: number; keyword: string }[]; // 단일 일자 조회에서만 채움
+  hourlyTop: { hour: number; keyword: string }[];
   generatedAt: string;
 }
 
 const KEY_PREFIX = 'trend:archive:v1';
 const MAX_RANK = 20;
-const RETENTION_SEC = 400 * 24 * 60 * 60;
+const REDIS_RETENTION_SEC = 40 * 24 * 60 * 60; // DB 롤업 후 폴백용으로만 보관
 export const MAX_RANGE_DAYS = 31;
 const TZ = 'Asia/Seoul';
 
-/** Date → KST 기준 YYYY-MM-DD */
 export function kstDate(d: Date): string {
   return d.toLocaleDateString('sv-SE', { timeZone: TZ });
 }
 function kstHour(d: Date): number {
   return Number(d.toLocaleString('en-US', { timeZone: TZ, hour: '2-digit', hour12: false }).slice(0, 2)) % 24;
 }
-/** YYYY-MM-DD 에 n일 더하기 (달력 기준) */
 export function addDays(date: string, n: number): string {
   const [y, m, d] = date.split('-').map(Number);
   return new Date(Date.UTC(y, m - 1, d + n, 12)).toISOString().slice(0, 10);
@@ -62,15 +64,20 @@ function daysBetween(from: string, to: string): number {
 
 @Injectable()
 export class TrendArchiveService {
-  constructor(private readonly redis: RedisRepository) {}
+  private readonly logger = new Logger(TrendArchiveService.name);
+
+  constructor(
+    private readonly redis: RedisRepository,
+    private readonly daily: TrendDailyRepository,
+    private readonly summaries: TrendSummaryRepository,
+  ) {}
 
   /** 현재 통합 순위 한 표본을 오늘 날짜에 누적 */
   async record(items: { rank: number; keyword: string }[], now = new Date()): Promise<void> {
     const valid = items.filter(i => Number.isInteger(i.rank) && i.rank >= 1 && i.rank <= MAX_RANK && i.keyword?.trim());
     if (valid.length === 0) return;
 
-    const date = kstDate(now);
-    const key = `${KEY_PREFIX}:${date}`;
+    const key = `${KEY_PREFIX}:${kstDate(now)}`;
     const iso = now.toISOString();
     const client = this.redis.redisClient;
 
@@ -93,73 +100,105 @@ export class TrendArchiveService {
         : { peak: item.rank, peakAt: iso, firstSeen: iso, lastSeen: iso, samples: 1, score: points };
       pipe.hset(key, keywords[idx], JSON.stringify(next));
     });
-    pipe.expire(key, RETENTION_SEC);
+    pipe.expire(key, REDIS_RETENTION_SEC);
 
     const top = valid.find(i => i.rank === 1);
     if (top) {
-      const hourlyKey = `${key}:hourly`;
-      pipe.hset(hourlyKey, String(kstHour(now)).padStart(2, '0'), top.keyword.trim());
-      pipe.expire(hourlyKey, RETENTION_SEC);
+      pipe.hset(`${key}:hourly`, String(kstHour(now)).padStart(2, '0'), top.keyword.trim());
+      pipe.expire(`${key}:hourly`, REDIS_RETENTION_SEC);
     }
     await pipe.exec();
   }
 
-  /** 기간(from~to, 양끝 포함) 집계 — 점수순 상위 limit개 */
+  /** Redis 누적분을 DB에 확정 저장 — 저장한 키워드 수 반환 (Redis에 없으면 0, DB는 건드리지 않음) */
+  async rollupDay(date: string): Promise<number> {
+    const { rows, hourlyTop } = await this.readRedisDay(date);
+    if (rows.length === 0) return 0;
+    await this.daily.upsertDay(date, rows, hourlyTop);
+    this.logger.log(`결산 롤업 ${date}: 키워드 ${rows.length}개, 시각대 ${hourlyTop.length}개`);
+    return rows.length;
+  }
+
+  /** 기간(from~to, 양끝 포함) 집계 — 점수순 상위 limit개 + 요약 첨부 */
   async getArchive(from: string, to: string, limit: number): Promise<ArchiveResult> {
     const span = daysBetween(from, to);
     if (span < 0 || span + 1 > MAX_RANGE_DAYS) throw new TrendArchiveRangeTooWide();
 
+    const today = kstDate(new Date());
     const dates: string[] = [];
     for (let i = 0; i <= span; i++) dates.push(addDays(from, i));
 
-    const client = this.redis.redisClient;
-    const pipe = client.pipeline();
-    dates.forEach(d => pipe.hgetall(`${KEY_PREFIX}:${d}`));
-    const results = (await pipe.exec()) ?? [];
+    // 지난 날짜는 DB 우선, 오늘(또는 아직 롤업 안 된 날)은 Redis
+    const dbDays = await this.daily.findRange(from, to < today ? to : addDays(today, -1)).catch(e => {
+      this.logger.warn(`DB 결산 조회 실패, Redis로 대체: ${(e as Error).message}`);
+      return new Map<string, DailyKeywordRow[]>();
+    });
+    const perDay = await Promise.all(
+      dates.map(async date => {
+        const fromDb = date < today ? dbDays.get(date) : undefined;
+        if (fromDb && fromDb.length > 0) return { date, rows: fromDb, source: 'db' as const };
+        const { rows } = await this.readRedisDay(date);
+        return { date, rows, source: 'redis' as const };
+      }),
+    );
 
-    const merged = new Map<string, ArchiveItem>();
+    const merged = new Map<string, Omit<ArchiveItem, 'rank' | 'summary'>>();
     const days: ArchiveResult['days'] = [];
-    results.forEach(([err, raw], idx) => {
-      const hash = (err ? {} : (raw as Record<string, string>)) ?? {};
-      const entries = Object.entries(hash);
-      days.push({ date: dates[idx], hasData: entries.length > 0 });
-      for (const [keyword, json] of entries) {
-        let e: ArchiveEntry;
-        try {
-          e = JSON.parse(json);
-        } catch {
+    for (const { date, rows } of perDay) {
+      days.push({ date, hasData: rows.length > 0 });
+      for (const e of rows) {
+        const acc = merged.get(e.keyword);
+        if (!acc) {
+          merged.set(e.keyword, { ...e, days: 1 });
           continue;
         }
-        const acc = merged.get(keyword);
-        if (!acc) {
-          merged.set(keyword, { ...e, rank: 0, keyword, days: 1 });
-        } else {
-          acc.days += 1;
-          acc.samples += e.samples;
-          acc.score += e.score;
-          if (e.peak < acc.peak || (e.peak === acc.peak && e.peakAt < acc.peakAt)) {
-            acc.peak = e.peak;
-            acc.peakAt = e.peakAt;
-          }
-          if (e.firstSeen < acc.firstSeen) acc.firstSeen = e.firstSeen;
-          if (e.lastSeen > acc.lastSeen) acc.lastSeen = e.lastSeen;
+        acc.days += 1;
+        acc.samples += e.samples;
+        acc.score += e.score;
+        if (e.peak < acc.peak || (e.peak === acc.peak && e.peakAt < acc.peakAt)) {
+          acc.peak = e.peak;
+          acc.peakAt = e.peakAt;
         }
+        if (e.firstSeen < acc.firstSeen) acc.firstSeen = e.firstSeen;
+        if (e.lastSeen > acc.lastSeen) acc.lastSeen = e.lastSeen;
       }
-    });
+    }
 
-    const items = [...merged.values()]
+    const top = [...merged.values()]
       .sort((a, b) => b.score - a.score || a.peak - b.peak || a.firstSeen.localeCompare(b.firstSeen))
-      .slice(0, limit)
-      .map((item, i) => ({ ...item, rank: i + 1 }));
+      .slice(0, limit);
+
+    const nearest = await this.summaries
+      .findNearest(top.map(t => ({ keyword: t.keyword, at: t.peakAt })))
+      .catch(e => {
+        this.logger.warn(`요약 첨부 실패: ${(e as Error).message}`);
+        return new Map<string, StoredSummary>();
+      });
+    const items: ArchiveItem[] = top.map((t, i) => ({ ...t, rank: i + 1, summary: nearest.get(t.keyword) ?? null }));
 
     let hourlyTop: ArchiveResult['hourlyTop'] = [];
     if (from === to) {
-      const hourly = (await client.hgetall(`${KEY_PREFIX}:${from}:hourly`)) ?? {};
-      hourlyTop = Object.entries(hourly)
-        .map(([h, keyword]) => ({ hour: Number(h), keyword }))
-        .sort((a, b) => a.hour - b.hour);
+      const single = perDay[0];
+      hourlyTop = single.source === 'db' ? await this.daily.findHourlyTop(from) : (await this.readRedisDay(from)).hourlyTop;
     }
 
     return { from, to, days, items, hourlyTop, generatedAt: new Date().toISOString() };
+  }
+
+  private async readRedisDay(date: string): Promise<{ rows: DailyKeywordRow[]; hourlyTop: { hour: number; keyword: string }[] }> {
+    const client = this.redis.redisClient;
+    const [hash, hourly] = await Promise.all([client.hgetall(`${KEY_PREFIX}:${date}`), client.hgetall(`${KEY_PREFIX}:${date}:hourly`)]);
+    const rows: DailyKeywordRow[] = [];
+    for (const [keyword, json] of Object.entries(hash ?? {})) {
+      try {
+        rows.push({ keyword, ...(JSON.parse(json) as ArchiveEntry) });
+      } catch {
+        /* 손상된 항목은 건너뜀 */
+      }
+    }
+    const hourlyTop = Object.entries(hourly ?? {})
+      .map(([h, keyword]) => ({ hour: Number(h), keyword }))
+      .sort((a, b) => a.hour - b.hour);
+    return { rows, hourlyTop };
   }
 }

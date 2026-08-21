@@ -1,5 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+export class TrendArchiveItemSummary {
+  @ApiProperty({ description: '이슈 한 줄 헤드라인' })
+  headline: string;
+
+  @ApiProperty({ description: '왜 순위에 올랐는지 요약' })
+  summary: string;
+
+  @ApiProperty({ description: '핵심 포인트', type: [String] })
+  bullets: string[];
+
+  @ApiProperty({ description: '이슈 중심 인물 프로필 (요약 생성 당시)', type: 'array', items: { type: 'object' } })
+  people: unknown[];
+
+  @ApiProperty({ description: '요약 생성 시각 (ISO 8601)' })
+  generatedAt: string;
+}
+
 export class TrendArchiveItem {
   @ApiProperty({ description: '기간 내 종합 순위 (점수순)' })
   rank: number;
@@ -27,6 +44,9 @@ export class TrendArchiveItem {
 
   @ApiProperty({ description: '기간 내 차트에 오른 날 수' })
   days: number;
+
+  @ApiProperty({ description: '최고 순위 시각에 가장 가까운 AI 요약 (없으면 null)', type: TrendArchiveItemSummary, nullable: true })
+  summary: TrendArchiveItemSummary | null;
 }
 
 export class TrendArchiveDay {

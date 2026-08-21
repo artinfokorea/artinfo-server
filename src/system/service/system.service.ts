@@ -234,7 +234,8 @@ export class SystemService {
   }
 
   async deleteCaching() {
-    await this.redisRepository.deleteAll();
+    // 실시간 검색어 결산 히스토리(trend:archive:*)는 캐시가 아니라 데이터라 비우지 않는다
+    await this.redisRepository.deleteAllExcept(['trend:archive:']);
   }
 }
 

@@ -76,6 +76,9 @@ import { OnchurchStaff } from '@/onchurch/about/domain/entity/onchurch-staff.ent
 import { OngiModule } from '@/ongi/ongi.module';
 import { TrendModule } from '@/trend/trend.module';
 import { OngiUser } from '@/ongi/user/domain/entity/ongi-user.entity';
+import { TrendSummaryEntity } from '@/trend/entity/trend-summary.entity';
+import { TrendDailyKeyword } from '@/trend/entity/trend-daily-keyword.entity';
+import { TrendDailyHourlyTop } from '@/trend/entity/trend-daily-hourly-top.entity';
 import { OngiAuth } from '@/ongi/auth/domain/entity/ongi-auth.entity';
 import { OngiGroup } from '@/ongi/group/domain/entity/ongi-group.entity';
 import { OngiMember } from '@/ongi/group/domain/entity/ongi-member.entity';
@@ -86,6 +89,9 @@ import { OngiPhotoLike } from '@/ongi/photo/domain/entity/ongi-photo-like.entity
 import { OngiPhotoComment } from '@/ongi/photo/domain/entity/ongi-photo-comment.entity';
 
 const entities = [
+  TrendSummaryEntity,
+  TrendDailyKeyword,
+  TrendDailyHourlyTop,
   User,
   School,
   Lesson,
