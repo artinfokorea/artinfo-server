@@ -29,3 +29,9 @@ export class TrendSummaryFailed extends HttpException {
     );
   }
 }
+
+export class TrendArchiveRangeTooWide extends HttpException {
+  constructor() {
+    super({ code: 'TREND-005', message: '조회 기간은 최대 31일이며 from은 to보다 이전이어야 합니다.' }, HttpStatus.BAD_REQUEST);
+  }
+}

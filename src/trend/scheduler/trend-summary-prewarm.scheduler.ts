@@ -4,6 +4,7 @@ import axios from 'axios';
 import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { TrendService } from '@/trend/service/trend.service';
 import { GetTrendSummaryRequest } from '@/trend/dto/request/get-trend-summary.request';
+import { TrendArchiveService } from '@/trend/service/trend-archive.service';
 
 /**
  * 실시간 검색어 1~10위 요약 선생성(prewarm)
@@ -24,17 +25,24 @@ export class TrendSummaryPrewarmScheduler {
   constructor(
     private readonly redis: RedisRepository,
     private readonly trendService: TrendService,
+    private readonly archive: TrendArchiveService,
   ) {}
 
   @Cron('* * * * *', { name: 'trendSummaryPrewarm', timeZone: 'Asia/Seoul' })
   async prewarm(): Promise<void> {
-    if (!PREWARM_ENABLED || this.running) return;
+    if (this.running) return;
     if (!(await this.redis.acquireLock(SCHEDULER_LOCK_KEY, SCHEDULER_LOCK_MS))) return;
 
     this.running = true;
     try {
-      const keywords = await this.fetchTopKeywords();
-      if (keywords.length === 0) return;
+      const items = await this.fetchCombinedItems();
+      if (items.length === 0) return;
+
+      // 결산용 히스토리는 선생성 on/off와 무관하게 매분 기록
+      await this.archive.record(items).catch(e => this.logger.warn(`히스토리 기록 실패: ${(e as Error).message}`));
+      if (!PREWARM_ENABLED) return;
+
+      const keywords = items.filter(i => i.rank <= PREWARM_TOP_N).map(i => i.keyword);
 
       const missing: string[] = [];
       for (const keyword of keywords) {
@@ -60,9 +68,11 @@ export class TrendSummaryPrewarmScheduler {
     }
   }
 
-  private async fetchTopKeywords(): Promise<string[]> {
+  private async fetchCombinedItems(): Promise<{ rank: number; keyword: string }[]> {
     const { data } = await axios.get(TRENDS_URL, { timeout: 15000 });
     const items: { rank: number; keyword: string }[] = data?.combined?.items ?? [];
-    return items.filter(i => i.rank <= PREWARM_TOP_N && typeof i.keyword === 'string' && i.keyword.trim()).map(i => i.keyword.trim());
+    return items
+      .filter(i => Number.isInteger(i.rank) && typeof i.keyword === 'string' && i.keyword.trim())
+      .map(i => ({ rank: i.rank, keyword: i.keyword.trim() }));
   }
 }
