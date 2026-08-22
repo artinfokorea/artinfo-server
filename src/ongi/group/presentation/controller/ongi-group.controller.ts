@@ -1,5 +1,6 @@
 import { Body, Param, ParseIntPipe } from '@nestjs/common';
-import { RestApiController, RestApiGet, RestApiPost } from '@/common/decorator/rest-api';
+import { RestApiController, RestApiDelete, RestApiGet, RestApiPost } from '@/common/decorator/rest-api';
+import { OkResponse } from '@/common/response/ok.response';
 import { AuthSignature } from '@/common/decorator/AuthSignature';
 import { UserSignature } from '@/common/type/type';
 import { USER_TYPE } from '@/user/entity/user.entity';
@@ -7,6 +8,7 @@ import {
   OngiCreateGroupUseCase,
   OngiGetGroupUseCase,
   OngiJoinGroupUseCase,
+  OngiRemoveMemberUseCase,
   OngiScanMembersUseCase,
   OngiScanMyGroupsUseCase,
 } from '@/ongi/group/application/usecase/ongi-group.usecase';
@@ -23,6 +25,7 @@ export class OngiGroupController {
     private readonly createGroupUseCase: OngiCreateGroupUseCase,
     private readonly joinGroupUseCase: OngiJoinGroupUseCase,
     private readonly scanMembersUseCase: OngiScanMembersUseCase,
+    private readonly removeMemberUseCase: OngiRemoveMemberUseCase,
   ) {}
 
   @RestApiGet(OngiGroupListResponse, { path: '/', description: '내가 속한 가족 공간 목록', auth: [USER_TYPE.CLIENT] })
@@ -58,5 +61,16 @@ export class OngiGroupController {
     const views = await this.scanMembersUseCase.execute(signature.id, groupId);
 
     return new OngiMemberListResponse(views);
+  }
+
+  @RestApiDelete(OkResponse, { path: '/:groupId/members/:memberId', description: '구성원 내보내기 (관리자 전용)', auth: [USER_TYPE.CLIENT] })
+  async removeMember(
+    @AuthSignature() signature: UserSignature,
+    @Param('groupId', ParseIntPipe) groupId: number,
+    @Param('memberId', ParseIntPipe) memberId: number,
+  ) {
+    await this.removeMemberUseCase.execute(signature.id, groupId, memberId);
+
+    return new OkResponse();
   }
 }

@@ -9,6 +9,10 @@ export interface OngiMemberView {
   realName: string | null;
   /** 이 그룹에서 올린 사진 수 */
   photoCount: number;
+  /** 조회한 사용자가 이 구성원을 차단했는지 */
+  blockedByMe: boolean;
+  /** 조회한 사용자 본인의 구성원 레코드인지 (사진·댓글 authorId 는 구성원 id) */
+  isMe: boolean;
 }
 
 export interface IOngiMemberRepository {
@@ -16,6 +20,7 @@ export interface IOngiMemberRepository {
   findById(id: number): Promise<OngiMember | null>;
   findByGroupIdAndUserId(groupId: number, userId: number): Promise<OngiMember | null>;
   scanByUserId(userId: number): Promise<OngiMember[]>;
-  scanViewsByGroupId(groupId: number): Promise<OngiMemberView[]>;
-  getViewById(id: number): Promise<OngiMemberView | null>;
+  scanViewsByGroupId(groupId: number, viewerUserId: number): Promise<OngiMemberView[]>;
+  getViewById(id: number, viewerUserId: number): Promise<OngiMemberView | null>;
+  softDeleteById(id: number): Promise<void>;
 }

@@ -27,9 +27,19 @@
 
 - 로그인: `POST /ongi/auths/login` `{ provider, token?, name? }` — 미가입 시 자동 가입.
   - `token` 이 있으면 provider userinfo API 로 검증 (kakao/naver/google).
-  - **개발용 로그인**: `token` 없이 호출하면 `dev-{provider}` 계정으로 로그인된다. `NODE_ENV=production` 에서는 `ONGI_ALLOW_DEV_LOGIN=true` 환경변수가 있어야 허용된다. 앱에 SNS SDK 연동이 붙으면 이 경로는 막을 것.
+  - **개발용 로그인**: `token` 없이 호출하면 `dev-{provider}` 계정으로 로그인된다. `NODE_ENV=production` 에서는 허용되지 않는다 (우회 플래그 없음). 앱은 구글 네이티브 SDK 토큰으로 로그인한다.
 - 토큰: azeyo/onchurch 와 동일 (access 1시간 / refresh 60일, `POST /ongi/auths/refresh`, Redis 3초 dedupe). access 토큰 payload 는 `{ id, name }` (공용 `jwt.strategy` 가 `payload.name` 을 사용).
 - 가드: 공용 `RestApi*` 데코레이터의 `auth: [USER_TYPE.CLIENT]`.
+
+## UGC 안전 장치 (2026-08-22, App Store 1.2 / 5.1.1 대응)
+
+- 사진 삭제 `DELETE /ongi/photos/:photoId` (작성자·관리자, 댓글 함께 소프트 삭제)
+- 댓글 삭제 `DELETE /ongi/photos/:photoId/comments/:commentId` (댓글 작성자·사진 작성자·관리자)
+- 신고 `POST /ongi/reports { targetType: photo|comment|member, targetId, reason }` → `ongi_reports` (status open/resolved — 운영자가 24시간 내 수동 검토)
+- 차단 `POST|DELETE /ongi/members/:memberId/block` → `ongi_blocks (user_id, blocked_user_id)`. 차단한 사용자의 사진·댓글은 피드/앨범/미분류/인물/댓글 조회에서 숨긴다 (`OngiPhotoAccessService.withoutBlocked`). 구성원 응답에 `blockedByMe`, `isMe` 포함.
+- 내보내기 `DELETE /ongi/groups/:groupId/members/:memberId` (관리자 전용, 본인·다른 관리자 불가)
+- 회원 탈퇴 `DELETE /ongi/users/me`: 사용자 익명화(sns_id 변경으로 재가입 가능) + 구성원·사진·댓글·인물 소프트 삭제 + 좋아요·차단·토큰 삭제. S3 파일은 남음.
+- 약관·개인정보처리방침(`legal/domain/constant`)에 무관용·신고·24시간 조치·위탁(Google, AWS) 조항 반영. 사업자 정보는 `[플레이스홀더]` — 출시 전 교체 필수.
 
 ## 남은 일 (TODO)
 

@@ -66,7 +66,7 @@ export class OngiUserController {
     return new OngiStorageResponse(info);
   }
 
-  @RestApiDelete(OkResponse, { path: '/me', description: '회원 탈퇴', auth: [USER_TYPE.CLIENT] })
+  @RestApiDelete(OkResponse, { path: '/me', description: '회원 탈퇴 — 계정과 올린 사진·댓글 등 연관 데이터를 함께 삭제', auth: [USER_TYPE.CLIENT] })
   async deleteMe(@AuthSignature() signature: UserSignature) {
     await this.deleteAccountUseCase.execute(signature.id);
 

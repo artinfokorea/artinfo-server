@@ -26,3 +26,12 @@ CREATE TABLE IF NOT EXISTS ongi_members (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS uidx_ongi_members_group_user ON ongi_members (group_id, user_id) WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_ongi_members_user ON ongi_members (user_id);
+
+-- 온기 사용자 차단 (2026-08-22 추가) — 차단한 사용자의 사진·댓글을 숨긴다
+CREATE TABLE IF NOT EXISTS ongi_blocks (
+  id              SERIAL PRIMARY KEY,
+  user_id         INTEGER NOT NULL,
+  blocked_user_id INTEGER NOT NULL,
+  created_at      TIMESTAMP NOT NULL DEFAULT now()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uidx_ongi_blocks_user_blocked ON ongi_blocks (user_id, blocked_user_id);

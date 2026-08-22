@@ -1,13 +1,16 @@
 import { Body, Param, ParseIntPipe, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes } from '@nestjs/swagger';
-import { RestApiController, RestApiGet, RestApiPost } from '@/common/decorator/rest-api';
+import { RestApiController, RestApiDelete, RestApiGet, RestApiPost } from '@/common/decorator/rest-api';
+import { OkResponse } from '@/common/response/ok.response';
 import { UploadFile } from '@/common/type/type';
 import { AuthSignature } from '@/common/decorator/AuthSignature';
 import { UserSignature } from '@/common/type/type';
 import { USER_TYPE } from '@/user/entity/user.entity';
 import {
   OngiAddCommentUseCase,
+  OngiDeleteCommentUseCase,
+  OngiDeletePhotoUseCase,
   OngiGetPhotoUseCase,
   OngiScanAlbumPhotosUseCase,
   OngiScanCommentsUseCase,
@@ -41,6 +44,8 @@ export class OngiPhotoController {
     private readonly addCommentUseCase: OngiAddCommentUseCase,
     private readonly uploadPhotosUseCase: OngiUploadPhotosUseCase,
     private readonly uploadPhotoFilesUseCase: OngiUploadPhotoFilesUseCase,
+    private readonly deletePhotoUseCase: OngiDeletePhotoUseCase,
+    private readonly deleteCommentUseCase: OngiDeleteCommentUseCase,
   ) {}
 
   @RestApiGet(OngiPhotoListResponse, { path: '/groups/:groupId/photos', description: '그룹 피드 (최신순)', auth: [USER_TYPE.CLIENT] })
@@ -80,7 +85,11 @@ export class OngiPhotoController {
       },
     }),
   )
-  @RestApiPost(OngiUploadedPhotoFilesResponse, { path: '/photos/files', description: '사진 파일 업로드 (S3) — 게시 전에 URL 을 받는다', auth: [USER_TYPE.CLIENT] })
+  @RestApiPost(OngiUploadedPhotoFilesResponse, {
+    path: '/photos/files',
+    description: '사진 파일 업로드 (S3) — 게시 전에 URL 을 받는다',
+    auth: [USER_TYPE.CLIENT],
+  })
   async uploadPhotoFiles(@AuthSignature() signature: UserSignature, @UploadedFiles() files: UploadFile[]) {
     const views = await this.uploadPhotoFilesUseCase.execute(signature.id, files ?? []);
 
@@ -120,5 +129,27 @@ export class OngiPhotoController {
     const comment = await this.addCommentUseCase.execute(signature.id, photoId, request.text.trim());
 
     return new OngiCommentResponse(comment);
+  }
+
+  @RestApiDelete(OkResponse, { path: '/photos/:photoId', description: '사진 삭제 (작성자 또는 관리자) — 댓글도 함께 삭제', auth: [USER_TYPE.CLIENT] })
+  async deletePhoto(@AuthSignature() signature: UserSignature, @Param('photoId', ParseIntPipe) photoId: number) {
+    await this.deletePhotoUseCase.execute(signature.id, photoId);
+
+    return new OkResponse();
+  }
+
+  @RestApiDelete(OkResponse, {
+    path: '/photos/:photoId/comments/:commentId',
+    description: '댓글 삭제 (댓글 작성자·사진 작성자·관리자)',
+    auth: [USER_TYPE.CLIENT],
+  })
+  async deleteComment(
+    @AuthSignature() signature: UserSignature,
+    @Param('photoId', ParseIntPipe) photoId: number,
+    @Param('commentId', ParseIntPipe) commentId: number,
+  ) {
+    await this.deleteCommentUseCase.execute(signature.id, photoId, commentId);
+
+    return new OkResponse();
   }
 }

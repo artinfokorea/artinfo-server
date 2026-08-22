@@ -2,11 +2,15 @@ import { Inject, Injectable } from '@nestjs/common';
 import { IOngiGroupRepository, ONGI_GROUP_REPOSITORY, OngiGroupSummary } from '@/ongi/group/domain/repository/ongi-group.repository.interface';
 import { IOngiMemberRepository, ONGI_MEMBER_REPOSITORY, OngiMemberView } from '@/ongi/group/domain/repository/ongi-member.repository.interface';
 import { ONGI_MEMBER_ROLE } from '@/ongi/group/domain/entity/ongi-member.entity';
+import { IOngiBlockRepository, ONGI_BLOCK_REPOSITORY } from '@/ongi/group/domain/repository/ongi-block.repository.interface';
 import {
+  OngiCannotBlockSelf,
+  OngiCannotRemoveMember,
   OngiGroupNotFound,
   OngiInviteCodeExpired,
   OngiInviteCodeNotFound,
   OngiMemberNotFound,
+  OngiNotGroupAdmin,
   OngiNotGroupMember,
 } from '@/ongi/group/domain/exception/ongi-group.exception';
 
@@ -146,7 +150,7 @@ export class OngiScanMembersUseCase {
     const me = await this.memberRepository.findByGroupIdAndUserId(groupId, userId);
     if (!me) throw new OngiNotGroupMember();
 
-    return this.memberRepository.scanViewsByGroupId(groupId);
+    return this.memberRepository.scanViewsByGroupId(groupId, userId);
   }
 }
 
@@ -158,12 +162,60 @@ export class OngiGetMemberUseCase {
   ) {}
 
   async execute(userId: number, memberId: number): Promise<OngiMemberView> {
-    const view = await this.memberRepository.getViewById(memberId);
+    const view = await this.memberRepository.getViewById(memberId, userId);
     if (!view) throw new OngiMemberNotFound();
 
     const me = await this.memberRepository.findByGroupIdAndUserId(view.member.groupId, userId);
     if (!me) throw new OngiNotGroupMember();
 
     return view;
+  }
+}
+
+@Injectable()
+export class OngiBlockMemberUseCase {
+  constructor(
+    @Inject(ONGI_MEMBER_REPOSITORY)
+    private readonly memberRepository: IOngiMemberRepository,
+
+    @Inject(ONGI_BLOCK_REPOSITORY)
+    private readonly blockRepository: IOngiBlockRepository,
+  ) {}
+
+  /** 구성원(사용자) 차단·해제 — 같은 그룹에 속해 있어야 하고 자기 자신은 불가 */
+  async execute(userId: number, memberId: number, block: boolean): Promise<void> {
+    const target = await this.memberRepository.findById(memberId);
+    if (!target) throw new OngiMemberNotFound();
+
+    const me = await this.memberRepository.findByGroupIdAndUserId(target.groupId, userId);
+    if (!me) throw new OngiNotGroupMember();
+    if (target.userId === userId) throw new OngiCannotBlockSelf();
+
+    if (block) {
+      await this.blockRepository.block(userId, target.userId);
+    } else {
+      await this.blockRepository.unblock(userId, target.userId);
+    }
+  }
+}
+
+@Injectable()
+export class OngiRemoveMemberUseCase {
+  constructor(
+    @Inject(ONGI_MEMBER_REPOSITORY)
+    private readonly memberRepository: IOngiMemberRepository,
+  ) {}
+
+  /** 관리자가 구성원을 내보낸다 — 본인·다른 관리자는 불가 */
+  async execute(userId: number, groupId: number, memberId: number): Promise<void> {
+    const me = await this.memberRepository.findByGroupIdAndUserId(groupId, userId);
+    if (!me) throw new OngiNotGroupMember();
+    if (me.role !== ONGI_MEMBER_ROLE.ADMIN) throw new OngiNotGroupAdmin();
+
+    const target = await this.memberRepository.findById(memberId);
+    if (!target || target.groupId !== groupId) throw new OngiMemberNotFound();
+    if (target.id === me.id || target.role === ONGI_MEMBER_ROLE.ADMIN) throw new OngiCannotRemoveMember();
+
+    await this.memberRepository.softDeleteById(target.id);
   }
 }

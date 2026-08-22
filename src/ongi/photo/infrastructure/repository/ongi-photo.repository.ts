@@ -98,4 +98,34 @@ export class OngiPhotoRepository implements IOngiPhotoRepository {
 
     return comment;
   }
+
+  async findCommentById(id: number): Promise<OngiPhotoComment | null> {
+    return this.commentRepository.findOneBy({ id });
+  }
+
+  async softDeletePhoto(photoId: number): Promise<void> {
+    await this.photoRepository.manager.transaction(async manager => {
+      await manager.softDelete(OngiPhotoComment, { photoId });
+      await manager.softDelete(OngiPhoto, { id: photoId });
+    });
+  }
+
+  async softDeleteComment(commentId: number, photoId: number): Promise<void> {
+    await this.photoRepository.manager.transaction(async manager => {
+      const result = await manager.softDelete(OngiPhotoComment, { id: commentId, photoId });
+      if (result.affected) {
+        await manager.decrement(OngiPhoto, { id: photoId }, 'commentCount', 1);
+      }
+    });
+  }
+
+  async memberIdsOfUsers(userIds: number[]): Promise<number[]> {
+    if (userIds.length === 0) return [];
+
+    const rows: { id: number }[] = await this.photoRepository.manager.query(`SELECT id FROM ongi_members WHERE user_id = ANY($1) AND deleted_at IS NULL`, [
+      userIds,
+    ]);
+
+    return rows.map(row => Number(row.id));
+  }
 }

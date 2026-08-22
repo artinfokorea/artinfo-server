@@ -23,6 +23,12 @@ export class OngiMemberResponse {
   @ApiProperty({ type: String, nullable: true, description: '아바타 이미지 URL' })
   avatarUrl: string | null;
 
+  @ApiProperty({ type: Boolean, description: '내가 이 구성원을 차단했는지' })
+  blockedByMe: boolean;
+
+  @ApiProperty({ type: Boolean, description: '내 구성원 레코드인지' })
+  isMe: boolean;
+
   constructor(view: OngiMemberView) {
     this.id = String(view.member.id);
     this.groupId = String(view.member.groupId);
@@ -31,6 +37,8 @@ export class OngiMemberResponse {
     this.role = view.member.role;
     this.photoCount = view.photoCount;
     this.avatarUrl = view.member.avatarUrl;
+    this.blockedByMe = view.blockedByMe;
+    this.isMe = view.isMe;
   }
 }
 

@@ -1,16 +1,25 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IOngiPhotoRepository, ONGI_PHOTO_REPOSITORY, OngiPhotoView } from '@/ongi/photo/domain/repository/ongi-photo.repository.interface';
 import { IOngiMemberRepository, ONGI_MEMBER_REPOSITORY } from '@/ongi/group/domain/repository/ongi-member.repository.interface';
+import { IOngiBlockRepository, ONGI_BLOCK_REPOSITORY } from '@/ongi/group/domain/repository/ongi-block.repository.interface';
 import { IOngiAlbumRepository, ONGI_ALBUM_REPOSITORY } from '@/ongi/album/domain/repository/ongi-album.repository.interface';
 import { IOngiPersonRepository, ONGI_PERSON_REPOSITORY } from '@/ongi/person/domain/repository/ongi-person.repository.interface';
 import { OngiPhoto } from '@/ongi/photo/domain/entity/ongi-photo.entity';
 import { OngiPhotoComment } from '@/ongi/photo/domain/entity/ongi-photo-comment.entity';
-import { OngiMember } from '@/ongi/group/domain/entity/ongi-member.entity';
+import { ONGI_MEMBER_ROLE, OngiMember } from '@/ongi/group/domain/entity/ongi-member.entity';
 import { OngiUploadPhotosCommand } from '@/ongi/photo/application/command/ongi-upload-photos.command';
 import { OngiNotGroupMember } from '@/ongi/group/domain/exception/ongi-group.exception';
 import { OngiAlbumNotFound } from '@/ongi/album/domain/exception/ongi-album.exception';
 import { OngiPersonNotFound } from '@/ongi/person/domain/exception/ongi-person.exception';
-import { OngiAlbumNotInGroup, OngiPhotoNotFound, OngiUploadPhotoRequired, OngiUploadTargetRequired } from '@/ongi/photo/domain/exception/ongi-photo.exception';
+import {
+  OngiAlbumNotInGroup,
+  OngiCommentDeleteForbidden,
+  OngiCommentNotFound,
+  OngiPhotoDeleteForbidden,
+  OngiPhotoNotFound,
+  OngiUploadPhotoRequired,
+  OngiUploadTargetRequired,
+} from '@/ongi/photo/domain/exception/ongi-photo.exception';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { UploadFile } from '@/common/type/type';
 import { Util } from '@/common/util/util';
@@ -26,6 +35,12 @@ export class OngiPhotoAccessService {
   constructor(
     @Inject(ONGI_MEMBER_REPOSITORY)
     private readonly memberRepository: IOngiMemberRepository,
+
+    @Inject(ONGI_BLOCK_REPOSITORY)
+    private readonly blockRepository: IOngiBlockRepository,
+
+    @Inject(ONGI_PHOTO_REPOSITORY)
+    private readonly photoRepository: IOngiPhotoRepository,
   ) {}
 
   async requireMember(groupId: number, userId: number): Promise<OngiMember> {
@@ -33,6 +48,23 @@ export class OngiPhotoAccessService {
     if (!member) throw new OngiNotGroupMember();
 
     return member;
+  }
+
+  /** 내가 차단한 사용자들의 구성원 id — 이 작성자의 사진·댓글은 나에게 숨긴다. 내 콘텐츠는 절대 숨기지 않는다 */
+  async blockedMemberIdsOf(userId: number): Promise<Set<number>> {
+    const blockedUserIds = (await this.blockRepository.blockedUserIdsOf(userId)).filter(id => id !== userId);
+    if (blockedUserIds.length === 0) return new Set();
+
+    return new Set(await this.photoRepository.memberIdsOfUsers(blockedUserIds));
+  }
+
+  /** 차단한 사용자가 쓴 항목 제거 */
+  async withoutBlocked<T extends { authorMemberId: number }>(userId: number, items: T[]): Promise<T[]> {
+    if (items.length === 0) return items;
+    const blocked = await this.blockedMemberIdsOf(userId);
+    if (blocked.size === 0) return items;
+
+    return items.filter(item => !blocked.has(item.authorMemberId));
   }
 }
 
@@ -48,7 +80,7 @@ export class OngiScanFeedUseCase {
   async execute(userId: number, groupId: number): Promise<OngiPhotoView[]> {
     await this.accessService.requireMember(groupId, userId);
 
-    const photos = await this.photoRepository.scanByGroupId(groupId);
+    const photos = await this.accessService.withoutBlocked(userId, await this.photoRepository.scanByGroupId(groupId));
 
     return toViews(this.photoRepository, userId, photos);
   }
@@ -72,7 +104,7 @@ export class OngiScanAlbumPhotosUseCase {
 
     await this.accessService.requireMember(album.groupId, userId);
 
-    const photos = await this.photoRepository.scanByAlbumId(albumId);
+    const photos = await this.accessService.withoutBlocked(userId, await this.photoRepository.scanByAlbumId(albumId));
 
     return toViews(this.photoRepository, userId, photos);
   }
@@ -96,7 +128,7 @@ export class OngiScanPersonPhotosUseCase {
 
     await this.accessService.requireMember(person.groupId, userId);
 
-    const photos = await this.photoRepository.scanByPersonId(person.groupId, personId);
+    const photos = await this.accessService.withoutBlocked(userId, await this.photoRepository.scanByPersonId(person.groupId, personId));
 
     return toViews(this.photoRepository, userId, photos);
   }
@@ -161,7 +193,54 @@ export class OngiScanCommentsUseCase {
 
     await this.accessService.requireMember(photo.groupId, userId);
 
-    return this.photoRepository.scanCommentsByPhotoId(photoId);
+    return this.accessService.withoutBlocked(userId, await this.photoRepository.scanCommentsByPhotoId(photoId));
+  }
+}
+
+@Injectable()
+export class OngiDeletePhotoUseCase {
+  constructor(
+    @Inject(ONGI_PHOTO_REPOSITORY)
+    private readonly photoRepository: IOngiPhotoRepository,
+
+    private readonly accessService: OngiPhotoAccessService,
+  ) {}
+
+  /** 사진 삭제 — 작성자 본인 또는 그룹 관리자. 달린 댓글도 함께 삭제 */
+  async execute(userId: number, photoId: number): Promise<void> {
+    const photo = await this.photoRepository.findById(photoId);
+    if (!photo) throw new OngiPhotoNotFound();
+
+    const me = await this.accessService.requireMember(photo.groupId, userId);
+    const allowed = photo.authorMemberId === me.id || me.role === ONGI_MEMBER_ROLE.ADMIN;
+    if (!allowed) throw new OngiPhotoDeleteForbidden();
+
+    await this.photoRepository.softDeletePhoto(photoId);
+  }
+}
+
+@Injectable()
+export class OngiDeleteCommentUseCase {
+  constructor(
+    @Inject(ONGI_PHOTO_REPOSITORY)
+    private readonly photoRepository: IOngiPhotoRepository,
+
+    private readonly accessService: OngiPhotoAccessService,
+  ) {}
+
+  /** 댓글 삭제 — 댓글 작성자, 사진 작성자, 그룹 관리자 */
+  async execute(userId: number, photoId: number, commentId: number): Promise<void> {
+    const photo = await this.photoRepository.findById(photoId);
+    if (!photo) throw new OngiPhotoNotFound();
+
+    const comment = await this.photoRepository.findCommentById(commentId);
+    if (!comment || comment.photoId !== photo.id) throw new OngiCommentNotFound();
+
+    const me = await this.accessService.requireMember(photo.groupId, userId);
+    const allowed = comment.authorMemberId === me.id || photo.authorMemberId === me.id || me.role === ONGI_MEMBER_ROLE.ADMIN;
+    if (!allowed) throw new OngiCommentDeleteForbidden();
+
+    await this.photoRepository.softDeleteComment(comment.id, photo.id);
   }
 }
 
@@ -252,7 +331,7 @@ export class OngiScanUnfiledPhotosUseCase {
   async execute(userId: number, groupId: number): Promise<OngiPhotoView[]> {
     await this.accessService.requireMember(groupId, userId);
 
-    const photos = await this.photoRepository.scanUnfiledByGroupId(groupId);
+    const photos = await this.accessService.withoutBlocked(userId, await this.photoRepository.scanUnfiledByGroupId(groupId));
 
     return toViews(this.photoRepository, userId, photos);
   }

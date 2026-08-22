@@ -86,9 +86,49 @@ export class OngiUserRepository implements IOngiUserRepository {
     };
   }
 
+  /**
+   * 회원 탈퇴 — 계정과 연관 데이터를 한 트랜잭션에서 삭제한다 (App Store 5.1.1(v)).
+   * - 사용자 행은 익명화 후 소프트 삭제 (sns_id 를 바꿔 같은 계정으로 재가입 가능)
+   * - 구성원·사진·댓글·자동 생성 인물은 소프트 삭제, 좋아요·차단·토큰은 즉시 삭제
+   * - S3 에 올라간 이미지 파일 자체는 삭제하지 않는다 (추후 배치 정리 대상)
+   */
   async softDeleteById(id: number): Promise<void> {
-    await this.userRepository.softDelete({ id });
-    // 발급된 로그인 토큰도 즉시 무효화
-    await this.userRepository.manager.query(`DELETE FROM ongi_auths WHERE user_id = $1`, [id]);
+    await this.userRepository.manager.transaction(async manager => {
+      await manager.query(
+        `UPDATE ongi_users
+            SET name = '탈퇴한 사용자',
+                email = NULL,
+                icon_image_url = NULL,
+                sns_id = 'deleted:' || id || ':' || sns_id,
+                deleted_at = now()
+          WHERE id = $1 AND deleted_at IS NULL`,
+        [id],
+      );
+
+      await manager.query(
+        `UPDATE ongi_photo_comments SET deleted_at = now()
+          WHERE deleted_at IS NULL
+            AND author_member_id IN (SELECT id FROM ongi_members WHERE user_id = $1)`,
+        [id],
+      );
+      await manager.query(
+        `UPDATE ongi_photos SET deleted_at = now()
+          WHERE deleted_at IS NULL
+            AND author_member_id IN (SELECT id FROM ongi_members WHERE user_id = $1)`,
+        [id],
+      );
+      await manager.query(
+        `UPDATE ongi_people SET deleted_at = now()
+          WHERE deleted_at IS NULL
+            AND member_id IN (SELECT id FROM ongi_members WHERE user_id = $1)`,
+        [id],
+      );
+      await manager.query(`UPDATE ongi_members SET deleted_at = now() WHERE user_id = $1 AND deleted_at IS NULL`, [id]);
+
+      await manager.query(`DELETE FROM ongi_photo_likes WHERE user_id = $1`, [id]);
+      await manager.query(`DELETE FROM ongi_blocks WHERE user_id = $1 OR blocked_user_id = $1`, [id]);
+      // 발급된 로그인 토큰도 즉시 무효화
+      await manager.query(`DELETE FROM ongi_auths WHERE user_id = $1`, [id]);
+    });
   }
 }

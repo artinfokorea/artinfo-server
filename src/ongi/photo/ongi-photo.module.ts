@@ -8,6 +8,8 @@ import { OngiPhotoRepository } from '@/ongi/photo/infrastructure/repository/ongi
 import { OngiPhotoController } from '@/ongi/photo/presentation/controller/ongi-photo.controller';
 import {
   OngiAddCommentUseCase,
+  OngiDeleteCommentUseCase,
+  OngiDeletePhotoUseCase,
   OngiGetPhotoUseCase,
   OngiPhotoAccessService,
   OngiScanAlbumPhotosUseCase,
@@ -40,7 +42,10 @@ import { OngiPersonModule } from '@/ongi/person/ongi-person.module';
     OngiAddCommentUseCase,
     OngiUploadPhotosUseCase,
     OngiUploadPhotoFilesUseCase,
+    OngiDeletePhotoUseCase,
+    OngiDeleteCommentUseCase,
     AwsS3Service,
   ],
+  exports: [ONGI_PHOTO_REPOSITORY],
 })
 export class OngiPhotoModule {}

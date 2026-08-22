@@ -21,7 +21,7 @@ export class OngiScanPeopleUseCase {
     // 그룹 구성원은 자동으로 인물에 나타난다 — 아직 인물로 등록되지 않은 구성원을 동기화
     const people = await this.personRepository.scanViewsByGroupId(groupId);
     const linkedMemberIds = new Set(people.map(view => view.person.memberId).filter((id): id is number => id != null));
-    const memberViews = await this.memberRepository.scanViewsByGroupId(groupId);
+    const memberViews = await this.memberRepository.scanViewsByGroupId(groupId, userId);
     const missing = memberViews.filter(view => !linkedMemberIds.has(view.member.id));
 
     if (missing.length === 0) return people;

@@ -59,3 +59,39 @@ export class OngiMemberNotFound extends HttpException {
     );
   }
 }
+
+export class OngiCannotBlockSelf extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONGI-GROUP-006',
+        message: '자기 자신은 차단할 수 없어요.',
+      },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+}
+
+export class OngiNotGroupAdmin extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONGI-GROUP-007',
+        message: '관리자만 할 수 있어요.',
+      },
+      HttpStatus.FORBIDDEN,
+    );
+  }
+}
+
+export class OngiCannotRemoveMember extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONGI-GROUP-008',
+        message: '본인이나 다른 관리자는 내보낼 수 없어요.',
+      },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+}

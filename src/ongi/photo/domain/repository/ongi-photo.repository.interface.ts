@@ -21,4 +21,11 @@ export interface IOngiPhotoRepository {
   toggleLike(photoId: number, userId: number): Promise<boolean>;
   scanCommentsByPhotoId(photoId: number): Promise<OngiPhotoComment[]>;
   createComment(creator: OngiPhotoCommentCreator): Promise<OngiPhotoComment>;
+  findCommentById(id: number): Promise<OngiPhotoComment | null>;
+  /** 사진과 달린 댓글을 함께 소프트 삭제 */
+  softDeletePhoto(photoId: number): Promise<void>;
+  /** 댓글 소프트 삭제 + 사진 댓글 수 감소 */
+  softDeleteComment(commentId: number, photoId: number): Promise<void>;
+  /** 사용자들이 가진 구성원 id 목록 (삭제되지 않은 구성원) — 차단 사용자 콘텐츠 필터용 */
+  memberIdsOfUsers(userIds: number[]): Promise<number[]>;
 }

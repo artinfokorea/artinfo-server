@@ -47,3 +47,39 @@ export class OngiAlbumNotInGroup extends HttpException {
     );
   }
 }
+
+export class OngiPhotoDeleteForbidden extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONGI-PHOTO-005',
+        message: '이 사진을 삭제할 권한이 없어요.',
+      },
+      HttpStatus.FORBIDDEN,
+    );
+  }
+}
+
+export class OngiCommentDeleteForbidden extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONGI-PHOTO-006',
+        message: '이 댓글을 삭제할 권한이 없어요.',
+      },
+      HttpStatus.FORBIDDEN,
+    );
+  }
+}
+
+export class OngiCommentNotFound extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONGI-PHOTO-007',
+        message: '댓글을 찾을 수 없어요.',
+      },
+      HttpStatus.NOT_FOUND,
+    );
+  }
+}
