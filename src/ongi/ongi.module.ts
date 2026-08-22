@@ -6,8 +6,9 @@ import { OngiPersonModule } from '@/ongi/person/ongi-person.module';
 import { OngiAlbumModule } from '@/ongi/album/ongi-album.module';
 import { OngiPhotoModule } from '@/ongi/photo/ongi-photo.module';
 import { OngiLegalModule } from '@/ongi/legal/ongi-legal.module';
+import { OngiNotificationModule } from '@/ongi/notification/ongi-notification.module';
 
 @Module({
-  imports: [OngiAuthModule, OngiUserModule, OngiGroupModule, OngiPersonModule, OngiAlbumModule, OngiPhotoModule, OngiLegalModule],
+  imports: [OngiAuthModule, OngiUserModule, OngiGroupModule, OngiPersonModule, OngiAlbumModule, OngiPhotoModule, OngiLegalModule, OngiNotificationModule],
 })
 export class OngiModule {}

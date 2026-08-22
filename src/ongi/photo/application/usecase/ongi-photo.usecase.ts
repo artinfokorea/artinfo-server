@@ -12,6 +12,7 @@ import { OngiAlbumNotFound } from '@/ongi/album/domain/exception/ongi-album.exce
 import { OngiPersonNotFound } from '@/ongi/person/domain/exception/ongi-person.exception';
 import { OngiAlbumNotInGroup, OngiPhotoNotFound, OngiUploadPhotoRequired, OngiUploadTargetRequired } from '@/ongi/photo/domain/exception/ongi-photo.exception';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
+import { OngiNotifyService } from '@/ongi/notification/application/usecase/ongi-notification.usecase';
 import { UploadFile } from '@/common/type/type';
 import { Util } from '@/common/util/util';
 import * as moment from 'moment/moment';
@@ -130,17 +131,23 @@ export class OngiToggleLikeUseCase {
     private readonly photoRepository: IOngiPhotoRepository,
 
     private readonly accessService: OngiPhotoAccessService,
+    private readonly notifyService: OngiNotifyService,
   ) {}
 
   async execute(userId: number, photoId: number): Promise<OngiPhotoView> {
     const photo = await this.photoRepository.findById(photoId);
     if (!photo) throw new OngiPhotoNotFound();
 
-    await this.accessService.requireMember(photo.groupId, userId);
+    const me = await this.accessService.requireMember(photo.groupId, userId);
 
     const likedByMe = await this.photoRepository.toggleLike(photoId, userId);
     const updated = await this.photoRepository.findById(photoId);
     if (!updated) throw new OngiPhotoNotFound();
+
+    // 좋아요를 켠 경우에만 사진 작성자에게 알림 (해제는 알리지 않음)
+    if (likedByMe) {
+      await this.notifyService.photoLiked(updated, me);
+    }
 
     return { photo: updated, likedByMe };
   }
@@ -172,6 +179,7 @@ export class OngiAddCommentUseCase {
     private readonly photoRepository: IOngiPhotoRepository,
 
     private readonly accessService: OngiPhotoAccessService,
+    private readonly notifyService: OngiNotifyService,
   ) {}
 
   async execute(userId: number, photoId: number, text: string): Promise<OngiPhotoComment> {
@@ -181,7 +189,11 @@ export class OngiAddCommentUseCase {
     // 작성자는 요청 본문이 아니라 세션에서 유도 — 사진이 속한 그룹의 내 구성원 레코드
     const me = await this.accessService.requireMember(photo.groupId, userId);
 
-    return this.photoRepository.createComment({ photoId, authorMemberId: me.id, text });
+    const comment = await this.photoRepository.createComment({ photoId, authorMemberId: me.id, text });
+
+    await this.notifyService.commentAdded(photo, me, text);
+
+    return comment;
   }
 }
 
@@ -198,6 +210,7 @@ export class OngiUploadPhotosUseCase {
     private readonly personRepository: IOngiPersonRepository,
 
     private readonly accessService: OngiPhotoAccessService,
+    private readonly notifyService: OngiNotifyService,
   ) {}
 
   /** 선택한 모든 그룹에 동시에 게시 — 그룹마다 독립 게시물이 생겨 좋아요·댓글이 분리됩니다 */
@@ -219,6 +232,7 @@ export class OngiUploadPhotosUseCase {
       const people = await this.personRepository.scanByGroupIdAndIds(target.groupId, target.personIds);
       const personIds = people.map(person => person.id);
 
+      const targetPhotos: OngiPhoto[] = [];
       for (let i = 0; i < command.photos.length; i++) {
         const item = command.photos[i];
         const photo = await this.photoRepository.create({
@@ -232,7 +246,11 @@ export class OngiUploadPhotosUseCase {
           personIds,
         });
         created.push(photo);
+        targetPhotos.push(photo);
       }
+
+      // 올린 사람을 제외한 그룹 전원에게 새 사진 알림
+      await this.notifyService.photoUploaded(target.groupId, me, targetPhotos);
     }
 
     return created.map(photo => ({ photo, likedByMe: false }));
