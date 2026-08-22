@@ -18,6 +18,27 @@ export class OngiScanPeopleUseCase {
     const me = await this.memberRepository.findByGroupIdAndUserId(groupId, userId);
     if (!me) throw new OngiNotGroupMember();
 
+    // 그룹 구성원은 자동으로 인물에 나타난다 — 아직 인물로 등록되지 않은 구성원을 동기화
+    const people = await this.personRepository.scanViewsByGroupId(groupId);
+    const linkedMemberIds = new Set(people.map(view => view.person.memberId).filter((id): id is number => id != null));
+    const memberViews = await this.memberRepository.scanViewsByGroupId(groupId);
+    const missing = memberViews.filter(view => !linkedMemberIds.has(view.member.id));
+
+    if (missing.length === 0) return people;
+
+    for (const view of missing) {
+      try {
+        await this.personRepository.create({
+          groupId,
+          name: view.member.name,
+          imageUrl: view.member.avatarUrl,
+          memberId: view.member.id,
+        });
+      } catch {
+        // 동시 조회로 이미 생성된 경우 (unique index) — 무시
+      }
+    }
+
     return this.personRepository.scanViewsByGroupId(groupId);
   }
 }

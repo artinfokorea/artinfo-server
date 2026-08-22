@@ -16,6 +16,7 @@ export class OngiPersonRepository implements IOngiPersonRepository {
       groupId: creator.groupId,
       name: creator.name,
       imageUrl: creator.imageUrl,
+      memberId: creator.memberId ?? null,
     });
   }
 
