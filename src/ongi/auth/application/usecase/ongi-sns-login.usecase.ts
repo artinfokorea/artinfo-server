@@ -14,8 +14,8 @@ export interface OngiLoginResult {
 /**
  * 온기 소셜 로그인 — 가입돼 있지 않으면 자동 가입 후 로그인합니다.
  *
- * token 없이 호출하는 개발용 로그인(`dev-{provider}` 계정)은 로컬 개발(NODE_ENV !== 'production')에서만 허용합니다.
- * 운영 환경에서는 예외 없이 token 이 필수입니다 — 과거의 ONGI_ALLOW_DEV_LOGIN 우회 플래그는 앱스토어 출시를 위해 제거했습니다.
+ * token 없이 호출하는 개발용 로그인(`dev-{provider}` 계정)은 로컬 .env 에 ONGI_DEV_LOGIN=true 를 명시한 경우에만 허용합니다.
+ * 기본값은 "차단" — NODE_ENV 가 잘못 설정된 배포 환경에서도 열리지 않도록 opt-in 으로 둡니다 (배포 워크플로는 이 변수를 주입하지 않음).
  */
 @Injectable()
 export class OngiSnsLoginUseCase {
@@ -54,7 +54,7 @@ export class OngiSnsLoginUseCase {
       return this.snsClient.getUserInfo(token, type);
     }
 
-    if (process.env['NODE_ENV'] === 'production') throw new OngiSnsTokenRequired();
+    if (process.env['ONGI_DEV_LOGIN'] !== 'true') throw new OngiSnsTokenRequired();
 
     return { snsId: `dev-${type}`, name: null, email: null, iconImageUrl: null };
   }
