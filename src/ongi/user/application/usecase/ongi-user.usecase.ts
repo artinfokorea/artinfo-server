@@ -1,6 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IOngiUserRepository, ONGI_USER_REPOSITORY, OngiProfileStats } from '@/ongi/user/domain/repository/ongi-user.repository.interface';
 import { OngiUser } from '@/ongi/user/domain/entity/ongi-user.entity';
+import { AwsS3Service } from '@/aws/s3/aws-s3.service';
+import { UploadFile } from '@/common/type/type';
+import { Util } from '@/common/util/util';
 
 export interface OngiStorageInfo {
   usedGb: number;
@@ -60,5 +63,42 @@ export class OngiDeleteAccountUseCase {
   async execute(userId: number): Promise<void> {
     await this.userRepository.findOneOrThrowById(userId);
     await this.userRepository.softDeleteById(userId);
+  }
+}
+
+@Injectable()
+export class OngiUpdateMeUseCase {
+  constructor(
+    @Inject(ONGI_USER_REPOSITORY)
+    private readonly userRepository: IOngiUserRepository,
+  ) {}
+
+  /** 이름 변경 — 구성원·자동 생성 인물에도 전파된다 */
+  async execute(userId: number, name: string): Promise<OngiUser> {
+    await this.userRepository.updateProfile(userId, { name });
+
+    return this.userRepository.findOneOrThrowById(userId);
+  }
+}
+
+@Injectable()
+export class OngiUploadAvatarUseCase {
+  constructor(
+    @Inject(ONGI_USER_REPOSITORY)
+    private readonly userRepository: IOngiUserRepository,
+
+    private readonly awsS3Service: AwsS3Service,
+  ) {}
+
+  /** 프로필 이미지 업로드 — S3 에 올리고 사용자·구성원·인물 이미지를 갱신한다 */
+  async execute(userId: number, file: UploadFile): Promise<OngiUser> {
+    const extension = file.originalname.includes('.') ? file.originalname.split('.').pop()!.toLowerCase() : 'jpg';
+    const filename = new Util().generateRandomString(11) + '.' + Date.now() + '.' + extension;
+    const path = ['ongi', 'avatars', userId, filename].join('/');
+
+    const result = await this.awsS3Service.uploadStream(file.buffer, file.mimetype || 'image/jpeg', path);
+    await this.userRepository.updateProfile(userId, { iconImageUrl: result!.location });
+
+    return this.userRepository.findOneOrThrowById(userId);
   }
 }

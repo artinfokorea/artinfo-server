@@ -37,6 +37,35 @@ export class OngiUserRepository implements IOngiUserRepository {
     return this.userRepository.findOneBy({ snsType, snsId });
   }
 
+  async updateProfile(userId: number, patch: { name?: string; iconImageUrl?: string }): Promise<void> {
+    const userPatch: Partial<OngiUser> = {};
+    if (patch.name !== undefined) userPatch.name = patch.name;
+    if (patch.iconImageUrl !== undefined) userPatch.iconImageUrl = patch.iconImageUrl;
+    if (Object.keys(userPatch).length === 0) return;
+
+    await this.userRepository.manager.transaction(async manager => {
+      await manager.getRepository(OngiUser).update({ id: userId }, userPatch);
+
+      // 피드·인물 표시가 어긋나지 않도록 구성원과 자동 생성 인물에도 전파
+      if (patch.name !== undefined) {
+        await manager.query('UPDATE ongi_members SET name = $1 WHERE user_id = $2 AND deleted_at IS NULL', [patch.name, userId]);
+        await manager.query(
+          `UPDATE ongi_people SET name = $1
+            WHERE member_id IN (SELECT id FROM ongi_members WHERE user_id = $2) AND deleted_at IS NULL`,
+          [patch.name, userId],
+        );
+      }
+      if (patch.iconImageUrl !== undefined) {
+        await manager.query('UPDATE ongi_members SET avatar_url = $1 WHERE user_id = $2 AND deleted_at IS NULL', [patch.iconImageUrl, userId]);
+        await manager.query(
+          `UPDATE ongi_people SET image_url = $1
+            WHERE member_id IN (SELECT id FROM ongi_members WHERE user_id = $2) AND deleted_at IS NULL`,
+          [patch.iconImageUrl, userId],
+        );
+      }
+    });
+  }
+
   async getProfileStats(userId: number): Promise<OngiProfileStats> {
     const [row] = await this.userRepository.manager.query(
       `SELECT

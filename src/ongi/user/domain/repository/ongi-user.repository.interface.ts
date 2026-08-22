@@ -14,6 +14,8 @@ export interface IOngiUserRepository {
   findById(id: number): Promise<OngiUser | null>;
   findOneOrThrowById(id: number): Promise<OngiUser>;
   findBySnsId(snsType: ONGI_SNS_TYPE, snsId: string): Promise<OngiUser | null>;
+  /** 프로필 수정 — 구성원(ongi_members)·자동 생성 인물(ongi_people)에도 이름·이미지를 전파한다 */
+  updateProfile(userId: number, patch: { name?: string; iconImageUrl?: string }): Promise<void>;
   getProfileStats(userId: number): Promise<OngiProfileStats>;
   softDeleteById(id: number): Promise<void>;
 }
