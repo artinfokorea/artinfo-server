@@ -13,6 +13,7 @@ import {
   OngiScanCommentsUseCase,
   OngiScanFeedUseCase,
   OngiScanPersonPhotosUseCase,
+  OngiScanUnfiledPhotosUseCase,
   OngiToggleLikeUseCase,
   OngiUploadPhotoFilesUseCase,
   OngiUploadPhotosUseCase,
@@ -33,6 +34,7 @@ export class OngiPhotoController {
     private readonly scanFeedUseCase: OngiScanFeedUseCase,
     private readonly scanAlbumPhotosUseCase: OngiScanAlbumPhotosUseCase,
     private readonly scanPersonPhotosUseCase: OngiScanPersonPhotosUseCase,
+    private readonly scanUnfiledPhotosUseCase: OngiScanUnfiledPhotosUseCase,
     private readonly getPhotoUseCase: OngiGetPhotoUseCase,
     private readonly toggleLikeUseCase: OngiToggleLikeUseCase,
     private readonly scanCommentsUseCase: OngiScanCommentsUseCase,
@@ -44,6 +46,13 @@ export class OngiPhotoController {
   @RestApiGet(OngiPhotoListResponse, { path: '/groups/:groupId/photos', description: '그룹 피드 (최신순)', auth: [USER_TYPE.CLIENT] })
   async scanFeed(@AuthSignature() signature: UserSignature, @Param('groupId', ParseIntPipe) groupId: number) {
     const views = await this.scanFeedUseCase.execute(signature.id, groupId);
+
+    return new OngiPhotoListResponse(views);
+  }
+
+  @RestApiGet(OngiPhotoListResponse, { path: '/groups/:groupId/photos/unfiled', description: '앨범에 담기지 않은 사진 (최신순)', auth: [USER_TYPE.CLIENT] })
+  async scanUnfiledPhotos(@AuthSignature() signature: UserSignature, @Param('groupId', ParseIntPipe) groupId: number) {
+    const views = await this.scanUnfiledPhotosUseCase.execute(signature.id, groupId);
 
     return new OngiPhotoListResponse(views);
   }

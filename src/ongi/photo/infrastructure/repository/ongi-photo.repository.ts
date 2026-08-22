@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, IsNull, Repository } from 'typeorm';
 import { IOngiPhotoRepository } from '@/ongi/photo/domain/repository/ongi-photo.repository.interface';
 import { OngiPhoto, OngiPhotoCreator } from '@/ongi/photo/domain/entity/ongi-photo.entity';
 import { OngiPhotoLike } from '@/ongi/photo/domain/entity/ongi-photo-like.entity';
@@ -42,6 +42,10 @@ export class OngiPhotoRepository implements IOngiPhotoRepository {
 
   async scanByAlbumId(albumId: number): Promise<OngiPhoto[]> {
     return this.photoRepository.find({ where: { albumId }, order: { createdAt: 'DESC', id: 'DESC' } });
+  }
+
+  async scanUnfiledByGroupId(groupId: number): Promise<OngiPhoto[]> {
+    return this.photoRepository.find({ where: { groupId, albumId: IsNull() }, order: { createdAt: 'DESC', id: 'DESC' } });
   }
 
   async scanByPersonId(groupId: number, personId: number): Promise<OngiPhoto[]> {

@@ -14,6 +14,7 @@ export interface IOngiPhotoRepository {
   findById(id: number): Promise<OngiPhoto | null>;
   scanByGroupId(groupId: number): Promise<OngiPhoto[]>;
   scanByAlbumId(albumId: number): Promise<OngiPhoto[]>;
+  scanUnfiledByGroupId(groupId: number): Promise<OngiPhoto[]>;
   scanByPersonId(groupId: number, personId: number): Promise<OngiPhoto[]>;
   likedPhotoIdsOf(userId: number, photoIds: number[]): Promise<number[]>;
   /** 좋아요 토글 — 토글 후 좋아요 상태를 반환 */

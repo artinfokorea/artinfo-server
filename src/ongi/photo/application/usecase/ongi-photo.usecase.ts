@@ -240,6 +240,25 @@ export class OngiUploadPhotosUseCase {
 }
 
 @Injectable()
+export class OngiScanUnfiledPhotosUseCase {
+  constructor(
+    @Inject(ONGI_PHOTO_REPOSITORY)
+    private readonly photoRepository: IOngiPhotoRepository,
+
+    private readonly accessService: OngiPhotoAccessService,
+  ) {}
+
+  /** 앨범에 담기지 않은 그룹 사진 (최신순) */
+  async execute(userId: number, groupId: number): Promise<OngiPhotoView[]> {
+    await this.accessService.requireMember(groupId, userId);
+
+    const photos = await this.photoRepository.scanUnfiledByGroupId(groupId);
+
+    return toViews(this.photoRepository, userId, photos);
+  }
+}
+
+@Injectable()
 export class OngiUploadPhotoFilesUseCase {
   constructor(private readonly awsS3Service: AwsS3Service) {}
 
