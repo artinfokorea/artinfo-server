@@ -23,6 +23,18 @@ export class OngiAlbumRepository implements IOngiAlbumRepository {
     return this.albumRepository.findOneBy({ id });
   }
 
+  async rename(id: number, title: string): Promise<void> {
+    await this.albumRepository.update({ id }, { title });
+  }
+
+  async softDeleteAndDetachPhotos(id: number): Promise<void> {
+    await this.albumRepository.manager.transaction(async manager => {
+      // 담긴 사진은 지우지 않고 미분류로 — ongi_photos.album_id 만 비운다
+      await manager.query('UPDATE ongi_photos SET album_id = NULL WHERE album_id = $1', [id]);
+      await manager.getRepository(OngiAlbum).softDelete({ id });
+    });
+  }
+
   async scanViewsByGroupId(groupId: number): Promise<OngiAlbumView[]> {
     const albums = await this.albumRepository.find({ where: { groupId }, order: { id: 'ASC' } });
 

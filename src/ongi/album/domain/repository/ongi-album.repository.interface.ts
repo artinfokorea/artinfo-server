@@ -16,4 +16,7 @@ export interface IOngiAlbumRepository {
   findById(id: number): Promise<OngiAlbum | null>;
   scanViewsByGroupId(groupId: number): Promise<OngiAlbumView[]>;
   getViewById(id: number): Promise<OngiAlbumView | null>;
+  rename(id: number, title: string): Promise<void>;
+  /** 앨범 소프트 삭제 — 담긴 사진은 지우지 않고 미분류(album_id NULL)로 되돌린다 */
+  softDeleteAndDetachPhotos(id: number): Promise<void>;
 }

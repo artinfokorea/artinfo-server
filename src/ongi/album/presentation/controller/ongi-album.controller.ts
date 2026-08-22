@@ -1,9 +1,15 @@
 import { Body, Param, ParseIntPipe } from '@nestjs/common';
-import { RestApiController, RestApiGet, RestApiPost } from '@/common/decorator/rest-api';
+import { RestApiController, RestApiDelete, RestApiGet, RestApiPost, RestApiPut } from '@/common/decorator/rest-api';
 import { AuthSignature } from '@/common/decorator/AuthSignature';
 import { UserSignature } from '@/common/type/type';
 import { USER_TYPE } from '@/user/entity/user.entity';
-import { OngiCreateAlbumUseCase, OngiScanAlbumsUseCase } from '@/ongi/album/application/usecase/ongi-album.usecase';
+import { OkResponse } from '@/common/response/ok.response';
+import {
+  OngiCreateAlbumUseCase,
+  OngiDeleteAlbumUseCase,
+  OngiRenameAlbumUseCase,
+  OngiScanAlbumsUseCase,
+} from '@/ongi/album/application/usecase/ongi-album.usecase';
 import { OngiCreateAlbumRequest } from '@/ongi/album/presentation/dto/request/ongi-create-album.request';
 import { OngiAlbumListResponse, OngiAlbumResponse } from '@/ongi/album/presentation/dto/response/ongi-album.response';
 
@@ -26,5 +32,28 @@ export class OngiAlbumController {
     const view = await this.createAlbumUseCase.execute(signature.id, groupId, request.title.trim());
 
     return new OngiAlbumResponse(view);
+  }
+}
+
+/** 앨범 단건 조작 — 경로가 그룹이 아니라 앨범 기준이라 컨트롤러를 분리 */
+@RestApiController('/ongi/albums', 'Ongi Album')
+export class OngiAlbumItemController {
+  constructor(
+    private readonly renameAlbumUseCase: OngiRenameAlbumUseCase,
+    private readonly deleteAlbumUseCase: OngiDeleteAlbumUseCase,
+  ) {}
+
+  @RestApiPut(OngiAlbumResponse, { path: '/:albumId', description: '앨범 이름 변경', auth: [USER_TYPE.CLIENT] })
+  async renameAlbum(@AuthSignature() signature: UserSignature, @Param('albumId', ParseIntPipe) albumId: number, @Body() request: OngiCreateAlbumRequest) {
+    const view = await this.renameAlbumUseCase.execute(signature.id, albumId, request.title.trim());
+
+    return new OngiAlbumResponse(view);
+  }
+
+  @RestApiDelete(OkResponse, { path: '/:albumId', description: '앨범 삭제 — 담긴 사진은 미분류로 이동', auth: [USER_TYPE.CLIENT] })
+  async deleteAlbum(@AuthSignature() signature: UserSignature, @Param('albumId', ParseIntPipe) albumId: number) {
+    await this.deleteAlbumUseCase.execute(signature.id, albumId);
+
+    return new OkResponse();
   }
 }

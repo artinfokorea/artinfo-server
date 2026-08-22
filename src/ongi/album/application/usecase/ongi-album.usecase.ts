@@ -43,3 +43,51 @@ export class OngiCreateAlbumUseCase {
     return view;
   }
 }
+
+@Injectable()
+export class OngiRenameAlbumUseCase {
+  constructor(
+    @Inject(ONGI_ALBUM_REPOSITORY)
+    private readonly albumRepository: IOngiAlbumRepository,
+
+    @Inject(ONGI_MEMBER_REPOSITORY)
+    private readonly memberRepository: IOngiMemberRepository,
+  ) {}
+
+  async execute(userId: number, albumId: number, title: string): Promise<OngiAlbumView> {
+    const album = await this.albumRepository.findById(albumId);
+    if (!album) throw new OngiAlbumNotFound();
+
+    const me = await this.memberRepository.findByGroupIdAndUserId(album.groupId, userId);
+    if (!me) throw new OngiNotGroupMember();
+
+    await this.albumRepository.rename(albumId, title);
+
+    const view = await this.albumRepository.getViewById(albumId);
+    if (!view) throw new OngiAlbumNotFound();
+
+    return view;
+  }
+}
+
+@Injectable()
+export class OngiDeleteAlbumUseCase {
+  constructor(
+    @Inject(ONGI_ALBUM_REPOSITORY)
+    private readonly albumRepository: IOngiAlbumRepository,
+
+    @Inject(ONGI_MEMBER_REPOSITORY)
+    private readonly memberRepository: IOngiMemberRepository,
+  ) {}
+
+  /** 앨범만 삭제 — 담긴 사진은 미분류로 이동 */
+  async execute(userId: number, albumId: number): Promise<void> {
+    const album = await this.albumRepository.findById(albumId);
+    if (!album) throw new OngiAlbumNotFound();
+
+    const me = await this.memberRepository.findByGroupIdAndUserId(album.groupId, userId);
+    if (!me) throw new OngiNotGroupMember();
+
+    await this.albumRepository.softDeleteAndDetachPhotos(albumId);
+  }
+}
