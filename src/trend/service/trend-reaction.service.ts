@@ -29,9 +29,20 @@ export class TrendReactionService {
 
   async add(keyword: string, reaction: TrendReaction, previous?: TrendReaction): Promise<TrendReactionsResponse> {
     const key = reactionsCacheKey(keyword);
+    const decrement = previous && previous !== reaction;
     const multi = this.redis.redisClient.multi().hincrby(key, reaction, 1);
-    if (previous && previous !== reaction) multi.hincrby(key, previous, -1);
-    await multi.expire(key, KEY_TTL_SEC).exec();
+    if (decrement) multi.hincrby(key, previous, -1);
+    const res = await multi.expire(key, KEY_TTL_SEC).exec();
+
+    // 저장값이 음수·0으로 어긋나면 복구 — 서버에 기록되지 않은 과거 투표의 previous 차감 등.
+    // 음수를 방치하면 이후 +1이 계속 0으로 상쇄돼 "눌러도 0"이 된다.
+    const client = this.redis.redisClient;
+    const added = Number(res?.[0]?.[1] ?? 1);
+    if (added < 1) await client.hset(key, reaction, 1);
+    if (decrement) {
+      const remained = Number(res?.[1]?.[1] ?? 0);
+      if (remained < 0) await client.hset(key, previous, 0);
+    }
     return this.getCounts(keyword);
   }
 
