@@ -1,17 +1,21 @@
-import { Query } from '@nestjs/common';
-import { RestApiController, RestApiGet } from '@/common/decorator/rest-api';
+import { Body, Query } from '@nestjs/common';
+import { RestApiController, RestApiGet, RestApiPost } from '@/common/decorator/rest-api';
 import { TrendService } from '@/trend/service/trend.service';
 import { GetTrendSummaryRequest } from '@/trend/dto/request/get-trend-summary.request';
 import { TrendSummaryResponse } from '@/trend/dto/response/trend-summary.response';
 import { TrendArchiveService } from '@/trend/service/trend-archive.service';
 import { GetTrendArchiveRequest } from '@/trend/dto/request/get-trend-archive.request';
 import { TrendArchiveResponse } from '@/trend/dto/response/trend-archive.response';
+import { TrendReactionService } from '@/trend/service/trend-reaction.service';
+import { AddTrendReactionRequest, GetTrendReactionsRequest } from '@/trend/dto/request/trend-reaction.request';
+import { TrendReactionsResponse } from '@/trend/dto/response/trend-reaction.response';
 
 @RestApiController('/trend', 'Trend')
 export class TrendController {
   constructor(
     private readonly trendService: TrendService,
     private readonly archiveService: TrendArchiveService,
+    private readonly reactionService: TrendReactionService,
   ) {}
 
   @RestApiGet(TrendSummaryResponse, {
@@ -28,5 +32,21 @@ export class TrendController {
   })
   async getArchive(@Query() request: GetTrendArchiveRequest): Promise<TrendArchiveResponse> {
     return new TrendArchiveResponse(await this.archiveService.getArchive(request.from, request.to ?? request.from, request.limit));
+  }
+
+  @RestApiGet(TrendReactionsResponse, {
+    path: '/reactions',
+    description: '키워드 이슈에 대한 익명 이모지 반응 집계 (Redis, 14일 보관)',
+  })
+  async getReactions(@Query() request: GetTrendReactionsRequest): Promise<TrendReactionsResponse> {
+    return this.reactionService.getCounts(request.keyword);
+  }
+
+  @RestApiPost(TrendReactionsResponse, {
+    path: '/reactions',
+    description: '키워드 이슈에 반응 투표 — previous를 주면 이전 반응을 차감하고 새 반응으로 교체',
+  })
+  async addReaction(@Body() request: AddTrendReactionRequest): Promise<TrendReactionsResponse> {
+    return this.reactionService.add(request.keyword, request.reaction, request.previous);
   }
 }

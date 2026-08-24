@@ -13,6 +13,7 @@ import { TrendDailyHourlyTop } from '@/trend/entity/trend-daily-hourly-top.entit
 import { TrendSummaryRepository } from '@/trend/repository/trend-summary.repository';
 import { TrendDailyRepository } from '@/trend/repository/trend-daily.repository';
 import { TrendSummaryPrewarmScheduler } from '@/trend/scheduler/trend-summary-prewarm.scheduler';
+import { TrendReactionService } from '@/trend/service/trend-reaction.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([TrendSummaryEntity, TrendDailyKeyword, TrendDailyHourlyTop])],
@@ -26,6 +27,7 @@ import { TrendSummaryPrewarmScheduler } from '@/trend/scheduler/trend-summary-pr
     TrendDailyRepository,
     TrendSummaryPrewarmScheduler,
     TrendArchiveRollupScheduler,
+    TrendReactionService,
     RedisRepository,
   ],
 })
