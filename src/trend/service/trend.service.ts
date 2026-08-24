@@ -14,6 +14,8 @@ export function summaryCacheKey(region: string, keyword: string, limit = 10): st
 }
 
 const CACHE_TTL_SEC = Number(process.env['TREND_SUMMARY_CACHE_TTL_SEC'] ?? 2 * 60 * 60); // 기본 2시간
+// 캐시 만료 시 이 시간 이내의 생성 이력이 있으면 그것부터 즉시 반환 (serve-stale)
+const STALE_MAX_AGE_HOURS = Number(process.env['TREND_SUMMARY_STALE_MAX_AGE_HOURS'] ?? 6);
 const LOCK_TTL_MS = 60 * 1000; // 생성 중 락 (AI 호출 + 기사 수집 최대치보다 넉넉히)
 const WAIT_FOR_OTHER_MS = 45 * 1000; // 다른 인스턴스가 생성 중일 때 캐시를 기다리는 최대 시간
 const WAIT_POLL_MS = 1000;
@@ -31,10 +33,10 @@ export class TrendService {
     private readonly summaryRepository: TrendSummaryRepository,
   ) {}
 
-  /** 선생성 스케줄러용 — 기본 옵션(kr, 10건) 기준 캐시 존재 여부 */
-  async isCached(keyword: string, region = 'kr', limit = 10): Promise<boolean> {
+  /** 선생성 스케줄러용 — 기본 옵션(kr, 10건) 기준 캐시 남은 TTL(초). 캐시에 없으면 음수 */
+  async cacheTtlSec(keyword: string, region = 'kr', limit = 10): Promise<number> {
     const normalized = keyword.trim().replace(/\s+/g, ' ');
-    return (await this.redis.redisClient.exists(this.cacheKey(region, normalized, limit))) === 1;
+    return this.redis.redisClient.ttl(this.cacheKey(region, normalized, limit));
   }
 
   async getSummary(request: GetTrendSummaryRequest): Promise<TrendSummaryResponse> {
@@ -44,12 +46,50 @@ export class TrendService {
     const cached = await this.redis.getByKey(cacheKey);
     if (cached) return new TrendSummaryResponse({ ...cached, cached: true });
 
+    // 캐시 미스 — 최근 이력이 있으면 그것부터 즉시 반환하고, 새 요약은 백그라운드에서 생성 (클릭 대기 제거)
+    const stale = await this.findStale(keyword, request);
+
+    const pending = this.inflight.get(cacheKey);
+    if (pending) return stale ?? pending;
+
+    const task = this.generateWithLock(cacheKey, keyword, request).finally(() => this.inflight.delete(cacheKey));
+    this.inflight.set(cacheKey, task);
+    if (stale) {
+      task.catch(e => this.logger.warn(`백그라운드 재생성 실패 "${keyword}": ${(e as Error).message}`));
+      return stale;
+    }
+    return task;
+  }
+
+  /** 선생성 스케줄러용 — 캐시를 읽지 않고 새로 생성해 캐시를 덮어쓴다 (만료 전 미리 갱신) */
+  async refresh(request: GetTrendSummaryRequest): Promise<TrendSummaryResponse> {
+    const keyword = request.keyword.trim().replace(/\s+/g, ' ');
+    const cacheKey = this.cacheKey(request.region, keyword, request.limit);
+
     const pending = this.inflight.get(cacheKey);
     if (pending) return pending;
 
     const task = this.generateWithLock(cacheKey, keyword, request).finally(() => this.inflight.delete(cacheKey));
     this.inflight.set(cacheKey, task);
     return task;
+  }
+
+  private async findStale(keyword: string, request: GetTrendSummaryRequest): Promise<TrendSummaryResponse | null> {
+    const row = await this.summaryRepository.findLatest(keyword, request.region, STALE_MAX_AGE_HOURS).catch(() => null);
+    if (!row) return null;
+    return new TrendSummaryResponse({
+      keyword,
+      region: row.region,
+      headline: row.headline,
+      summary: row.summary,
+      bullets: row.bullets ?? [],
+      people: (row.people ?? []) as TrendSummaryResponse['people'],
+      articles: (row.articles ?? []) as TrendSummaryResponse['articles'],
+      model: row.model,
+      generatedAt: row.generatedAt.toISOString(),
+      cached: true,
+      stale: true,
+    });
   }
 
   private async generateWithLock(cacheKey: string, keyword: string, request: GetTrendSummaryRequest): Promise<TrendSummaryResponse> {

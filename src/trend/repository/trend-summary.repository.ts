@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { TrendSummaryEntity } from '@/trend/entity/trend-summary.entity';
 import { TrendSummaryResponse } from '@/trend/dto/response/trend-summary.response';
 
@@ -30,6 +30,14 @@ export class TrendSummaryRepository {
       articles: r.articles,
       model: r.model,
       generatedAt: new Date(r.generatedAt),
+    });
+  }
+
+  /** 키워드의 최근 요약 이력 — 캐시 만료 시 즉시 응답(serve-stale)용. maxAgeHours 밖이면 null */
+  async findLatest(keyword: string, region: string, maxAgeHours: number): Promise<TrendSummaryEntity | null> {
+    return this.repo.findOne({
+      where: { keyword, region, generatedAt: MoreThan(new Date(Date.now() - maxAgeHours * 3_600_000)) },
+      order: { generatedAt: 'DESC' },
     });
   }
 

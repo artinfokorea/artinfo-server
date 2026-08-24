@@ -80,6 +80,9 @@ export class TrendSummaryResponse {
   @ApiProperty({ description: '캐시에서 반환되었는지 여부' })
   cached: boolean;
 
+  @ApiProperty({ description: '캐시 만료 후 이전 생성 이력을 대신 반환한 경우 true (백그라운드에서 새 요약 생성 중)', required: false })
+  stale?: boolean;
+
   constructor(data: TrendSummaryResponse) {
     Object.assign(this, data);
   }

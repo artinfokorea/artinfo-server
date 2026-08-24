@@ -14,6 +14,8 @@ import { TrendArchiveService } from '@/trend/service/trend-archive.service';
 const TRENDS_URL = process.env['TREND_FRONTEND_TRENDS_URL'] || 'https://trendnews.co.kr/api/trends/all';
 const PREWARM_ENABLED = process.env['TREND_PREWARM_ENABLED'] !== 'false';
 const PREWARM_TOP_N = Number(process.env['TREND_PREWARM_TOP_N'] ?? 10);
+// 캐시 남은 TTL이 이 값 이하면 만료 전에 미리 재생성 (refresh-ahead) — 만료 직후의 요약 공백 방지
+const REFRESH_AHEAD_SEC = Number(process.env['TREND_PREWARM_REFRESH_AHEAD_SEC'] ?? 15 * 60);
 const SCHEDULER_LOCK_KEY = 'trend:prewarm:scheduler-lock';
 const SCHEDULER_LOCK_MS = 55 * 1000; // 컨테이너 2대 중 한 곳만 실행
 
@@ -44,19 +46,25 @@ export class TrendSummaryPrewarmScheduler {
 
       const keywords = items.filter(i => i.rank <= PREWARM_TOP_N).map(i => i.keyword);
 
+      // 캐시에 없는 키워드(신규 진입)를 먼저, 만료 임박 키워드(refresh-ahead)를 그 뒤에
       const missing: string[] = [];
+      const expiring: string[] = [];
       for (const keyword of keywords) {
-        if (!(await this.trendService.isCached(keyword))) missing.push(keyword);
+        const ttl = await this.trendService.cacheTtlSec(keyword);
+        if (ttl < 0) missing.push(keyword);
+        else if (ttl <= REFRESH_AHEAD_SEC) expiring.push(keyword);
       }
-      if (missing.length === 0) return;
+      const targets = [...missing, ...expiring];
+      if (targets.length === 0) return;
 
-      this.logger.log(`선생성 대상 ${missing.length}개: ${missing.join(', ')}`);
+      this.logger.log(`선생성 대상 신규 ${missing.length}개(${missing.join(', ')}) + 만료임박 ${expiring.length}개(${expiring.join(', ')})`);
       // AI 호출 버스트를 피하기 위해 순차 처리 (1개당 5~10초, 최대 10개)
-      for (const keyword of missing) {
+      for (const keyword of targets) {
         try {
           const request = new GetTrendSummaryRequest();
           request.keyword = keyword;
-          await this.trendService.getSummary(request);
+          // getSummary는 serve-stale로 즉시 반환할 수 있어 캐시를 강제로 다시 채우는 refresh를 쓴다
+          await this.trendService.refresh(request);
         } catch (e) {
           this.logger.warn(`선생성 실패 "${keyword}": ${(e as Error).message}`);
         }
