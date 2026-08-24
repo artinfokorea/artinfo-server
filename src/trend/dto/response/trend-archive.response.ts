@@ -47,6 +47,13 @@ export class TrendArchiveItem {
 
   @ApiProperty({ description: '최고 순위 시각에 가장 가까운 AI 요약 (없으면 null)', type: TrendArchiveItemSummary, nullable: true })
   summary: TrendArchiveItemSummary | null;
+
+  @ApiProperty({
+    description: '이슈 반응 투표 누적 (없으면 null)',
+    example: { surprised: 12, angry: 3, cheer: 41, hmm: 7 },
+    nullable: true,
+  })
+  reactions: Record<string, number> | null;
 }
 
 export class TrendArchiveDay {

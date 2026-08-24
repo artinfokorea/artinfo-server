@@ -33,6 +33,10 @@ export class TrendDailyKeyword extends BaseEntity {
   @Column({ type: 'int', name: 'score' })
   score: number;
 
+  /** 롤업 시점의 이슈 반응 투표 누적치 — 없으면 null (기능 도입 전 데이터) */
+  @Column({ type: 'jsonb', name: 'reactions', nullable: true })
+  reactions: Record<string, number> | null;
+
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
   createdAt: Date;
 

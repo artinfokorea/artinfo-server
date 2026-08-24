@@ -33,6 +33,9 @@ CREATE TABLE IF NOT EXISTS trend_daily_keywords (
 CREATE UNIQUE INDEX IF NOT EXISTS uq_trend_daily_keywords_date_keyword ON trend_daily_keywords (date, keyword);
 CREATE INDEX IF NOT EXISTS idx_trend_daily_keywords_keyword ON trend_daily_keywords (keyword);
 
+-- 이슈 반응 투표 스냅샷 (롤업 시점의 Redis 누적치, 예: {"surprised":12,"angry":3,"cheer":41,"hmm":7})
+ALTER TABLE trend_daily_keywords ADD COLUMN IF NOT EXISTS reactions JSONB;
+
 -- 일자·시각대별 1위
 CREATE TABLE IF NOT EXISTS trend_daily_hourly_tops (
   date    DATE         NOT NULL,

@@ -12,6 +12,8 @@ export interface DailyKeywordRow {
   lastSeen: string;
   samples: number;
   score: number;
+  /** 이슈 반응 투표 스냅샷 — 없으면 null (기능 도입 전이거나 투표 0건) */
+  reactions?: Record<string, number> | null;
 }
 
 @Injectable()
@@ -39,9 +41,10 @@ export class TrendDailyRepository {
             lastSeen: new Date(r.lastSeen),
             samples: r.samples,
             score: r.score,
+            reactions: r.reactions ?? null,
           })),
         )
-        .orUpdate(['peak', 'peak_at', 'first_seen', 'last_seen', 'samples', 'score', 'updated_at'], ['date', 'keyword'])
+        .orUpdate(['peak', 'peak_at', 'first_seen', 'last_seen', 'samples', 'score', 'reactions', 'updated_at'], ['date', 'keyword'])
         .execute();
     }
     if (hourlyTop.length > 0) {
@@ -69,6 +72,7 @@ export class TrendDailyRepository {
         lastSeen: r.lastSeen.toISOString(),
         samples: r.samples,
         score: r.score,
+        reactions: r.reactions ?? null,
       });
     }
     return out;

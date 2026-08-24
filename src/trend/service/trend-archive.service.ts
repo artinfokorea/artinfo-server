@@ -5,6 +5,7 @@ import { DailyKeywordRow, TrendDailyRepository } from '@/trend/repository/trend-
 import { StoredSummary, TrendSummaryRepository } from '@/trend/repository/trend-summary.repository';
 import { summaryCacheKey } from '@/trend/service/trend.service';
 import { TrendSummaryResponse } from '@/trend/dto/response/trend-summary.response';
+import { parseReactionCounts, reactionsCacheKey } from '@/trend/service/trend-reaction.service';
 
 /**
  * 실시간 검색어 순위 히스토리 — 결산 페이지용
@@ -29,6 +30,8 @@ export interface ArchiveItem extends ArchiveEntry {
   keyword: string;
   days: number;
   summary: StoredSummary | null;
+  /** 이슈 반응 투표 누적 — 투표가 없으면 null */
+  reactions: Record<string, number> | null;
 }
 
 export interface ArchiveResult {
@@ -116,6 +119,9 @@ export class TrendArchiveService {
   async rollupDay(date: string): Promise<number> {
     const { rows, hourlyTop } = await this.readRedisDay(date);
     if (rows.length === 0) return 0;
+    // 이슈 반응 투표는 키워드 단위 누적(14일 TTL)이라 롤업 시점 스냅샷을 함께 확정 저장한다
+    const reactions = await this.readReactions(rows.map(r => r.keyword));
+    rows.forEach(r => (r.reactions = reactions.get(r.keyword) ?? null));
     await this.daily.upsertDay(date, rows, hourlyTop);
     this.logger.log(`결산 롤업 ${date}: 키워드 ${rows.length}개, 시각대 ${hourlyTop.length}개`);
     return rows.length;
@@ -151,12 +157,14 @@ export class TrendArchiveService {
       for (const e of rows) {
         const acc = merged.get(e.keyword);
         if (!acc) {
-          merged.set(e.keyword, { ...e, days: 1 });
+          merged.set(e.keyword, { ...e, reactions: e.reactions ?? null, days: 1 });
           continue;
         }
         acc.days += 1;
         acc.samples += e.samples;
         acc.score += e.score;
+        // 반응 스냅샷은 키워드 단위 누적치라 날짜별 합산 대신 가장 나중 스냅샷을 쓴다 (중복 집계 방지)
+        if (e.reactions) acc.reactions = e.reactions;
         if (e.peak < acc.peak || (e.peak === acc.peak && e.peakAt < acc.peakAt)) {
           acc.peak = e.peak;
           acc.peakAt = e.peakAt;
@@ -197,6 +205,15 @@ export class TrendArchiveService {
         }
       });
     }
+    // 오늘이 포함된 조회는 아직 롤업 전이므로 살아 있는 Redis 반응 카운트로 덮어쓴다
+    if (to >= today) {
+      const live = await this.readReactions(top.map(t => t.keyword)).catch(() => new Map<string, Record<string, number>>());
+      for (const t of top) {
+        const r = live.get(t.keyword);
+        if (r) t.reactions = r;
+      }
+    }
+
     const items: ArchiveItem[] = top.map((t, i) => ({ ...t, rank: i + 1, summary: nearest.get(t.keyword) ?? null }));
 
     let hourlyTop: ArchiveResult['hourlyTop'] = [];
@@ -206,6 +223,20 @@ export class TrendArchiveService {
     }
 
     return { from, to, days, items, hourlyTop, generatedAt: new Date().toISOString() };
+  }
+
+  /** 키워드별 이슈 반응 카운트를 한 번의 파이프라인으로 조회 — 투표 없는 키워드는 결과에서 제외 */
+  private async readReactions(keywords: string[]): Promise<Map<string, Record<string, number>>> {
+    const out = new Map<string, Record<string, number>>();
+    if (keywords.length === 0) return out;
+    const pipe = this.redis.redisClient.pipeline();
+    keywords.forEach(k => pipe.hgetall(reactionsCacheKey(k)));
+    const res = await pipe.exec();
+    keywords.forEach((k, i) => {
+      const counts = parseReactionCounts(res?.[i]?.[1] as Record<string, string> | undefined);
+      if (counts) out.set(k, counts);
+    });
+    return out;
   }
 
   private async readRedisDay(date: string): Promise<{ rows: DailyKeywordRow[]; hourlyTop: { hour: number; keyword: string }[] }> {
