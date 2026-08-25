@@ -4,6 +4,7 @@ export enum ONGI_SNS_TYPE {
   KAKAO = 'kakao',
   NAVER = 'naver',
   GOOGLE = 'google',
+  APPLE = 'apple',
 }
 
 export interface OngiUserCreator {

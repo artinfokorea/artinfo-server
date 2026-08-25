@@ -9,11 +9,11 @@ export class OngiSnsLoginRequest {
   provider: ONGI_SNS_TYPE;
 
   @IsOptional()
-  @ApiProperty({ type: String, required: false, description: 'SNS access token (앱 OAuth 연동 전에는 생략 가능 — 개발용 로그인)', example: 'sns_access_token' })
+  @ApiProperty({ type: String, required: false, description: 'SNS access token (Apple 은 identity token). 앱 OAuth 연동 전에는 생략 가능 — 개발용 로그인', example: 'sns_access_token' })
   token?: string;
 
   @IsOptional()
   @MaxLength(40)
-  @ApiProperty({ type: String, required: false, description: '가입 시 사용할 이름 (SNS 프로필 이름이 없을 때)', example: '수진' })
+  @ApiProperty({ type: String, required: false, description: '가입 시 사용할 이름 (SNS 프로필 이름이 없을 때 — Apple 은 최초 로그인 시 앱이 전달)', example: '수진' })
   name?: string;
 }
