@@ -17,6 +17,6 @@ export interface IOngiUserRepository {
   /** 프로필 수정 — 구성원(ongi_members)·자동 생성 인물(ongi_people)에도 이름·이미지를 전파한다 */
   updateProfile(userId: number, patch: { name?: string; iconImageUrl?: string }): Promise<void>;
   getProfileStats(userId: number): Promise<OngiProfileStats>;
-  /** 회원 탈퇴 — 계정 익명화 + 구성원·사진·댓글·인물·좋아요·차단·토큰까지 함께 삭제 */
-  softDeleteById(id: number): Promise<void>;
+  /** 회원 탈퇴 — 계정 익명화 + 구성원·사진·댓글·인물·좋아요·차단·토큰까지 함께 삭제. 저장소에서 지워야 할 파일 URL(프로필 이미지·사진 중 다른 살아있는 사진이 쓰지 않는 것)을 돌려준다 */
+  softDeleteById(id: number): Promise<string[]>;
 }

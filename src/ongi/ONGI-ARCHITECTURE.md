@@ -46,3 +46,5 @@
 - 사진 파일 업로드: 현재는 URL 기반 (`POST /ongi/photos` 에 url 전달). 자체 S3 버킷 + `src/ongi/common/ongi-s3.service.ts` 업로드 엔드포인트 추가 필요.
 - 저장 공간(`/ongi/users/me/storage`)은 사진 수 × 5MB 추정치 — 실제 파일 저장 도입 시 교체.
 - 피드 페이지네이션 (현재 전체 로드), 알림, 구성원 권한 관리(pending 승인 플로우).
+
+- **파일 정리**: 사진 삭제·회원 탈퇴·프로필 이미지 교체 시 `AwsS3Service.deleteByUrls` 로 S3 원본을 지운다(best-effort, 실패해도 요청은 성공). 멀티 그룹 업로드는 한 파일을 여러 사진이 공유하므로 `countActiveByUrl` 이 0 일 때만 삭제. 외부 호스트 URL(소셜 프로필 이미지)은 `keyOfUrl` 이 걸러낸다.

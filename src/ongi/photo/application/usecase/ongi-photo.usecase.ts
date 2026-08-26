@@ -204,9 +204,10 @@ export class OngiDeletePhotoUseCase {
     private readonly photoRepository: IOngiPhotoRepository,
 
     private readonly accessService: OngiPhotoAccessService,
+    private readonly awsS3Service: AwsS3Service,
   ) {}
 
-  /** 사진 삭제 — 작성자 본인 또는 그룹 관리자. 달린 댓글도 함께 삭제 */
+  /** 사진 삭제 — 작성자 본인 또는 그룹 관리자. 달린 댓글도 함께 삭제하고, 다른 사진이 쓰지 않는 파일이면 S3 원본도 지운다 */
   async execute(userId: number, photoId: number): Promise<void> {
     const photo = await this.photoRepository.findById(photoId);
     if (!photo) throw new OngiPhotoNotFound();
@@ -216,6 +217,10 @@ export class OngiDeletePhotoUseCase {
     if (!allowed) throw new OngiPhotoDeleteForbidden();
 
     await this.photoRepository.softDeletePhoto(photoId);
+
+    if ((await this.photoRepository.countActiveByUrl(photo.url)) === 0) {
+      await this.awsS3Service.deleteByUrls([photo.url]);
+    }
   }
 }
 

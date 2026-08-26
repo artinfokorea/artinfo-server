@@ -58,11 +58,15 @@ export class OngiDeleteAccountUseCase {
   constructor(
     @Inject(ONGI_USER_REPOSITORY)
     private readonly userRepository: IOngiUserRepository,
+
+    private readonly awsS3Service: AwsS3Service,
   ) {}
 
+  /** 회원 탈퇴 — DB 삭제(익명화·cascade) 후 프로필 이미지와 올린 사진 원본을 S3 에서 지운다 (개인정보처리방침 4항) */
   async execute(userId: number): Promise<void> {
     await this.userRepository.findOneOrThrowById(userId);
-    await this.userRepository.softDeleteById(userId);
+    const fileUrls = await this.userRepository.softDeleteById(userId);
+    await this.awsS3Service.deleteByUrls(fileUrls);
   }
 }
 
@@ -96,8 +100,14 @@ export class OngiUploadAvatarUseCase {
     const filename = new Util().generateRandomString(11) + '.' + Date.now() + '.' + extension;
     const path = ['ongi', 'avatars', userId, filename].join('/');
 
+    const previous = await this.userRepository.findOneOrThrowById(userId);
     const result = await this.awsS3Service.uploadStream(file.buffer, file.mimetype || 'image/jpeg', path);
     await this.userRepository.updateProfile(userId, { iconImageUrl: result!.location });
+
+    // 이전 프로필 이미지는 더 이상 참조되지 않으므로 정리 (소셜 프로필 등 외부 URL 은 keyOfUrl 이 걸러낸다)
+    if (previous.iconImageUrl && previous.iconImageUrl !== result!.location) {
+      await this.awsS3Service.deleteByUrls([previous.iconImageUrl]);
+    }
 
     return this.userRepository.findOneOrThrowById(userId);
   }

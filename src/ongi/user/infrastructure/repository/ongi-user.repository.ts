@@ -92,8 +92,19 @@ export class OngiUserRepository implements IOngiUserRepository {
    * - 구성원·사진·댓글·자동 생성 인물은 소프트 삭제, 좋아요·차단·토큰은 즉시 삭제
    * - S3 에 올라간 이미지 파일 자체는 삭제하지 않는다 (추후 배치 정리 대상)
    */
-  async softDeleteById(id: number): Promise<void> {
-    await this.userRepository.manager.transaction(async manager => {
+  async softDeleteById(id: number): Promise<string[]> {
+    return this.userRepository.manager.transaction(async manager => {
+      const [user]: { icon_image_url: string | null }[] = await manager.query(
+        `SELECT icon_image_url FROM ongi_users WHERE id = $1 AND deleted_at IS NULL`,
+        [id],
+      );
+      const photoRows: { url: string }[] = await manager.query(
+        `SELECT url FROM ongi_photos
+          WHERE deleted_at IS NULL
+            AND author_member_id IN (SELECT id FROM ongi_members WHERE user_id = $1)`,
+        [id],
+      );
+
       await manager.query(
         `UPDATE ongi_users
             SET name = '탈퇴한 사용자',
@@ -129,6 +140,20 @@ export class OngiUserRepository implements IOngiUserRepository {
       await manager.query(`DELETE FROM ongi_blocks WHERE user_id = $1 OR blocked_user_id = $1`, [id]);
       // 발급된 로그인 토큰도 즉시 무효화
       await manager.query(`DELETE FROM ongi_auths WHERE user_id = $1`, [id]);
+
+      // 멀티 그룹 업로드로 다른 사람 사진이 같은 파일을 쓸 수는 없지만(작성자 기준 삭제), 방어적으로 살아있는 참조가 없는 것만 고른다
+      const urls = [...new Set(photoRows.map(r => r.url))];
+      const orphanUrls: string[] = [];
+      for (const url of urls) {
+        const [{ count }]: { count: string }[] = await manager.query(
+          `SELECT COUNT(*)::text AS count FROM ongi_photos WHERE url = $1 AND deleted_at IS NULL`,
+          [url],
+        );
+        if (count === '0') orphanUrls.push(url);
+      }
+      if (user?.icon_image_url) orphanUrls.push(user.icon_image_url);
+
+      return orphanUrls;
     });
   }
 }

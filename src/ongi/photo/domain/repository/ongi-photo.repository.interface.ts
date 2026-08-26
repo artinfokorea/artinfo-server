@@ -26,6 +26,8 @@ export interface IOngiPhotoRepository {
   softDeletePhoto(photoId: number): Promise<void>;
   /** 댓글 소프트 삭제 + 사진 댓글 수 감소 */
   softDeleteComment(commentId: number, photoId: number): Promise<void>;
+  /** 같은 파일 URL 을 쓰는 살아있는 사진 수 — 멀티 그룹 업로드는 파일 하나를 여러 사진이 공유하므로 0 일 때만 S3 에서 지운다 */
+  countActiveByUrl(url: string): Promise<number>;
   /** 사용자들이 가진 구성원 id 목록 (삭제되지 않은 구성원) — 차단 사용자 콘텐츠 필터용 */
   memberIdsOfUsers(userIds: number[]): Promise<number[]>;
 }
