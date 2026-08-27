@@ -12,6 +12,7 @@ import {
   OngiDeleteCommentUseCase,
   OngiDeletePhotoUseCase,
   OngiDeletePhotosUseCase,
+  OngiMovePhotosUseCase,
   OngiGetPhotoUseCase,
   OngiScanAlbumPhotosUseCase,
   OngiScanCommentsUseCase,
@@ -25,10 +26,12 @@ import {
 import { OngiUploadPhotosRequest } from '@/ongi/photo/presentation/dto/request/ongi-upload-photos.request';
 import { OngiAddCommentRequest } from '@/ongi/photo/presentation/dto/request/ongi-add-comment.request';
 import { OngiDeletePhotosRequest } from '@/ongi/photo/presentation/dto/request/ongi-delete-photos.request';
+import { OngiMovePhotosRequest } from '@/ongi/photo/presentation/dto/request/ongi-move-photos.request';
 import {
   OngiCommentListResponse,
   OngiCommentResponse,
   OngiDeletedPhotosResponse,
+  OngiMovedPhotosResponse,
   OngiPhotoListResponse,
   OngiPhotoResponse,
   OngiUploadedPhotoFilesResponse,
@@ -49,6 +52,7 @@ export class OngiPhotoController {
     private readonly uploadPhotoFilesUseCase: OngiUploadPhotoFilesUseCase,
     private readonly deletePhotoUseCase: OngiDeletePhotoUseCase,
     private readonly deletePhotosUseCase: OngiDeletePhotosUseCase,
+    private readonly movePhotosUseCase: OngiMovePhotosUseCase,
     private readonly deleteCommentUseCase: OngiDeleteCommentUseCase,
   ) {}
 
@@ -133,6 +137,17 @@ export class OngiPhotoController {
     const comment = await this.addCommentUseCase.execute(signature.id, photoId, request.text.trim());
 
     return new OngiCommentResponse(comment);
+  }
+
+  @RestApiPost(OngiMovedPhotosResponse, {
+    path: '/photos/move',
+    description: '사진 일괄 앨범 이동 (작성자 또는 관리자, 같은 그룹 앨범만; albumId 비우면 미분류)',
+    auth: [USER_TYPE.CLIENT],
+  })
+  async movePhotos(@AuthSignature() signature: UserSignature, @Body() request: OngiMovePhotosRequest) {
+    const result = await this.movePhotosUseCase.execute(signature.id, request.toPhotoIds(), request.toAlbumId());
+
+    return new OngiMovedPhotosResponse(result);
   }
 
   @RestApiPost(OngiDeletedPhotosResponse, {

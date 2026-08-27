@@ -225,6 +225,52 @@ export class OngiDeletePhotoUseCase {
 }
 
 @Injectable()
+export class OngiMovePhotosUseCase {
+  constructor(
+    @Inject(ONGI_PHOTO_REPOSITORY)
+    private readonly photoRepository: IOngiPhotoRepository,
+
+    @Inject(ONGI_MEMBER_REPOSITORY)
+    private readonly memberRepository: IOngiMemberRepository,
+
+    @Inject(ONGI_ALBUM_REPOSITORY)
+    private readonly albumRepository: IOngiAlbumRepository,
+  ) {}
+
+  /** 사진 일괄 앨범 이동 — 작성자 본인 또는 관리자인 사진만, 대상 앨범과 같은 그룹인 사진만 옮긴다. 나머지는 건너뛴다 */
+  async execute(userId: number, photoIds: number[], albumId: number | null): Promise<{ movedIds: number[]; skippedIds: number[] }> {
+    const album = albumId === null ? null : await this.albumRepository.findById(albumId);
+    if (albumId !== null && !album) throw new OngiAlbumNotFound();
+
+    const movedIds: number[] = [];
+    const skippedIds: number[] = [];
+    const memberByGroup = new Map<number, OngiMember | null>();
+
+    for (const photoId of photoIds) {
+      const photo = await this.photoRepository.findById(photoId);
+      if (!photo || (album && album.groupId !== photo.groupId)) {
+        skippedIds.push(photoId);
+        continue;
+      }
+      if (!memberByGroup.has(photo.groupId)) {
+        memberByGroup.set(photo.groupId, await this.memberRepository.findByGroupIdAndUserId(photo.groupId, userId));
+      }
+      const me = memberByGroup.get(photo.groupId);
+      const allowed = !!me && (photo.authorMemberId === me.id || me.role === ONGI_MEMBER_ROLE.ADMIN);
+      if (!allowed) {
+        skippedIds.push(photoId);
+        continue;
+      }
+      movedIds.push(photoId);
+    }
+
+    await this.photoRepository.moveToAlbum(movedIds, albumId);
+
+    return { movedIds, skippedIds };
+  }
+}
+
+@Injectable()
 export class OngiDeletePhotosUseCase {
   constructor(
     @Inject(ONGI_PHOTO_REPOSITORY)
