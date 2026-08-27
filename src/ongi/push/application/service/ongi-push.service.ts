@@ -39,6 +39,24 @@ export class OngiPushService {
     );
   }
 
+  /** 특정 사용자 한 명에게 발송 — 그 사용자가 발신자를 차단했으면 보내지 않는다 */
+  notifyUser(userId: number, senderUserId: number, message: OngiPushMessage): void {
+    void this.notifyUserInternal(userId, senderUserId, message).catch(error =>
+      this.logger.warn(`push notifyUser failed: ${error instanceof Error ? error.message : String(error)}`),
+    );
+  }
+
+  private async notifyUserInternal(userId: number, senderUserId: number, message: OngiPushMessage): Promise<void> {
+    if (userId === senderUserId) return;
+    const blocked = await this.blockRepository.blockedUserIdsOf(userId);
+    if (blocked.includes(senderUserId)) return;
+    const tokens = await this.pushTokenRepository.scanByUserIds([userId]);
+    await this.send(
+      tokens.map(t => t.token),
+      message,
+    );
+  }
+
   private async notifyGroupInternal(groupId: number, senderUserId: number, message: OngiPushMessage): Promise<void> {
     const members = await this.memberRepository.scanByGroupId(groupId);
     const candidates = members.map(m => m.userId).filter(id => id !== senderUserId);

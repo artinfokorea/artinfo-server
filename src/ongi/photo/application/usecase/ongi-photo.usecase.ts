@@ -425,7 +425,11 @@ export class OngiAddCommentUseCase {
     @Inject(ONGI_PHOTO_REPOSITORY)
     private readonly photoRepository: IOngiPhotoRepository,
 
+    @Inject(ONGI_MEMBER_REPOSITORY)
+    private readonly memberRepository: IOngiMemberRepository,
+
     private readonly accessService: OngiPhotoAccessService,
+    private readonly pushService: OngiPushService,
   ) {}
 
   async execute(userId: number, photoId: number, text: string): Promise<OngiPhotoComment> {
@@ -435,7 +439,20 @@ export class OngiAddCommentUseCase {
     // 작성자는 요청 본문이 아니라 세션에서 유도 — 사진이 속한 그룹의 내 구성원 레코드
     const me = await this.accessService.requireMember(photo.groupId, userId);
 
-    return this.photoRepository.createComment({ photoId, authorMemberId: me.id, text });
+    const comment = await this.photoRepository.createComment({ photoId, authorMemberId: me.id, text });
+
+    // 사진 작성자에게 푸시 (본인 사진에 단 댓글은 제외 — notifyUser 가 걸러준다)
+    const author = await this.memberRepository.findById(photo.authorMemberId);
+    if (author) {
+      const preview = text.length > 40 ? `${text.slice(0, 40)}…` : text;
+      this.pushService.notifyUser(author.userId, userId, {
+        title: '온기',
+        body: `${me.name}님이 회원님 사진에 한마디를 남겼어요: ${preview}`,
+        data: { type: 'comment', groupId: String(photo.groupId), photoId: String(photo.id) },
+      });
+    }
+
+    return comment;
   }
 }
 
