@@ -107,6 +107,10 @@ export class OngiPhotoRepository implements IOngiPhotoRepository {
     return this.photoRepository.count({ where: { url, deletedAt: IsNull() } });
   }
 
+  async update(photoId: number, patch: { caption: string | null; albumId: number | null }): Promise<void> {
+    await this.photoRepository.update({ id: photoId }, patch);
+  }
+
   async softDeletePhoto(photoId: number): Promise<void> {
     await this.photoRepository.manager.transaction(async manager => {
       await manager.softDelete(OngiPhotoComment, { photoId });

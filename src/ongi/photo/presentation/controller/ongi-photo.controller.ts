@@ -1,7 +1,7 @@
 import { Body, Param, ParseIntPipe, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes } from '@nestjs/swagger';
-import { RestApiController, RestApiDelete, RestApiGet, RestApiPost } from '@/common/decorator/rest-api';
+import { RestApiController, RestApiDelete, RestApiGet, RestApiPost, RestApiPut } from '@/common/decorator/rest-api';
 import { OkResponse } from '@/common/response/ok.response';
 import { UploadFile } from '@/common/type/type';
 import { AuthSignature } from '@/common/decorator/AuthSignature';
@@ -18,11 +18,13 @@ import {
   OngiScanPersonPhotosUseCase,
   OngiScanUnfiledPhotosUseCase,
   OngiToggleLikeUseCase,
+  OngiUpdatePhotoUseCase,
   OngiUploadPhotoFilesUseCase,
   OngiUploadPhotosUseCase,
 } from '@/ongi/photo/application/usecase/ongi-photo.usecase';
 import { OngiUploadPhotosRequest } from '@/ongi/photo/presentation/dto/request/ongi-upload-photos.request';
 import { OngiAddCommentRequest } from '@/ongi/photo/presentation/dto/request/ongi-add-comment.request';
+import { OngiUpdatePhotoRequest } from '@/ongi/photo/presentation/dto/request/ongi-update-photo.request';
 import {
   OngiCommentListResponse,
   OngiCommentResponse,
@@ -44,6 +46,7 @@ export class OngiPhotoController {
     private readonly addCommentUseCase: OngiAddCommentUseCase,
     private readonly uploadPhotosUseCase: OngiUploadPhotosUseCase,
     private readonly uploadPhotoFilesUseCase: OngiUploadPhotoFilesUseCase,
+    private readonly updatePhotoUseCase: OngiUpdatePhotoUseCase,
     private readonly deletePhotoUseCase: OngiDeletePhotoUseCase,
     private readonly deleteCommentUseCase: OngiDeleteCommentUseCase,
   ) {}
@@ -129,6 +132,16 @@ export class OngiPhotoController {
     const comment = await this.addCommentUseCase.execute(signature.id, photoId, request.text.trim());
 
     return new OngiCommentResponse(comment);
+  }
+
+  @RestApiPut(OngiPhotoResponse, { path: '/photos/:photoId', description: '사진 수정 (작성자 또는 관리자) — 문구·앨범', auth: [USER_TYPE.CLIENT] })
+  async updatePhoto(@AuthSignature() signature: UserSignature, @Param('photoId', ParseIntPipe) photoId: number, @Body() request: OngiUpdatePhotoRequest) {
+    const view = await this.updatePhotoUseCase.execute(signature.id, photoId, {
+      caption: request.caption?.trim() || null,
+      albumId: request.albumId ? Number(request.albumId) : null,
+    });
+
+    return new OngiPhotoResponse(view);
   }
 
   @RestApiDelete(OkResponse, { path: '/photos/:photoId', description: '사진 삭제 (작성자 또는 관리자) — 댓글도 함께 삭제', auth: [USER_TYPE.CLIENT] })
