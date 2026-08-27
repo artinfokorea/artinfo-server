@@ -13,6 +13,7 @@ import {
   OngiDeletePhotoUseCase,
   OngiDeletePhotosUseCase,
   OngiMovePhotosUseCase,
+  OngiCopyPhotosUseCase,
   OngiGetPhotoUseCase,
   OngiScanAlbumPhotosUseCase,
   OngiScanCommentsUseCase,
@@ -27,11 +28,13 @@ import { OngiUploadPhotosRequest } from '@/ongi/photo/presentation/dto/request/o
 import { OngiAddCommentRequest } from '@/ongi/photo/presentation/dto/request/ongi-add-comment.request';
 import { OngiDeletePhotosRequest } from '@/ongi/photo/presentation/dto/request/ongi-delete-photos.request';
 import { OngiMovePhotosRequest } from '@/ongi/photo/presentation/dto/request/ongi-move-photos.request';
+import { OngiCopyPhotosRequest } from '@/ongi/photo/presentation/dto/request/ongi-copy-photos.request';
 import {
   OngiCommentListResponse,
   OngiCommentResponse,
   OngiDeletedPhotosResponse,
   OngiMovedPhotosResponse,
+  OngiCopiedPhotosResponse,
   OngiPhotoListResponse,
   OngiPhotoResponse,
   OngiUploadedPhotoFilesResponse,
@@ -53,6 +56,7 @@ export class OngiPhotoController {
     private readonly deletePhotoUseCase: OngiDeletePhotoUseCase,
     private readonly deletePhotosUseCase: OngiDeletePhotosUseCase,
     private readonly movePhotosUseCase: OngiMovePhotosUseCase,
+    private readonly copyPhotosUseCase: OngiCopyPhotosUseCase,
     private readonly deleteCommentUseCase: OngiDeleteCommentUseCase,
   ) {}
 
@@ -137,6 +141,17 @@ export class OngiPhotoController {
     const comment = await this.addCommentUseCase.execute(signature.id, photoId, request.text.trim());
 
     return new OngiCommentResponse(comment);
+  }
+
+  @RestApiPost(OngiCopiedPhotosResponse, {
+    path: '/photos/copy',
+    description: '다른 가족 공간에 사진 공유(복사) — 작성자 또는 관리자, 대상 공간 구성원만; albumId 는 대상 공간 앨범',
+    auth: [USER_TYPE.CLIENT],
+  })
+  async copyPhotos(@AuthSignature() signature: UserSignature, @Body() request: OngiCopyPhotosRequest) {
+    const result = await this.copyPhotosUseCase.execute(signature.id, request.toPhotoIds(), request.toTargetGroupId(), request.toAlbumId());
+
+    return new OngiCopiedPhotosResponse(result);
   }
 
   @RestApiPost(OngiMovedPhotosResponse, {

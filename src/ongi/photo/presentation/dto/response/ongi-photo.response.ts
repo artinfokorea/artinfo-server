@@ -106,6 +106,19 @@ export class OngiCommentListResponse {
   }
 }
 
+export class OngiCopiedPhotosResponse {
+  @ApiProperty({ type: [String], description: '공유(복사)된 원본 사진 id' })
+  copiedIds: string[];
+
+  @ApiProperty({ type: [String], description: '권한이 없거나 없어서 건너뛴 사진 id' })
+  skippedIds: string[];
+
+  constructor(result: { copiedIds: number[]; skippedIds: number[] }) {
+    this.copiedIds = result.copiedIds.map(String);
+    this.skippedIds = result.skippedIds.map(String);
+  }
+}
+
 export class OngiMovedPhotosResponse {
   @ApiProperty({ type: [String], description: '옮긴 사진 id' })
   movedIds: string[];

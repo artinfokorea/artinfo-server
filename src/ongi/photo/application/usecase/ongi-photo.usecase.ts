@@ -226,6 +226,74 @@ export class OngiDeletePhotoUseCase {
 }
 
 @Injectable()
+export class OngiCopyPhotosUseCase {
+  constructor(
+    @Inject(ONGI_PHOTO_REPOSITORY)
+    private readonly photoRepository: IOngiPhotoRepository,
+
+    @Inject(ONGI_MEMBER_REPOSITORY)
+    private readonly memberRepository: IOngiMemberRepository,
+
+    @Inject(ONGI_ALBUM_REPOSITORY)
+    private readonly albumRepository: IOngiAlbumRepository,
+  ) {}
+
+  /**
+   * 다른 가족 공간에 사진 공유(복사) — 대상 공간에 독립 게시물을 만든다 (파일은 공유, 좋아요·댓글은 분리).
+   * 원본 사진은 작성자 본인 또는 관리자만, 대상 공간은 내가 구성원이어야 하며 앨범은 대상 공간 소속이어야 한다.
+   */
+  async execute(
+    userId: number,
+    photoIds: number[],
+    targetGroupId: number,
+    albumId: number | null,
+  ): Promise<{ copiedIds: number[]; skippedIds: number[] }> {
+    const target = await this.memberRepository.findByGroupIdAndUserId(targetGroupId, userId);
+    if (!target) throw new OngiNotGroupMember();
+
+    if (albumId !== null) {
+      const album = await this.albumRepository.findById(albumId);
+      if (!album || album.groupId !== targetGroupId) throw new OngiAlbumNotInGroup();
+    }
+
+    const copiedIds: number[] = [];
+    const skippedIds: number[] = [];
+    const memberByGroup = new Map<number, OngiMember | null>();
+
+    for (const photoId of photoIds) {
+      const photo = await this.photoRepository.findById(photoId);
+      if (!photo || photo.groupId === targetGroupId) {
+        skippedIds.push(photoId);
+        continue;
+      }
+      if (!memberByGroup.has(photo.groupId)) {
+        memberByGroup.set(photo.groupId, await this.memberRepository.findByGroupIdAndUserId(photo.groupId, userId));
+      }
+      const me = memberByGroup.get(photo.groupId);
+      const allowed = !!me && (photo.authorMemberId === me.id || me.role === ONGI_MEMBER_ROLE.ADMIN);
+      if (!allowed) {
+        skippedIds.push(photoId);
+        continue;
+      }
+
+      await this.photoRepository.create({
+        groupId: targetGroupId,
+        authorMemberId: target.id,
+        albumId,
+        url: photo.url,
+        aspectRatio: photo.aspectRatio,
+        caption: photo.caption,
+        location: photo.location,
+        personIds: [],
+      });
+      copiedIds.push(photoId);
+    }
+
+    return { copiedIds, skippedIds };
+  }
+}
+
+@Injectable()
 export class OngiMovePhotosUseCase {
   constructor(
     @Inject(ONGI_PHOTO_REPOSITORY)
