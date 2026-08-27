@@ -7,10 +7,11 @@ import { OngiAlbumModule } from '@/ongi/album/ongi-album.module';
 import { OngiPhotoModule } from '@/ongi/photo/ongi-photo.module';
 import { OngiLegalModule } from '@/ongi/legal/ongi-legal.module';
 import { OngiReportModule } from '@/ongi/report/ongi-report.module';
+import { OngiPushModule } from '@/ongi/push/ongi-push.module';
 import { OngiSchemaBootstrapService } from '@/ongi/common/ongi-schema-bootstrap.service';
 
 @Module({
-  imports: [OngiAuthModule, OngiUserModule, OngiGroupModule, OngiPersonModule, OngiAlbumModule, OngiPhotoModule, OngiLegalModule, OngiReportModule],
+  imports: [OngiAuthModule, OngiUserModule, OngiGroupModule, OngiPersonModule, OngiAlbumModule, OngiPhotoModule, OngiLegalModule, OngiReportModule, OngiPushModule],
   providers: [OngiSchemaBootstrapService],
 })
 export class OngiModule {}

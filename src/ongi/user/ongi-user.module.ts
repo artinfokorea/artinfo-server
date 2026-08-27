@@ -13,9 +13,10 @@ import {
   OngiUploadAvatarUseCase,
 } from '@/ongi/user/application/usecase/ongi-user.usecase';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
+import { OngiPushModule } from '@/ongi/push/ongi-push.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OngiUser])],
+  imports: [TypeOrmModule.forFeature([OngiUser]), OngiPushModule],
   controllers: [OngiUserController],
   providers: [
     { provide: ONGI_USER_REPOSITORY, useClass: OngiUserRepository },

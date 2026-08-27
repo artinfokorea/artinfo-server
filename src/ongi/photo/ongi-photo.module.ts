@@ -28,9 +28,10 @@ import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { OngiGroupModule } from '@/ongi/group/ongi-group.module';
 import { OngiAlbumModule } from '@/ongi/album/ongi-album.module';
 import { OngiPersonModule } from '@/ongi/person/ongi-person.module';
+import { OngiPushModule } from '@/ongi/push/ongi-push.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OngiPhoto, OngiPhotoLike, OngiPhotoComment]), OngiGroupModule, OngiAlbumModule, OngiPersonModule],
+  imports: [TypeOrmModule.forFeature([OngiPhoto, OngiPhotoLike, OngiPhotoComment]), OngiGroupModule, OngiAlbumModule, OngiPersonModule, OngiPushModule],
   controllers: [OngiPhotoController],
   providers: [
     { provide: ONGI_PHOTO_REPOSITORY, useClass: OngiPhotoRepository },

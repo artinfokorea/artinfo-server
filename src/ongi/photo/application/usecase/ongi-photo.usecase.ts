@@ -21,6 +21,7 @@ import {
   OngiUploadTargetRequired,
 } from '@/ongi/photo/domain/exception/ongi-photo.exception';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
+import { OngiPushService } from '@/ongi/push/application/service/ongi-push.service';
 import { ObjectCannedACL } from '@aws-sdk/client-s3';
 import { UploadFile } from '@/common/type/type';
 import { Util } from '@/common/util/util';
@@ -451,6 +452,7 @@ export class OngiUploadPhotosUseCase {
     private readonly personRepository: IOngiPersonRepository,
 
     private readonly accessService: OngiPhotoAccessService,
+    private readonly pushService: OngiPushService,
   ) {}
 
   /** 선택한 모든 그룹에 동시에 게시 — 그룹마다 독립 게시물이 생겨 좋아요·댓글이 분리됩니다 */
@@ -486,6 +488,15 @@ export class OngiUploadPhotosUseCase {
         });
         created.push(photo);
       }
+
+      // 같은 그룹의 다른 구성원에게 푸시 (fire-and-forget)
+      const first = created.find(photo => photo.groupId === target.groupId);
+      const count = command.photos.length;
+      this.pushService.notifyGroup(target.groupId, userId, {
+        title: '온기',
+        body: `${me.name}님이 사진 ${count}장을 올렸어요${command.caption ? ` · ${command.caption}` : ''}`,
+        data: { type: 'photo', groupId: String(target.groupId), photoId: first ? String(first.id) : '' },
+      });
     }
 
     return created.map(photo => ({ photo, likedByMe: false }));
