@@ -29,13 +29,15 @@ export class AwsS3Service {
     mimetype: string,
     uploadFilePath: string,
     contentDisposition?: string,
+    // 기본은 공개(기존 프로젝트 호환). 온기처럼 비공개가 필요하면 private 을 넘기고 조회 시 presigned URL 을 쓴다
+    acl: ObjectCannedACL = ObjectCannedACL.public_read,
   ): Promise<AwsS3UploadResult | null> {
     const uploadParams = {
       Bucket: this.BUCKET,
       Body: buffer,
       ContentType: mimetype,
       Key: path.posix.join(process.env['NODE_ENV']!, uploadFilePath),
-      ACL: ObjectCannedACL.public_read,
+      ACL: acl,
       // 첨부파일 다운로드 시 원본 파일명을 강제하기 위해 Content-Disposition을 지정한다(이미지 등은 미지정).
       ...(contentDisposition ? { ContentDisposition: contentDisposition } : {}),
     };

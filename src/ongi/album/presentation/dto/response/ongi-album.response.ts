@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { signOngiMediaUrl } from '@/ongi/common/ongi-media-url';
 import { OngiAlbumView } from '@/ongi/album/domain/repository/ongi-album.repository.interface';
 
 /** 커버가 없는 앨범에 보여줄 기본 이미지 */
@@ -27,7 +28,7 @@ export class OngiAlbumResponse {
     this.id = String(view.album.id);
     this.groupId = String(view.album.groupId);
     this.title = view.album.title;
-    this.coverUrl = view.album.coverUrl ?? view.latestPhotoUrl ?? DEFAULT_COVER_URL;
+    this.coverUrl = signOngiMediaUrl(view.album.coverUrl ?? view.latestPhotoUrl) ?? DEFAULT_COVER_URL;
     this.photoCount = view.photoCount;
     this.meta = view.latestPhotoAt ? `${new Date(view.latestPhotoAt).getMonth() + 1}월` : '새 앨범';
   }

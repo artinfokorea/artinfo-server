@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { signOngiMediaUrl } from '@/ongi/common/ongi-media-url';
 import { OngiPhotoView } from '@/ongi/photo/domain/repository/ongi-photo.repository.interface';
 import { OngiUploadedPhotoFileView } from '@/ongi/photo/application/usecase/ongi-photo.usecase';
 import { OngiPhotoComment } from '@/ongi/photo/domain/entity/ongi-photo-comment.entity';
@@ -48,7 +49,7 @@ export class OngiPhotoResponse {
 
     this.id = String(photo.id);
     this.groupId = String(photo.groupId);
-    this.url = photo.url;
+    this.url = signOngiMediaUrl(photo.url);
     this.aspectRatio = Number(photo.aspectRatio);
     this.authorId = String(photo.authorMemberId);
     this.albumId = photo.albumId === null ? undefined : String(photo.albumId);
@@ -136,6 +137,7 @@ export class OngiUploadedPhotoFilesResponse {
   urls: string[];
 
   constructor(views: OngiUploadedPhotoFileView[]) {
+    // 업로드 직후 미리보기용 — 게시(POST /ongi/photos)에는 서명 없는 원본 URL 을 보내야 하므로 여기서는 서명하지 않는다
     this.urls = views.map(view => view.url);
   }
 }

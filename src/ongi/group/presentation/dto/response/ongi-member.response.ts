@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { signOngiMediaUrl } from '@/ongi/common/ongi-media-url';
 import { OngiMemberView } from '@/ongi/group/domain/repository/ongi-member.repository.interface';
 
 export class OngiMemberResponse {
@@ -36,7 +37,7 @@ export class OngiMemberResponse {
     this.realName = view.realName;
     this.role = view.member.role;
     this.photoCount = view.photoCount;
-    this.avatarUrl = view.member.avatarUrl;
+    this.avatarUrl = signOngiMediaUrl(view.member.avatarUrl);
     this.blockedByMe = view.blockedByMe;
     this.isMe = view.isMe;
   }

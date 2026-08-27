@@ -21,6 +21,7 @@ import {
   OngiUploadTargetRequired,
 } from '@/ongi/photo/domain/exception/ongi-photo.exception';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
+import { ObjectCannedACL } from '@aws-sdk/client-s3';
 import { UploadFile } from '@/common/type/type';
 import { Util } from '@/common/util/util';
 import * as moment from 'moment/moment';
@@ -457,7 +458,8 @@ export class OngiUploadPhotoFilesUseCase {
       const filename = new Util().generateRandomString(11) + '.' + Date.now() + '.' + extension;
       const path = ['ongi', 'photos', userId, moment().format('YYYYMMDD'), filename].join('/');
 
-      const result = await this.awsS3Service.uploadStream(file.buffer, file.mimetype || 'image/jpeg', path);
+      // 가족 전용 사진 — 비공개로 저장하고 응답 시 presigned URL 로 내려준다
+      const result = await this.awsS3Service.uploadStream(file.buffer, file.mimetype || 'image/jpeg', path, undefined, ObjectCannedACL.private);
       views.push({ url: result!.location });
     }
 

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { signOngiMediaUrl } from '@/ongi/common/ongi-media-url';
 import { OngiUser } from '@/ongi/user/domain/entity/ongi-user.entity';
 import { OngiProfileStats } from '@/ongi/user/domain/repository/ongi-user.repository.interface';
 import { OngiStorageInfo } from '@/ongi/user/application/usecase/ongi-user.usecase';
@@ -20,7 +21,7 @@ export class OngiUserResponse {
     this.id = String(user.id);
     this.name = user.name;
     this.provider = user.snsType;
-    this.avatarUrl = user.iconImageUrl;
+    this.avatarUrl = signOngiMediaUrl(user.iconImageUrl);
   }
 }
 

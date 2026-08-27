@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { IOngiUserRepository, ONGI_USER_REPOSITORY, OngiProfileStats } from '@/ongi/user/domain/repository/ongi-user.repository.interface';
 import { OngiUser } from '@/ongi/user/domain/entity/ongi-user.entity';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
+import { ObjectCannedACL } from '@aws-sdk/client-s3';
 import { UploadFile } from '@/common/type/type';
 import { Util } from '@/common/util/util';
 
@@ -101,7 +102,7 @@ export class OngiUploadAvatarUseCase {
     const path = ['ongi', 'avatars', userId, filename].join('/');
 
     const previous = await this.userRepository.findOneOrThrowById(userId);
-    const result = await this.awsS3Service.uploadStream(file.buffer, file.mimetype || 'image/jpeg', path);
+    const result = await this.awsS3Service.uploadStream(file.buffer, file.mimetype || 'image/jpeg', path, undefined, ObjectCannedACL.private);
     await this.userRepository.updateProfile(userId, { iconImageUrl: result!.location });
 
     // 이전 프로필 이미지는 더 이상 참조되지 않으므로 정리 (소셜 프로필 등 외부 URL 은 keyOfUrl 이 걸러낸다)
