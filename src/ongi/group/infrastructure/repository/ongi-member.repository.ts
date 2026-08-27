@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { IOngiMemberRepository, OngiMemberView } from '@/ongi/group/domain/repository/ongi-member.repository.interface';
 import { ONGI_MEMBER_ROLE, OngiMember, OngiMemberCreator } from '@/ongi/group/domain/entity/ongi-member.entity';
 
@@ -50,6 +50,12 @@ export class OngiMemberRepository implements IOngiMemberRepository {
 
   async scanByGroupId(groupId: number): Promise<OngiMember[]> {
     return this.memberRepository.find({ where: { groupId }, order: { id: 'ASC' } });
+  }
+
+  async scanIdsByUserIds(userIds: number[]): Promise<number[]> {
+    if (userIds.length === 0) return [];
+    const members = await this.memberRepository.find({ where: { userId: In(userIds) }, select: { id: true } });
+    return members.map(m => m.id);
   }
 
   async updateRole(id: number, role: ONGI_MEMBER_ROLE): Promise<void> {

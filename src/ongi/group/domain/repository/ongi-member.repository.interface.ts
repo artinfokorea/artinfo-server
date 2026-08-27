@@ -23,6 +23,8 @@ export interface IOngiMemberRepository {
   /** 그룹의 살아있는 구성원 (참여 순) */
   scanByGroupId(groupId: number): Promise<OngiMember[]>;
   updateRole(id: number, role: ONGI_MEMBER_ROLE): Promise<void>;
+  /** 사용자들이 가진 구성원 id 목록 — 차단한 사용자의 콘텐츠를 제외할 때 사용 */
+  scanIdsByUserIds(userIds: number[]): Promise<number[]>;
   scanViewsByGroupId(groupId: number, viewerUserId: number): Promise<OngiMemberView[]>;
   getViewById(id: number, viewerUserId: number): Promise<OngiMemberView | null>;
   softDeleteById(id: number): Promise<void>;

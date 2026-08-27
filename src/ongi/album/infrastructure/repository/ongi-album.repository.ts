@@ -35,36 +35,39 @@ export class OngiAlbumRepository implements IOngiAlbumRepository {
     });
   }
 
-  async scanViewsByGroupId(groupId: number): Promise<OngiAlbumView[]> {
+  async scanViewsByGroupId(groupId: number, excludedAuthorMemberIds: number[] = []): Promise<OngiAlbumView[]> {
     const albums = await this.albumRepository.find({ where: { groupId }, order: { id: 'ASC' } });
 
-    return this.toViews(albums);
+    return this.toViews(albums, excludedAuthorMemberIds);
   }
 
-  async getViewById(id: number): Promise<OngiAlbumView | null> {
+  async getViewById(id: number, excludedAuthorMemberIds: number[] = []): Promise<OngiAlbumView | null> {
     const album = await this.findById(id);
     if (!album) return null;
 
-    const [view] = await this.toViews([album]);
+    const [view] = await this.toViews([album], excludedAuthorMemberIds);
 
     return view ?? null;
   }
 
-  private async toViews(albums: OngiAlbum[]): Promise<OngiAlbumView[]> {
+  /** 차단한 구성원의 사진은 커버·장수에서 제외 — 피드·앨범 사진 목록의 차단 필터와 일관되게 */
+  private async toViews(albums: OngiAlbum[], excludedAuthorMemberIds: number[] = []): Promise<OngiAlbumView[]> {
     if (albums.length === 0) return [];
 
     const albumIds = albums.map(album => album.id);
 
     const countRows: { album_id: number; count: string }[] = await this.albumRepository.manager.query(
-      `SELECT album_id, COUNT(*) AS count FROM ongi_photos WHERE album_id = ANY($1) AND deleted_at IS NULL GROUP BY album_id`,
-      [albumIds],
+      `SELECT album_id, COUNT(*) AS count FROM ongi_photos
+        WHERE album_id = ANY($1) AND deleted_at IS NULL AND NOT (author_member_id = ANY($2))
+        GROUP BY album_id`,
+      [albumIds, excludedAuthorMemberIds],
     );
     const latestRows: { album_id: number; url: string; created_at: Date }[] = await this.albumRepository.manager.query(
       `SELECT DISTINCT ON (album_id) album_id, url, created_at
          FROM ongi_photos
-        WHERE album_id = ANY($1) AND deleted_at IS NULL
+        WHERE album_id = ANY($1) AND deleted_at IS NULL AND NOT (author_member_id = ANY($2))
         ORDER BY album_id, created_at DESC, id DESC`,
-      [albumIds],
+      [albumIds, excludedAuthorMemberIds],
     );
 
     const photoCounts = new Map(countRows.map(row => [Number(row.album_id), Number(row.count)]));
