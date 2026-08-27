@@ -18,7 +18,6 @@ import {
   OngiScanPersonPhotosUseCase,
   OngiScanUnfiledPhotosUseCase,
   OngiToggleLikeUseCase,
-  OngiUpdatePhotoUseCase,
   OngiUploadPhotoFilesUseCase,
   OngiUploadPhotosUseCase,
 } from '@/ongi/photo/application/usecase/ongi-photo.usecase';
@@ -43,7 +42,6 @@ import { OngiPersonModule } from '@/ongi/person/ongi-person.module';
     OngiAddCommentUseCase,
     OngiUploadPhotosUseCase,
     OngiUploadPhotoFilesUseCase,
-    OngiUpdatePhotoUseCase,
     OngiDeletePhotoUseCase,
     OngiDeleteCommentUseCase,
     AwsS3Service,

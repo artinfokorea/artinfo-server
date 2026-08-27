@@ -22,8 +22,6 @@ export interface IOngiPhotoRepository {
   scanCommentsByPhotoId(photoId: number): Promise<OngiPhotoComment[]>;
   createComment(creator: OngiPhotoCommentCreator): Promise<OngiPhotoComment>;
   findCommentById(id: number): Promise<OngiPhotoComment | null>;
-  /** 문구·앨범 변경 (작성자 또는 관리자) */
-  update(photoId: number, patch: { caption: string | null; albumId: number | null }): Promise<void>;
   /** 사진과 달린 댓글을 함께 소프트 삭제 */
   softDeletePhoto(photoId: number): Promise<void>;
   /** 댓글 소프트 삭제 + 사진 댓글 수 감소 */

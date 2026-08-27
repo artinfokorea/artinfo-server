@@ -48,18 +48,6 @@ export class OngiAlbumNotInGroup extends HttpException {
   }
 }
 
-export class OngiPhotoUpdateForbidden extends HttpException {
-  constructor() {
-    super(
-      {
-        code: 'ONGI-PHOTO-008',
-        message: '이 사진을 수정할 권한이 없어요.',
-      },
-      HttpStatus.FORBIDDEN,
-    );
-  }
-}
-
 export class OngiPhotoDeleteForbidden extends HttpException {
   constructor() {
     super(

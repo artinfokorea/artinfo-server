@@ -16,7 +16,6 @@ import {
   OngiCommentDeleteForbidden,
   OngiCommentNotFound,
   OngiPhotoDeleteForbidden,
-  OngiPhotoUpdateForbidden,
   OngiPhotoNotFound,
   OngiUploadPhotoRequired,
   OngiUploadTargetRequired,
@@ -195,43 +194,6 @@ export class OngiScanCommentsUseCase {
     await this.accessService.requireMember(photo.groupId, userId);
 
     return this.accessService.withoutBlocked(userId, await this.photoRepository.scanCommentsByPhotoId(photoId));
-  }
-}
-
-@Injectable()
-export class OngiUpdatePhotoUseCase {
-  constructor(
-    @Inject(ONGI_PHOTO_REPOSITORY)
-    private readonly photoRepository: IOngiPhotoRepository,
-
-    @Inject(ONGI_ALBUM_REPOSITORY)
-    private readonly albumRepository: IOngiAlbumRepository,
-
-    private readonly accessService: OngiPhotoAccessService,
-  ) {}
-
-  /** 문구·앨범 변경 — 작성자 본인 또는 그룹 관리자 */
-  async execute(userId: number, photoId: number, patch: { caption: string | null; albumId: number | null }): Promise<OngiPhotoView> {
-    const photo = await this.photoRepository.findById(photoId);
-    if (!photo) throw new OngiPhotoNotFound();
-
-    const me = await this.accessService.requireMember(photo.groupId, userId);
-    const allowed = photo.authorMemberId === me.id || me.role === ONGI_MEMBER_ROLE.ADMIN;
-    if (!allowed) throw new OngiPhotoUpdateForbidden();
-
-    if (patch.albumId !== null) {
-      const album = await this.albumRepository.findById(patch.albumId);
-      if (!album || album.groupId !== photo.groupId) throw new OngiAlbumNotInGroup();
-    }
-
-    await this.photoRepository.update(photoId, patch);
-
-    const updated = await this.photoRepository.findById(photoId);
-    if (!updated) throw new OngiPhotoNotFound();
-
-    const [view] = await toViews(this.photoRepository, userId, [updated]);
-
-    return view;
   }
 }
 
