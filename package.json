@@ -113,7 +113,10 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "bcrypt"
+      "@nestjs/core",
+      "bcrypt",
+      "msgpackr-extract",
+      "sharp"
     ]
   }
 }
