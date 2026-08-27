@@ -15,7 +15,8 @@ WORKDIR /server/
 
 COPY package.json .npmrc ./
 
-RUN npm install -g pnpm
+# pnpm 10 은 CI 에서 postinstall 스크립트를 허용 목록 없이 차단(ERR_PNPM_IGNORED_BUILDS)하므로 9 로 고정
+RUN npm install -g pnpm@9
 ENV CI=true
 RUN pnpm install
 

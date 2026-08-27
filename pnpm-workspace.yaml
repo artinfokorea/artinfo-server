@@ -1,0 +1,6 @@
+# pnpm 10 이상에서 postinstall 스크립트 실행을 허용할 패키지 (pnpm 9 는 무시)
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - bcrypt
+  - msgpackr-extract
+  - sharp
