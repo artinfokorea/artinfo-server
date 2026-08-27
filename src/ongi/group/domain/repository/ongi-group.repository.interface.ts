@@ -15,4 +15,6 @@ export interface IOngiGroupRepository {
   findByInviteCode(inviteCode: string): Promise<OngiGroup | null>;
   renewInviteCode(group: OngiGroup, inviteCode: string, inviteExpiresAt: Date): Promise<OngiGroup>;
   scanSummariesByIds(ids: number[]): Promise<OngiGroupSummary[]>;
+  /** 마지막 구성원이 나가면 공간도 정리 */
+  softDeleteById(id: number): Promise<void>;
 }

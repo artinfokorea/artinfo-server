@@ -34,6 +34,10 @@ export class OngiGroupRepository implements IOngiGroupRepository {
     return this.groupRepository.save(group);
   }
 
+  async softDeleteById(id: number): Promise<void> {
+    await this.groupRepository.softDelete({ id });
+  }
+
   async scanSummariesByIds(ids: number[]): Promise<OngiGroupSummary[]> {
     if (ids.length === 0) return [];
 

@@ -8,6 +8,7 @@ import {
   OngiCreateGroupUseCase,
   OngiGetGroupUseCase,
   OngiJoinGroupUseCase,
+  OngiLeaveGroupUseCase,
   OngiRemoveMemberUseCase,
   OngiScanMembersUseCase,
   OngiScanMyGroupsUseCase,
@@ -26,6 +27,7 @@ export class OngiGroupController {
     private readonly joinGroupUseCase: OngiJoinGroupUseCase,
     private readonly scanMembersUseCase: OngiScanMembersUseCase,
     private readonly removeMemberUseCase: OngiRemoveMemberUseCase,
+    private readonly leaveGroupUseCase: OngiLeaveGroupUseCase,
   ) {}
 
   @RestApiGet(OngiGroupListResponse, { path: '/', description: '내가 속한 가족 공간 목록', auth: [USER_TYPE.CLIENT] })
@@ -61,6 +63,17 @@ export class OngiGroupController {
     const views = await this.scanMembersUseCase.execute(signature.id, groupId);
 
     return new OngiMemberListResponse(views);
+  }
+
+  @RestApiPost(OkResponse, {
+    path: '/:groupId/leave',
+    description: '가족 공간 나가기 — 유일한 관리자면 가장 먼저 참여한 구성원에게 위임, 마지막 구성원이면 공간 정리',
+    auth: [USER_TYPE.CLIENT],
+  })
+  async leaveGroup(@AuthSignature() signature: UserSignature, @Param('groupId', ParseIntPipe) groupId: number) {
+    await this.leaveGroupUseCase.execute(signature.id, groupId);
+
+    return new OkResponse();
   }
 
   @RestApiDelete(OkResponse, { path: '/:groupId/members/:memberId', description: '구성원 내보내기 (관리자 전용)', auth: [USER_TYPE.CLIENT] })

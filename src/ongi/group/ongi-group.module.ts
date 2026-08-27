@@ -17,6 +17,7 @@ import {
   OngiGetGroupUseCase,
   OngiGetMemberUseCase,
   OngiJoinGroupUseCase,
+  OngiLeaveGroupUseCase,
   OngiRemoveMemberUseCase,
   OngiScanMembersUseCase,
   OngiScanMyGroupsUseCase,
@@ -37,6 +38,7 @@ import {
     OngiGetMemberUseCase,
     OngiBlockMemberUseCase,
     OngiRemoveMemberUseCase,
+    OngiLeaveGroupUseCase,
   ],
   exports: [ONGI_GROUP_REPOSITORY, ONGI_MEMBER_REPOSITORY, ONGI_BLOCK_REPOSITORY],
 })

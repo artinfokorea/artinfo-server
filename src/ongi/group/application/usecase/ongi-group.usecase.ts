@@ -200,6 +200,43 @@ export class OngiBlockMemberUseCase {
 }
 
 @Injectable()
+export class OngiLeaveGroupUseCase {
+  constructor(
+    @Inject(ONGI_GROUP_REPOSITORY)
+    private readonly groupRepository: IOngiGroupRepository,
+
+    @Inject(ONGI_MEMBER_REPOSITORY)
+    private readonly memberRepository: IOngiMemberRepository,
+  ) {}
+
+  /**
+   * 가족 공간 나가기.
+   * - 올린 사진·댓글은 남는다 (내보내기와 동일). 완전 삭제는 회원탈퇴.
+   * - 내가 유일한 관리자이고 다른 구성원이 있으면, 가장 먼저 참여한 구성원에게 관리자를 넘긴다 (공간이 관리자 없이 남지 않도록).
+   * - 내가 마지막 구성원이면 공간도 함께 정리한다.
+   */
+  async execute(userId: number, groupId: number): Promise<void> {
+    const me = await this.memberRepository.findByGroupIdAndUserId(groupId, userId);
+    if (!me) throw new OngiNotGroupMember();
+
+    const others = (await this.memberRepository.scanByGroupId(groupId)).filter(m => m.id !== me.id);
+
+    if (others.length === 0) {
+      await this.memberRepository.softDeleteById(me.id);
+      await this.groupRepository.softDeleteById(groupId);
+      return;
+    }
+
+    if (me.role === ONGI_MEMBER_ROLE.ADMIN && !others.some(m => m.role === ONGI_MEMBER_ROLE.ADMIN)) {
+      const successor = others.find(m => m.role === ONGI_MEMBER_ROLE.MEMBER) ?? others[0];
+      await this.memberRepository.updateRole(successor.id, ONGI_MEMBER_ROLE.ADMIN);
+    }
+
+    await this.memberRepository.softDeleteById(me.id);
+  }
+}
+
+@Injectable()
 export class OngiRemoveMemberUseCase {
   constructor(
     @Inject(ONGI_MEMBER_REPOSITORY)

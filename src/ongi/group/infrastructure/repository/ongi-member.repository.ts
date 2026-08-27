@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IOngiMemberRepository, OngiMemberView } from '@/ongi/group/domain/repository/ongi-member.repository.interface';
-import { OngiMember, OngiMemberCreator } from '@/ongi/group/domain/entity/ongi-member.entity';
+import { ONGI_MEMBER_ROLE, OngiMember, OngiMemberCreator } from '@/ongi/group/domain/entity/ongi-member.entity';
 
 @Injectable()
 export class OngiMemberRepository implements IOngiMemberRepository {
@@ -46,6 +46,14 @@ export class OngiMemberRepository implements IOngiMemberRepository {
     const [view] = await this.toViews([member], viewerUserId);
 
     return view ?? null;
+  }
+
+  async scanByGroupId(groupId: number): Promise<OngiMember[]> {
+    return this.memberRepository.find({ where: { groupId }, order: { id: 'ASC' } });
+  }
+
+  async updateRole(id: number, role: ONGI_MEMBER_ROLE): Promise<void> {
+    await this.memberRepository.update({ id }, { role });
   }
 
   async softDeleteById(id: number): Promise<void> {
