@@ -105,6 +105,19 @@ export class OngiCommentListResponse {
   }
 }
 
+export class OngiDeletedPhotosResponse {
+  @ApiProperty({ type: [String], description: '삭제된 사진 id' })
+  deletedIds: string[];
+
+  @ApiProperty({ type: [String], description: '권한이 없거나 이미 없어서 건너뛴 사진 id' })
+  skippedIds: string[];
+
+  constructor(result: { deletedIds: number[]; skippedIds: number[] }) {
+    this.deletedIds = result.deletedIds.map(String);
+    this.skippedIds = result.skippedIds.map(String);
+  }
+}
+
 export class OngiUploadedPhotoFilesResponse {
   @ApiProperty({ type: [String], description: '업로드된 사진 URL 목록 (요청 파일 순서 그대로)' })
   urls: string[];

@@ -225,6 +225,60 @@ export class OngiDeletePhotoUseCase {
 }
 
 @Injectable()
+export class OngiDeletePhotosUseCase {
+  constructor(
+    @Inject(ONGI_PHOTO_REPOSITORY)
+    private readonly photoRepository: IOngiPhotoRepository,
+
+    @Inject(ONGI_MEMBER_REPOSITORY)
+    private readonly memberRepository: IOngiMemberRepository,
+
+    private readonly awsS3Service: AwsS3Service,
+  ) {}
+
+  /**
+   * 사진 일괄 삭제 — 사진마다 작성자 본인 또는 그룹 관리자인지 확인하고, 권한 없는 것은 건너뛴다 (전체 실패 대신 부분 성공).
+   * 댓글도 함께 삭제하고, 다른 사진이 쓰지 않는 파일은 S3 원본도 지운다.
+   */
+  async execute(userId: number, photoIds: number[]): Promise<{ deletedIds: number[]; skippedIds: number[] }> {
+    const deletedIds: number[] = [];
+    const skippedIds: number[] = [];
+    const memberByGroup = new Map<number, OngiMember | null>();
+    const urlsToCheck = new Set<string>();
+
+    for (const photoId of photoIds) {
+      const photo = await this.photoRepository.findById(photoId);
+      if (!photo) {
+        skippedIds.push(photoId);
+        continue;
+      }
+
+      if (!memberByGroup.has(photo.groupId)) {
+        memberByGroup.set(photo.groupId, await this.memberRepository.findByGroupIdAndUserId(photo.groupId, userId));
+      }
+      const me = memberByGroup.get(photo.groupId);
+      const allowed = !!me && (photo.authorMemberId === me.id || me.role === ONGI_MEMBER_ROLE.ADMIN);
+      if (!allowed) {
+        skippedIds.push(photoId);
+        continue;
+      }
+
+      await this.photoRepository.softDeletePhoto(photoId);
+      deletedIds.push(photoId);
+      urlsToCheck.add(photo.url);
+    }
+
+    const orphanUrls: string[] = [];
+    for (const url of urlsToCheck) {
+      if ((await this.photoRepository.countActiveByUrl(url)) === 0) orphanUrls.push(url);
+    }
+    if (orphanUrls.length > 0) await this.awsS3Service.deleteByUrls(orphanUrls);
+
+    return { deletedIds, skippedIds };
+  }
+}
+
+@Injectable()
 export class OngiDeleteCommentUseCase {
   constructor(
     @Inject(ONGI_PHOTO_REPOSITORY)

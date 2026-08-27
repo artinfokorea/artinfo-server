@@ -11,6 +11,7 @@ import {
   OngiAddCommentUseCase,
   OngiDeleteCommentUseCase,
   OngiDeletePhotoUseCase,
+  OngiDeletePhotosUseCase,
   OngiGetPhotoUseCase,
   OngiScanAlbumPhotosUseCase,
   OngiScanCommentsUseCase,
@@ -23,9 +24,11 @@ import {
 } from '@/ongi/photo/application/usecase/ongi-photo.usecase';
 import { OngiUploadPhotosRequest } from '@/ongi/photo/presentation/dto/request/ongi-upload-photos.request';
 import { OngiAddCommentRequest } from '@/ongi/photo/presentation/dto/request/ongi-add-comment.request';
+import { OngiDeletePhotosRequest } from '@/ongi/photo/presentation/dto/request/ongi-delete-photos.request';
 import {
   OngiCommentListResponse,
   OngiCommentResponse,
+  OngiDeletedPhotosResponse,
   OngiPhotoListResponse,
   OngiPhotoResponse,
   OngiUploadedPhotoFilesResponse,
@@ -45,6 +48,7 @@ export class OngiPhotoController {
     private readonly uploadPhotosUseCase: OngiUploadPhotosUseCase,
     private readonly uploadPhotoFilesUseCase: OngiUploadPhotoFilesUseCase,
     private readonly deletePhotoUseCase: OngiDeletePhotoUseCase,
+    private readonly deletePhotosUseCase: OngiDeletePhotosUseCase,
     private readonly deleteCommentUseCase: OngiDeleteCommentUseCase,
   ) {}
 
@@ -129,6 +133,17 @@ export class OngiPhotoController {
     const comment = await this.addCommentUseCase.execute(signature.id, photoId, request.text.trim());
 
     return new OngiCommentResponse(comment);
+  }
+
+  @RestApiPost(OngiDeletedPhotosResponse, {
+    path: '/photos/delete',
+    description: '사진 일괄 삭제 (사진마다 작성자 또는 관리자 확인, 권한 없는 것은 건너뜀) — 댓글도 함께 삭제',
+    auth: [USER_TYPE.CLIENT],
+  })
+  async deletePhotos(@AuthSignature() signature: UserSignature, @Body() request: OngiDeletePhotosRequest) {
+    const result = await this.deletePhotosUseCase.execute(signature.id, request.toPhotoIds());
+
+    return new OngiDeletedPhotosResponse(result);
   }
 
   @RestApiDelete(OkResponse, { path: '/photos/:photoId', description: '사진 삭제 (작성자 또는 관리자) — 댓글도 함께 삭제', auth: [USER_TYPE.CLIENT] })
