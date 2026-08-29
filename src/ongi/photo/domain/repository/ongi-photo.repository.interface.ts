@@ -7,6 +7,8 @@ export const ONGI_PHOTO_REPOSITORY = Symbol('ONGI_PHOTO_REPOSITORY');
 export interface OngiPhotoView {
   photo: OngiPhoto;
   likedByMe: boolean;
+  /** 요청자 기준 보이는 댓글 수 — 삭제·탈퇴·차단된 작성자 댓글 제외 (비정규화 comment_count 대신 조회 시 계산) */
+  commentCount: number;
 }
 
 export interface IOngiPhotoRepository {
@@ -17,6 +19,8 @@ export interface IOngiPhotoRepository {
   scanUnfiledByGroupId(groupId: number): Promise<OngiPhoto[]>;
   scanByPersonId(groupId: number, personId: number): Promise<OngiPhoto[]>;
   likedPhotoIdsOf(userId: number, photoIds: number[]): Promise<number[]>;
+  /** 사진별 살아있는 댓글 수 — excludedMemberIds 작성자 댓글은 제외 */
+  countCommentsByPhotoIds(photoIds: number[], excludedMemberIds: number[]): Promise<Map<number, number>>;
   /** 좋아요 토글 — 토글 후 좋아요 상태를 반환 */
   toggleLike(photoId: number, userId: number): Promise<boolean>;
   scanCommentsByPhotoId(photoId: number): Promise<OngiPhotoComment[]>;

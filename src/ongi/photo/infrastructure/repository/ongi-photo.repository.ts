@@ -66,6 +66,19 @@ export class OngiPhotoRepository implements IOngiPhotoRepository {
     return likes.map(like => like.photoId);
   }
 
+  async countCommentsByPhotoIds(photoIds: number[], excludedMemberIds: number[]): Promise<Map<number, number>> {
+    if (photoIds.length === 0) return new Map();
+
+    const rows: { photo_id: number; count: string }[] = await this.photoRepository.manager.query(
+      `SELECT photo_id, COUNT(*)::text AS count FROM ongi_photo_comments
+        WHERE photo_id = ANY($1) AND deleted_at IS NULL AND NOT (author_member_id = ANY($2))
+        GROUP BY photo_id`,
+      [photoIds, excludedMemberIds],
+    );
+
+    return new Map(rows.map(row => [Number(row.photo_id), Number(row.count)]));
+  }
+
   async toggleLike(photoId: number, userId: number): Promise<boolean> {
     return this.photoRepository.manager.transaction(async manager => {
       const existing = await manager.findOne(OngiPhotoLike, { where: { photoId, userId } });

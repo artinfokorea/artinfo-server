@@ -116,6 +116,15 @@ export class OngiUserRepository implements IOngiUserRepository {
         [id],
       );
 
+      // 댓글·좋아요를 지우면 사진의 비정규화 카운터(comment_count·like_count)도 함께 맞춰야 목록 숫자가 어긋나지 않는다
+      const commentedRows: { photo_id: number }[] = await manager.query(
+        `SELECT DISTINCT photo_id FROM ongi_photo_comments
+          WHERE deleted_at IS NULL
+            AND author_member_id IN (SELECT id FROM ongi_members WHERE user_id = $1)`,
+        [id],
+      );
+      const likedRows: { photo_id: number }[] = await manager.query(`SELECT DISTINCT photo_id FROM ongi_photo_likes WHERE user_id = $1`, [id]);
+
       await manager.query(
         `UPDATE ongi_photo_comments SET deleted_at = now()
           WHERE deleted_at IS NULL
@@ -137,6 +146,25 @@ export class OngiUserRepository implements IOngiUserRepository {
       await manager.query(`UPDATE ongi_members SET deleted_at = now() WHERE user_id = $1 AND deleted_at IS NULL`, [id]);
 
       await manager.query(`DELETE FROM ongi_photo_likes WHERE user_id = $1`, [id]);
+
+      const commentedPhotoIds = commentedRows.map(r => Number(r.photo_id));
+      if (commentedPhotoIds.length > 0) {
+        await manager.query(
+          `UPDATE ongi_photos p
+              SET comment_count = (SELECT COUNT(*) FROM ongi_photo_comments c WHERE c.photo_id = p.id AND c.deleted_at IS NULL)
+            WHERE p.id = ANY($1)`,
+          [commentedPhotoIds],
+        );
+      }
+      const likedPhotoIds = likedRows.map(r => Number(r.photo_id));
+      if (likedPhotoIds.length > 0) {
+        await manager.query(
+          `UPDATE ongi_photos p
+              SET like_count = (SELECT COUNT(*) FROM ongi_photo_likes l WHERE l.photo_id = p.id)
+            WHERE p.id = ANY($1)`,
+          [likedPhotoIds],
+        );
+      }
       await manager.query(`DELETE FROM ongi_blocks WHERE user_id = $1 OR blocked_user_id = $1`, [id]);
       // 발급된 로그인 토큰도 즉시 무효화
       await manager.query(`DELETE FROM ongi_auths WHERE user_id = $1`, [id]);

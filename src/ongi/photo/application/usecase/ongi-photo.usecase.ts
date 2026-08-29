@@ -84,7 +84,7 @@ export class OngiScanFeedUseCase {
 
     const photos = await this.accessService.withoutBlocked(userId, await this.photoRepository.scanByGroupId(groupId));
 
-    return toViews(this.photoRepository, userId, photos);
+    return toViews(this.photoRepository, this.accessService, userId, photos);
   }
 }
 
@@ -108,7 +108,7 @@ export class OngiScanAlbumPhotosUseCase {
 
     const photos = await this.accessService.withoutBlocked(userId, await this.photoRepository.scanByAlbumId(albumId));
 
-    return toViews(this.photoRepository, userId, photos);
+    return toViews(this.photoRepository, this.accessService, userId, photos);
   }
 }
 
@@ -132,7 +132,7 @@ export class OngiScanPersonPhotosUseCase {
 
     const photos = await this.accessService.withoutBlocked(userId, await this.photoRepository.scanByPersonId(person.groupId, personId));
 
-    return toViews(this.photoRepository, userId, photos);
+    return toViews(this.photoRepository, this.accessService, userId, photos);
   }
 }
 
@@ -151,7 +151,7 @@ export class OngiGetPhotoUseCase {
 
     await this.accessService.requireMember(photo.groupId, userId);
 
-    const [view] = await toViews(this.photoRepository, userId, [photo]);
+    const [view] = await toViews(this.photoRepository, this.accessService, userId, [photo]);
 
     return view;
   }
@@ -176,7 +176,9 @@ export class OngiToggleLikeUseCase {
     const updated = await this.photoRepository.findById(photoId);
     if (!updated) throw new OngiPhotoNotFound();
 
-    return { photo: updated, likedByMe };
+    const [view] = await toViews(this.photoRepository, this.accessService, userId, [updated]);
+
+    return { ...view, likedByMe };
   }
 }
 
@@ -516,7 +518,7 @@ export class OngiUploadPhotosUseCase {
       });
     }
 
-    return created.map(photo => ({ photo, likedByMe: false }));
+    return created.map(photo => ({ photo, likedByMe: false, commentCount: 0 }));
   }
 }
 
@@ -535,7 +537,7 @@ export class OngiScanUnfiledPhotosUseCase {
 
     const photos = await this.accessService.withoutBlocked(userId, await this.photoRepository.scanUnfiledByGroupId(groupId));
 
-    return toViews(this.photoRepository, userId, photos);
+    return toViews(this.photoRepository, this.accessService, userId, photos);
   }
 }
 
@@ -563,13 +565,17 @@ export class OngiUploadPhotoFilesUseCase {
   }
 }
 
-async function toViews(photoRepository: IOngiPhotoRepository, userId: number, photos: OngiPhoto[]): Promise<OngiPhotoView[]> {
-  const likedIds = new Set(
-    await photoRepository.likedPhotoIdsOf(
-      userId,
-      photos.map(photo => photo.id),
-    ),
-  );
+async function toViews(
+  photoRepository: IOngiPhotoRepository,
+  accessService: OngiPhotoAccessService,
+  userId: number,
+  photos: OngiPhoto[],
+): Promise<OngiPhotoView[]> {
+  const photoIds = photos.map(photo => photo.id);
+  const [likedIds, blocked] = await Promise.all([photoRepository.likedPhotoIdsOf(userId, photoIds), accessService.blockedMemberIdsOf(userId)]);
+  // 댓글 수는 상세의 댓글 목록과 같은 기준(삭제·탈퇴·차단 제외)으로 센다 — 비정규화 카운터는 탈퇴 등으로 어긋날 수 있다
+  const commentCounts = await photoRepository.countCommentsByPhotoIds(photoIds, [...blocked]);
+  const liked = new Set(likedIds);
 
-  return photos.map(photo => ({ photo, likedByMe: likedIds.has(photo.id) }));
+  return photos.map(photo => ({ photo, likedByMe: liked.has(photo.id), commentCount: commentCounts.get(photo.id) ?? 0 }));
 }

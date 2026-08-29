@@ -57,7 +57,7 @@ export class OngiPhotoResponse {
     this.location = photo.location ?? undefined;
     this.createdAt = new Date(photo.createdAt).toISOString();
     this.likeCount = photo.likeCount;
-    this.commentCount = photo.commentCount;
+    this.commentCount = view.commentCount;
     this.likedByMe = view.likedByMe;
     this.personIds = (photo.personIds ?? []).map(id => String(id));
   }
