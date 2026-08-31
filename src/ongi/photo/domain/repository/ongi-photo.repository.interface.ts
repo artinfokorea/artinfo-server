@@ -11,13 +11,22 @@ export interface OngiPhotoView {
   commentCount: number;
 }
 
+/** 사진 목록 조회 옵션 — 커서 페이지네이션 + 차단 작성자 제외 (모두 선택) */
+export interface OngiPhotoScanOptions {
+  /** 이 작성자(member id)들의 사진 제외 — 차단 필터를 SQL 에 넣어 페이지가 비지 않게 한다 */
+  excludedMemberIds?: number[];
+  /** 이 사진 id 이후(더 오래된)부터 — (created_at, id) 커서 */
+  after?: number;
+  limit?: number;
+}
+
 export interface IOngiPhotoRepository {
   create(creator: OngiPhotoCreator): Promise<OngiPhoto>;
   findById(id: number): Promise<OngiPhoto | null>;
-  scanByGroupId(groupId: number): Promise<OngiPhoto[]>;
-  scanByAlbumId(albumId: number): Promise<OngiPhoto[]>;
-  scanUnfiledByGroupId(groupId: number): Promise<OngiPhoto[]>;
-  scanByPersonId(groupId: number, personId: number): Promise<OngiPhoto[]>;
+  scanByGroupId(groupId: number, options?: OngiPhotoScanOptions): Promise<OngiPhoto[]>;
+  scanByAlbumId(albumId: number, options?: OngiPhotoScanOptions): Promise<OngiPhoto[]>;
+  scanUnfiledByGroupId(groupId: number, options?: OngiPhotoScanOptions): Promise<OngiPhoto[]>;
+  scanByPersonId(groupId: number, personId: number, options?: OngiPhotoScanOptions): Promise<OngiPhoto[]>;
   likedPhotoIdsOf(userId: number, photoIds: number[]): Promise<number[]>;
   /** 사진별 살아있는 댓글 수 — excludedMemberIds 작성자 댓글은 제외 */
   countCommentsByPhotoIds(photoIds: number[], excludedMemberIds: number[]): Promise<Map<number, number>>;

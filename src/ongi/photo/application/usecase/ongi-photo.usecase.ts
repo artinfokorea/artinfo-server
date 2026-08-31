@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { IOngiPhotoRepository, ONGI_PHOTO_REPOSITORY, OngiPhotoView } from '@/ongi/photo/domain/repository/ongi-photo.repository.interface';
+import { IOngiPhotoRepository, type OngiPhotoScanOptions, ONGI_PHOTO_REPOSITORY, OngiPhotoView } from '@/ongi/photo/domain/repository/ongi-photo.repository.interface';
 import { IOngiMemberRepository, ONGI_MEMBER_REPOSITORY } from '@/ongi/group/domain/repository/ongi-member.repository.interface';
 import { IOngiBlockRepository, ONGI_BLOCK_REPOSITORY } from '@/ongi/group/domain/repository/ongi-block.repository.interface';
 import { IOngiAlbumRepository, ONGI_ALBUM_REPOSITORY } from '@/ongi/album/domain/repository/ongi-album.repository.interface';
@@ -70,6 +70,12 @@ export class OngiPhotoAccessService {
   }
 }
 
+/** 목록 페이지 파라미터 — 없으면 전체 조회 (구버전 클라이언트 호환) */
+export interface OngiPhotoPage {
+  after?: number;
+  limit?: number;
+}
+
 @Injectable()
 export class OngiScanFeedUseCase {
   constructor(
@@ -79,10 +85,10 @@ export class OngiScanFeedUseCase {
     private readonly accessService: OngiPhotoAccessService,
   ) {}
 
-  async execute(userId: number, groupId: number): Promise<OngiPhotoView[]> {
+  async execute(userId: number, groupId: number, page?: OngiPhotoPage): Promise<OngiPhotoView[]> {
     await this.accessService.requireMember(groupId, userId);
 
-    const photos = await this.accessService.withoutBlocked(userId, await this.photoRepository.scanByGroupId(groupId));
+    const photos = await this.photoRepository.scanByGroupId(groupId, await scanOptions(this.accessService, userId, page));
 
     return toViews(this.photoRepository, this.accessService, userId, photos);
   }
@@ -100,13 +106,13 @@ export class OngiScanAlbumPhotosUseCase {
     private readonly accessService: OngiPhotoAccessService,
   ) {}
 
-  async execute(userId: number, albumId: number): Promise<OngiPhotoView[]> {
+  async execute(userId: number, albumId: number, page?: OngiPhotoPage): Promise<OngiPhotoView[]> {
     const album = await this.albumRepository.findById(albumId);
     if (!album) throw new OngiAlbumNotFound();
 
     await this.accessService.requireMember(album.groupId, userId);
 
-    const photos = await this.accessService.withoutBlocked(userId, await this.photoRepository.scanByAlbumId(albumId));
+    const photos = await this.photoRepository.scanByAlbumId(albumId, await scanOptions(this.accessService, userId, page));
 
     return toViews(this.photoRepository, this.accessService, userId, photos);
   }
@@ -124,13 +130,13 @@ export class OngiScanPersonPhotosUseCase {
     private readonly accessService: OngiPhotoAccessService,
   ) {}
 
-  async execute(userId: number, personId: number): Promise<OngiPhotoView[]> {
+  async execute(userId: number, personId: number, page?: OngiPhotoPage): Promise<OngiPhotoView[]> {
     const person = await this.personRepository.findById(personId);
     if (!person) throw new OngiPersonNotFound();
 
     await this.accessService.requireMember(person.groupId, userId);
 
-    const photos = await this.accessService.withoutBlocked(userId, await this.photoRepository.scanByPersonId(person.groupId, personId));
+    const photos = await this.photoRepository.scanByPersonId(person.groupId, personId, await scanOptions(this.accessService, userId, page));
 
     return toViews(this.photoRepository, this.accessService, userId, photos);
   }
@@ -532,10 +538,10 @@ export class OngiScanUnfiledPhotosUseCase {
   ) {}
 
   /** 앨범에 담기지 않은 그룹 사진 (최신순) */
-  async execute(userId: number, groupId: number): Promise<OngiPhotoView[]> {
+  async execute(userId: number, groupId: number, page?: OngiPhotoPage): Promise<OngiPhotoView[]> {
     await this.accessService.requireMember(groupId, userId);
 
-    const photos = await this.accessService.withoutBlocked(userId, await this.photoRepository.scanUnfiledByGroupId(groupId));
+    const photos = await this.photoRepository.scanUnfiledByGroupId(groupId, await scanOptions(this.accessService, userId, page));
 
     return toViews(this.photoRepository, this.accessService, userId, photos);
   }
@@ -563,6 +569,13 @@ export class OngiUploadPhotoFilesUseCase {
 
     return views;
   }
+}
+
+/** 차단 작성자 제외를 SQL 로 내리기 위한 조회 옵션 — limit 이 있어도 페이지가 비지 않는다 */
+async function scanOptions(accessService: OngiPhotoAccessService, userId: number, page?: OngiPhotoPage): Promise<OngiPhotoScanOptions> {
+  const blocked = await accessService.blockedMemberIdsOf(userId);
+
+  return { excludedMemberIds: [...blocked], after: page?.after, limit: page?.limit };
 }
 
 async function toViews(

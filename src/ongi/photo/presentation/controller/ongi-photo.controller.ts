@@ -1,4 +1,4 @@
-import { Body, Param, ParseIntPipe, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { Body, Param, ParseIntPipe, UploadedFiles, UseInterceptors , Query } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes } from '@nestjs/swagger';
 import { RestApiController, RestApiDelete, RestApiGet, RestApiPost } from '@/common/decorator/rest-api';
@@ -40,6 +40,14 @@ import {
   OngiUploadedPhotoFilesResponse,
 } from '@/ongi/photo/presentation/dto/response/ongi-photo.response';
 
+
+/** ?limit=&after= — 없으면 전체 조회(구버전 앱 호환). limit 은 1~100 으로 강제 */
+function pageOf(limit?: string, after?: string) {
+  const parsedLimit = limit ? Math.min(Math.max(parseInt(limit, 10) || 0, 1), 100) : undefined;
+  const parsedAfter = after ? parseInt(after, 10) || undefined : undefined;
+
+  return { limit: parsedLimit, after: parsedAfter };
+}
 @RestApiController('/ongi', 'Ongi Photo')
 export class OngiPhotoController {
   constructor(
@@ -61,29 +69,49 @@ export class OngiPhotoController {
   ) {}
 
   @RestApiGet(OngiPhotoListResponse, { path: '/groups/:groupId/photos', description: '그룹 피드 (최신순)', auth: [USER_TYPE.CLIENT] })
-  async scanFeed(@AuthSignature() signature: UserSignature, @Param('groupId', ParseIntPipe) groupId: number) {
-    const views = await this.scanFeedUseCase.execute(signature.id, groupId);
+  async scanFeed(
+    @AuthSignature() signature: UserSignature,
+    @Param('groupId', ParseIntPipe) groupId: number,
+    @Query('limit') limit?: string,
+    @Query('after') after?: string,
+  ) {
+    const views = await this.scanFeedUseCase.execute(signature.id, groupId, pageOf(limit, after));
 
     return new OngiPhotoListResponse(views);
   }
 
   @RestApiGet(OngiPhotoListResponse, { path: '/groups/:groupId/photos/unfiled', description: '앨범에 담기지 않은 사진 (최신순)', auth: [USER_TYPE.CLIENT] })
-  async scanUnfiledPhotos(@AuthSignature() signature: UserSignature, @Param('groupId', ParseIntPipe) groupId: number) {
-    const views = await this.scanUnfiledPhotosUseCase.execute(signature.id, groupId);
+  async scanUnfiledPhotos(
+    @AuthSignature() signature: UserSignature,
+    @Param('groupId', ParseIntPipe) groupId: number,
+    @Query('limit') limit?: string,
+    @Query('after') after?: string,
+  ) {
+    const views = await this.scanUnfiledPhotosUseCase.execute(signature.id, groupId, pageOf(limit, after));
 
     return new OngiPhotoListResponse(views);
   }
 
   @RestApiGet(OngiPhotoListResponse, { path: '/albums/:albumId/photos', description: '앨범에 담긴 사진 (최신순)', auth: [USER_TYPE.CLIENT] })
-  async scanAlbumPhotos(@AuthSignature() signature: UserSignature, @Param('albumId', ParseIntPipe) albumId: number) {
-    const views = await this.scanAlbumPhotosUseCase.execute(signature.id, albumId);
+  async scanAlbumPhotos(
+    @AuthSignature() signature: UserSignature,
+    @Param('albumId', ParseIntPipe) albumId: number,
+    @Query('limit') limit?: string,
+    @Query('after') after?: string,
+  ) {
+    const views = await this.scanAlbumPhotosUseCase.execute(signature.id, albumId, pageOf(limit, after));
 
     return new OngiPhotoListResponse(views);
   }
 
   @RestApiGet(OngiPhotoListResponse, { path: '/people/:personId/photos', description: '인물이 태그된 사진 (최신순)', auth: [USER_TYPE.CLIENT] })
-  async scanPersonPhotos(@AuthSignature() signature: UserSignature, @Param('personId', ParseIntPipe) personId: number) {
-    const views = await this.scanPersonPhotosUseCase.execute(signature.id, personId);
+  async scanPersonPhotos(
+    @AuthSignature() signature: UserSignature,
+    @Param('personId', ParseIntPipe) personId: number,
+    @Query('limit') limit?: string,
+    @Query('after') after?: string,
+  ) {
+    const views = await this.scanPersonPhotosUseCase.execute(signature.id, personId, pageOf(limit, after));
 
     return new OngiPhotoListResponse(views);
   }

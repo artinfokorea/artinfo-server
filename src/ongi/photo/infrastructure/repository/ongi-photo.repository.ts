@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, IsNull, Repository } from 'typeorm';
-import { IOngiPhotoRepository } from '@/ongi/photo/domain/repository/ongi-photo.repository.interface';
+import { IOngiPhotoRepository, type OngiPhotoScanOptions } from '@/ongi/photo/domain/repository/ongi-photo.repository.interface';
 import { OngiPhoto, OngiPhotoCreator } from '@/ongi/photo/domain/entity/ongi-photo.entity';
 import { OngiPhotoLike } from '@/ongi/photo/domain/entity/ongi-photo-like.entity';
 import { OngiPhotoComment, OngiPhotoCommentCreator } from '@/ongi/photo/domain/entity/ongi-photo-comment.entity';
@@ -36,25 +36,38 @@ export class OngiPhotoRepository implements IOngiPhotoRepository {
     return this.photoRepository.findOneBy({ id });
   }
 
-  async scanByGroupId(groupId: number): Promise<OngiPhoto[]> {
-    return this.photoRepository.find({ where: { groupId }, order: { createdAt: 'DESC', id: 'DESC' } });
-  }
-
-  async scanByAlbumId(albumId: number): Promise<OngiPhoto[]> {
-    return this.photoRepository.find({ where: { albumId }, order: { createdAt: 'DESC', id: 'DESC' } });
-  }
-
-  async scanUnfiledByGroupId(groupId: number): Promise<OngiPhoto[]> {
-    return this.photoRepository.find({ where: { groupId, albumId: IsNull() }, order: { createdAt: 'DESC', id: 'DESC' } });
-  }
-
-  async scanByPersonId(groupId: number, personId: number): Promise<OngiPhoto[]> {
-    return this.photoRepository
+  /** 최신순 목록 공통 — 커서(after)·개수 제한(limit)·차단 작성자 제외를 SQL 로 처리해 페이지가 비지 않게 한다 */
+  private listQuery(options?: OngiPhotoScanOptions) {
+    const query = this.photoRepository
       .createQueryBuilder('photo')
-      .where('photo.groupId = :groupId', { groupId })
-      .andWhere('photo.person_ids @> :personId::jsonb', { personId: JSON.stringify([personId]) })
       .orderBy('photo.createdAt', 'DESC')
-      .addOrderBy('photo.id', 'DESC')
+      .addOrderBy('photo.id', 'DESC');
+    if (options?.excludedMemberIds?.length) {
+      query.andWhere('photo.author_member_id NOT IN (:...excludedMemberIds)', { excludedMemberIds: options.excludedMemberIds });
+    }
+    if (options?.after != null) {
+      query.andWhere('(photo.created_at, photo.id) < (SELECT p.created_at, p.id FROM ongi_photos p WHERE p.id = :after)', { after: options.after });
+    }
+    if (options?.limit != null) query.take(options.limit);
+    return query;
+  }
+
+  async scanByGroupId(groupId: number, options?: OngiPhotoScanOptions): Promise<OngiPhoto[]> {
+    return this.listQuery(options).andWhere('photo.groupId = :groupId', { groupId }).getMany();
+  }
+
+  async scanByAlbumId(albumId: number, options?: OngiPhotoScanOptions): Promise<OngiPhoto[]> {
+    return this.listQuery(options).andWhere('photo.albumId = :albumId', { albumId }).getMany();
+  }
+
+  async scanUnfiledByGroupId(groupId: number, options?: OngiPhotoScanOptions): Promise<OngiPhoto[]> {
+    return this.listQuery(options).andWhere('photo.groupId = :groupId', { groupId }).andWhere('photo.album_id IS NULL').getMany();
+  }
+
+  async scanByPersonId(groupId: number, personId: number, options?: OngiPhotoScanOptions): Promise<OngiPhoto[]> {
+    return this.listQuery(options)
+      .andWhere('photo.groupId = :groupId', { groupId })
+      .andWhere('photo.person_ids @> :personId::jsonb', { personId: JSON.stringify([personId]) })
       .getMany();
   }
 
