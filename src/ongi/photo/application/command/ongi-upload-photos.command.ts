@@ -1,5 +1,6 @@
 export interface OngiUploadPhotoItem {
   url: string;
+  thumbUrl: string | null;
   aspectRatio: number;
 }
 

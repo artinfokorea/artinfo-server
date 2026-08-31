@@ -20,6 +20,8 @@ export class OngiSchemaBootstrapService implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     const statements = [
+      // 사진 목록용 축소본 컬럼 (2026-08-31) — 배포/DDL 순서 사고 방지
+      `ALTER TABLE ongi_photos ADD COLUMN IF NOT EXISTS thumb_url VARCHAR`,
       `CREATE TABLE IF NOT EXISTS ongi_blocks (
         id              SERIAL PRIMARY KEY,
         user_id         INTEGER NOT NULL,

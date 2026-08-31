@@ -11,6 +11,9 @@ export class OngiPhotoResponse {
   @ApiProperty({ type: String, description: '그룹 id' })
   groupId: string;
 
+  @ApiProperty({ type: String, required: false, description: '목록용 축소본 URL — 없으면 url 사용' })
+  thumbUrl?: string;
+
   @ApiProperty({ type: String, description: '사진 URL' })
   url: string;
 
@@ -50,6 +53,7 @@ export class OngiPhotoResponse {
     this.id = String(photo.id);
     this.groupId = String(photo.groupId);
     this.url = signOngiMediaUrl(photo.url);
+    this.thumbUrl = photo.thumbUrl ? signOngiMediaUrl(photo.thumbUrl) : undefined;
     this.aspectRatio = Number(photo.aspectRatio);
     this.authorId = String(photo.authorMemberId);
     this.albumId = photo.albumId === null ? undefined : String(photo.albumId);
@@ -149,8 +153,12 @@ export class OngiUploadedPhotoFilesResponse {
   @ApiProperty({ type: [String], description: '업로드된 사진 URL 목록 (요청 파일 순서 그대로)' })
   urls: string[];
 
+  @ApiProperty({ type: [String], description: '목록용 축소본 URL (urls 와 같은 순서, 생성 실패 시 null)' })
+  thumbUrls: (string | null)[];
+
   constructor(views: OngiUploadedPhotoFileView[]) {
     // 업로드 직후 미리보기용 — 게시(POST /ongi/photos)에는 서명 없는 원본 URL 을 보내야 하므로 여기서는 서명하지 않는다
     this.urls = views.map(view => view.url);
+    this.thumbUrls = views.map(view => view.thumbUrl);
   }
 }

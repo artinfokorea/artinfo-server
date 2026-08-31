@@ -98,8 +98,8 @@ export class OngiUserRepository implements IOngiUserRepository {
         `SELECT icon_image_url FROM ongi_users WHERE id = $1 AND deleted_at IS NULL`,
         [id],
       );
-      const photoRows: { url: string }[] = await manager.query(
-        `SELECT url FROM ongi_photos
+      const photoRows: { url: string; thumb_url: string | null }[] = await manager.query(
+        `SELECT url, thumb_url FROM ongi_photos
           WHERE deleted_at IS NULL
             AND author_member_id IN (SELECT id FROM ongi_members WHERE user_id = $1)`,
         [id],
@@ -170,6 +170,7 @@ export class OngiUserRepository implements IOngiUserRepository {
       await manager.query(`DELETE FROM ongi_auths WHERE user_id = $1`, [id]);
 
       // 멀티 그룹 업로드로 다른 사람 사진이 같은 파일을 쓸 수는 없지만(작성자 기준 삭제), 방어적으로 살아있는 참조가 없는 것만 고른다
+      const thumbByUrl = new Map(photoRows.filter(r => r.thumb_url).map(r => [r.url, r.thumb_url!] as const));
       const urls = [...new Set(photoRows.map(r => r.url))];
       const orphanUrls: string[] = [];
       for (const url of urls) {
@@ -177,7 +178,11 @@ export class OngiUserRepository implements IOngiUserRepository {
           `SELECT COUNT(*)::text AS count FROM ongi_photos WHERE url = $1 AND deleted_at IS NULL`,
           [url],
         );
-        if (count === '0') orphanUrls.push(url);
+        if (count === '0') {
+          orphanUrls.push(url);
+          const thumb = thumbByUrl.get(url);
+          if (thumb) orphanUrls.push(thumb);
+        }
       }
       if (user?.icon_image_url) orphanUrls.push(user.icon_image_url);
 

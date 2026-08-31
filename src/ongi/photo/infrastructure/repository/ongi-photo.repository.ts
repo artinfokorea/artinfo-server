@@ -25,6 +25,7 @@ export class OngiPhotoRepository implements IOngiPhotoRepository {
       authorMemberId: creator.authorMemberId,
       albumId: creator.albumId,
       url: creator.url,
+      thumbUrl: creator.thumbUrl,
       aspectRatio: creator.aspectRatio,
       caption: creator.caption,
       location: creator.location,

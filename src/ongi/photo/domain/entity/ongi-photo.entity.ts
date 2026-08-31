@@ -5,6 +5,7 @@ export interface OngiPhotoCreator {
   authorMemberId: number;
   albumId: number | null;
   url: string;
+  thumbUrl: string | null;
   aspectRatio: number;
   caption: string | null;
   location: string | null;
@@ -27,6 +28,10 @@ export class OngiPhoto extends BaseEntity {
 
   @Column({ type: 'varchar', name: 'url' })
   url: string;
+
+  /** 목록용 축소본(webp) — 업로드 시 생성. 없으면(구버전 사진) url 사용 */
+  @Column({ type: 'varchar', name: 'thumb_url', nullable: true })
+  thumbUrl: string | null;
 
   @Column({ type: 'double precision', name: 'aspect_ratio', default: 1 })
   aspectRatio: number;

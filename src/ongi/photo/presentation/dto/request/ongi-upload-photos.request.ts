@@ -12,6 +12,11 @@ export class OngiUploadPhotoItemRequest {
   url: string;
 
   @IsOptional()
+  @IsString()
+  @ApiProperty({ type: String, required: false, description: '목록용 축소본 URL (업로드 응답의 thumbUrls)' })
+  thumbUrl?: string;
+
+  @IsOptional()
   @IsNumber()
   @ApiProperty({ type: Number, required: false, description: '세로 비율 힌트 (width/height)', example: 1 })
   aspectRatio?: number;
@@ -55,7 +60,7 @@ export class OngiUploadPhotosRequest {
 
   toCommand(): OngiUploadPhotosCommand {
     return new OngiUploadPhotosCommand({
-      photos: this.photos.map(photo => ({ url: photo.url.trim(), aspectRatio: photo.aspectRatio ?? 1 })),
+      photos: this.photos.map(photo => ({ url: photo.url.trim(), thumbUrl: photo.thumbUrl?.trim() || null, aspectRatio: photo.aspectRatio ?? 1 })),
       caption: this.caption?.trim() || null,
       targets: this.targets.map(target => ({
         groupId: Number(target.groupId),

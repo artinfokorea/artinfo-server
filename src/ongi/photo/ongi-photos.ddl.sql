@@ -42,3 +42,6 @@ CREATE TABLE IF NOT EXISTS ongi_photo_comments (
   deleted_at       TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_ongi_photo_comments_photo ON ongi_photo_comments (photo_id);
+
+-- 목록용 축소본 (2026-08-31, 스크롤 성능) — 배포 시 bootstrap 이 자동 적용
+ALTER TABLE ongi_photos ADD COLUMN IF NOT EXISTS thumb_url VARCHAR;

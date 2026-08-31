@@ -1,3 +1,4 @@
+import sharp from 'sharp';
 import { Inject, Injectable } from '@nestjs/common';
 import { IOngiPhotoRepository, type OngiPhotoScanOptions, ONGI_PHOTO_REPOSITORY, OngiPhotoView } from '@/ongi/photo/domain/repository/ongi-photo.repository.interface';
 import { IOngiMemberRepository, ONGI_MEMBER_REPOSITORY } from '@/ongi/group/domain/repository/ongi-member.repository.interface';
@@ -30,6 +31,7 @@ import * as moment from 'moment/moment';
 /** 사진 파일 업로드 결과 — 게시(POST /ongi/photos) 전에 앱이 URL 을 받아간다 */
 export interface OngiUploadedPhotoFileView {
   url: string;
+  thumbUrl: string | null;
 }
 
 @Injectable()
@@ -229,7 +231,7 @@ export class OngiDeletePhotoUseCase {
     await this.photoRepository.softDeletePhoto(photoId);
 
     if ((await this.photoRepository.countActiveByUrl(photo.url)) === 0) {
-      await this.awsS3Service.deleteByUrls([photo.url]);
+      await this.awsS3Service.deleteByUrls(photo.thumbUrl ? [photo.url, photo.thumbUrl] : [photo.url]);
     }
   }
 }
@@ -290,6 +292,7 @@ export class OngiCopyPhotosUseCase {
         authorMemberId: target.id,
         albumId,
         url: photo.url,
+        thumbUrl: photo.thumbUrl,
         aspectRatio: photo.aspectRatio,
         caption: photo.caption,
         location: photo.location,
@@ -369,6 +372,7 @@ export class OngiDeletePhotosUseCase {
     const skippedIds: number[] = [];
     const memberByGroup = new Map<number, OngiMember | null>();
     const urlsToCheck = new Set<string>();
+    const thumbByUrl = new Map<string, string>();
 
     for (const photoId of photoIds) {
       const photo = await this.photoRepository.findById(photoId);
@@ -390,11 +394,16 @@ export class OngiDeletePhotosUseCase {
       await this.photoRepository.softDeletePhoto(photoId);
       deletedIds.push(photoId);
       urlsToCheck.add(photo.url);
+      if (photo.thumbUrl) thumbByUrl.set(photo.url, photo.thumbUrl);
     }
 
     const orphanUrls: string[] = [];
     for (const url of urlsToCheck) {
-      if ((await this.photoRepository.countActiveByUrl(url)) === 0) orphanUrls.push(url);
+      if ((await this.photoRepository.countActiveByUrl(url)) === 0) {
+        orphanUrls.push(url);
+        const thumb = thumbByUrl.get(url);
+        if (thumb) orphanUrls.push(thumb);
+      }
     }
     if (orphanUrls.length > 0) await this.awsS3Service.deleteByUrls(orphanUrls);
 
@@ -506,6 +515,7 @@ export class OngiUploadPhotosUseCase {
           authorMemberId: me.id,
           albumId: target.albumId,
           url: item.url,
+          thumbUrl: item.thumbUrl ?? null,
           aspectRatio: item.aspectRatio,
           caption: i === 0 ? command.caption : null,
           location: null,
@@ -564,7 +574,22 @@ export class OngiUploadPhotoFilesUseCase {
 
       // 가족 전용 사진 — 비공개로 저장하고 응답 시 presigned URL 로 내려준다
       const result = await this.awsS3Service.uploadStream(file.buffer, file.mimetype || 'image/jpeg', path, undefined, ObjectCannedACL.private);
-      views.push({ url: result!.location });
+
+      // 목록 스크롤용 축소본 — 실패해도 업로드는 성공 (구버전 사진처럼 원본으로 표시)
+      let thumbUrl: string | null = null;
+      try {
+        const thumbBuffer = await sharp(file.buffer)
+          .rotate()
+          .resize({ width: 1080, height: 1080, fit: 'inside', withoutEnlargement: true })
+          .webp({ quality: 75 })
+          .toBuffer();
+        const thumbResult = await this.awsS3Service.uploadStream(thumbBuffer, 'image/webp', path + '.thumb.webp', undefined, ObjectCannedACL.private);
+        thumbUrl = thumbResult?.location ?? null;
+      } catch {
+        thumbUrl = null;
+      }
+
+      views.push({ url: result!.location, thumbUrl });
     }
 
     return views;
