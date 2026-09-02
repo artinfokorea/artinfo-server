@@ -20,6 +20,12 @@ export class OngiSchemaBootstrapService implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     const statements = [
+      // 앱 설정 키-값 (강제 업데이트 버전, 2026-09-02)
+      `CREATE TABLE IF NOT EXISTS ongi_configs (
+        key   VARCHAR PRIMARY KEY,
+        value VARCHAR NOT NULL
+      )`,
+      `INSERT INTO ongi_configs (key, value) VALUES ('min_ios_version', '1.0.0'), ('latest_ios_version', '1.0.1') ON CONFLICT (key) DO NOTHING`,
       // 사진 목록용 축소본 컬럼 (2026-08-31) — 배포/DDL 순서 사고 방지
       `ALTER TABLE ongi_photos ADD COLUMN IF NOT EXISTS thumb_url VARCHAR`,
       `CREATE TABLE IF NOT EXISTS ongi_blocks (
