@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OngiGroup } from '@/ongi/group/domain/entity/ongi-group.entity';
 import { OngiMember } from '@/ongi/group/domain/entity/ongi-member.entity';
@@ -9,6 +9,7 @@ import { ONGI_GROUP_REPOSITORY } from '@/ongi/group/domain/repository/ongi-group
 import { ONGI_MEMBER_REPOSITORY } from '@/ongi/group/domain/repository/ongi-member.repository.interface';
 import { OngiGroupRepository } from '@/ongi/group/infrastructure/repository/ongi-group.repository';
 import { OngiMemberRepository } from '@/ongi/group/infrastructure/repository/ongi-member.repository';
+import { OngiPushModule } from '@/ongi/push/ongi-push.module';
 import { OngiGroupController } from '@/ongi/group/presentation/controller/ongi-group.controller';
 import { OngiMemberController } from '@/ongi/group/presentation/controller/ongi-member.controller';
 import {
@@ -24,7 +25,8 @@ import {
 } from '@/ongi/group/application/usecase/ongi-group.usecase';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OngiGroup, OngiMember, OngiBlock])],
+  // 푸시 모듈이 구성원 저장소를 쓰므로 순환 참조 — forwardRef 로 해소
+  imports: [TypeOrmModule.forFeature([OngiGroup, OngiMember, OngiBlock]), forwardRef(() => OngiPushModule)],
   controllers: [OngiGroupController, OngiMemberController],
   providers: [
     { provide: ONGI_GROUP_REPOSITORY, useClass: OngiGroupRepository },

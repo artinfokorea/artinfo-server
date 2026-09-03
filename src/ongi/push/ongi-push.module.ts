@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OngiPushToken } from '@/ongi/push/domain/entity/ongi-push-token.entity';
 import { ONGI_PUSH_TOKEN_REPOSITORY } from '@/ongi/push/domain/repository/ongi-push-token.repository.interface';
@@ -9,7 +9,7 @@ import { OngiPushService } from '@/ongi/push/application/service/ongi-push.servi
 import { OngiGroupModule } from '@/ongi/group/ongi-group.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OngiPushToken]), OngiGroupModule],
+  imports: [TypeOrmModule.forFeature([OngiPushToken]), forwardRef(() => OngiGroupModule)],
   controllers: [OngiPushController],
   providers: [
     { provide: ONGI_PUSH_TOKEN_REPOSITORY, useClass: OngiPushTokenRepository },

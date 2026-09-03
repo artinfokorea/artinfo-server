@@ -1,4 +1,5 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { OngiPushService } from '@/ongi/push/application/service/ongi-push.service';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { IOngiGroupRepository, ONGI_GROUP_REPOSITORY, OngiGroupSummary } from '@/ongi/group/domain/repository/ongi-group.repository.interface';
 import { IOngiMemberRepository, ONGI_MEMBER_REPOSITORY, OngiMemberView } from '@/ongi/group/domain/repository/ongi-member.repository.interface';
 import { ONGI_MEMBER_ROLE } from '@/ongi/group/domain/entity/ongi-member.entity';
@@ -115,6 +116,9 @@ export class OngiJoinGroupUseCase {
 
     @Inject(ONGI_MEMBER_REPOSITORY)
     private readonly memberRepository: IOngiMemberRepository,
+
+    @Inject(forwardRef(() => OngiPushService))
+    private readonly pushService: OngiPushService,
   ) {}
 
   async execute(userId: number, userName: string, inviteCode: string): Promise<OngiGroupSummary> {
@@ -130,6 +134,13 @@ export class OngiJoinGroupUseCase {
         name: userName,
         role: ONGI_MEMBER_ROLE.MEMBER,
         avatarUrl: null,
+      });
+
+      // 기존 가족들에게 새 구성원 참여 알림 (참여자 본인 제외)
+      this.pushService.notifyGroup(group.id, userId, {
+        title: '온기',
+        body: `${userName}님이 우리 가족 공간에 함께하게 됐어요 🎉`,
+        data: { type: 'member_joined', groupId: String(group.id) },
       });
     }
 
