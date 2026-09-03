@@ -20,6 +20,7 @@ import {
   OngiJoinGroupUseCase,
   OngiLeaveGroupUseCase,
   OngiRemoveMemberUseCase,
+  OngiRenameGroupUseCase,
   OngiScanMembersUseCase,
   OngiScanMyGroupsUseCase,
 } from '@/ongi/group/application/usecase/ongi-group.usecase';
@@ -33,6 +34,7 @@ import {
     { provide: ONGI_MEMBER_REPOSITORY, useClass: OngiMemberRepository },
     { provide: ONGI_BLOCK_REPOSITORY, useClass: OngiBlockRepository },
     OngiScanMyGroupsUseCase,
+    OngiRenameGroupUseCase,
     OngiGetGroupUseCase,
     OngiCreateGroupUseCase,
     OngiJoinGroupUseCase,

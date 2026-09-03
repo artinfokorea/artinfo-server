@@ -34,6 +34,12 @@ export class OngiGroupRepository implements IOngiGroupRepository {
     return this.groupRepository.save(group);
   }
 
+  async rename(group: OngiGroup, name: string): Promise<OngiGroup> {
+    group.name = name;
+
+    return this.groupRepository.save(group);
+  }
+
   async softDeleteById(id: number): Promise<void> {
     await this.groupRepository.softDelete({ id });
   }

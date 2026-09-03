@@ -102,6 +102,32 @@ export class OngiCreateGroupUseCase {
 }
 
 @Injectable()
+export class OngiRenameGroupUseCase {
+  constructor(
+    @Inject(ONGI_GROUP_REPOSITORY)
+    private readonly groupRepository: IOngiGroupRepository,
+
+    @Inject(ONGI_MEMBER_REPOSITORY)
+    private readonly memberRepository: IOngiMemberRepository,
+  ) {}
+
+  /** 공간 이름 변경 — 관리자만 */
+  async execute(userId: number, groupId: number, name: string): Promise<OngiGroupSummary> {
+    const me = await this.memberRepository.findByGroupIdAndUserId(groupId, userId);
+    if (!me) throw new OngiNotGroupMember();
+    if (me.role !== ONGI_MEMBER_ROLE.ADMIN) throw new OngiNotGroupAdmin();
+
+    const group = await this.groupRepository.findById(groupId);
+    if (!group) throw new OngiGroupNotFound();
+
+    await this.groupRepository.rename(group, name);
+    const [summary] = await this.groupRepository.scanSummariesByIds([groupId]);
+
+    return summary;
+  }
+}
+
+@Injectable()
 export class OngiJoinGroupUseCase {
   constructor(
     @Inject(ONGI_GROUP_REPOSITORY)

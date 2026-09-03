@@ -1,5 +1,5 @@
 import { Body, Param, ParseIntPipe } from '@nestjs/common';
-import { RestApiController, RestApiDelete, RestApiGet, RestApiPost } from '@/common/decorator/rest-api';
+import { RestApiController, RestApiDelete, RestApiGet, RestApiPost, RestApiPut } from '@/common/decorator/rest-api';
 import { OkResponse } from '@/common/response/ok.response';
 import { AuthSignature } from '@/common/decorator/AuthSignature';
 import { UserSignature } from '@/common/type/type';
@@ -12,8 +12,10 @@ import {
   OngiRemoveMemberUseCase,
   OngiScanMembersUseCase,
   OngiScanMyGroupsUseCase,
+  OngiRenameGroupUseCase,
 } from '@/ongi/group/application/usecase/ongi-group.usecase';
 import { OngiCreateGroupRequest } from '@/ongi/group/presentation/dto/request/ongi-create-group.request';
+import { OngiRenameGroupRequest } from '@/ongi/group/presentation/dto/request/ongi-rename-group.request';
 import { OngiJoinGroupRequest } from '@/ongi/group/presentation/dto/request/ongi-join-group.request';
 import { OngiGroupListResponse, OngiGroupResponse } from '@/ongi/group/presentation/dto/response/ongi-group.response';
 import { OngiMemberListResponse } from '@/ongi/group/presentation/dto/response/ongi-member.response';
@@ -25,6 +27,7 @@ export class OngiGroupController {
     private readonly getGroupUseCase: OngiGetGroupUseCase,
     private readonly createGroupUseCase: OngiCreateGroupUseCase,
     private readonly joinGroupUseCase: OngiJoinGroupUseCase,
+    private readonly renameGroupUseCase: OngiRenameGroupUseCase,
     private readonly scanMembersUseCase: OngiScanMembersUseCase,
     private readonly removeMemberUseCase: OngiRemoveMemberUseCase,
     private readonly leaveGroupUseCase: OngiLeaveGroupUseCase,
@@ -40,6 +43,17 @@ export class OngiGroupController {
   @RestApiPost(OngiGroupResponse, { path: '/', description: '가족 공간 만들기 (만든 사람이 관리자)', auth: [USER_TYPE.CLIENT] })
   async createGroup(@AuthSignature() signature: UserSignature, @Body() request: OngiCreateGroupRequest) {
     const summary = await this.createGroupUseCase.execute(signature.id, signature.name, request.name.trim());
+
+    return new OngiGroupResponse(summary);
+  }
+
+  @RestApiPut(OngiGroupResponse, { path: '/:groupId', description: '공간 이름 변경 (관리자 전용)', auth: [USER_TYPE.CLIENT] })
+  async renameGroup(
+    @AuthSignature() signature: UserSignature,
+    @Param('groupId', ParseIntPipe) groupId: number,
+    @Body() request: OngiRenameGroupRequest,
+  ) {
+    const summary = await this.renameGroupUseCase.execute(signature.id, groupId, request.name.trim());
 
     return new OngiGroupResponse(summary);
   }
