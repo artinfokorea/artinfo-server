@@ -16,16 +16,9 @@ import {
 } from '@/ongi/group/domain/exception/ongi-group.exception';
 
 const INVITE_EXPIRE_DAYS = 7;
-/** 헷갈리는 문자(0/O/1/I) 를 제외한 초대 코드 문자셋 */
-const INVITE_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-
+/** 초대 코드 — 부모님도 쉽게 입력하도록 6자리 숫자 (기존 ONGI-XXXX 코드도 만료 전까지 유효) */
 function generateInviteCode(): string {
-  let code = '';
-  for (let i = 0; i < 4; i++) {
-    code += INVITE_CODE_CHARS[Math.floor(Math.random() * INVITE_CODE_CHARS.length)];
-  }
-
-  return `ONGI-${code}`;
+  return String(Math.floor(100000 + Math.random() * 900000));
 }
 
 function inviteExpiresAt(): Date {
