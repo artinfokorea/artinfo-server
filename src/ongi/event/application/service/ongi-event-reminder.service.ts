@@ -19,7 +19,8 @@ export class OngiEventReminderService {
     private readonly pushService: OngiPushService,
   ) {}
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  // name 필수 — 이름이 없으면 @nestjs/schedule 이 crypto.randomUUID() 를 호출하는데 Node 18 런타임엔 전역 crypto 가 없어 부팅에서 죽는다
+  @Cron(CronExpression.EVERY_10_MINUTES, { name: 'ongi-event-reminder' })
   async tick(): Promise<void> {
     try {
       await this.rollOccurrences();
