@@ -2,8 +2,7 @@ import * as lunarModule from 'korean-lunar-calendar';
 import type KoreanLunarCalendarType from 'korean-lunar-calendar';
 
 // CJS(module.exports = class)와 ESM(default) 어느 쪽으로 로드돼도 클래스를 집는다 — esModuleInterop 미사용 환경 대비
-const KoreanLunarCalendar =
-  (lunarModule as { default?: typeof KoreanLunarCalendarType }).default ?? (lunarModule as unknown as typeof KoreanLunarCalendarType);
+const KoreanLunarCalendar = (lunarModule as { default?: typeof KoreanLunarCalendarType }).default ?? (lunarModule as unknown as typeof KoreanLunarCalendarType);
 
 /** 발생일 계산에 필요한 일정 필드 — 엔티티/요청 어느 쪽에서든 만들 수 있게 분리 */
 export interface OngiEventSchedule {
