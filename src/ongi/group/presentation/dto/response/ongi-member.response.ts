@@ -9,6 +9,9 @@ export class OngiMemberResponse {
   @ApiProperty({ type: String, description: '그룹 id' })
   groupId: string;
 
+  @ApiProperty({ type: String, description: '연결된 사용자 id — 일정 알림 대상 지정 등에 사용' })
+  userId: string;
+
   @ApiProperty({ type: String, description: '이 그룹에서 부르는 이름 (호칭)', example: '엄마' })
   name: string;
 
@@ -33,6 +36,7 @@ export class OngiMemberResponse {
   constructor(view: OngiMemberView) {
     this.id = String(view.member.id);
     this.groupId = String(view.member.groupId);
+    this.userId = String(view.member.userId);
     this.name = view.member.name;
     this.realName = view.realName;
     this.role = view.member.role;

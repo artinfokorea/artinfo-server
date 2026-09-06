@@ -9,10 +9,11 @@ import { OngiConfigModule } from '@/ongi/config/ongi-config.module';
 import { OngiLegalModule } from '@/ongi/legal/ongi-legal.module';
 import { OngiReportModule } from '@/ongi/report/ongi-report.module';
 import { OngiPushModule } from '@/ongi/push/ongi-push.module';
+import { OngiEventModule } from '@/ongi/event/ongi-event.module';
 import { OngiSchemaBootstrapService } from '@/ongi/common/ongi-schema-bootstrap.service';
 
 @Module({
-  imports: [OngiAuthModule, OngiUserModule, OngiGroupModule, OngiPersonModule, OngiAlbumModule, OngiPhotoModule, OngiLegalModule, OngiReportModule, OngiPushModule, OngiConfigModule],
+  imports: [OngiAuthModule, OngiUserModule, OngiGroupModule, OngiPersonModule, OngiAlbumModule, OngiPhotoModule, OngiLegalModule, OngiReportModule, OngiPushModule, OngiConfigModule, OngiEventModule],
   providers: [OngiSchemaBootstrapService],
 })
 export class OngiModule {}

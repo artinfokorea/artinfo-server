@@ -28,6 +28,28 @@ export class OngiSchemaBootstrapService implements OnModuleInit {
       `INSERT INTO ongi_configs (key, value) VALUES ('min_ios_version', '1.0.0'), ('latest_ios_version', '1.0.1') ON CONFLICT (key) DO NOTHING`,
       // 사진 목록용 축소본 컬럼 (2026-08-31) — 배포/DDL 순서 사고 방지
       `ALTER TABLE ongi_photos ADD COLUMN IF NOT EXISTS thumb_url VARCHAR`,
+      // 가족 일정 (2026-09-06) — 양력/음력·반복·대상 지정 푸시
+      `CREATE TABLE IF NOT EXISTS ongi_events (
+        id                  SERIAL PRIMARY KEY,
+        group_id            INTEGER NOT NULL,
+        creator_user_id     INTEGER NOT NULL,
+        title               VARCHAR NOT NULL,
+        event_date          VARCHAR(10) NOT NULL,
+        event_time          VARCHAR(5),
+        calendar_type       VARCHAR(8) NOT NULL DEFAULT 'solar',
+        repeat_type         VARCHAR(8) NOT NULL DEFAULT 'none',
+        memo                TEXT,
+        notify_user_ids     JSONB NOT NULL DEFAULT '[]',
+        next_occurrence     VARCHAR(10) NOT NULL,
+        remind_day_at       TIMESTAMP,
+        remind_hour_at      TIMESTAMP,
+        remind_day_sent_at  TIMESTAMP,
+        remind_hour_sent_at TIMESTAMP,
+        created_at          TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at          TIMESTAMP NOT NULL DEFAULT now(),
+        deleted_at          TIMESTAMP
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_ongi_events_group_next ON ongi_events (group_id, next_occurrence)`,
       `CREATE TABLE IF NOT EXISTS ongi_blocks (
         id              SERIAL PRIMARY KEY,
         user_id         INTEGER NOT NULL,

@@ -39,6 +39,19 @@ export class OngiPushService {
     );
   }
 
+  /** 여러 사용자에게 시스템 알림 — 발신자 개념이 없는 알림(일정 리마인더 등)에 사용, 차단 필터 없음 */
+  notifyUsers(userIds: number[], message: OngiPushMessage): void {
+    void (async () => {
+      const unique = [...new Set(userIds)];
+      if (unique.length === 0) return;
+      const tokens = await this.pushTokenRepository.scanByUserIds(unique);
+      await this.send(
+        tokens.map(t => t.token),
+        message,
+      );
+    })().catch(error => this.logger.warn(`push notifyUsers failed: ${error instanceof Error ? error.message : String(error)}`));
+  }
+
   /** 특정 사용자 한 명에게 발송 — 그 사용자가 발신자를 차단했으면 보내지 않는다 */
   notifyUser(userId: number, senderUserId: number, message: OngiPushMessage): void {
     void this.notifyUserInternal(userId, senderUserId, message).catch(error =>
