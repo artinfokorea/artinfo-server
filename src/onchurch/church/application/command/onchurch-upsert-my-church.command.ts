@@ -1,3 +1,5 @@
+import type { OnchurchHomeCustomLink } from '@/onchurch/church/domain/entity/onchurch-church.entity';
+
 export class OnchurchUpsertMyChurchCommand {
   slug: string;
   name: string;
@@ -16,6 +18,7 @@ export class OnchurchUpsertMyChurchCommand {
   enabledPages: string[];
   homeSectionOrder: string[];
   homeQuickLinks: string[];
+  homeCustomLink: OnchurchHomeCustomLink | null;
   siteLang: string;
 
   constructor(params: {
@@ -36,6 +39,7 @@ export class OnchurchUpsertMyChurchCommand {
     enabledPages: string[];
     homeSectionOrder: string[];
     homeQuickLinks: string[];
+    homeCustomLink: OnchurchHomeCustomLink | null;
     siteLang: string;
   }) {
     this.slug = params.slug;
@@ -55,6 +59,7 @@ export class OnchurchUpsertMyChurchCommand {
     this.enabledPages = params.enabledPages;
     this.homeSectionOrder = params.homeSectionOrder;
     this.homeQuickLinks = params.homeQuickLinks;
+    this.homeCustomLink = params.homeCustomLink;
     this.siteLang = params.siteLang;
   }
 }

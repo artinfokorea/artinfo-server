@@ -58,6 +58,7 @@ export class OnchurchUpsertMyChurchUseCase {
       enabledPages: command.enabledPages,
       homeSectionOrder: command.homeSectionOrder,
       homeQuickLinks: command.homeQuickLinks,
+      homeCustomLink: command.homeCustomLink,
       siteLang: command.siteLang,
     });
 

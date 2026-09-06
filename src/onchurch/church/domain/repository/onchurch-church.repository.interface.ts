@@ -1,4 +1,4 @@
-import { OnchurchChurch } from '@/onchurch/church/domain/entity/onchurch-church.entity';
+import { OnchurchChurch, OnchurchHomeCustomLink } from '@/onchurch/church/domain/entity/onchurch-church.entity';
 
 export const ONCHURCH_CHURCH_REPOSITORY = Symbol('ONCHURCH_CHURCH_REPOSITORY');
 
@@ -20,6 +20,7 @@ export interface OnchurchChurchUpsertParams {
   enabledPages: string[];
   homeSectionOrder: string[];
   homeQuickLinks: string[];
+  homeCustomLink: OnchurchHomeCustomLink | null;
   siteLang: string;
 }
 

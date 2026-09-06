@@ -1,7 +1,25 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional } from 'class-validator';
+import { IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ArrayType, NotBlank } from '@/common/decorator/validator';
 import { OnchurchUpsertMyChurchCommand } from '@/onchurch/church/application/command/onchurch-upsert-my-church.command';
+
+export class OnchurchHomeCustomLinkRequest {
+  @IsString()
+  @MaxLength(40)
+  @ApiProperty({ type: String, required: true, description: '커스텀 바로가기 제목', example: '새가족 등록' })
+  title: string;
+
+  @IsString()
+  @MaxLength(120)
+  @ApiProperty({ type: String, required: true, description: '커스텀 바로가기 설명', example: '처음 오신 분은 여기서 등록해주세요' })
+  desc: string;
+
+  @IsString()
+  @MaxLength(2000)
+  @ApiProperty({ type: String, required: true, description: '이동 주소 (URL)', example: 'https://forms.gle/xxxx' })
+  url: string;
+}
 
 export class OnchurchUpsertMyChurchRequest {
   @NotBlank()
@@ -62,6 +80,12 @@ export class OnchurchUpsertMyChurchRequest {
   homeQuickLinks?: string[];
 
   @IsOptional()
+  @ValidateNested()
+  @Type(() => OnchurchHomeCustomLinkRequest)
+  @ApiProperty({ type: OnchurchHomeCustomLinkRequest, required: false, nullable: true, description: "홈 '바로가기' 커스텀 항목(제목·설명·이동 주소). 없으면 null" })
+  homeCustomLink?: OnchurchHomeCustomLinkRequest | null;
+
+  @IsOptional()
   @ApiProperty({ type: String, required: false, description: "공개 사이트 고정 UI 문구 언어 ('ko' | 'en'). 기본 'ko'", example: 'ko' })
   siteLang?: string;
 
@@ -84,6 +108,9 @@ export class OnchurchUpsertMyChurchRequest {
       enabledPages: this.enabledPages ?? [],
       homeSectionOrder: this.homeSectionOrder ?? [],
       homeQuickLinks: this.homeQuickLinks ?? [],
+      homeCustomLink: this.homeCustomLink
+        ? { title: this.homeCustomLink.title.trim(), desc: this.homeCustomLink.desc.trim(), url: this.homeCustomLink.url.trim() }
+        : null,
       siteLang: this.siteLang === 'en' ? 'en' : 'ko',
     });
   }

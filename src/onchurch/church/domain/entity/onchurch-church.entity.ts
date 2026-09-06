@@ -1,5 +1,7 @@
 import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
+export type OnchurchHomeCustomLink = { title: string; desc: string; url: string };
+
 @Entity('onchurch_churches')
 export class OnchurchChurch extends BaseEntity {
   @PrimaryGeneratedColumn('increment', { name: 'id' })
@@ -67,6 +69,10 @@ export class OnchurchChurch extends BaseEntity {
   // 홈 '바로가기'에 노출할 항목 키 배열(순서 포함). 비어 있으면 기본 항목을 노출한다.
   @Column({ type: 'jsonb', name: 'home_quick_links', default: () => "'[]'::jsonb" })
   homeQuickLinks: string[];
+
+  // 홈 '바로가기' 커스텀 항목(제목·설명·이동 주소). homeQuickLinks 에 'custom' 키가 포함될 때 노출한다. 미설정이면 null.
+  @Column({ type: 'jsonb', name: 'home_custom_link', nullable: true })
+  homeCustomLink: OnchurchHomeCustomLink | null;
 
   // 홈 배너 노출 타입. 'image' | 'video'. 두 타입 배너를 모두 보관하고 공개 사이트에는 선택된 타입만 노출한다.
   @Column({ type: 'varchar', name: 'banner_type', default: () => "'image'" })

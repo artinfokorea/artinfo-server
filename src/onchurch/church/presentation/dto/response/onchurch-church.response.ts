@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { OnchurchChurch } from '@/onchurch/church/domain/entity/onchurch-church.entity';
+import { OnchurchChurch, OnchurchHomeCustomLink } from '@/onchurch/church/domain/entity/onchurch-church.entity';
 import { OnchurchUser } from '@/onchurch/user/domain/entity/onchurch-user.entity';
 
 export class OnchurchChurchResponse {
@@ -63,6 +63,9 @@ export class OnchurchChurchResponse {
   @ApiProperty({ type: [String], required: true, description: "홈 '바로가기' 노출 항목" })
   homeQuickLinks: string[];
 
+  @ApiProperty({ required: false, nullable: true, description: "홈 '바로가기' 커스텀 항목 {title, desc, url}" })
+  homeCustomLink: OnchurchHomeCustomLink | null;
+
   @ApiProperty({ type: String, required: true, description: "공개 사이트 고정 UI 문구 언어 ('ko' | 'en')" })
   siteLang: string;
 
@@ -96,6 +99,7 @@ export class OnchurchChurchResponse {
     this.enabledPages = church.enabledPages ?? [];
     this.homeSectionOrder = church.homeSectionOrder ?? [];
     this.homeQuickLinks = church.homeQuickLinks ?? [];
+    this.homeCustomLink = church.homeCustomLink ?? null;
     this.siteLang = church.siteLang === 'en' ? 'en' : 'ko';
     // 서버는 템플릿 ID를 화이트리스트하지 않고 그대로 전달한다(새 템플릿 추가 시 서버 배포 불필요).
     // 미지원 값 처리는 프론트 템플릿 레지스트리의 default 폴백이 담당한다.
