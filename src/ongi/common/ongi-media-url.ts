@@ -31,7 +31,10 @@ export function signOngiMediaUrl<T extends string | null | undefined>(url: T): T
   if (!parsed) return url;
 
   const windowStart = new Date(Math.floor(Date.now() / WINDOW_MS) * WINDOW_MS);
-  const amzDate = windowStart.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z'); // YYYYMMDDTHHMMSSZ
+  const amzDate = windowStart
+    .toISOString()
+    .replace(/[-:]/g, '')
+    .replace(/\.\d{3}Z$/, 'Z'); // YYYYMMDDTHHMMSSZ
   const dateStamp = amzDate.slice(0, 8);
   const scope = `${dateStamp}/${parsed.region}/s3/aws4_request`;
 

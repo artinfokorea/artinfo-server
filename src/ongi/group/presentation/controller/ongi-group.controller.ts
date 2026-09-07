@@ -48,11 +48,7 @@ export class OngiGroupController {
   }
 
   @RestApiPut(OngiGroupResponse, { path: '/:groupId', description: '공간 이름 변경 (관리자 전용)', auth: [USER_TYPE.CLIENT] })
-  async renameGroup(
-    @AuthSignature() signature: UserSignature,
-    @Param('groupId', ParseIntPipe) groupId: number,
-    @Body() request: OngiRenameGroupRequest,
-  ) {
+  async renameGroup(@AuthSignature() signature: UserSignature, @Param('groupId', ParseIntPipe) groupId: number, @Body() request: OngiRenameGroupRequest) {
     const summary = await this.renameGroupUseCase.execute(signature.id, groupId, request.name.trim());
 
     return new OngiGroupResponse(summary);

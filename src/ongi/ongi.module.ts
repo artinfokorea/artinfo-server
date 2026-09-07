@@ -13,7 +13,19 @@ import { OngiEventModule } from '@/ongi/event/ongi-event.module';
 import { OngiSchemaBootstrapService } from '@/ongi/common/ongi-schema-bootstrap.service';
 
 @Module({
-  imports: [OngiAuthModule, OngiUserModule, OngiGroupModule, OngiPersonModule, OngiAlbumModule, OngiPhotoModule, OngiLegalModule, OngiReportModule, OngiPushModule, OngiConfigModule, OngiEventModule],
+  imports: [
+    OngiAuthModule,
+    OngiUserModule,
+    OngiGroupModule,
+    OngiPersonModule,
+    OngiAlbumModule,
+    OngiPhotoModule,
+    OngiLegalModule,
+    OngiReportModule,
+    OngiPushModule,
+    OngiConfigModule,
+    OngiEventModule,
+  ],
   providers: [OngiSchemaBootstrapService],
 })
 export class OngiModule {}

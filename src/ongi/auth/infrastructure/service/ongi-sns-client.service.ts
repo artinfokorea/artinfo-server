@@ -129,7 +129,7 @@ export class OngiSnsClientService implements IOngiSnsClient {
 
   /** Apple JWKS 는 드물게 회전되므로 1시간 캐시, 모르는 kid 가 오면 즉시 재조회 */
   private async getApplePublicKey(kid: string): Promise<string> {
-    const findKey = () => this.appleKeysCache?.keys.find((k) => k.kid === kid);
+    const findKey = () => this.appleKeysCache?.keys.find(k => k.kid === kid);
 
     const isFresh = this.appleKeysCache && Date.now() - this.appleKeysCache.fetchedAt < 60 * 60 * 1000;
     let key = isFresh ? findKey() : undefined;
@@ -140,7 +140,9 @@ export class OngiSnsClientService implements IOngiSnsClient {
     }
     if (!key) throw new OngiInvalidSnsToken();
 
-    return createPublicKey({ key: key as unknown as JsonWebKey, format: 'jwk' }).export({ type: 'spki', format: 'pem' }).toString();
+    return createPublicKey({ key: key as unknown as JsonWebKey, format: 'jwk' })
+      .export({ type: 'spki', format: 'pem' })
+      .toString();
   }
 }
 

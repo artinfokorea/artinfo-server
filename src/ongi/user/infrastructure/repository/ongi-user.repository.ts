@@ -94,10 +94,9 @@ export class OngiUserRepository implements IOngiUserRepository {
    */
   async softDeleteById(id: number): Promise<string[]> {
     return this.userRepository.manager.transaction(async manager => {
-      const [user]: { icon_image_url: string | null }[] = await manager.query(
-        `SELECT icon_image_url FROM ongi_users WHERE id = $1 AND deleted_at IS NULL`,
-        [id],
-      );
+      const [user]: { icon_image_url: string | null }[] = await manager.query(`SELECT icon_image_url FROM ongi_users WHERE id = $1 AND deleted_at IS NULL`, [
+        id,
+      ]);
       const photoRows: { url: string; thumb_url: string | null }[] = await manager.query(
         `SELECT url, thumb_url FROM ongi_photos
           WHERE deleted_at IS NULL
@@ -174,10 +173,9 @@ export class OngiUserRepository implements IOngiUserRepository {
       const urls = [...new Set(photoRows.map(r => r.url))];
       const orphanUrls: string[] = [];
       for (const url of urls) {
-        const [{ count }]: { count: string }[] = await manager.query(
-          `SELECT COUNT(*)::text AS count FROM ongi_photos WHERE url = $1 AND deleted_at IS NULL`,
-          [url],
-        );
+        const [{ count }]: { count: string }[] = await manager.query(`SELECT COUNT(*)::text AS count FROM ongi_photos WHERE url = $1 AND deleted_at IS NULL`, [
+          url,
+        ]);
         if (count === '0') {
           orphanUrls.push(url);
           const thumb = thumbByUrl.get(url);
