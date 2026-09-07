@@ -15,8 +15,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-      - run: npm ci
+      # Dockerfile 과 동일한 설치 경로 — npm ci 는 피어 의존성 충돌(ERESOLVE)로 실패한다
+      - run: npm install -g pnpm@9
+      - run: pnpm install --frozen-lockfile
       - name: Typecheck
         run: npx tsc --noEmit
       - name: Lint (ongi)
