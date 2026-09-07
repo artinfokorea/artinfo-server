@@ -313,6 +313,8 @@ export class OngiCopyPhotosUseCase {
         caption: photo.caption,
         location: photo.location,
         personIds: [],
+        mediaType: photo.mediaType ?? 'photo',
+        durationSeconds: photo.durationSeconds ?? null,
       });
       copiedIds.push(photoId);
     }

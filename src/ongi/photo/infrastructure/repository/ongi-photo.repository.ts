@@ -39,10 +39,7 @@ export class OngiPhotoRepository implements IOngiPhotoRepository {
 
   /** 최신순 목록 공통 — 커서(after)·개수 제한(limit)·차단 작성자 제외를 SQL 로 처리해 페이지가 비지 않게 한다 */
   private listQuery(options?: OngiPhotoScanOptions) {
-    const query = this.photoRepository
-      .createQueryBuilder('photo')
-      .orderBy('photo.createdAt', 'DESC')
-      .addOrderBy('photo.id', 'DESC');
+    const query = this.photoRepository.createQueryBuilder('photo').orderBy('photo.createdAt', 'DESC').addOrderBy('photo.id', 'DESC');
     if (options?.excludedMemberIds?.length) {
       query.andWhere('photo.author_member_id NOT IN (:...excludedMemberIds)', { excludedMemberIds: options.excludedMemberIds });
     }

@@ -1,4 +1,4 @@
-import { Body, Param, ParseIntPipe, UploadedFiles, UseInterceptors , Query } from '@nestjs/common';
+import { Body, Param, ParseIntPipe, UploadedFiles, UseInterceptors, Query } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes } from '@nestjs/swagger';
 import { RestApiController, RestApiDelete, RestApiGet, RestApiPost } from '@/common/decorator/rest-api';
@@ -39,7 +39,6 @@ import {
   OngiPhotoResponse,
   OngiUploadedPhotoFilesResponse,
 } from '@/ongi/photo/presentation/dto/response/ongi-photo.response';
-
 
 /** ?limit=&after= — 없으면 전체 조회(구버전 앱 호환). limit 은 1~100 으로 강제 */
 function pageOf(limit?: string, after?: string) {
