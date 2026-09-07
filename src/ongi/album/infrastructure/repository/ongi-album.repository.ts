@@ -62,8 +62,8 @@ export class OngiAlbumRepository implements IOngiAlbumRepository {
         GROUP BY album_id`,
       [albumIds, excludedAuthorMemberIds],
     );
-    const latestRows: { album_id: number; url: string; created_at: Date }[] = await this.albumRepository.manager.query(
-      `SELECT DISTINCT ON (album_id) album_id, url, created_at
+    const latestRows: { album_id: number; url: string; thumb_url: string | null; created_at: Date }[] = await this.albumRepository.manager.query(
+      `SELECT DISTINCT ON (album_id) album_id, url, thumb_url, created_at
          FROM ongi_photos
         WHERE album_id = ANY($1) AND deleted_at IS NULL AND NOT (author_member_id = ANY($2))
         ORDER BY album_id, created_at DESC, id DESC`,
@@ -79,7 +79,8 @@ export class OngiAlbumRepository implements IOngiAlbumRepository {
       return {
         album,
         photoCount: photoCounts.get(album.id) ?? 0,
-        latestPhotoUrl: latest?.url ?? null,
+        // 커버는 축소본 우선 — 영상이 최신이면 url 이 mp4 라 이미지로 못 그리므로 포스터(thumb_url)를 쓴다
+        latestPhotoUrl: latest ? (latest.thumb_url ?? latest.url) : null,
         latestPhotoAt: latest ? new Date(latest.created_at) : null,
       };
     });
