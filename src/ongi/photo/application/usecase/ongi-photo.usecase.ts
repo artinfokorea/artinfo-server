@@ -196,9 +196,10 @@ export class OngiToggleLikeUseCase {
     const likedByMe = await this.photoRepository.toggleLike(photoId, userId);
 
     // 좋아요를 눌렀을 때만 사진 작성자에게 푸시 (해제는 조용히 — 본인·차단은 notifyUser 가 걸러준다)
-    if (likedByMe && this.likePushThrottle.shouldNotify(photoId, userId)) {
+    if (likedByMe) {
       const author = await this.memberRepository.findById(photo.authorMemberId);
-      if (author) {
+      // 쿨다운 기록은 발송 직전에만 — 작성자 조회 실패가 다음 시도의 푸시를 막지 않게 한다
+      if (author && this.likePushThrottle.shouldNotify(photoId, userId)) {
         this.pushService.notifyUser(author.userId, userId, {
           title: '온기',
           body: `${me.name}님이 회원님의 사진을 좋아해요 ❤️`,
