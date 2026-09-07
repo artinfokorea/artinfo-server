@@ -28,6 +28,7 @@ import {
 } from '@/ongi/photo/domain/exception/ongi-photo.exception';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { OngiPushService } from '@/ongi/push/application/service/ongi-push.service';
+import { OngiLikePushThrottle } from '@/ongi/photo/domain/service/ongi-like-push-throttle';
 import { ObjectCannedACL } from '@aws-sdk/client-s3';
 import { UploadFile } from '@/common/type/type';
 import { Util } from '@/common/util/util';
@@ -172,6 +173,9 @@ export class OngiGetPhotoUseCase {
 
 @Injectable()
 export class OngiToggleLikeUseCase {
+  /** 좋아요 연타(눌렀다 뗐다) 시 푸시 스팸 방지 — 같은 사람·같은 사진은 6시간에 1번만 */
+  private readonly likePushThrottle = new OngiLikePushThrottle();
+
   constructor(
     @Inject(ONGI_PHOTO_REPOSITORY)
     private readonly photoRepository: IOngiPhotoRepository,
@@ -192,7 +196,7 @@ export class OngiToggleLikeUseCase {
     const likedByMe = await this.photoRepository.toggleLike(photoId, userId);
 
     // 좋아요를 눌렀을 때만 사진 작성자에게 푸시 (해제는 조용히 — 본인·차단은 notifyUser 가 걸러준다)
-    if (likedByMe) {
+    if (likedByMe && this.likePushThrottle.shouldNotify(photoId, userId)) {
       const author = await this.memberRepository.findById(photo.authorMemberId);
       if (author) {
         this.pushService.notifyUser(author.userId, userId, {
