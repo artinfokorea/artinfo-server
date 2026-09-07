@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { ArrayNotEmpty, IsArray, IsNumber, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsIn, IsNumber, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
 import { NotBlank } from '@/common/decorator/validator';
 import { OngiUploadPhotosCommand } from '@/ongi/photo/application/command/ongi-upload-photos.command';
 
@@ -20,6 +20,16 @@ export class OngiUploadPhotoItemRequest {
   @IsNumber()
   @ApiProperty({ type: Number, required: false, description: '세로 비율 힌트 (width/height)', example: 1 })
   aspectRatio?: number;
+
+  @IsOptional()
+  @IsIn(['photo', 'video'])
+  @ApiProperty({ type: String, required: false, enum: ['photo', 'video'], description: '매체 종류 — 기본 photo' })
+  mediaType?: 'photo' | 'video';
+
+  @IsOptional()
+  @IsNumber()
+  @ApiProperty({ type: Number, required: false, description: '영상 길이(초)' })
+  durationSeconds?: number;
 }
 
 export class OngiUploadTargetRequest {
@@ -60,7 +70,13 @@ export class OngiUploadPhotosRequest {
 
   toCommand(): OngiUploadPhotosCommand {
     return new OngiUploadPhotosCommand({
-      photos: this.photos.map(photo => ({ url: photo.url.trim(), thumbUrl: photo.thumbUrl?.trim() || null, aspectRatio: photo.aspectRatio ?? 1 })),
+      photos: this.photos.map(photo => ({
+        url: photo.url.trim(),
+        thumbUrl: photo.thumbUrl?.trim() || null,
+        aspectRatio: photo.aspectRatio ?? 1,
+        mediaType: photo.mediaType ?? 'photo',
+        durationSeconds: photo.mediaType === 'video' ? Math.round(photo.durationSeconds ?? 0) || null : null,
+      })),
       caption: this.caption?.trim() || null,
       targets: this.targets.map(target => ({
         groupId: Number(target.groupId),

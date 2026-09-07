@@ -47,9 +47,17 @@ export class OngiPhotoResponse {
   @ApiProperty({ type: [String], description: '함께 찍힌 인물 id 목록' })
   personIds: string[];
 
+  @ApiProperty({ type: String, description: "매체 종류 — 'photo' | 'video' (영상은 url 이 mp4, thumbUrl 이 포스터)" })
+  mediaType: string;
+
+  @ApiProperty({ type: Number, required: false, description: '영상 길이(초)' })
+  durationSeconds?: number;
+
   constructor(view: OngiPhotoView) {
     const { photo } = view;
 
+    this.mediaType = photo.mediaType ?? 'photo';
+    this.durationSeconds = photo.durationSeconds ?? undefined;
     this.id = String(photo.id);
     this.groupId = String(photo.groupId);
     this.url = signOngiMediaUrl(photo.url);

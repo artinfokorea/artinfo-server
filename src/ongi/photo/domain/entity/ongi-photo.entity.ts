@@ -10,6 +10,10 @@ export interface OngiPhotoCreator {
   caption: string | null;
   location: string | null;
   personIds: number[];
+  /** 'photo' | 'video' — 영상은 url 이 mp4, thumbUrl 이 포스터 이미지 */
+  mediaType: string;
+  /** 영상 길이(초) — 사진은 null */
+  durationSeconds: number | null;
 }
 
 @Entity('ongi_photos')
@@ -44,6 +48,14 @@ export class OngiPhoto extends BaseEntity {
 
   @Column({ type: 'jsonb', name: 'person_ids', default: () => "'[]'::jsonb" })
   personIds: number[];
+
+  /** 'photo' | 'video' — 영상은 url 이 mp4, thumbUrl 이 포스터 이미지 */
+  @Column({ type: 'varchar', name: 'media_type', length: 8, default: 'photo' })
+  mediaType: string;
+
+  /** 영상 길이(초) — 사진은 null */
+  @Column({ type: 'int', name: 'duration_seconds', nullable: true })
+  durationSeconds: number | null;
 
   @Column({ type: 'int', name: 'like_count', default: 0 })
   likeCount: number;

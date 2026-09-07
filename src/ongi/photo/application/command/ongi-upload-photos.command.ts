@@ -2,6 +2,10 @@ export interface OngiUploadPhotoItem {
   url: string;
   thumbUrl: string | null;
   aspectRatio: number;
+  /** 'photo' | 'video' */
+  mediaType: string;
+  /** 영상 길이(초) — 사진은 null */
+  durationSeconds: number | null;
 }
 
 export interface OngiUploadTargetItem {

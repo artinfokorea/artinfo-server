@@ -536,6 +536,8 @@ export class OngiUploadPhotosUseCase {
           caption: i === 0 ? command.caption : null,
           location: null,
           personIds,
+          mediaType: item.mediaType,
+          durationSeconds: item.durationSeconds,
         });
         created.push(photo);
       }
@@ -543,9 +545,10 @@ export class OngiUploadPhotosUseCase {
       // 같은 그룹의 다른 구성원에게 푸시 (fire-and-forget)
       const first = created.find(photo => photo.groupId === target.groupId);
       const count = command.photos.length;
+      const hasVideo = command.photos.some(item => item.mediaType === 'video');
       this.pushService.notifyGroup(target.groupId, userId, {
         title: '온기',
-        body: `${me.name}님이 사진 ${count}장을 올렸어요${command.caption ? ` · ${command.caption}` : ''}`,
+        body: `${me.name}님이 ${hasVideo ? `사진·영상 ${count}개` : `사진 ${count}장`}를 올렸어요${command.caption ? ` · ${command.caption}` : ''}`,
         data: { type: 'photo', groupId: String(target.groupId), photoId: first ? String(first.id) : '' },
       });
     }
@@ -590,6 +593,12 @@ export class OngiUploadPhotoFilesUseCase {
 
       // 가족 전용 사진 — 비공개로 저장하고 응답 시 presigned URL 로 내려준다
       const result = await this.awsS3Service.uploadStream(file.buffer, file.mimetype || 'image/jpeg', path, undefined, ObjectCannedACL.private);
+
+      // 영상 파일은 sharp 로 축소본을 만들 수 없다 — 포스터는 클라이언트가 별도 이미지로 올린다
+      if ((file.mimetype ?? '').startsWith('video/') || ['mp4', 'mov', 'm4v'].includes(extension)) {
+        views.push({ url: result!.location, thumbUrl: null });
+        continue;
+      }
 
       // 목록 스크롤용 축소본 — 실패해도 업로드는 성공 (구버전 사진처럼 원본으로 표시)
       let thumbUrl: string | null = null;

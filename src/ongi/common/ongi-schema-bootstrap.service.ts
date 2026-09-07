@@ -28,6 +28,9 @@ export class OngiSchemaBootstrapService implements OnModuleInit {
       `INSERT INTO ongi_configs (key, value) VALUES ('min_ios_version', '1.0.0'), ('latest_ios_version', '1.0.1') ON CONFLICT (key) DO NOTHING`,
       // 사진 목록용 축소본 컬럼 (2026-08-31) — 배포/DDL 순서 사고 방지
       `ALTER TABLE ongi_photos ADD COLUMN IF NOT EXISTS thumb_url VARCHAR`,
+      // 영상 게시 지원 (2026-09-07)
+      `ALTER TABLE ongi_photos ADD COLUMN IF NOT EXISTS media_type VARCHAR(8) NOT NULL DEFAULT 'photo'`,
+      `ALTER TABLE ongi_photos ADD COLUMN IF NOT EXISTS duration_seconds INTEGER`,
       // 가족 일정 (2026-09-06) — 양력/음력·반복·대상 지정 푸시
       `CREATE TABLE IF NOT EXISTS ongi_events (
         id                  SERIAL PRIMARY KEY,

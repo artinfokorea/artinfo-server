@@ -120,7 +120,8 @@ export class OngiPhotoController {
   @UseInterceptors(
     FilesInterceptor('photoFiles', 10, {
       limits: {
-        fileSize: 32 * 1024 * 1024,
+        // 영상(H.264 720p 최대 5분 ≈ 150~200MB)까지 허용
+        fileSize: 384 * 1024 * 1024,
         files: 10,
       },
     }),
