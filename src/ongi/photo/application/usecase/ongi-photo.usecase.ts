@@ -171,16 +171,32 @@ export class OngiToggleLikeUseCase {
     @Inject(ONGI_PHOTO_REPOSITORY)
     private readonly photoRepository: IOngiPhotoRepository,
 
+    @Inject(ONGI_MEMBER_REPOSITORY)
+    private readonly memberRepository: IOngiMemberRepository,
+
     private readonly accessService: OngiPhotoAccessService,
+    private readonly pushService: OngiPushService,
   ) {}
 
   async execute(userId: number, photoId: number): Promise<OngiPhotoView> {
     const photo = await this.photoRepository.findById(photoId);
     if (!photo) throw new OngiPhotoNotFound();
 
-    await this.accessService.requireMember(photo.groupId, userId);
+    const me = await this.accessService.requireMember(photo.groupId, userId);
 
     const likedByMe = await this.photoRepository.toggleLike(photoId, userId);
+
+    // 좋아요를 눌렀을 때만 사진 작성자에게 푸시 (해제는 조용히 — 본인·차단은 notifyUser 가 걸러준다)
+    if (likedByMe) {
+      const author = await this.memberRepository.findById(photo.authorMemberId);
+      if (author) {
+        this.pushService.notifyUser(author.userId, userId, {
+          title: '온기',
+          body: `${me.name}님이 회원님의 사진을 좋아해요 ❤️`,
+          data: { type: 'like', groupId: String(photo.groupId), photoId: String(photo.id) },
+        });
+      }
+    }
     const updated = await this.photoRepository.findById(photoId);
     if (!updated) throw new OngiPhotoNotFound();
 
