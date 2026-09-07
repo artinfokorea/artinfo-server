@@ -4,6 +4,8 @@ import { OngiEvent } from '@/ongi/event/domain/entity/ongi-event.entity';
 import { ONGI_EVENT_REPOSITORY } from '@/ongi/event/domain/repository/ongi-event.repository.interface';
 import { OngiEventRepository } from '@/ongi/event/infrastructure/repository/ongi-event.repository';
 import { OngiEventController, OngiEventItemController } from '@/ongi/event/presentation/controller/ongi-event.controller';
+import { OngiHolidayController } from '@/ongi/event/presentation/controller/ongi-holiday.controller';
+import { OngiScanHolidaysUseCase } from '@/ongi/event/application/usecase/ongi-holiday.usecase';
 import {
   OngiCreateEventUseCase,
   OngiDeleteEventUseCase,
@@ -16,7 +18,7 @@ import { OngiPushModule } from '@/ongi/push/ongi-push.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([OngiEvent]), OngiGroupModule, OngiPushModule],
-  controllers: [OngiEventController, OngiEventItemController],
+  controllers: [OngiEventController, OngiEventItemController, OngiHolidayController],
   providers: [
     { provide: ONGI_EVENT_REPOSITORY, useClass: OngiEventRepository },
     OngiScanEventsUseCase,
@@ -24,6 +26,7 @@ import { OngiPushModule } from '@/ongi/push/ongi-push.module';
     OngiUpdateEventUseCase,
     OngiDeleteEventUseCase,
     OngiEventReminderService,
+    OngiScanHolidaysUseCase,
   ],
 })
 export class OngiEventModule {}
