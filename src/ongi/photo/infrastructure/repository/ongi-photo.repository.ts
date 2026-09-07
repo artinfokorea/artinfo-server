@@ -30,6 +30,8 @@ export class OngiPhotoRepository implements IOngiPhotoRepository {
       caption: creator.caption,
       location: creator.location,
       personIds: creator.personIds,
+      mediaType: creator.mediaType,
+      durationSeconds: creator.durationSeconds,
     });
   }
 

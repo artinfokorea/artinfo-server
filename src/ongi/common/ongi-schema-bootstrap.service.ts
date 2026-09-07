@@ -31,6 +31,8 @@ export class OngiSchemaBootstrapService implements OnModuleInit {
       // 영상 게시 지원 (2026-09-07)
       `ALTER TABLE ongi_photos ADD COLUMN IF NOT EXISTS media_type VARCHAR(8) NOT NULL DEFAULT 'photo'`,
       `ALTER TABLE ongi_photos ADD COLUMN IF NOT EXISTS duration_seconds INTEGER`,
+      // 초기 배포 때 create() 가 media_type 을 넘기지 않아 'photo' 로 저장된 영상 게시물 보정 (2026-09-07, 멱등)
+      `UPDATE ongi_photos SET media_type = 'video' WHERE media_type = 'photo' AND (url LIKE '%.mp4' OR url LIKE '%.mov' OR url LIKE '%.m4v')`,
       // 가족 일정 (2026-09-06) — 양력/음력·반복·대상 지정 푸시
       `CREATE TABLE IF NOT EXISTS ongi_events (
         id                  SERIAL PRIMARY KEY,
