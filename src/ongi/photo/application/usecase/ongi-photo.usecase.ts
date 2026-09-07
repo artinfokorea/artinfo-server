@@ -1,6 +1,11 @@
 import sharp from 'sharp';
 import { Inject, Injectable } from '@nestjs/common';
-import { IOngiPhotoRepository, type OngiPhotoScanOptions, ONGI_PHOTO_REPOSITORY, OngiPhotoView } from '@/ongi/photo/domain/repository/ongi-photo.repository.interface';
+import {
+  IOngiPhotoRepository,
+  type OngiPhotoScanOptions,
+  ONGI_PHOTO_REPOSITORY,
+  OngiPhotoView,
+} from '@/ongi/photo/domain/repository/ongi-photo.repository.interface';
 import { IOngiMemberRepository, ONGI_MEMBER_REPOSITORY } from '@/ongi/group/domain/repository/ongi-member.repository.interface';
 import { IOngiBlockRepository, ONGI_BLOCK_REPOSITORY } from '@/ongi/group/domain/repository/ongi-block.repository.interface';
 import { IOngiAlbumRepository, ONGI_ALBUM_REPOSITORY } from '@/ongi/album/domain/repository/ongi-album.repository.interface';
@@ -269,12 +274,7 @@ export class OngiCopyPhotosUseCase {
    * 다른 가족 공간에 사진 공유(복사) — 대상 공간에 독립 게시물을 만든다 (파일은 공유, 좋아요·댓글은 분리).
    * 원본 사진은 작성자 본인 또는 관리자만, 대상 공간은 내가 구성원이어야 하며 앨범은 대상 공간 소속이어야 한다.
    */
-  async execute(
-    userId: number,
-    photoIds: number[],
-    targetGroupId: number,
-    albumId: number | null,
-  ): Promise<{ copiedIds: number[]; skippedIds: number[] }> {
+  async execute(userId: number, photoIds: number[], targetGroupId: number, albumId: number | null): Promise<{ copiedIds: number[]; skippedIds: number[] }> {
     const target = await this.memberRepository.findByGroupIdAndUserId(targetGroupId, userId);
     if (!target) throw new OngiNotGroupMember();
 
