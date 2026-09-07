@@ -1,0 +1,25 @@
+name: CI
+
+# PR 과 main 푸시 모두에서 돈다 — 브랜치 보호를 켜면 이 체크 통과가 머지 조건이 된다
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    name: Typecheck · Lint · Test (ongi)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Lint (ongi)
+        run: npx eslint "src/ongi/**/*.ts"
+      - name: Test (ongi)
+        run: npx jest src/ongi

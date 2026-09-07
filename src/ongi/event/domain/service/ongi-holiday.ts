@@ -74,7 +74,9 @@ export function holidaysOf(year: number): OngiHoliday[] {
   for (const fixed of FIXED) {
     if (!fixed.substitutable) continue;
     const date = dateStr(year, fixed.month, fixed.day);
-    if (isWeekend(date)) substitutes.push({ date: nextWorkday(date), name: `대체공휴일(${fixed.name})` });
+    // 어린이날은 토·일 외에 '다른 공휴일과 겹침'에도 대체 (예: 2025 부처님오신날과 겹쳐 5/6 대체)
+    const overlapsOther = fixed.name === '어린이날' && list.filter(holiday => holiday.date === date).length > 1;
+    if (isWeekend(date) || overlapsOther) substitutes.push({ date: nextWorkday(date), name: `대체공휴일(${fixed.name})` });
   }
   if (buddha && isWeekend(buddha)) substitutes.push({ date: nextWorkday(buddha), name: '대체공휴일(부처님오신날)' });
   // 설·추석은 연휴 사흘 중 하루라도 일요일과 겹치면 연휴 다음 첫 평일이 대체공휴일
