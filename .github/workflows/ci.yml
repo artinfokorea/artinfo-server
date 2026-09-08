@@ -8,7 +8,7 @@ on:
 
 jobs:
   verify:
-    name: Typecheck · Lint · Test (ongi · salpyeo)
+    name: Typecheck · Lint · Test (ongi)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
