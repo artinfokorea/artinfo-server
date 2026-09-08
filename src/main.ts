@@ -31,6 +31,7 @@ async function bootstrap() {
 
   setSwagger(app);
 
-  await app.listen(3000);
+  // 로컬에서 프론트(3000)와 함께 띄울 때 PORT 로 바꿀 수 있다. 기본값·Dockerfile 은 3000 그대로.
+  await app.listen(Number(process.env['PORT'] ?? 3000));
 }
 bootstrap();

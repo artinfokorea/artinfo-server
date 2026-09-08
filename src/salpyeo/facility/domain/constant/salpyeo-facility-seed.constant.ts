@@ -1,0 +1,460 @@
+import { SalpyeoFacility, SalpyeoFacilityImage } from '@/salpyeo/facility/domain/entity/salpyeo-facility.entity';
+
+/** 초기 시드에 필요한 필드만 — id/타임스탬프는 DB 가 채운다 */
+export type SalpyeoFacilitySeed = Pick<
+  SalpyeoFacility,
+  | 'slug'
+  | 'vertical'
+  | 'name'
+  | 'meta'
+  | 'distanceLabel'
+  | 'distanceMinutes'
+  | 'inspectionBadge'
+  | 'featureBadge'
+  | 'price'
+  | 'rating'
+  | 'reviewCount'
+  | 'vsAvgPercent'
+  | 'images'
+  | 'priceRows'
+  | 'inspections'
+  | 'review'
+  | 'sortOrder'
+>;
+
+/** 예시 이미지 — 실제 사진 연동 전까지 picsum seed 이미지 사용 */
+function sampleImages(seed: string, captions: string[]): SalpyeoFacilityImage[] {
+  return captions.map((alt, i) => ({ url: `https://picsum.photos/seed/salpyeo-${seed}-${i + 1}/1200/800`, alt, width: 1200, height: 800 }));
+}
+
+/**
+ * 분당구 정자동 기준 샘플 시설 (디자인 핸드오프 프로토타입 데이터).
+ * 공공데이터 연동 전 목데이터이며, 기동 시 SalpyeoSchemaBootstrapService 가 ON CONFLICT DO NOTHING 으로 넣는다.
+ */
+export const SALPYEO_FACILITY_SEED: readonly SalpyeoFacilitySeed[] = [
+  // ── 산후조리원 (활성) ──
+  {
+    slug: 'p1',
+    vertical: 'post',
+    name: '라온 산후조리원',
+    meta: '정자역 도보 6분',
+    distanceLabel: '차 8분',
+    distanceMinutes: 8,
+    inspectionBadge: '점검 지적 없음',
+    featureBadge: '모자동실',
+    price: 4_800_000,
+    rating: 4.6,
+    reviewCount: 128,
+    vsAvgPercent: -7,
+    sortOrder: 1,
+    images: sampleImages('p1', ['건물 외관', '일반실', '신생아실', '식당', '마사지실']),
+    priceRows: [
+      { room: '일반실', note: '2주 · 모자동실 선택 가능', price: '480만원' },
+      { room: '특실', note: '2주 · 가족 숙박 1인 포함', price: '690만원' },
+      { room: '연장 1일', note: '일반실 기준', price: '32만원' },
+    ],
+    inspections: [
+      { title: '정기 위생 점검', date: '분당구보건소 · 2026.05', result: '지적 없음' },
+      { title: '감염관리 점검', date: '분당구보건소 · 2025.11', result: '지적 없음' },
+    ],
+    review: { meta: '2026.07 이용', text: '신생아실 인력이 넉넉하고 밤중 수유 콜 응답이 빨랐어요. 마사지 추가 비용이 미리 안내돼서 좋았습니다.' },
+  },
+  {
+    slug: 'p2',
+    vertical: 'post',
+    name: '포근 산후조리원',
+    meta: '미금역 도보 3분',
+    distanceLabel: '차 14분',
+    distanceMinutes: 14,
+    inspectionBadge: '점검 지적 없음',
+    featureBadge: '가족실',
+    price: 5_200_000,
+    rating: 4.4,
+    reviewCount: 96,
+    vsAvgPercent: -1,
+    sortOrder: 2,
+    images: sampleImages('p2', ['건물 외관', '가족실', '신생아실', '휴게 라운지']),
+    priceRows: [
+      { room: '일반실', note: '2주', price: '520만원' },
+      { room: '가족실', note: '2주 · 보호자 상시 숙박', price: '640만원' },
+      { room: '연장 1일', note: '일반실 기준', price: '36만원' },
+    ],
+    inspections: [
+      { title: '정기 위생 점검', date: '분당구보건소 · 2026.03', result: '지적 없음' },
+      { title: '감염관리 점검', date: '분당구보건소 · 2025.09', result: '지적 없음' },
+    ],
+    review: { meta: '2026.06 이용', text: '식단이 훌륭하고 좌욕·마사지 일정 관리가 체계적이에요. 주차 공간이 좁은 점은 아쉬웠어요.' },
+  },
+  {
+    slug: 'p3',
+    vertical: 'post',
+    name: '온새미로 조리원',
+    meta: '서현역 도보 5분',
+    distanceLabel: '차 12분',
+    distanceMinutes: 12,
+    inspectionBadge: '시정 완료 1건',
+    featureBadge: '24시간 간호',
+    price: 5_450_000,
+    rating: 4.3,
+    reviewCount: 61,
+    vsAvgPercent: 4,
+    sortOrder: 3,
+    images: sampleImages('p3', ['건물 외관', '일반실', '간호 스테이션', '식사']),
+    priceRows: [
+      { room: '일반실', note: '2주', price: '545만원' },
+      { room: '특실', note: '2주', price: '720만원' },
+      { room: '연장 1일', note: '일반실 기준', price: '38만원' },
+    ],
+    inspections: [
+      { title: '정기 위생 점검', date: '분당구보건소 · 2026.04', result: '1건 시정완료' },
+      { title: '감염관리 점검', date: '분당구보건소 · 2025.10', result: '지적 없음' },
+    ],
+    review: { meta: '2026.05 이용', text: '간호 인력이 24시간 상주해서 안심됐어요. 시설이 살짝 오래된 느낌은 있습니다.' },
+  },
+  {
+    slug: 'p4',
+    vertical: 'post',
+    name: '소풍 산후조리원',
+    meta: '수내역 도보 8분',
+    distanceLabel: '차 11분',
+    distanceMinutes: 11,
+    inspectionBadge: '점검 지적 없음',
+    featureBadge: '특실 보유',
+    price: 6_100_000,
+    rating: 4.7,
+    reviewCount: 74,
+    vsAvgPercent: 12,
+    sortOrder: 4,
+    images: sampleImages('p4', ['건물 외관', '특실 테라스', '신생아실', '요가룸', '로비']),
+    priceRows: [
+      { room: '일반실', note: '2주', price: '610만원' },
+      { room: '특실', note: '2주 · 테라스 포함', price: '650만원' },
+      { room: '연장 1일', note: '일반실 기준', price: '42만원' },
+    ],
+    inspections: [
+      { title: '정기 위생 점검', date: '분당구보건소 · 2026.06', result: '지적 없음' },
+      { title: '감염관리 점검', date: '분당구보건소 · 2025.12', result: '지적 없음' },
+    ],
+    review: { meta: '2026.07 이용', text: '신축이라 시설이 쾌적하고 특실 가성비가 좋아요. 식사 시간대가 고정인 건 참고하세요.' },
+  },
+
+  // ── 요양원 (준비 중) ──
+  {
+    slug: 'n1',
+    vertical: 'nursing',
+    name: '늘푸른 요양원',
+    meta: '정자동 · 정원 64명',
+    distanceLabel: '차 9분',
+    distanceMinutes: 9,
+    inspectionBadge: '평가 A등급',
+    featureBadge: '간호사 상주',
+    price: 1_280_000,
+    rating: 4.5,
+    reviewCount: 42,
+    vsAvgPercent: -5,
+    sortOrder: 1,
+    images: sampleImages('n1', ['건물 외관', '생활실', '물리치료실']),
+    priceRows: [
+      { room: '월 본인부담금', note: '장기요양 3등급 기준', price: '62만원' },
+      { room: '식대 (비급여)', note: '월 · 공개 의무 항목', price: '42만원' },
+      { room: '상급침실 차액', note: '2인실 기준', price: '24만원' },
+    ],
+    inspections: [
+      { title: '장기요양기관 정기평가', date: '건보공단 · 2025', result: 'A등급' },
+      { title: '급식위생 점검', date: '분당구보건소 · 2026.02', result: '지적 없음' },
+    ],
+    review: { meta: '보호자 인증 · 2026.04', text: '요양보호사 교체가 적어 어머니가 안정적으로 지내세요. 면회 예약 시스템이 편리합니다.' },
+  },
+  {
+    slug: 'n2',
+    vertical: 'nursing',
+    name: '가온 실버케어',
+    meta: '서현동 · 정원 48명',
+    distanceLabel: '차 15분',
+    distanceMinutes: 15,
+    inspectionBadge: '평가 A등급',
+    featureBadge: '치매전담실',
+    price: 1_420_000,
+    rating: 4.4,
+    reviewCount: 35,
+    vsAvgPercent: 0,
+    sortOrder: 2,
+    images: sampleImages('n2', ['건물 외관', '치매전담실', '식당']),
+    priceRows: [
+      { room: '월 본인부담금', note: '장기요양 3등급 기준', price: '64만원' },
+      { room: '식대 (비급여)', note: '월', price: '48만원' },
+      { room: '치매전담실 가산', note: '월', price: '30만원' },
+    ],
+    inspections: [
+      { title: '장기요양기관 정기평가', date: '건보공단 · 2025', result: 'A등급' },
+      { title: '급식위생 점검', date: '2026.01', result: '지적 없음' },
+    ],
+    review: { meta: '보호자 인증 · 2026.03', text: '치매전담실 프로그램이 다양하고 상태 공유가 꼼꼼해요. 대기가 긴 편입니다.' },
+  },
+  {
+    slug: 'n3',
+    vertical: 'nursing',
+    name: '청솔 요양원',
+    meta: '수내동 · 정원 80명',
+    distanceLabel: '차 13분',
+    distanceMinutes: 13,
+    inspectionBadge: '평가 B등급',
+    featureBadge: '물리치료실',
+    price: 1_150_000,
+    rating: 4.1,
+    reviewCount: 28,
+    vsAvgPercent: -12,
+    sortOrder: 3,
+    images: sampleImages('n3', ['건물 외관', '2인실', '정원']),
+    priceRows: [
+      { room: '월 본인부담금', note: '장기요양 3등급 기준', price: '60만원' },
+      { room: '식대 (비급여)', note: '월', price: '38만원' },
+      { room: '상급침실 차액', note: '2인실 기준', price: '17만원' },
+    ],
+    inspections: [
+      { title: '장기요양기관 정기평가', date: '건보공단 · 2025', result: 'B등급' },
+      { title: '급식위생 점검', date: '2025.12', result: '1건 시정완료' },
+    ],
+    review: { meta: '보호자 인증 · 2026.02', text: '가격 대비 만족스럽고 물리치료 횟수가 많아요. 2인실은 대기가 있습니다.' },
+  },
+
+  // ── 장례식장 (준비 중) ──
+  {
+    slug: 'f1',
+    vertical: 'funeral',
+    name: '하늘숲 장례식장',
+    meta: '분당구 · 빈소 8실',
+    distanceLabel: '차 10분',
+    distanceMinutes: 10,
+    inspectionBadge: '가격 공개 인증',
+    featureBadge: '주차 200대',
+    price: 1_650_000,
+    rating: 4.5,
+    reviewCount: 51,
+    vsAvgPercent: -6,
+    sortOrder: 1,
+    images: sampleImages('f1', ['건물 외관', '빈소', '접객실']),
+    priceRows: [
+      { room: '빈소 사용료 (중형)', note: '1일 · 접객실 포함', price: '165만원' },
+      { room: '안치료', note: '1일', price: '12만원' },
+      { room: '입관실 사용료', note: '1회', price: '25만원' },
+    ],
+    inspections: [
+      { title: '가격표 공개 확인', date: 'e하늘 · 2026.07', result: '일치' },
+      { title: '위생 점검', date: '성남시 · 2026.01', result: '지적 없음' },
+    ],
+    review: { meta: '유족 인증 · 2026.05', text: '안내 직원이 절차를 차분히 설명해 주셔서 경황없는 중에 큰 도움이 됐습니다. 추가 비용 안내가 투명했어요.' },
+  },
+  {
+    slug: 'f2',
+    vertical: 'funeral',
+    name: '평안 장례문화원',
+    meta: '야탑동 · 빈소 12실',
+    distanceLabel: '차 18분',
+    distanceMinutes: 18,
+    inspectionBadge: '가격 공개 인증',
+    featureBadge: '대형 빈소',
+    price: 1_800_000,
+    rating: 4.3,
+    reviewCount: 44,
+    vsAvgPercent: 2,
+    sortOrder: 2,
+    images: sampleImages('f2', ['건물 외관', '대형 빈소', '유족 대기실']),
+    priceRows: [
+      { room: '빈소 사용료 (중형)', note: '1일', price: '180만원' },
+      { room: '안치료', note: '1일', price: '14만원' },
+      { room: '유족 대기실', note: '1일', price: '20만원' },
+    ],
+    inspections: [
+      { title: '가격표 공개 확인', date: 'e하늘 · 2026.07', result: '일치' },
+      { title: '위생 점검', date: '성남시 · 2025.11', result: '지적 없음' },
+    ],
+    review: { meta: '유족 인증 · 2026.04', text: '빈소가 넓고 조문객 동선이 좋아요. 식사 단가는 주변보다 조금 높은 편입니다.' },
+  },
+  {
+    slug: 'f3',
+    vertical: 'funeral',
+    name: '온누리 장례식장',
+    meta: '구미동 · 빈소 6실',
+    distanceLabel: '차 14분',
+    distanceMinutes: 14,
+    inspectionBadge: '가격 공개 인증',
+    featureBadge: '소형 빈소',
+    price: 1_380_000,
+    rating: 4.2,
+    reviewCount: 29,
+    vsAvgPercent: -17,
+    sortOrder: 3,
+    images: sampleImages('f3', ['건물 외관', '빈소', '주차장']),
+    priceRows: [
+      { room: '빈소 사용료 (중형)', note: '1일', price: '138만원' },
+      { room: '안치료', note: '1일', price: '10만원' },
+      { room: '입관실 사용료', note: '1회', price: '22만원' },
+    ],
+    inspections: [
+      { title: '가격표 공개 확인', date: 'e하늘 · 2026.06', result: '일치' },
+      { title: '위생 점검', date: '성남시 · 2026.03', result: '지적 없음' },
+    ],
+    review: { meta: '유족 인증 · 2026.03', text: '규모는 작지만 비용이 합리적이고 상조 없이도 진행이 수월했습니다.' },
+  },
+
+  // ── 어린이집·유치원 (준비 중) ──
+  {
+    slug: 'd1',
+    vertical: 'daycare',
+    name: '숲속 어린이집',
+    meta: '정자동 · 정원 92명',
+    distanceLabel: '도보 7분',
+    distanceMinutes: 7,
+    inspectionBadge: '평가인증 A',
+    featureBadge: '대기 12명',
+    price: 280_000,
+    rating: 4.6,
+    reviewCount: 87,
+    vsAvgPercent: 0,
+    sortOrder: 1,
+    images: sampleImages('d1', ['건물 외관', '교실', '놀이터']),
+    priceRows: [
+      { room: '기본 보육료', note: '월 · 정부지원 후 부담금', price: '0원' },
+      { room: '특별활동비', note: '월 · 체육·음악 포함', price: '18만원' },
+      { room: '현장학습·급식비', note: '월', price: '10만원' },
+    ],
+    inspections: [
+      { title: '평가인증', date: '아이사랑 · 2025', result: 'A등급' },
+      { title: '급식위생 점검', date: '2026.04', result: '지적 없음' },
+    ],
+    review: { meta: '학부모 인증 · 2026.06', text: '교사 대 아동 비율이 좋고 알림장이 상세해요. 특별활동비 내역이 투명하게 공개됩니다.' },
+  },
+  {
+    slug: 'd2',
+    vertical: 'daycare',
+    name: '해맑은 유치원',
+    meta: '수내동 · 정원 120명',
+    distanceLabel: '차 6분',
+    distanceMinutes: 6,
+    inspectionBadge: '평가인증 A',
+    featureBadge: '통학버스',
+    price: 340_000,
+    rating: 4.4,
+    reviewCount: 63,
+    vsAvgPercent: 8,
+    sortOrder: 2,
+    images: sampleImages('d2', ['건물 외관', '교실', '통학버스']),
+    priceRows: [
+      { room: '기본 교육비', note: '월 · 지원 후 부담금', price: '6만원' },
+      { room: '특성화 활동비', note: '월 · 영어·체육', price: '20만원' },
+      { room: '급식·통학비', note: '월', price: '8만원' },
+    ],
+    inspections: [
+      { title: '유치원알리미 공시', date: '2026.03', result: '공시 완료' },
+      { title: '급식위생 점검', date: '2026.02', result: '지적 없음' },
+    ],
+    review: { meta: '학부모 인증 · 2026.05', text: '통학버스 노선이 촘촘하고 방과후 프로그램이 알차요. 대기 기간은 긴 편이에요.' },
+  },
+  {
+    slug: 'd3',
+    vertical: 'daycare',
+    name: '아람 어린이집',
+    meta: '서현동 · 정원 60명',
+    distanceLabel: '차 9분',
+    distanceMinutes: 9,
+    inspectionBadge: '평가인증 B',
+    featureBadge: '대기 3명',
+    price: 240_000,
+    rating: 4.2,
+    reviewCount: 38,
+    vsAvgPercent: -14,
+    sortOrder: 3,
+    images: sampleImages('d3', ['건물 외관', '교실', '급식실']),
+    priceRows: [
+      { room: '기본 보육료', note: '월 · 지원 후 부담금', price: '0원' },
+      { room: '특별활동비', note: '월', price: '15만원' },
+      { room: '현장학습·급식비', note: '월', price: '9만원' },
+    ],
+    inspections: [
+      { title: '평가인증', date: '아이사랑 · 2025', result: 'B등급' },
+      { title: '급식위생 점검', date: '2026.01', result: '지적 없음' },
+    ],
+    review: { meta: '학부모 인증 · 2026.04', text: '소규모라 아이 개별 케어가 좋아요. 야외 놀이 공간이 작은 점은 아쉽습니다.' },
+  },
+
+  // ── 학원 (준비 중) ──
+  {
+    slug: 'a1',
+    vertical: 'academy',
+    name: '한빛수학학원',
+    meta: '정자동 · 중등 전문',
+    distanceLabel: '도보 10분',
+    distanceMinutes: 10,
+    inspectionBadge: '교습비 공개 일치',
+    featureBadge: '반 정원 8명',
+    price: 380_000,
+    rating: 4.5,
+    reviewCount: 52,
+    vsAvgPercent: -3,
+    sortOrder: 1,
+    images: sampleImages('a1', ['학원 입구', '강의실', '자습실']),
+    priceRows: [
+      { room: '중등 정규반', note: '월 · 주 3회', price: '38만원' },
+      { room: '교재비', note: '분기', price: '6만원' },
+      { room: '클리닉 추가', note: '월 · 주 1회', price: '12만원' },
+    ],
+    inspections: [
+      { title: '교습비 공개 확인', date: '나이스 · 2026.07', result: '일치' },
+      { title: '학원 등록 상태', date: '성남교육지원청', result: '정상' },
+    ],
+    review: { meta: '학부모 인증 · 2026.06', text: '소수정예라 질문 기회가 많고 월별 성취 리포트를 보내줘요. 자리가 빨리 차는 편입니다.' },
+  },
+  {
+    slug: 'a2',
+    vertical: 'academy',
+    name: '그린영어학원',
+    meta: '서현동 · 초·중등',
+    distanceLabel: '차 8분',
+    distanceMinutes: 8,
+    inspectionBadge: '교습비 공개 일치',
+    featureBadge: '원어민 수업',
+    price: 420_000,
+    rating: 4.3,
+    reviewCount: 41,
+    vsAvgPercent: 7,
+    sortOrder: 2,
+    images: sampleImages('a2', ['학원 입구', '원어민 강의실', '라운지']),
+    priceRows: [
+      { room: '초등 정규반', note: '월 · 주 3회', price: '42만원' },
+      { room: '교재비', note: '분기', price: '8만원' },
+      { room: '레벨테스트', note: '1회', price: '무료' },
+    ],
+    inspections: [
+      { title: '교습비 공개 확인', date: '나이스 · 2026.07', result: '일치' },
+      { title: '학원 등록 상태', date: '성남교육지원청', result: '정상' },
+    ],
+    review: { meta: '학부모 인증 · 2026.05', text: '원어민 수업 비중이 높고 숙제 관리가 철저해요. 셔틀이 없는 게 단점입니다.' },
+  },
+  {
+    slug: 'a3',
+    vertical: 'academy',
+    name: '다온코딩아카데미',
+    meta: '수내동 · 초·중등',
+    distanceLabel: '차 7분',
+    distanceMinutes: 7,
+    inspectionBadge: '교습비 공개 일치',
+    featureBadge: '1인 1노트북',
+    price: 350_000,
+    rating: 4.6,
+    reviewCount: 33,
+    vsAvgPercent: -5,
+    sortOrder: 3,
+    images: sampleImages('a3', ['학원 입구', '실습실', '프로젝트 발표']),
+    priceRows: [
+      { room: '정규반', note: '월 · 주 2회', price: '35만원' },
+      { room: '교구비', note: '분기', price: '5만원' },
+      { room: '대회 준비반', note: '월 · 선택', price: '15만원' },
+    ],
+    inspections: [
+      { title: '교습비 공개 확인', date: '나이스 · 2026.06', result: '일치' },
+      { title: '학원 등록 상태', date: '성남교육지원청', result: '정상' },
+    ],
+    review: { meta: '학부모 인증 · 2026.06', text: '아이가 스스로 프로젝트를 완성하게 이끌어줘요. 결과물 공유회가 만족스럽습니다.' },
+  },
+];

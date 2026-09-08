@@ -20,7 +20,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Typecheck
         run: npx tsc --noEmit
-      - name: Lint (ongi)
-        run: npx eslint "src/ongi/**/*.ts"
-      - name: Test (ongi)
-        run: npx jest src/ongi
+      - name: Lint (ongi · salpyeo)
+        run: npx eslint "src/ongi/**/*.ts" "src/salpyeo/**/*.ts"
+      - name: Test (ongi · salpyeo)
+        run: npx jest src/ongi src/salpyeo
