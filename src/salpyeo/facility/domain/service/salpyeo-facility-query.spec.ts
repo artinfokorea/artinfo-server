@@ -7,12 +7,13 @@ import { filterFacilitiesByKeyword, filterFacilitiesBySlugs, sortFacilities } fr
  * 2) 평점 높은순: 소풍(4.7) → 라온(4.6) → 포근(4.4) → 온새미로(4.3)
  * 3) 후기 많은순: 라온(128) → 포근(96) → 소풍(74) → 온새미로(61)
  * 4) 가까운순: 라온(8) → 소풍(11) → 온새미로(12) → 포근(14)
- * 5) 키워드 검색은 이름·위치(meta) 를 대소문자 무시로 부분 일치, 공백/빈 문자열은 전체 반환
+ * 5) 키워드 검색은 이름·위치(meta)·주소를 대소문자 무시로 부분 일치, 공백/빈 문자열은 전체 반환
+ * 8) 가격 0(미공개) 은 가격 낮은순에서 맨 뒤
  * 6) slugs 필터는 순서와 무관하게 해당 시설만 남김, 없는 slug 는 무시
  * 7) 정렬은 원본 배열을 변경하지 않음
  */
 function facility(partial: Partial<SalpyeoFacility>): SalpyeoFacility {
-  return Object.assign(new SalpyeoFacility(), { sortOrder: 0, meta: '', ...partial });
+  return Object.assign(new SalpyeoFacility(), { sortOrder: 0, meta: '', address: '', ...partial });
 }
 
 const raon = facility({
@@ -63,6 +64,11 @@ describe('sortFacilities', () => {
     expect(names(sortFacilities(all))).toEqual(['라온 산후조리원', '포근 산후조리원', '온새미로 조리원', '소풍 산후조리원']);
   });
 
+  it('가격 0(미공개) 은 낮은순에서 맨 뒤로 간다', () => {
+    const unknown = facility({ name: '미공개 조리원', price: 0, sortOrder: 0 });
+    expect(names(sortFacilities([unknown, ...all]))).toEqual(['라온 산후조리원', '포근 산후조리원', '온새미로 조리원', '소풍 산후조리원', '미공개 조리원']);
+  });
+
   it('평점 높은순으로 정렬한다', () => {
     expect(names(sortFacilities(all, 'ratingDesc'))).toEqual(['소풍 산후조리원', '라온 산후조리원', '포근 산후조리원', '온새미로 조리원']);
   });
@@ -95,6 +101,11 @@ describe('filterFacilitiesByKeyword', () => {
 
   it('위치(meta) 로도 찾는다', () => {
     expect(names(filterFacilitiesByKeyword(all, '서현역'))).toEqual(['온새미로 조리원']);
+  });
+
+  it('주소로도 찾는다', () => {
+    const withAddress = [facility({ name: '디에르', address: '성남시 정자일로 121 2층' }), facility({ name: '라온', address: '서울시 종로구 통일로 16길' })];
+    expect(names(filterFacilitiesByKeyword(withAddress, '정자'))).toEqual(['디에르']);
   });
 
   it('빈 문자열·공백·undefined 는 전체를 반환한다', () => {

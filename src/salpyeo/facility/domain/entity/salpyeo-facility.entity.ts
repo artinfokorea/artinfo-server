@@ -48,17 +48,36 @@ export class SalpyeoFacility extends BaseEntity {
   @Column({ type: 'varchar', length: 100 })
   name: string;
 
-  /** 위치 요약 (예: 정자역 도보 6분) */
+  /** 위치 요약 (예: 서울 종로구) */
   @Column({ type: 'varchar', length: 200 })
   meta: string;
 
+  /** 시도 (예: 서울) — 공공데이터 원본 값 */
+  @Column({ type: 'varchar', length: 20, default: '' })
+  sido: string;
+
+  /** 시군구 (예: 종로구) */
+  @Column({ type: 'varchar', length: 40, default: '' })
+  sigungu: string;
+
+  /** 운영주체 (민간 / 지자체) */
+  @Column({ type: 'varchar', length: 20, name: 'operator_type', default: '' })
+  operatorType: string;
+
+  @Column({ type: 'varchar', length: 200, default: '' })
+  address: string;
+
+  @Column({ type: 'varchar', length: 30, default: '' })
+  phone: string;
+
+  /** 사용자 위치 기준 거리. 아직 위치 기능이 없어 '' / 0 (미정) */
   @Column({ type: 'varchar', length: 40, name: 'distance_label' })
   distanceLabel: string;
 
   @Column({ type: 'int', name: 'distance_minutes' })
   distanceMinutes: number;
 
-  /** 점검·평가 배지 (초록) */
+  /** 점검·평가 배지 (초록). 점검 데이터 연동 전에는 '' */
   @Column({ type: 'varchar', length: 60, name: 'inspection_badge' })
   inspectionBadge: string;
 
@@ -66,7 +85,7 @@ export class SalpyeoFacility extends BaseEntity {
   @Column({ type: 'varchar', length: 60, name: 'feature_badge' })
   featureBadge: string;
 
-  /** 대표 가격 (원) */
+  /** 대표 가격 (원). 0 = 미공개 */
   @Column({ type: 'int' })
   price: number;
 
@@ -77,7 +96,7 @@ export class SalpyeoFacility extends BaseEntity {
   @Column({ type: 'int', name: 'review_count', default: 0 })
   reviewCount: number;
 
-  /** 지역 평균 대비 %. 음수 = 저렴, 양수 = 비쌈, 0 = 평균 수준 */
+  /** 같은 시도 평균 대비 %. 음수 = 저렴, 양수 = 비쌈, 0 = 평균 수준(또는 미공개) */
   @Column({ type: 'int', name: 'vs_avg_percent', default: 0 })
   vsAvgPercent: number;
 

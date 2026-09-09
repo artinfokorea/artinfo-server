@@ -1,3 +1,5 @@
+import { SALPYEO_POST_FACILITY_DATA_SOURCE } from '@/salpyeo/facility/domain/constant/salpyeo-post-facility-data.constant';
+
 /** 살펴가 다루는 5개 버티컬 키 */
 export const SALPYEO_VERTICAL_KEYS = ['post', 'nursing', 'funeral', 'daycare', 'academy'] as const;
 export type SalpyeoVerticalKey = (typeof SALPYEO_VERTICAL_KEYS)[number];
@@ -16,6 +18,8 @@ export interface SalpyeoVerticalMeta {
   priceLabel: string;
   /** 데이터 출처 */
   source: string;
+  /** 데이터 기준일 (YYYY-MM-DD). 연동 전이면 null */
+  asOf: string | null;
   /** false 면 클라이언트에 노출되지만 진입 불가 (준비 중) */
   enabled: boolean;
 }
@@ -25,13 +29,22 @@ export interface SalpyeoVerticalMeta {
  * 시설 수(count)는 DB 집계로 채워 응답한다.
  */
 export const SALPYEO_VERTICALS: readonly SalpyeoVerticalMeta[] = [
-  { key: 'post', label: '산후조리원', sub: '2주 요금 · 보건소 점검 결과', priceLabel: '2주 일반실', source: '모자보건법 요금 공개', enabled: true },
+  {
+    key: 'post',
+    label: '산후조리원',
+    sub: '2주 요금 · 보건소 점검 결과',
+    priceLabel: '2주 일반실',
+    source: SALPYEO_POST_FACILITY_DATA_SOURCE.title,
+    asOf: SALPYEO_POST_FACILITY_DATA_SOURCE.asOf,
+    enabled: true,
+  },
   {
     key: 'nursing',
     label: '요양원',
     sub: '장기요양 평가등급 · 비급여 식대',
     priceLabel: '월 본인부담 (비급여 포함)',
     source: '건보공단 장기요양기관 평가',
+    asOf: null,
     enabled: false,
   },
   {
@@ -40,6 +53,7 @@ export const SALPYEO_VERTICALS: readonly SalpyeoVerticalMeta[] = [
     sub: 'e하늘 공개 가격 · 빈소 규모',
     priceLabel: '빈소 1일 사용료 (중형)',
     source: 'e하늘 장사정보 가격 공개',
+    asOf: null,
     enabled: false,
   },
   {
@@ -48,9 +62,10 @@ export const SALPYEO_VERTICALS: readonly SalpyeoVerticalMeta[] = [
     sub: '평가인증 · 입소 대기 현황',
     priceLabel: '월 부담금 (특별활동 포함)',
     source: '아이사랑 · 유치원알리미',
+    asOf: null,
     enabled: false,
   },
-  { key: 'academy', label: '학원', sub: '나이스 교습비 공개 · 정원', priceLabel: '월 교습비', source: '나이스 교습비 공개', enabled: false },
+  { key: 'academy', label: '학원', sub: '나이스 교습비 공개 · 정원', priceLabel: '월 교습비', source: '나이스 교습비 공개', asOf: null, enabled: false },
 ];
 
 export function findSalpyeoVertical(key: SalpyeoVerticalKey): SalpyeoVerticalMeta {
