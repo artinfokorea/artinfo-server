@@ -91,6 +91,12 @@ export class SalpyeoAdminUpdateFacilityRequest {
 
   @IsOptional()
   @IsString()
+  @MaxLength(300)
+  @ApiPropertyOptional({ description: '공식 홈페이지. 없으면 빈 문자열', example: 'https://www.olivium.co.kr/' })
+  website?: string;
+
+  @IsOptional()
+  @IsString()
   @MaxLength(60)
   @ApiPropertyOptional({ description: '점검·평가 배지', example: '' })
   inspectionBadge?: string;
