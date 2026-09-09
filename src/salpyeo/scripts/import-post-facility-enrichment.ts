@@ -20,11 +20,12 @@ import { postFacilitySlug } from '@/salpyeo/facility/domain/service/salpyeo-post
 const OUTPUT = resolve(__dirname, '../facility/domain/constant/salpyeo-post-facility-enrichment.constant.ts');
 const MIN_PRICE = 500_000;
 const MAX_PRICE = 30_000_000;
-const MAX_IMAGES = 6;
+const MAX_IMAGES = 20; // 갤러리에 최대한 많이 — 상세 화면이 썸네일 스트립으로 넘겨 본다
 // 갤러리 썸네일만 공개하는 사이트가 많아 기준을 낮게 잡되, 로고·배너 같은 극단적 비율은 뺀다
 const MIN_IMAGE_WIDTH = 240;
 const MIN_IMAGE_HEIGHT = 160;
 const MAX_ASPECT_RATIO = 3;
+const LARGE_ENOUGH_WIDTH = 800; // 이보다 작으면 같은 사진의 더 큰 판본을 찾아본다
 const VERIFY_CONCURRENCY = 16;
 const IMAGE_EXT = /\.(jpe?g|png|webp)(\?.*)?$/i;
 
@@ -175,6 +176,24 @@ export function originalImageCandidates(url: string): string[] {
   push(url.replace(/(.+?)-\d{2,4}x\d{2,4}(\.[a-z]+)(\?|$)/i, '$1$2$3'));
   push(url.replace(/\/thumbs?\//i, '/'));
   push(url.replace(/_thumb(\.[a-z]+)(\?|$)/i, '$1$2'));
+  // 파일명 끝의 s 가 작은 이미지인 관행 (01s.jpg → 01.jpg)
+  push(url.replace(/([^/]+?)s(\.[a-z]+)(\?|$)/i, '$1$2$3'));
+  return out;
+}
+
+/**
+ * 같은 사진의 더 큰 판본 후보. 목록용 작은 이미지 옆에 상세용 원본을 함께 두는 사이트가 많다
+ * (photo_img1.jpg → photo_img1_b.jpg 처럼 접미사만 다른 경우).
+ */
+export function largerImageCandidates(url: string): string[] {
+  const out: string[] = [];
+  const push = (u: string) => {
+    if (u !== url && !out.includes(u)) out.push(u);
+  };
+  for (const suffix of ['_b', '_big', '_l', '_org', '_origin', '_view']) {
+    push(url.replace(/(\.[a-z]+)(\?|$)/i, `${suffix}$1$2`));
+  }
+  push(url.replace(/\/(?:thumb|thumbs|small|list)\//i, '/big/'));
   return out;
 }
 
@@ -184,7 +203,16 @@ export function originalImageCandidates(url: string): string[] {
  */
 async function probeImage(url: string): Promise<{ width: number; height: number; finalUrl: string } | null> {
   try {
-    const res = await fetch(url, { method: 'GET', headers: { 'User-Agent': 'Mozilla/5.0', Accept: 'image/*' }, signal: AbortSignal.timeout(15_000) });
+    // 헤더를 까다롭게 보는 서버가 있어 브라우저와 같은 형태로 보낸다 (Accept 가 부실하면 406 을 준다)
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+        Accept: 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
+        'Accept-Language': 'ko-KR,ko;q=0.9',
+      },
+      signal: AbortSignal.timeout(15_000),
+    });
     if (!res.ok) return null;
     if (!(res.headers.get('content-type') ?? '').startsWith('image/')) return null;
     const buf = Buffer.from(await res.arrayBuffer());
@@ -293,6 +321,16 @@ async function verifyAllImages(facilities: EnrichedFacility[], stats: Stats): Pr
             if (original) {
               image.url = candidate;
               size = original;
+              break;
+            }
+          }
+        }
+        if (size && size.width < LARGE_ENOUGH_WIDTH) {
+          // 작은 판본이면 같은 사진의 큰 판본을 찾아 바꿔 준다 (상세용 원본을 따로 두는 사이트 대응)
+          for (const candidate of largerImageCandidates(image.url)) {
+            const bigger = await probeImage(candidate);
+            if (bigger && bigger.width > size.width) {
+              size = bigger;
               break;
             }
           }
