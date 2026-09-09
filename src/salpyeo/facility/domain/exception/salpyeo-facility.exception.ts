@@ -17,3 +17,9 @@ export class SalpyeoFacilityNotFound extends HttpException {
     super({ code: 'SALPYEO-FACILITY-001', message: '시설을 찾을 수 없어요.' }, HttpStatus.NOT_FOUND);
   }
 }
+
+export class SalpyeoInvalidImage extends HttpException {
+  constructor() {
+    super({ code: 'SALPYEO-FACILITY-002', message: '이미지 파일(jpg·png·webp)만 올릴 수 있어요.' }, HttpStatus.BAD_REQUEST);
+  }
+}
