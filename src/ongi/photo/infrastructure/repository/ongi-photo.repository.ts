@@ -114,6 +114,16 @@ export class OngiPhotoRepository implements IOngiPhotoRepository {
     return this.commentRepository.find({ where: { photoId }, order: { createdAt: 'ASC', id: 'ASC' } });
   }
 
+  async scanCommentAuthorMemberIdsByPhotoId(photoId: number): Promise<number[]> {
+    const comments = await this.commentRepository.find({
+      where: { photoId },
+      select: { authorMemberId: true },
+      order: { createdAt: 'ASC', id: 'ASC' },
+    });
+
+    return comments.map(comment => comment.authorMemberId);
+  }
+
   async createComment(creator: OngiPhotoCommentCreator): Promise<OngiPhotoComment> {
     const comment = await this.commentRepository.save({
       photoId: creator.photoId,

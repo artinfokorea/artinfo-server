@@ -33,6 +33,8 @@ export interface IOngiPhotoRepository {
   /** 좋아요 토글 — 토글 후 좋아요 상태를 반환 */
   toggleLike(photoId: number, userId: number): Promise<boolean>;
   scanCommentsByPhotoId(photoId: number): Promise<OngiPhotoComment[]>;
+  /** 이 사진에 한마디를 남긴 구성원 id — 오래된 순, 삭제된 댓글 제외 (댓글 푸시 대상) */
+  scanCommentAuthorMemberIdsByPhotoId(photoId: number): Promise<number[]>;
   createComment(creator: OngiPhotoCommentCreator): Promise<OngiPhotoComment>;
   findCommentById(id: number): Promise<OngiPhotoComment | null>;
   /** 앨범 이동 (null 이면 미분류) */
