@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SalpyeoFacility } from '@/salpyeo/facility/domain/entity/salpyeo-facility.entity';
-import { ISalpyeoFacilityRepository } from '@/salpyeo/facility/domain/repository/salpyeo-facility.repository.interface';
+import { ISalpyeoFacilityRepository, SalpyeoFacilityPatch } from '@/salpyeo/facility/domain/repository/salpyeo-facility.repository.interface';
+import { SalpyeoFacilityNotFound } from '@/salpyeo/facility/domain/exception/salpyeo-facility.exception';
 import { SALPYEO_VERTICAL_KEYS, SalpyeoVerticalKey } from '@/salpyeo/facility/domain/constant/salpyeo-vertical.constant';
 import { SALPYEO_FACILITY_SEED, SalpyeoFacilitySeed } from '@/salpyeo/facility/domain/constant/salpyeo-facility-seed.constant';
 
@@ -24,6 +25,23 @@ export class SalpyeoFacilityMemoryRepository implements ISalpyeoFacilityReposito
 
   async findBySlug(slug: string): Promise<SalpyeoFacility | null> {
     return this.items.find(f => f.slug === slug && f.isActive) ?? null;
+  }
+
+  async findByVerticalForAdmin(vertical: SalpyeoVerticalKey): Promise<SalpyeoFacility[]> {
+    return this.items.filter(f => f.vertical === vertical).sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id);
+  }
+
+  async findBySlugForAdmin(slug: string): Promise<SalpyeoFacility | null> {
+    return this.items.find(f => f.slug === slug) ?? null;
+  }
+
+  async update(slug: string, patch: SalpyeoFacilityPatch): Promise<SalpyeoFacility> {
+    const facility = await this.findBySlugForAdmin(slug);
+    if (!facility) throw new SalpyeoFacilityNotFound();
+
+    Object.assign(facility, patch, { updatedAt: new Date() });
+
+    return facility;
   }
 
   async countByVertical(): Promise<Record<SalpyeoVerticalKey, number>> {

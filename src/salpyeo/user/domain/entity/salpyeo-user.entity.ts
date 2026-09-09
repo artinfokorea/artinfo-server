@@ -5,6 +5,12 @@ export enum SALPYEO_SNS_TYPE {
   GOOGLE = 'google',
 }
 
+/** 관리자 승격은 DB 에서 직접 role 을 바꾼다 (가입 경로로는 ADMIN 이 될 수 없다) */
+export enum SALPYEO_USER_ROLE {
+  USER = 'USER',
+  ADMIN = 'ADMIN',
+}
+
 export interface SalpyeoUserCreator {
   name: string;
   snsType: SALPYEO_SNS_TYPE;
@@ -32,6 +38,9 @@ export class SalpyeoUser extends BaseEntity {
 
   @Column({ type: 'varchar', name: 'icon_image_url', nullable: true })
   iconImageUrl: string | null;
+
+  @Column({ type: 'varchar', name: 'role', length: 16, default: SALPYEO_USER_ROLE.USER })
+  role: SALPYEO_USER_ROLE;
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;

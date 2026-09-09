@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { SalpyeoUser } from '@/salpyeo/user/domain/entity/salpyeo-user.entity';
+import { SALPYEO_USER_ROLE, SalpyeoUser } from '@/salpyeo/user/domain/entity/salpyeo-user.entity';
 
 export class SalpyeoUserResponse {
   @ApiProperty({ type: String, description: '사용자 id' })
@@ -17,11 +17,15 @@ export class SalpyeoUserResponse {
   @ApiProperty({ type: String, nullable: true, description: '프로필 이미지 URL' })
   avatarUrl: string | null;
 
+  @ApiProperty({ enum: SALPYEO_USER_ROLE, description: '권한 — ADMIN 은 DB 에서 직접 승격한다' })
+  role: SALPYEO_USER_ROLE;
+
   constructor(user: SalpyeoUser) {
     this.id = String(user.id);
     this.name = user.name;
     this.provider = user.snsType;
     this.email = user.email;
     this.avatarUrl = user.iconImageUrl;
+    this.role = user.role ?? SALPYEO_USER_ROLE.USER;
   }
 }
