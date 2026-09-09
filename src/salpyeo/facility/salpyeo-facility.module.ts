@@ -16,12 +16,19 @@ import {
   SalpyeoAdminScanFacilitiesUseCase,
   SalpyeoAdminUpdateFacilityUseCase,
 } from '@/salpyeo/facility/application/usecase/salpyeo-admin-facility.usecase';
+import { SalpyeoAdminUploadImageUseCase } from '@/salpyeo/facility/application/usecase/salpyeo-admin-upload-image.usecase';
 import { SalpyeoAdminGuard } from '@/salpyeo/common/salpyeo-admin.guard';
+import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { SalpyeoUserModule } from '@/salpyeo/user/salpyeo-user.module';
 import { isSalpyeoMemoryRepository } from '@/salpyeo/common/salpyeo-repository-mode';
 
 export const SALPYEO_FACILITY_USE_CASES = [SalpyeoScanVerticalsUseCase, SalpyeoGetVerticalUseCase, SalpyeoScanFacilitiesUseCase, SalpyeoGetFacilityUseCase];
-export const SALPYEO_ADMIN_FACILITY_USE_CASES = [SalpyeoAdminScanFacilitiesUseCase, SalpyeoAdminGetFacilityUseCase, SalpyeoAdminUpdateFacilityUseCase];
+export const SALPYEO_ADMIN_FACILITY_USE_CASES = [
+  SalpyeoAdminScanFacilitiesUseCase,
+  SalpyeoAdminGetFacilityUseCase,
+  SalpyeoAdminUpdateFacilityUseCase,
+  SalpyeoAdminUploadImageUseCase,
+];
 export const SALPYEO_FACILITY_CONTROLLERS = [SalpyeoVerticalController, SalpyeoFacilityController];
 
 @Module({
@@ -32,6 +39,7 @@ export const SALPYEO_FACILITY_CONTROLLERS = [SalpyeoVerticalController, SalpyeoF
     ...SALPYEO_FACILITY_USE_CASES,
     ...SALPYEO_ADMIN_FACILITY_USE_CASES,
     SalpyeoAdminGuard,
+    AwsS3Service,
     isSalpyeoMemoryRepository()
       ? { provide: SALPYEO_FACILITY_REPOSITORY, useValue: new SalpyeoFacilityMemoryRepository() }
       : { provide: SALPYEO_FACILITY_REPOSITORY, useClass: SalpyeoFacilityRepository },

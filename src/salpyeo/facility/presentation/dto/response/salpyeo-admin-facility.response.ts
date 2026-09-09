@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { SalpyeoFacility } from '@/salpyeo/facility/domain/entity/salpyeo-facility.entity';
+import { SalpyeoFacility, SalpyeoFacilityImage } from '@/salpyeo/facility/domain/entity/salpyeo-facility.entity';
 import { SALPYEO_VERTICAL_KEYS, SalpyeoVerticalKey } from '@/salpyeo/facility/domain/constant/salpyeo-vertical.constant';
 import { SalpyeoFacilityImageResponse, SalpyeoPriceRowResponse } from '@/salpyeo/facility/presentation/dto/response/salpyeo-facility.response';
 
@@ -52,5 +52,22 @@ export class SalpyeoAdminFacilitiesResponse {
 
   constructor(items: SalpyeoFacility[]) {
     this.facilities = items.map(f => new SalpyeoAdminFacilityResponse(f));
+  }
+}
+
+/** 업로드 직후 편집 폼이 사진 목록에 끼워 넣는 값 */
+export class SalpyeoAdminImageResponse implements SalpyeoFacilityImage {
+  @ApiProperty({ description: 'S3 공개 URL', example: 'https://artinfo.s3.ap-northeast-2.amazonaws.com/production/salpyeo/facilities/post-a9656bde/…jpg' })
+  url: string;
+
+  @ApiProperty({ description: '캡션 겸 대체 텍스트', example: '시설 사진' }) alt: string;
+  @ApiProperty({ example: 1200 }) width: number;
+  @ApiProperty({ example: 800 }) height: number;
+
+  constructor(image: SalpyeoFacilityImage) {
+    this.url = image.url;
+    this.alt = image.alt;
+    this.width = image.width;
+    this.height = image.height;
   }
 }
