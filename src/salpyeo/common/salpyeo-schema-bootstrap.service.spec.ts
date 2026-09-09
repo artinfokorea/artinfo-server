@@ -4,7 +4,8 @@ import { SALPYEO_FACILITY_SEED } from '@/salpyeo/facility/domain/constant/salpye
 
 /**
  * 스펙 (DataSource 를 흉내 내 실행되는 SQL 형태만 검증 — 실제 Postgres 검증은 배포 후 운영 확인):
- * 1) DDL: CREATE TABLE IF NOT EXISTS 1회 + 인덱스 1회 + 뒤늦게 추가된 컬럼 5개 ALTER ... ADD COLUMN IF NOT EXISTS
+ * 1) DDL: 시설 CREATE TABLE IF NOT EXISTS 1회 + 인덱스 1회 + 뒤늦게 추가된 컬럼 5개 ALTER ... ADD COLUMN IF NOT EXISTS,
+ *    이어서 계정·세션(salpyeo_users·salpyeo_auths) 테이블 2개 + 인덱스 3개
  * 2) 시드 456건은 100건씩 5번 upsert — 한 행당 파라미터 22개(slug + 21 컬럼), jsonb 컬럼은 ::jsonb 캐스팅, ON CONFLICT (slug) DO UPDATE
  * 3) 마지막에 시드에 없는 slug 를 SELECT 로 찾아 DELETE (SELECT 파라미터는 시드 slug 456개 배열, DELETE 파라미터는 찾은 slug). 없으면 DELETE 생략
  * 4) SALPYEO_REPOSITORY=memory 면 아무 쿼리도 실행하지 않음
@@ -38,7 +39,14 @@ describe('SalpyeoSchemaBootstrapService', () => {
       `ALTER TABLE salpyeo_facilities ADD COLUMN IF NOT EXISTS phone VARCHAR(30) NOT NULL DEFAULT ''`,
     ]);
 
-    const upserts = calls.slice(7, 12);
+    // 구글 로그인 계정·세션 테이블 (시설 DDL 뒤에 이어서 실행)
+    expect(calls[7][0]).toMatch(/^CREATE TABLE IF NOT EXISTS salpyeo_users \(/);
+    expect(calls[8][0]).toBe('CREATE UNIQUE INDEX IF NOT EXISTS uidx_salpyeo_users_sns ON salpyeo_users (sns_type, sns_id) WHERE deleted_at IS NULL');
+    expect(calls[9][0]).toMatch(/^CREATE TABLE IF NOT EXISTS salpyeo_auths \(/);
+    expect(calls[10][0]).toBe('CREATE INDEX IF NOT EXISTS idx_salpyeo_auths_user ON salpyeo_auths (user_id)');
+    expect(calls[11][0]).toBe('CREATE INDEX IF NOT EXISTS idx_salpyeo_auths_tokens ON salpyeo_auths (access_token, refresh_token)');
+
+    const upserts = calls.slice(12, 17);
     expect(upserts.map(c => c[1].length)).toEqual([2200, 2200, 2200, 2200, 56 * 22]);
     const [firstSql, firstParams] = upserts[0];
     expect(firstSql).toMatch(
@@ -67,12 +75,12 @@ describe('SalpyeoSchemaBootstrapService', () => {
       1,
     ]);
 
-    const [staleSql, staleParams] = calls[12];
+    const [staleSql, staleParams] = calls[17];
     expect(staleSql).toBe('SELECT slug FROM salpyeo_facilities WHERE NOT (slug = ANY($1::text[]))');
     expect(staleParams).toEqual([SALPYEO_FACILITY_SEED.map(s => s.slug)]);
     expect(staleParams[0]).toHaveLength(456);
-    expect(calls[13]).toEqual(['DELETE FROM salpyeo_facilities WHERE slug = ANY($1::text[])', [['p1', 'n1']]]);
-    expect(calls).toHaveLength(14);
+    expect(calls[18]).toEqual(['DELETE FROM salpyeo_facilities WHERE slug = ANY($1::text[])', [['p1', 'n1']]]);
+    expect(calls).toHaveLength(19);
   });
 
   it('시드 밖 slug 가 없으면 DELETE 를 실행하지 않는다', async () => {
@@ -81,7 +89,7 @@ describe('SalpyeoSchemaBootstrapService', () => {
     await makeService(query).onModuleInit();
     const sqls = query.mock.calls.map(([sql]) => sql.trim().split(' ')[0]);
     expect(sqls.filter(s => s === 'DELETE')).toHaveLength(0);
-    expect(sqls).toHaveLength(13);
+    expect(sqls).toHaveLength(18);
   });
 
   it('메모리 모드에서는 아무것도 실행하지 않는다', async () => {

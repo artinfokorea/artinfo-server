@@ -7,9 +7,11 @@
 ## 도메인 모델
 
 - **facility** (`salpyeo_facilities`) — 5개 버티컬 공통 시설 레코드. `slug` 가 URL 식별자(예: `post-a9656bde`). 요금표·점검·사진·후기처럼 버티컬마다 항목 수가 다른 값은 JSONB (`price_rows`, `inspections`, `images`, `review`). 공공데이터 원본 값은 `sido`·`sigungu`·`operator_type`·`address`·`phone` 컬럼.
+- **user** (`salpyeo_users`) — 구글 로그인 계정. `(sns_type, sns_id)` 유니크(소프트 삭제 제외). 로그인할 때마다 구글 프로필(이름·이메일·사진)을 덮어쓴다.
+- **auth** (`salpyeo_auths`) — 발급된 로그인 세션(access/refresh 토큰과 각 만료시각).
 - **vertical** — 테이블 없음. `domain/constant/salpyeo-vertical.constant.ts` 상수. `enabled` 플래그로 준비 중 버티컬을 제어하고, `count` 는 DB 집계로 채운다.
 
-## API (전부 공개, 비로그인)
+## API
 
 | 메서드·경로 | 설명 |
 | --- | --- |
@@ -17,6 +19,11 @@
 | `GET /salpyeo/verticals/:key` | 단건. 미지 키 → 404 `SALPYEO-VERTICAL-001` |
 | `GET /salpyeo/facilities?vertical=post&q=&slugs=a,b&sort=priceAsc` | 목록. `vertical` 필수(400). `q` 는 이름·위치 요약·주소 부분 일치. `sort` ∈ priceAsc(가격 0=미공개는 맨 뒤)·ratingDesc·reviewsDesc·distanceAsc |
 | `GET /salpyeo/facilities/:slug` | 상세. 없으면 404 `SALPYEO-FACILITY-001` |
+| `POST /salpyeo/auths/login` | 구글 로그인 `{ provider: 'google', token }` → `{ user, tokens }`. 미가입이면 자동 가입 |
+| `POST /salpyeo/auths/refresh` | `{ accessToken, refreshToken }` → 새 토큰. refresh 만료 1시간 미만이면 refresh 도 회전 |
+| `GET /salpyeo/users/me` | 내 정보 (Bearer 필요) |
+
+시설 조회는 전부 공개(비로그인)이고, `/salpyeo/auths/*` 와 `/salpyeo/users/me` 만 계정 관련이다.
 
 응답은 공용 `ResponseInterceptor` 봉투 `{ code: 'OK', message: null, item }`.
 
@@ -27,6 +34,8 @@
 - 레코드 → 시설 변환은 `domain/service/salpyeo-post-facility-seed.ts` (순수 함수). **공공데이터에 없는 값은 지어내지 않는다**: distance `''/0`, inspectionBadge `''`, inspections `[]`, rating/reviewCount `0`, review `null`, images `[]`. 일반실 미공개는 price `0`. `vsAvgPercent` 는 같은 시도 안 일반실 평균 대비. `slug` 는 `post-` + sha1(시도|시군구|이름) 앞 8자리라 데이터 갱신으로 순번이 바뀌어도 URL 이 유지된다.
 - 검색·정렬은 `domain/service/salpyeo-facility-query.ts` 순수 함수 (전국 456건이라 메모리 처리). 수천 건 규모가 되면 repository 쿼리로 내리고 pagination·지역 파라미터 추가.
 - Postgres 없이 확인할 때는 `SALPYEO_REPOSITORY=memory PORT=4000 npx ts-node -r tsconfig-paths/register src/salpyeo/salpyeo-standalone.ts` 로 살펴 모듈만 시드 메모리 리포지토리로 띄운다 (로컬 프론트 연동 확인용, 배포 워크플로는 주입하지 않음). 전체 앱(`src/main.ts`)은 `PORT` 환경변수로 포트를 바꿀 수 있다 (기본 3000).
+- **로그인은 구글만, 온기와 같은 방식** — 프론트가 Google Identity Services 로 구글 access token 을 받아 `POST /salpyeo/auths/login` 에 넘기고, 서버는 그 토큰으로 `googleapis.com/oauth2/v3/userinfo` 를 조회해 신원을 확인한 뒤 자체 JWT 를 발급한다. 서버가 리디렉션·코드 교환을 하지 않으므로 **구글 client secret 은 쓰지 않는다** (프론트의 `NEXT_PUBLIC_GOOGLE_CLIENT_ID` 와 콘솔의 '승인된 JavaScript 원본'만 있으면 된다). access token payload 는 공용 `JwtStrategy` 가 그대로 `UserSignature` 로 넘기므로 `id`·`name`·`email` 을 담고, 서명 키는 공용 `JWT_TOKEN_KEY` 다.
+- 계정·세션도 `SALPYEO_REPOSITORY=memory` 인메모리 구현이 있어 standalone 으로 로그인까지 확인할 수 있다 (프로세스를 내리면 가입 기록이 사라진다). 이때만 `JWT_TOKEN_KEY` 가 없어도 로컬 전용 키로 동작한다.
 - 에러 코드는 `SALPYEO-{DOMAIN}-{NNN}`.
 - 게이트: `npx tsc --noEmit` · `npx eslint "src/salpyeo/**/*.ts"` · `npx jest src/salpyeo` (CI 동일).
 
@@ -35,4 +44,5 @@
 - 지역(시도/시군구) 필터 파라미터 및 사용자 위치 기반 거리 — 현재 전국 목록 + 검색어만.
 - 보건소 점검 결과·사진·후기 데이터 연동 (현재 빈 값). 다른 버티컬 공공데이터 연동.
 - 비교 리포트 AI 요약 서버 생성 (`POST /salpyeo/reports`), 문의 전달, 인증 후기 작성.
+- 로그인으로 할 수 있는 일 — 찜/비교함 서버 저장, 후기 작성, 회원 탈퇴(`DELETE /salpyeo/users/me`). 현재는 로그인과 내 정보 조회까지만.
 - 요양원·장례식장·어린이집·학원 `enabled` 전환.

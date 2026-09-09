@@ -2,6 +2,7 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { SALPYEO_FACILITY_SEED, SalpyeoFacilitySeed } from '@/salpyeo/facility/domain/constant/salpyeo-facility-seed.constant';
+import { isSalpyeoMemoryRepository } from '@/salpyeo/common/salpyeo-repository-mode';
 
 /** 시드 upsert 컬럼 (slug 제외) — VALUES 순서와 UPDATE SET 을 한 곳에서 관리 */
 const SEED_COLUMNS = [
@@ -62,7 +63,7 @@ function seedValues(s: SalpyeoFacilitySeed): unknown[] {
  * - CREATE TABLE IF NOT EXISTS + ALTER TABLE ADD COLUMN IF NOT EXISTS (synchronize:false 환경에서 DDL 순서 사고 방지)
  * - 시드는 slug 기준 INSERT ... ON CONFLICT DO UPDATE (데이터 갱신이 배포로 반영되도록)
  * - 시드에 없는 slug 는 DELETE — 시드가 유일한 데이터 원천인 동안만 유효한 규칙 (과거 목데이터 p1·n1… 도 이걸로 정리)
- * 원본 DDL: facility/salpyeo-facilities.ddl.sql
+ * 원본 DDL: facility/salpyeo-facilities.ddl.sql · user/salpyeo-users.ddl.sql · auth/salpyeo-auths.ddl.sql
  */
 @Injectable()
 export class SalpyeoSchemaBootstrapService implements OnModuleInit {
@@ -74,7 +75,7 @@ export class SalpyeoSchemaBootstrapService implements OnModuleInit {
   ) {}
 
   async onModuleInit(): Promise<void> {
-    if (process.env['SALPYEO_REPOSITORY'] === 'memory') return;
+    if (isSalpyeoMemoryRepository()) return;
 
     try {
       await this.ensureSchema();
@@ -126,6 +127,38 @@ export class SalpyeoSchemaBootstrapService implements OnModuleInit {
     ]) {
       await this.dataSource.query(`ALTER TABLE salpyeo_facilities ADD COLUMN IF NOT EXISTS ${ddl}`);
     }
+
+    await this.ensureAccountSchema();
+  }
+
+  /** 구글 로그인 계정·세션 (user/salpyeo-users.ddl.sql · auth/salpyeo-auths.ddl.sql 과 같은 문장) */
+  private async ensureAccountSchema(): Promise<void> {
+    await this.dataSource.query(`CREATE TABLE IF NOT EXISTS salpyeo_users (
+      id             SERIAL PRIMARY KEY,
+      name           VARCHAR(40) NOT NULL,
+      sns_type       VARCHAR(16) NOT NULL,
+      sns_id         VARCHAR NOT NULL,
+      email          VARCHAR,
+      icon_image_url VARCHAR,
+      created_at     TIMESTAMP NOT NULL DEFAULT now(),
+      updated_at     TIMESTAMP NOT NULL DEFAULT now(),
+      deleted_at     TIMESTAMP
+    )`);
+    await this.dataSource.query(`CREATE UNIQUE INDEX IF NOT EXISTS uidx_salpyeo_users_sns ON salpyeo_users (sns_type, sns_id) WHERE deleted_at IS NULL`);
+
+    await this.dataSource.query(`CREATE TABLE IF NOT EXISTS salpyeo_auths (
+      id                       SERIAL PRIMARY KEY,
+      type                     VARCHAR(16) NOT NULL,
+      user_id                  INTEGER NOT NULL,
+      access_token             VARCHAR NOT NULL,
+      access_token_expires_in  TIMESTAMP NOT NULL,
+      refresh_token            VARCHAR NOT NULL,
+      refresh_token_expires_in TIMESTAMP NOT NULL,
+      created_at               TIMESTAMP NOT NULL DEFAULT now(),
+      updated_at               TIMESTAMP NOT NULL DEFAULT now()
+    )`);
+    await this.dataSource.query(`CREATE INDEX IF NOT EXISTS idx_salpyeo_auths_user ON salpyeo_auths (user_id)`);
+    await this.dataSource.query(`CREATE INDEX IF NOT EXISTS idx_salpyeo_auths_tokens ON salpyeo_auths (access_token, refresh_token)`);
   }
 
   private async syncSeed(seed: readonly SalpyeoFacilitySeed[]): Promise<void> {

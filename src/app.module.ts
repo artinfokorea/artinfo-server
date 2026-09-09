@@ -85,6 +85,8 @@ import { OngiPhotoLike } from '@/ongi/photo/domain/entity/ongi-photo-like.entity
 import { OngiPhotoComment } from '@/ongi/photo/domain/entity/ongi-photo-comment.entity';
 import { SalpyeoModule } from '@/salpyeo/salpyeo.module';
 import { SalpyeoFacility } from '@/salpyeo/facility/domain/entity/salpyeo-facility.entity';
+import { SalpyeoUser } from '@/salpyeo/user/domain/entity/salpyeo-user.entity';
+import { SalpyeoAuth } from '@/salpyeo/auth/domain/entity/salpyeo-auth.entity';
 
 const entities = [
   User,
@@ -147,6 +149,8 @@ const entities = [
   OngiPhotoLike,
   OngiPhotoComment,
   SalpyeoFacility,
+  SalpyeoUser,
+  SalpyeoAuth,
 ];
 const modules = [
   SchedulerModule,
