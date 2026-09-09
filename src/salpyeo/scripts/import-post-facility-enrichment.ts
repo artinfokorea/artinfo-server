@@ -21,8 +21,10 @@ const OUTPUT = resolve(__dirname, '../facility/domain/constant/salpyeo-post-faci
 const MIN_PRICE = 500_000;
 const MAX_PRICE = 30_000_000;
 const MAX_IMAGES = 6;
-const MIN_IMAGE_WIDTH = 400;
-const MIN_IMAGE_HEIGHT = 300;
+// 갤러리 썸네일만 공개하는 사이트가 많아 기준을 낮게 잡되, 로고·배너 같은 극단적 비율은 뺀다
+const MIN_IMAGE_WIDTH = 240;
+const MIN_IMAGE_HEIGHT = 160;
+const MAX_ASPECT_RATIO = 3;
 const VERIFY_CONCURRENCY = 16;
 const IMAGE_EXT = /\.(jpe?g|png|webp)(\?.*)?$/i;
 
@@ -160,8 +162,27 @@ export function readImageSize(buf: Buffer): { width: number; height: number } | 
   return null;
 }
 
-/** 실제로 열리는 사진인지 확인하고 크기를 돌려준다. 너무 작거나(아이콘) 못 읽으면 null */
-async function probeImage(url: string): Promise<{ width: number; height: number } | null> {
+/**
+ * 갤러리 썸네일 URL 에서 원본 주소를 만들어 본다.
+ * 그누보드(`thumb-이름_240x180.jpg`), 워드프레스(`이름-150x150.jpg`), `/thumb/` 경로 등이 흔하다.
+ */
+export function originalImageCandidates(url: string): string[] {
+  const out: string[] = [];
+  const push = (u: string) => {
+    if (u !== url && !out.includes(u)) out.push(u);
+  };
+  push(url.replace(/thumb-(.+?)_\d+x\d+(\.[a-z]+)(\?|$)/i, '$1$2$3'));
+  push(url.replace(/(.+?)-\d{2,4}x\d{2,4}(\.[a-z]+)(\?|$)/i, '$1$2$3'));
+  push(url.replace(/\/thumbs?\//i, '/'));
+  push(url.replace(/_thumb(\.[a-z]+)(\?|$)/i, '$1$2'));
+  return out;
+}
+
+/**
+ * 실제로 열리는 사진인지 확인하고 크기와 **리다이렉트를 따라간 최종 주소**를 돌려준다.
+ * 최종 주소를 저장해야 Next.js 이미지 최적화가 중간 리다이렉트에서 실패하지 않는다.
+ */
+async function probeImage(url: string): Promise<{ width: number; height: number; finalUrl: string } | null> {
   try {
     const res = await fetch(url, { method: 'GET', headers: { 'User-Agent': 'Mozilla/5.0', Accept: 'image/*' }, signal: AbortSignal.timeout(15_000) });
     if (!res.ok) return null;
@@ -170,7 +191,9 @@ async function probeImage(url: string): Promise<{ width: number; height: number 
     if (buf.byteLength < 3_000) return null; // 1x1 투명 이미지·에러 페이지
     const size = readImageSize(buf);
     if (!size || size.width < MIN_IMAGE_WIDTH || size.height < MIN_IMAGE_HEIGHT) return null;
-    return size;
+    const ratio = size.width / size.height;
+    if (ratio > MAX_ASPECT_RATIO || ratio < 1 / MAX_ASPECT_RATIO) return null; // 가로 배너·세로 띠
+    return { ...size, finalUrl: res.url || url };
   } catch {
     return null;
   }
@@ -262,8 +285,20 @@ async function verifyAllImages(facilities: EnrichedFacility[], stats: Stats): Pr
         const index = cursor++;
         if (index >= all.length) return;
         const image = all[index];
-        const size = await probeImage(image.url);
+        let size = await probeImage(image.url);
+        if (!size) {
+          // 썸네일이라 기준 크기에 못 미친 경우 원본 주소를 시도한다
+          for (const candidate of originalImageCandidates(image.url)) {
+            const original = await probeImage(candidate);
+            if (original) {
+              image.url = candidate;
+              size = original;
+              break;
+            }
+          }
+        }
         if (size) {
+          image.url = size.finalUrl;
           image.width = size.width;
           image.height = size.height;
         } else {
