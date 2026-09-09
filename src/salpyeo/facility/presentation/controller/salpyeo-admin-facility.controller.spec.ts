@@ -47,6 +47,9 @@ const SLUG = 'post-a9656bde';
  * 6) isActive=false 로 내리면 공개 API 에서는 404, 관리자 목록에는 남는다
  * 7) 값 검증: 이름 빈 문자열·가격 음수·요금표 형식 오류는 400
  * 8) POST /salpyeo/admin/facilities/:slug/images → S3 공개 URL + 실제 이미지 크기를 돌려준다 (이미지가 아니면 400)
+ * 9) POST /salpyeo/admin/facilities/rehost-images → 외부 URL 사진을 우리 S3 로 옮기고 남은 시설 수를 돌려준다.
+ *    내려받지 못한 사진은 원래 URL 로 남고, 이미 우리 버킷인 사진은 건너뛴다. 반복 호출해도 안전하다.
+ *    slug 를 주면 그 시설만 처리한다
  */
 describe('Salpyeo admin facility API (memory repository)', () => {
   let app: INestApplication;
@@ -205,5 +208,51 @@ describe('Salpyeo admin facility API (memory repository)', () => {
       .set('Authorization', `Bearer ${userToken}`)
       .attach('imageFile', PNG_3X2, { filename: 'room.png', contentType: 'image/png' })
       .expect(403);
+  });
+
+  it('사진 이전 — 외부 URL 을 S3 로 옮기고 남은 시설 수를 돌려준다', async () => {
+    // 조리원 홈페이지 대신 응답하는 가짜 fetch: 첫 장은 성공, 'broken' 이 든 URL 은 실패
+    const realFetch = global.fetch;
+    global.fetch = (async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes('broken')) return new Response(null, { status: 404 });
+      return new Response(PNG_3X2, { status: 200, headers: { 'Content-Type': 'image/png' } });
+    }) as typeof fetch;
+
+    try {
+      await asAdmin(request(app.getHttpServer()).put(`/salpyeo/admin/facilities/${SLUG}`))
+        .send({
+          images: [
+            { url: 'https://www.olivium.co.kr/a.jpg', alt: '시설 사진', width: 1200, height: 800 },
+            { url: 'https://www.olivium.co.kr/broken.jpg', alt: '시설 사진', width: 1200, height: 800 },
+            { url: 'https://artinfo.s3.ap-northeast-2.amazonaws.com/test/already.jpg', alt: '이미 이전됨', width: 10, height: 10 },
+          ],
+        })
+        .expect(200);
+
+      const res = await asAdmin(request(app.getHttpServer()).post('/salpyeo/admin/facilities/rehost-images')).send({ slug: SLUG }).expect(201);
+
+      expect(res.body.item).toMatchObject({ facilities: 1, moved: 1, failed: 1 });
+
+      const after = await asAdmin(request(app.getHttpServer()).get(`/salpyeo/admin/facilities/${SLUG}`)).expect(200);
+      const urls = after.body.item.images.map((i: { url: string }) => i.url);
+      expect(urls[0]).toMatch(/^https:\/\/artinfo\.s3\./); // 옮겨짐
+      expect(urls[1]).toBe('https://www.olivium.co.kr/broken.jpg'); // 실패한 건 원래 URL 그대로
+      expect(urls[2]).toBe('https://artinfo.s3.ap-northeast-2.amazonaws.com/test/already.jpg'); // 이미 우리 버킷이라 건너뜀
+
+      // 다시 호출해도 남은 것은 실패한 한 장뿐 — 여러 번 눌러도 안전하다
+      const again = await asAdmin(request(app.getHttpServer()).post('/salpyeo/admin/facilities/rehost-images')).send({ slug: SLUG }).expect(201);
+      expect(again.body.item.moved).toBe(0);
+      expect(again.body.item.failed).toBe(1);
+
+      // 일반 사용자는 막힌다
+      await request(app.getHttpServer())
+        .post('/salpyeo/admin/facilities/rehost-images')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ slug: SLUG })
+        .expect(403);
+    } finally {
+      global.fetch = realFetch;
+    }
   });
 });
