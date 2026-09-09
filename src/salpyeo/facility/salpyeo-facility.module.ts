@@ -10,16 +10,28 @@ import { SalpyeoScanFacilitiesUseCase } from '@/salpyeo/facility/application/use
 import { SalpyeoGetFacilityUseCase } from '@/salpyeo/facility/application/usecase/salpyeo-get-facility.usecase';
 import { SalpyeoVerticalController } from '@/salpyeo/facility/presentation/controller/salpyeo-vertical.controller';
 import { SalpyeoFacilityController } from '@/salpyeo/facility/presentation/controller/salpyeo-facility.controller';
+import { SalpyeoAdminFacilityController } from '@/salpyeo/facility/presentation/controller/salpyeo-admin-facility.controller';
+import {
+  SalpyeoAdminGetFacilityUseCase,
+  SalpyeoAdminScanFacilitiesUseCase,
+  SalpyeoAdminUpdateFacilityUseCase,
+} from '@/salpyeo/facility/application/usecase/salpyeo-admin-facility.usecase';
+import { SalpyeoAdminGuard } from '@/salpyeo/common/salpyeo-admin.guard';
+import { SalpyeoUserModule } from '@/salpyeo/user/salpyeo-user.module';
 import { isSalpyeoMemoryRepository } from '@/salpyeo/common/salpyeo-repository-mode';
 
 export const SALPYEO_FACILITY_USE_CASES = [SalpyeoScanVerticalsUseCase, SalpyeoGetVerticalUseCase, SalpyeoScanFacilitiesUseCase, SalpyeoGetFacilityUseCase];
+export const SALPYEO_ADMIN_FACILITY_USE_CASES = [SalpyeoAdminScanFacilitiesUseCase, SalpyeoAdminGetFacilityUseCase, SalpyeoAdminUpdateFacilityUseCase];
 export const SALPYEO_FACILITY_CONTROLLERS = [SalpyeoVerticalController, SalpyeoFacilityController];
 
 @Module({
-  imports: isSalpyeoMemoryRepository() ? [] : [TypeOrmModule.forFeature([SalpyeoFacility])],
-  controllers: SALPYEO_FACILITY_CONTROLLERS,
+  // 관리자 가드가 살펴 사용자 저장소로 role 을 확인한다
+  imports: [SalpyeoUserModule, ...(isSalpyeoMemoryRepository() ? [] : [TypeOrmModule.forFeature([SalpyeoFacility])])],
+  controllers: [...SALPYEO_FACILITY_CONTROLLERS, SalpyeoAdminFacilityController],
   providers: [
     ...SALPYEO_FACILITY_USE_CASES,
+    ...SALPYEO_ADMIN_FACILITY_USE_CASES,
+    SalpyeoAdminGuard,
     isSalpyeoMemoryRepository()
       ? { provide: SALPYEO_FACILITY_REPOSITORY, useValue: new SalpyeoFacilityMemoryRepository() }
       : { provide: SALPYEO_FACILITY_REPOSITORY, useClass: SalpyeoFacilityRepository },

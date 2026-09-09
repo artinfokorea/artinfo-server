@@ -5,9 +5,10 @@ import { SALPYEO_FACILITY_SEED } from '@/salpyeo/facility/domain/constant/salpye
 /**
  * 스펙 (DataSource 를 흉내 내 실행되는 SQL 형태만 검증 — 실제 Postgres 검증은 배포 후 운영 확인):
  * 1) DDL: 시설 CREATE TABLE IF NOT EXISTS 1회 + 인덱스 1회 + 뒤늦게 추가된 컬럼 5개 ALTER ... ADD COLUMN IF NOT EXISTS,
- *    이어서 계정·세션(salpyeo_users·salpyeo_auths) 테이블 2개 + 인덱스 3개
- * 2) 시드 456건은 100건씩 5번 upsert — 한 행당 파라미터 22개(slug + 21 컬럼), jsonb 컬럼은 ::jsonb 캐스팅, ON CONFLICT (slug) DO UPDATE
- * 3) 마지막에 시드에 없는 slug 를 SELECT 로 찾아 DELETE (SELECT 파라미터는 시드 slug 456개 배열, DELETE 파라미터는 찾은 slug). 없으면 DELETE 생략
+ *    이어서 계정·세션(salpyeo_users·salpyeo_auths) 테이블 2개 + 인덱스 3개 + role 컬럼 ALTER 1개
+ * 2) 시드 456건은 100건씩 5번 INSERT — 한 행당 파라미터 22개(slug + 21 컬럼), jsonb 컬럼은 ::jsonb 캐스팅
+ * 3) **ON CONFLICT (slug) DO NOTHING** — 이미 있는 행은 절대 덮어쓰지 않는다 (관리자 수정 보존).
+ *    예전의 DO UPDATE / 시드 밖 slug DELETE 는 없어졌다.
  * 4) SALPYEO_REPOSITORY=memory 면 아무 쿼리도 실행하지 않음
  * 5) 쿼리가 실패해도 예외를 밖으로 던지지 않음 (기동 차단 금지)
  */
@@ -23,9 +24,9 @@ describe('SalpyeoSchemaBootstrapService', () => {
     return new SalpyeoSchemaBootstrapService({ query } as unknown as DataSource);
   }
 
-  it('DDL 멱등 적용 후 시드를 100건씩 upsert 하고 시드 밖 slug 를 지운다', async () => {
+  it('DDL 을 멱등 적용하고 시드를 100건씩 INSERT 한다', async () => {
     delete process.env['SALPYEO_REPOSITORY'];
-    const query = jest.fn<Promise<unknown>, [string, unknown[]?]>(async sql => (sql.startsWith('SELECT slug') ? [{ slug: 'p1' }, { slug: 'n1' }] : []));
+    const query = jest.fn<Promise<unknown>, [string, unknown[]?]>().mockResolvedValue([[], 0]);
     await makeService(query).onModuleInit();
 
     const calls = query.mock.calls.map(([sql, params]) => [sql.replace(/\s+/g, ' ').trim(), params ?? []] as const);
@@ -39,23 +40,26 @@ describe('SalpyeoSchemaBootstrapService', () => {
       `ALTER TABLE salpyeo_facilities ADD COLUMN IF NOT EXISTS phone VARCHAR(30) NOT NULL DEFAULT ''`,
     ]);
 
-    // 구글 로그인 계정·세션 테이블 (시설 DDL 뒤에 이어서 실행)
-    expect(calls[7][0]).toMatch(/^CREATE TABLE IF NOT EXISTS salpyeo_users \(/);
+    // 구글 로그인 계정·세션 + 관리자 권한 컬럼
+    expect(calls[7][0]).toMatch(/^CREATE TABLE IF NOT EXISTS salpyeo_users \(.*role VARCHAR\(16\) NOT NULL DEFAULT 'USER'/);
     expect(calls[8][0]).toBe('CREATE UNIQUE INDEX IF NOT EXISTS uidx_salpyeo_users_sns ON salpyeo_users (sns_type, sns_id) WHERE deleted_at IS NULL');
-    expect(calls[9][0]).toMatch(/^CREATE TABLE IF NOT EXISTS salpyeo_auths \(/);
-    expect(calls[10][0]).toBe('CREATE INDEX IF NOT EXISTS idx_salpyeo_auths_user ON salpyeo_auths (user_id)');
-    expect(calls[11][0]).toBe('CREATE INDEX IF NOT EXISTS idx_salpyeo_auths_tokens ON salpyeo_auths (access_token, refresh_token)');
+    expect(calls[9][0]).toBe(`ALTER TABLE salpyeo_users ADD COLUMN IF NOT EXISTS role VARCHAR(16) NOT NULL DEFAULT 'USER'`);
+    expect(calls[10][0]).toMatch(/^CREATE TABLE IF NOT EXISTS salpyeo_auths \(/);
+    expect(calls[11][0]).toBe('CREATE INDEX IF NOT EXISTS idx_salpyeo_auths_user ON salpyeo_auths (user_id)');
+    expect(calls[12][0]).toBe('CREATE INDEX IF NOT EXISTS idx_salpyeo_auths_tokens ON salpyeo_auths (access_token, refresh_token)');
 
-    const upserts = calls.slice(12, 17);
-    expect(upserts.map(c => c[1].length)).toEqual([2200, 2200, 2200, 2200, 56 * 22]);
-    const [firstSql, firstParams] = upserts[0];
+    const inserts = calls.slice(13, 18);
+    expect(inserts.map(c => c[1].length)).toEqual([2200, 2200, 2200, 2200, 56 * 22]);
+
+    const [firstSql, firstParams] = inserts[0];
     expect(firstSql).toMatch(
       /^INSERT INTO salpyeo_facilities \(slug, vertical, name, meta, sido, sigungu, operator_type, address, phone, distance_label, distance_minutes, inspection_badge, feature_badge, price, rating, review_count, vs_avg_percent, images, price_rows, inspections, review, sort_order\) VALUES \(\$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18::jsonb, \$19::jsonb, \$20::jsonb, \$21::jsonb, \$22\), \(\$23, /,
     );
     expect(firstSql).toContain('($2179, $2180');
-    expect(firstSql).toMatch(
-      /\$2200\) ON CONFLICT \(slug\) DO UPDATE SET vertical = EXCLUDED\.vertical, name = EXCLUDED\.name, .*sort_order = EXCLUDED\.sort_order, updated_at = now\(\)$/,
-    );
+    // 이미 있는 행은 건드리지 않는다 — 관리자 수정이 배포로 되돌아가면 안 된다
+    expect(firstSql).toMatch(/\$2200\) ON CONFLICT \(slug\) DO NOTHING$/);
+    expect(firstSql).not.toContain('DO UPDATE');
+
     expect(firstParams.slice(0, 9)).toEqual([
       'post-a9656bde',
       'post',
@@ -67,29 +71,23 @@ describe('SalpyeoSchemaBootstrapService', () => {
       '서울시 종로구 통일로 16길 4-1',
       '02-730-1717',
     ]);
-    expect(firstParams.slice(17, 22)).toEqual([
-      '[]',
-      '[{"room":"일반실","note":"2주 기준 · 2023.12.31 공개 요금","price":"470만원"},{"room":"특실","note":"2주 기준 · 2023.12.31 공개 요금","price":"2,000만원"}]',
-      '[]',
-      null,
-      1,
-    ]);
 
-    const [staleSql, staleParams] = calls[17];
-    expect(staleSql).toBe('SELECT slug FROM salpyeo_facilities WHERE NOT (slug = ANY($1::text[]))');
-    expect(staleParams).toEqual([SALPYEO_FACILITY_SEED.map(s => s.slug)]);
-    expect(staleParams[0]).toHaveLength(456);
-    expect(calls[18]).toEqual(['DELETE FROM salpyeo_facilities WHERE slug = ANY($1::text[])', [['p1', 'n1']]]);
-    expect(calls).toHaveLength(19);
+    expect(calls).toHaveLength(18);
   });
 
-  it('시드 밖 slug 가 없으면 DELETE 를 실행하지 않는다', async () => {
+  it('시드에 없는 slug 를 지우지 않는다 (관리자가 관리하는 데이터)', async () => {
     delete process.env['SALPYEO_REPOSITORY'];
-    const query = jest.fn<Promise<unknown>, [string, unknown[]?]>().mockResolvedValue([]);
+    const query = jest.fn<Promise<unknown>, [string, unknown[]?]>().mockResolvedValue([[], 0]);
     await makeService(query).onModuleInit();
-    const sqls = query.mock.calls.map(([sql]) => sql.trim().split(' ')[0]);
-    expect(sqls.filter(s => s === 'DELETE')).toHaveLength(0);
-    expect(sqls).toHaveLength(18);
+
+    const verbs = query.mock.calls.map(([sql]) => sql.trim().split(' ')[0]);
+    expect(verbs.filter(v => v === 'DELETE')).toHaveLength(0);
+    expect(verbs.filter(v => v === 'SELECT')).toHaveLength(0);
+  });
+
+  it('시드 slug 는 456개 그대로다', () => {
+    expect(SALPYEO_FACILITY_SEED).toHaveLength(456);
+    expect(new Set(SALPYEO_FACILITY_SEED.map(s => s.slug)).size).toBe(456);
   });
 
   it('메모리 모드에서는 아무것도 실행하지 않는다', async () => {
