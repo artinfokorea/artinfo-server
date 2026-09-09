@@ -56,6 +56,7 @@ export class SalpyeoFacilityResponse {
   @ApiProperty({ description: '운영주체', example: '민간' }) operator: string;
   @ApiProperty({ example: '서울시 종로구 통일로 16길 4-1' }) address: string;
   @ApiProperty({ example: '02-730-1717' }) phone: string;
+  @ApiProperty({ description: '공식 홈페이지. 못 찾았으면 빈 문자열', example: 'https://www.olivium.co.kr/' }) website: string;
   @ApiProperty({ type: SalpyeoDistanceResponse, description: '사용자 위치 기능 전에는 label "" / minutes 0' }) distance: SalpyeoDistanceResponse;
   @ApiProperty({ type: SalpyeoBadgesResponse }) badges: SalpyeoBadgesResponse;
   @ApiProperty({ description: '대표 가격 (원). 0 = 미공개', example: 4700000 }) price: number;
@@ -76,6 +77,7 @@ export class SalpyeoFacilityResponse {
     this.operator = f.operatorType;
     this.address = f.address;
     this.phone = f.phone;
+    this.website = f.website;
     this.distance = { label: f.distanceLabel, minutes: f.distanceMinutes };
     this.badges = { inspection: f.inspectionBadge, feature: f.featureBadge };
     this.price = f.price;

@@ -6,6 +6,8 @@ import { HttpExceptionFilter } from '@/common/exception/http-exception-filter';
 import { SALPYEO_FACILITY_REPOSITORY } from '@/salpyeo/facility/domain/repository/salpyeo-facility.repository.interface';
 import { SalpyeoFacilityMemoryRepository } from '@/salpyeo/facility/infrastructure/repository/salpyeo-facility.memory.repository';
 import { SALPYEO_FACILITY_CONTROLLERS, SALPYEO_FACILITY_USE_CASES } from '@/salpyeo/facility/salpyeo-facility.module';
+import { SALPYEO_POST_FACILITY_RECORDS } from '@/salpyeo/facility/domain/constant/salpyeo-post-facility-data.constant';
+import { buildPostFacilitySeed } from '@/salpyeo/facility/domain/service/salpyeo-post-facility-seed';
 
 /**
  * 스펙 (프론트 salpyeo-client 가 기대하는 계약. 시드 = 보건복지부 전국 산후조리원 현황 2023-12-31, 456건):
@@ -15,8 +17,11 @@ import { SALPYEO_FACILITY_CONTROLLERS, SALPYEO_FACILITY_USE_CASES } from '@/salp
  * 4) sort=ratingDesc → 평점이 전부 0 이라 원본 순번(sortOrder) 순 → 올리비움이 첫 번째
  * 5) q=올리비움 → 1개 / q=종로구 → 2개(위치 요약) / q=정자일로 → 1개(주소) / slugs 2개 → 2개
  * 6) vertical 누락·오타 → 400 BAD_REQUEST
- * 7) GET /salpyeo/facilities/post-a9656bde(올리비움) → region/operator/address/phone 포함, 공공데이터에 없는 값은 빈 값
+ * 7) GET /salpyeo/facilities/post-a9656bde(올리비움) → region/operator/address/phone/website 포함, 어느 자료에도 없는 값은 빈 값
  * 8) 없는 slug (과거 목데이터 p1 포함) → 404 SALPYEO-FACILITY-001
+ * 9) 공식 홈페이지 보강이 있으면 website·사진·요금이 응답에 그대로 실린다
+ *
+ * 기대값을 고정하려고 시드는 **공공데이터만으로** 만든다 (홈페이지 보강은 수집할 때마다 바뀌므로 9) 에서 픽스처로 확인).
  */
 describe('Salpyeo facility API (memory repository)', () => {
   let app: INestApplication;
@@ -24,7 +29,10 @@ describe('Salpyeo facility API (memory repository)', () => {
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       controllers: SALPYEO_FACILITY_CONTROLLERS,
-      providers: [...SALPYEO_FACILITY_USE_CASES, { provide: SALPYEO_FACILITY_REPOSITORY, useValue: new SalpyeoFacilityMemoryRepository() }],
+      providers: [
+        ...SALPYEO_FACILITY_USE_CASES,
+        { provide: SALPYEO_FACILITY_REPOSITORY, useValue: new SalpyeoFacilityMemoryRepository(buildPostFacilitySeed(SALPYEO_POST_FACILITY_RECORDS)) },
+      ],
     }).compile();
 
     app = moduleRef.createNestApplication();
@@ -110,6 +118,7 @@ describe('Salpyeo facility API (memory repository)', () => {
       operator: '민간',
       address: '서울시 종로구 통일로 16길 4-1',
       phone: '02-730-1717',
+      website: '',
       distance: { label: '', minutes: 0 },
       badges: { inspection: '', feature: '민간 운영' },
       price: 4700000,
@@ -127,6 +136,41 @@ describe('Salpyeo facility API (memory repository)', () => {
 
     const publicOne = await request(app.getHttpServer()).get('/salpyeo/facilities/post-b38efc70').expect(200);
     expect(publicOne.body.item).toMatchObject({ name: '서귀포공공산후조리원', operator: '지자체', badges: { feature: '지자체 운영' }, vsAvgPercent: -50 });
+  });
+
+  it('공식 홈페이지 보강은 응답에 그대로 실린다', async () => {
+    const enriched = buildPostFacilitySeed(SALPYEO_POST_FACILITY_RECORDS.slice(0, 1), [
+      {
+        slug: 'post-a9656bde',
+        name: '올리비움산후조리원',
+        website: 'https://www.olivium.co.kr/',
+        phone: '02-730-1719',
+        address: '서울특별시 종로구 통일로16길 4-1',
+        standardRoomPrice: 5000000,
+        specialRoomPrice: null,
+        priceNote: null,
+        priceSourceUrl: null,
+        images: [{ url: 'https://www.olivium.co.kr/common/img/royal_1.jpg', alt: '로열룸', width: 1200, height: 800, sourceUrl: null }],
+      },
+    ]);
+    const moduleRef = await Test.createTestingModule({
+      controllers: SALPYEO_FACILITY_CONTROLLERS,
+      providers: [...SALPYEO_FACILITY_USE_CASES, { provide: SALPYEO_FACILITY_REPOSITORY, useValue: new SalpyeoFacilityMemoryRepository(enriched) }],
+    }).compile();
+    const enrichedApp = moduleRef.createNestApplication();
+    enrichedApp.useGlobalInterceptors(new ResponseInterceptor());
+    await enrichedApp.init();
+
+    const res = await request(enrichedApp.getHttpServer()).get('/salpyeo/facilities/post-a9656bde').expect(200);
+    expect(res.body.item).toMatchObject({
+      website: 'https://www.olivium.co.kr/',
+      phone: '02-730-1719',
+      address: '서울특별시 종로구 통일로16길 4-1',
+      price: 5000000,
+      images: [{ url: 'https://www.olivium.co.kr/common/img/royal_1.jpg', alt: '로열룸', width: 1200, height: 800 }],
+      priceRows: [{ room: '일반실', note: '2주 기준 · 공식 홈페이지 공개 요금', price: '500만원' }],
+    });
+    await enrichedApp.close();
   });
 
   it('없는 slug 는 404 (과거 목데이터 p1 포함)', async () => {

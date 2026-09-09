@@ -6,7 +6,6 @@ import { SalpyeoFacilityImageResponse, SalpyeoPriceRowResponse } from '@/salpyeo
 /**
  * 관리자 화면은 공개 응답과 달리 저장된 컬럼을 그대로 돌려준다 (편집 폼에 그대로 채워 넣기 위해).
  * 공개 응답의 region·badges 처럼 묶지 않는다.
- * 공식 홈페이지(website)는 아직 origin/main 스키마에 없어 빠져 있다 — 홈페이지 보강이 머지되면 함께 추가할 것.
  */
 export class SalpyeoAdminFacilityResponse {
   @ApiProperty({ example: 'post-a9656bde' }) slug: string;
@@ -18,6 +17,7 @@ export class SalpyeoAdminFacilityResponse {
   @ApiProperty({ description: '운영주체', example: '민간' }) operatorType: string;
   @ApiProperty({ example: '서울시 종로구 통일로 16길 4-1' }) address: string;
   @ApiProperty({ example: '02-730-1717' }) phone: string;
+  @ApiProperty({ description: '공식 홈페이지. 못 찾았으면 빈 문자열', example: 'https://www.olivium.co.kr/' }) website: string;
   @ApiProperty({ description: '점검·평가 배지', example: '' }) inspectionBadge: string;
   @ApiProperty({ description: '특성 배지', example: '민간 운영' }) featureBadge: string;
   @ApiProperty({ description: '대표 가격 (원). 0 = 미공개', example: 4700000 }) price: number;
@@ -36,6 +36,7 @@ export class SalpyeoAdminFacilityResponse {
     this.operatorType = f.operatorType;
     this.address = f.address;
     this.phone = f.phone;
+    this.website = f.website;
     this.inspectionBadge = f.inspectionBadge;
     this.featureBadge = f.featureBadge;
     this.price = f.price;

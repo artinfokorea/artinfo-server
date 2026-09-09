@@ -70,6 +70,10 @@ export class SalpyeoFacility extends BaseEntity {
   @Column({ type: 'varchar', length: 30, default: '' })
   phone: string;
 
+  /** 공식 홈페이지. 못 찾았으면 '' */
+  @Column({ type: 'varchar', length: 300, default: '' })
+  website: string;
+
   /** 사용자 위치 기준 거리. 아직 위치 기능이 없어 '' / 0 (미정) */
   @Column({ type: 'varchar', length: 40, name: 'distance_label' })
   distanceLabel: string;

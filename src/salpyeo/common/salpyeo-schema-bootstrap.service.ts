@@ -14,6 +14,7 @@ const SEED_COLUMNS = [
   'operator_type',
   'address',
   'phone',
+  'website',
   'distance_label',
   'distance_minutes',
   'inspection_badge',
@@ -42,6 +43,7 @@ function seedValues(s: SalpyeoFacilitySeed): unknown[] {
     s.operatorType,
     s.address,
     s.phone,
+    s.website,
     s.distanceLabel,
     s.distanceMinutes,
     s.inspectionBadge,
@@ -102,6 +104,7 @@ export class SalpyeoSchemaBootstrapService implements OnModuleInit {
       operator_type     VARCHAR(20)  NOT NULL DEFAULT '',
       address           VARCHAR(200) NOT NULL DEFAULT '',
       phone             VARCHAR(30)  NOT NULL DEFAULT '',
+      website           VARCHAR(300) NOT NULL DEFAULT '',
       distance_label    VARCHAR(40)  NOT NULL,
       distance_minutes  INTEGER      NOT NULL,
       inspection_badge  VARCHAR(60)  NOT NULL,
@@ -128,6 +131,7 @@ export class SalpyeoSchemaBootstrapService implements OnModuleInit {
       `operator_type VARCHAR(20) NOT NULL DEFAULT ''`,
       `address VARCHAR(200) NOT NULL DEFAULT ''`,
       `phone VARCHAR(30) NOT NULL DEFAULT ''`,
+      `website VARCHAR(300) NOT NULL DEFAULT ''`,
     ]) {
       await this.dataSource.query(`ALTER TABLE salpyeo_facilities ADD COLUMN IF NOT EXISTS ${ddl}`);
     }
