@@ -10,19 +10,17 @@ import { SalpyeoScanFacilitiesUseCase } from '@/salpyeo/facility/application/use
 import { SalpyeoGetFacilityUseCase } from '@/salpyeo/facility/application/usecase/salpyeo-get-facility.usecase';
 import { SalpyeoVerticalController } from '@/salpyeo/facility/presentation/controller/salpyeo-vertical.controller';
 import { SalpyeoFacilityController } from '@/salpyeo/facility/presentation/controller/salpyeo-facility.controller';
-
-/** 로컬에서 Postgres 없이 확인할 때 `SALPYEO_REPOSITORY=memory` (운영 워크플로는 주입하지 않음) */
-const useMemoryRepository = process.env['SALPYEO_REPOSITORY'] === 'memory';
+import { isSalpyeoMemoryRepository } from '@/salpyeo/common/salpyeo-repository-mode';
 
 export const SALPYEO_FACILITY_USE_CASES = [SalpyeoScanVerticalsUseCase, SalpyeoGetVerticalUseCase, SalpyeoScanFacilitiesUseCase, SalpyeoGetFacilityUseCase];
 export const SALPYEO_FACILITY_CONTROLLERS = [SalpyeoVerticalController, SalpyeoFacilityController];
 
 @Module({
-  imports: useMemoryRepository ? [] : [TypeOrmModule.forFeature([SalpyeoFacility])],
+  imports: isSalpyeoMemoryRepository() ? [] : [TypeOrmModule.forFeature([SalpyeoFacility])],
   controllers: SALPYEO_FACILITY_CONTROLLERS,
   providers: [
     ...SALPYEO_FACILITY_USE_CASES,
-    useMemoryRepository
+    isSalpyeoMemoryRepository()
       ? { provide: SALPYEO_FACILITY_REPOSITORY, useValue: new SalpyeoFacilityMemoryRepository() }
       : { provide: SALPYEO_FACILITY_REPOSITORY, useClass: SalpyeoFacilityRepository },
   ],
