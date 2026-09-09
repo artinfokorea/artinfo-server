@@ -2,8 +2,9 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { SALPYEO_FACILITY_SEED, SalpyeoFacilitySeed } from '@/salpyeo/facility/domain/constant/salpyeo-facility-seed.constant';
+import { isSalpyeoMemoryRepository } from '@/salpyeo/common/salpyeo-repository-mode';
 
-/** 시드 upsert 컬럼 (slug 제외) — VALUES 순서와 UPDATE SET 을 한 곳에서 관리 */
+/** 시드 INSERT 컬럼 (slug 제외) — VALUES 순서를 한 곳에서 관리 */
 const SEED_COLUMNS = [
   'vertical',
   'name',
@@ -60,11 +61,15 @@ function seedValues(s: SalpyeoFacilitySeed): unknown[] {
 }
 
 /**
- * 기동 시 살펴 테이블을 멱등하게 만들고 시드(공공데이터)를 동기화한다.
+ * 기동 시 살펴 테이블을 멱등하게 만들고, 비어 있는 시설만 시드로 채운다.
  * - CREATE TABLE IF NOT EXISTS + ALTER TABLE ADD COLUMN IF NOT EXISTS (synchronize:false 환경에서 DDL 순서 사고 방지)
- * - 시드는 slug 기준 INSERT ... ON CONFLICT DO UPDATE (데이터 갱신이 배포로 반영되도록)
- * - 시드에 없는 slug 는 DELETE — 시드가 유일한 데이터 원천인 동안만 유효한 규칙 (과거 목데이터 p1·n1… 도 이걸로 정리)
- * 원본 DDL: facility/salpyeo-facilities.ddl.sql
+ * - 시드는 slug 기준 INSERT ... ON CONFLICT DO NOTHING — **이미 있는 행은 절대 덮어쓰지 않는다**
+ *
+ * 시설 정보의 원천은 이제 DB 이고, 갱신은 관리자 페이지(PUT /salpyeo/admin/facilities/:slug)로만 한다.
+ * 그래서 예전의 "매 기동마다 시드로 덮어쓰기 + 시드에 없는 slug DELETE" 규칙을 없앴다 — 관리자가 고친 값이
+ * 배포 때마다 공공데이터로 되돌아가면 안 되기 때문. 시드 상수는 빈 DB(새 환경)를 채우는 용도로만 남는다.
+ *
+ * 원본 DDL: facility/salpyeo-facilities.ddl.sql · user/salpyeo-users.ddl.sql · auth/salpyeo-auths.ddl.sql
  */
 @Injectable()
 export class SalpyeoSchemaBootstrapService implements OnModuleInit {
@@ -76,7 +81,7 @@ export class SalpyeoSchemaBootstrapService implements OnModuleInit {
   ) {}
 
   async onModuleInit(): Promise<void> {
-    if (process.env['SALPYEO_REPOSITORY'] === 'memory') return;
+    if (isSalpyeoMemoryRepository()) return;
 
     try {
       await this.ensureSchema();
@@ -130,11 +135,47 @@ export class SalpyeoSchemaBootstrapService implements OnModuleInit {
     ]) {
       await this.dataSource.query(`ALTER TABLE salpyeo_facilities ADD COLUMN IF NOT EXISTS ${ddl}`);
     }
+
+    await this.ensureAccountSchema();
   }
 
+  /** 구글 로그인 계정·세션 (user/salpyeo-users.ddl.sql · auth/salpyeo-auths.ddl.sql 과 같은 문장) */
+  private async ensureAccountSchema(): Promise<void> {
+    await this.dataSource.query(`CREATE TABLE IF NOT EXISTS salpyeo_users (
+      id             SERIAL PRIMARY KEY,
+      name           VARCHAR(40) NOT NULL,
+      sns_type       VARCHAR(16) NOT NULL,
+      sns_id         VARCHAR NOT NULL,
+      email          VARCHAR,
+      icon_image_url VARCHAR,
+      role           VARCHAR(16) NOT NULL DEFAULT 'USER',
+      created_at     TIMESTAMP NOT NULL DEFAULT now(),
+      updated_at     TIMESTAMP NOT NULL DEFAULT now(),
+      deleted_at     TIMESTAMP
+    )`);
+    await this.dataSource.query(`CREATE UNIQUE INDEX IF NOT EXISTS uidx_salpyeo_users_sns ON salpyeo_users (sns_type, sns_id) WHERE deleted_at IS NULL`);
+    // 로그인 기능이 먼저 배포된 환경에는 role 이 없다 — 관리자 승격은 이 컬럼을 DB 에서 직접 바꾼다
+    await this.dataSource.query(`ALTER TABLE salpyeo_users ADD COLUMN IF NOT EXISTS role VARCHAR(16) NOT NULL DEFAULT 'USER'`);
+
+    await this.dataSource.query(`CREATE TABLE IF NOT EXISTS salpyeo_auths (
+      id                       SERIAL PRIMARY KEY,
+      type                     VARCHAR(16) NOT NULL,
+      user_id                  INTEGER NOT NULL,
+      access_token             VARCHAR NOT NULL,
+      access_token_expires_in  TIMESTAMP NOT NULL,
+      refresh_token            VARCHAR NOT NULL,
+      refresh_token_expires_in TIMESTAMP NOT NULL,
+      created_at               TIMESTAMP NOT NULL DEFAULT now(),
+      updated_at               TIMESTAMP NOT NULL DEFAULT now()
+    )`);
+    await this.dataSource.query(`CREATE INDEX IF NOT EXISTS idx_salpyeo_auths_user ON salpyeo_auths (user_id)`);
+    await this.dataSource.query(`CREATE INDEX IF NOT EXISTS idx_salpyeo_auths_tokens ON salpyeo_auths (access_token, refresh_token)`);
+  }
+
+  /** 빈 DB 를 채우는 용도 — 이미 있는 slug 는 건드리지 않는다 (관리자 수정 보존) */
   private async syncSeed(seed: readonly SalpyeoFacilitySeed[]): Promise<void> {
     const width = SEED_COLUMNS.length + 1; // + slug
-    const updateSet = SEED_COLUMNS.map(c => `${c} = EXCLUDED.${c}`).join(', ');
+    let inserted = 0;
 
     for (let start = 0; start < seed.length; start += UPSERT_BATCH) {
       const batch = seed.slice(start, start + UPSERT_BATCH);
@@ -142,21 +183,16 @@ export class SalpyeoSchemaBootstrapService implements OnModuleInit {
         const placeholders = ['slug', ...SEED_COLUMNS].map((c, col) => `$${row * width + col + 1}${JSONB_COLUMNS.has(c) ? '::jsonb' : ''}`);
         return `(${placeholders.join(', ')})`;
       });
-      await this.dataSource.query(
+      const result = await this.dataSource.query(
         `INSERT INTO salpyeo_facilities (slug, ${SEED_COLUMNS.join(', ')})
          VALUES ${rows.join(', ')}
-         ON CONFLICT (slug) DO UPDATE SET ${updateSet}, updated_at = now()`,
+         ON CONFLICT (slug) DO NOTHING`,
         batch.flatMap(seedValues),
       );
+      // node-postgres 는 [rows, rowCount] 형태로 돌려준다
+      inserted += Array.isArray(result) && typeof result[1] === 'number' ? result[1] : 0;
     }
 
-    // TypeORM 의 DELETE ... RETURNING 결과 형태가 버전마다 달라 SELECT → DELETE 두 단계로 나눈다
-    const stale: { slug: string }[] = await this.dataSource.query(`SELECT slug FROM salpyeo_facilities WHERE NOT (slug = ANY($1::text[]))`, [
-      seed.map(s => s.slug),
-    ]);
-    if (stale.length > 0) {
-      await this.dataSource.query(`DELETE FROM salpyeo_facilities WHERE slug = ANY($1::text[])`, [stale.map(r => r.slug)]);
-    }
-    this.logger.log(`salpyeo seed synced: ${seed.length} upserted, ${stale.length} pruned${stale.length ? ` (${stale.map(r => r.slug).join(', ')})` : ''}`);
+    this.logger.log(`salpyeo seed: ${seed.length}건 중 ${inserted}건 신규 삽입 (기존 행은 유지 — 갱신은 관리자 페이지에서)`);
   }
 }

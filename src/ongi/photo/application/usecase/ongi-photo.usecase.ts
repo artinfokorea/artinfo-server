@@ -29,6 +29,7 @@ import {
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { OngiPushService } from '@/ongi/push/application/service/ongi-push.service';
 import { OngiLikePushThrottle } from '@/ongi/photo/domain/service/ongi-like-push-throttle';
+import { commentPushTargets } from '@/ongi/photo/domain/service/ongi-comment-push';
 import { ObjectCannedACL } from '@aws-sdk/client-s3';
 import { UploadFile } from '@/common/type/type';
 import { Util } from '@/common/util/util';
@@ -481,18 +482,35 @@ export class OngiAddCommentUseCase {
 
     const comment = await this.photoRepository.createComment({ photoId, authorMemberId: me.id, text });
 
-    // 사진 작성자에게 푸시 (본인 사진에 단 댓글은 제외 — notifyUser 가 걸러준다)
-    const author = await this.memberRepository.findById(photo.authorMemberId);
-    if (author) {
-      const preview = text.length > 40 ? `${text.slice(0, 40)}…` : text;
-      this.pushService.notifyUser(author.userId, userId, {
+    await this.notifyComment(photo, me, text);
+
+    return comment;
+  }
+
+  /** 사진 작성자 + 이 사진에 이미 한마디를 남긴 사람들에게 푸시 — 대화에 참여한 사람은 뒷이야기를 알 수 있어야 한다 */
+  private async notifyComment(photo: OngiPhoto, me: OngiMember, text: string): Promise<void> {
+    const commenterMemberIds = await this.photoRepository.scanCommentAuthorMemberIdsByPhotoId(photo.id);
+    const targets = commentPushTargets({
+      photoAuthorMemberId: photo.authorMemberId,
+      existingCommenterMemberIds: commenterMemberIds,
+      actorMemberId: me.id,
+    });
+    if (targets.length === 0) return;
+
+    // 나간 구성원은 스스로 걸러진다 — scanByGroupId 는 살아있는 구성원만 준다
+    const members = new Map((await this.memberRepository.scanByGroupId(photo.groupId)).map(member => [member.id, member]));
+    const preview = text.length > 40 ? `${text.slice(0, 40)}…` : text;
+
+    for (const target of targets) {
+      const member = members.get(target.memberId);
+      if (!member) continue;
+
+      this.pushService.notifyUser(member.userId, me.userId, {
         title: '온기',
-        body: `${me.name}님이 회원님 사진에 한마디를 남겼어요: ${preview}`,
+        body: target.isPhotoAuthor ? `${me.name}님이 회원님 사진에 한마디를 남겼어요: ${preview}` : `${me.name}님도 한마디를 남겼어요: ${preview}`,
         data: { type: 'comment', groupId: String(photo.groupId), photoId: String(photo.id) },
       });
     }
-
-    return comment;
   }
 }
 

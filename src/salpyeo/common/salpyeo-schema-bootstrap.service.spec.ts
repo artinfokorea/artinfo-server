@@ -4,9 +4,12 @@ import { SALPYEO_FACILITY_SEED } from '@/salpyeo/facility/domain/constant/salpye
 
 /**
  * 스펙 (DataSource 를 흉내 내 실행되는 SQL 형태만 검증 — 실제 Postgres 검증은 배포 후 운영 확인):
- * 1) DDL: CREATE TABLE IF NOT EXISTS 1회 + 인덱스 1회 + 뒤늦게 추가된 컬럼 6개 ALTER ... ADD COLUMN IF NOT EXISTS
- * 2) 시드 456건은 100건씩 5번 upsert — 한 행당 파라미터 23개(slug + 22 컬럼), jsonb 컬럼은 ::jsonb 캐스팅, ON CONFLICT (slug) DO UPDATE
- * 3) 마지막에 시드에 없는 slug 를 SELECT 로 찾아 DELETE (SELECT 파라미터는 시드 slug 456개 배열, DELETE 파라미터는 찾은 slug). 없으면 DELETE 생략
+ * 1) DDL: 시설 CREATE TABLE IF NOT EXISTS 1회 + 인덱스 1회 + ALTER ... ADD COLUMN IF NOT EXISTS,
+ *    (뒤늦게 추가된 컬럼은 sido·sigungu·operator_type·address·phone·website 6개),
+ *    이어서 계정·세션(salpyeo_users·salpyeo_auths) 테이블 2개 + 인덱스 3개 + role 컬럼 ALTER 1개
+ * 2) 시드 456건은 100건씩 5번 INSERT — 한 행당 파라미터 23개(slug + 22 컬럼), jsonb 컬럼은 ::jsonb 캐스팅
+ * 3) **ON CONFLICT (slug) DO NOTHING** — 이미 있는 행은 절대 덮어쓰지 않는다 (관리자 수정 보존).
+ *    예전의 DO UPDATE / 시드 밖 slug DELETE 는 없어졌다.
  * 4) SALPYEO_REPOSITORY=memory 면 아무 쿼리도 실행하지 않음
  * 5) 쿼리가 실패해도 예외를 밖으로 던지지 않음 (기동 차단 금지)
  */
@@ -22,9 +25,9 @@ describe('SalpyeoSchemaBootstrapService', () => {
     return new SalpyeoSchemaBootstrapService({ query } as unknown as DataSource);
   }
 
-  it('DDL 멱등 적용 후 시드를 100건씩 upsert 하고 시드 밖 slug 를 지운다', async () => {
+  it('DDL 을 멱등 적용하고 시드를 100건씩 INSERT 한다', async () => {
     delete process.env['SALPYEO_REPOSITORY'];
-    const query = jest.fn<Promise<unknown>, [string, unknown[]?]>(async sql => (sql.startsWith('SELECT slug') ? [{ slug: 'p1' }, { slug: 'n1' }] : []));
+    const query = jest.fn<Promise<unknown>, [string, unknown[]?]>().mockResolvedValue([[], 0]);
     await makeService(query).onModuleInit();
 
     const calls = query.mock.calls.map(([sql, params]) => [sql.replace(/\s+/g, ' ').trim(), params ?? []] as const);
@@ -39,42 +42,46 @@ describe('SalpyeoSchemaBootstrapService', () => {
       `ALTER TABLE salpyeo_facilities ADD COLUMN IF NOT EXISTS website VARCHAR(300) NOT NULL DEFAULT ''`,
     ]);
 
-    const upserts = calls.slice(8, 13);
-    expect(upserts.map(c => c[1].length)).toEqual([2300, 2300, 2300, 2300, 56 * 23]);
-    const [firstSql, firstParams] = upserts[0];
+    // 구글 로그인 계정·세션 + 관리자 권한 컬럼
+    expect(calls[8][0]).toMatch(/^CREATE TABLE IF NOT EXISTS salpyeo_users \(.*role VARCHAR\(16\) NOT NULL DEFAULT 'USER'/);
+    expect(calls[9][0]).toBe('CREATE UNIQUE INDEX IF NOT EXISTS uidx_salpyeo_users_sns ON salpyeo_users (sns_type, sns_id) WHERE deleted_at IS NULL');
+    expect(calls[10][0]).toBe(`ALTER TABLE salpyeo_users ADD COLUMN IF NOT EXISTS role VARCHAR(16) NOT NULL DEFAULT 'USER'`);
+    expect(calls[11][0]).toMatch(/^CREATE TABLE IF NOT EXISTS salpyeo_auths \(/);
+    expect(calls[12][0]).toBe('CREATE INDEX IF NOT EXISTS idx_salpyeo_auths_user ON salpyeo_auths (user_id)');
+    expect(calls[13][0]).toBe('CREATE INDEX IF NOT EXISTS idx_salpyeo_auths_tokens ON salpyeo_auths (access_token, refresh_token)');
+
+    const inserts = calls.slice(14, 19);
+    expect(inserts.map(c => c[1].length)).toEqual([2300, 2300, 2300, 2300, 56 * 23]);
+
+    const [firstSql, firstParams] = inserts[0];
     expect(firstSql).toMatch(
       /^INSERT INTO salpyeo_facilities \(slug, vertical, name, meta, sido, sigungu, operator_type, address, phone, website, distance_label, distance_minutes, inspection_badge, feature_badge, price, rating, review_count, vs_avg_percent, images, price_rows, inspections, review, sort_order\) VALUES \(\$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19::jsonb, \$20::jsonb, \$21::jsonb, \$22::jsonb, \$23\), \(\$24, /,
     );
     expect(firstSql).toContain('($2278, $2279');
-    expect(firstSql).toMatch(
-      /\$2300\) ON CONFLICT \(slug\) DO UPDATE SET vertical = EXCLUDED\.vertical, name = EXCLUDED\.name, .*sort_order = EXCLUDED\.sort_order, updated_at = now\(\)$/,
-    );
-    // 앞 7개는 공공데이터 고정값. 주소·전화·홈페이지·사진은 공식 홈페이지 보강에 따라 달라지므로 형태만 확인한다.
-    expect(firstParams.slice(0, 7)).toEqual(['post-a9656bde', 'post', '올리비움산후조리원', '서울 종로구', '서울', '종로구', '민간']);
-    expect(firstParams.slice(7, 10).every(v => typeof v === 'string')).toBe(true);
-    // jsonb 4개는 문자열로 직렬화해 보내고, 마지막은 원본 순번
-    const [images, priceRows, inspections, review, sortOrder] = firstParams.slice(18, 23);
-    expect(Array.isArray(JSON.parse(images as string))).toBe(true);
-    expect(JSON.parse(priceRows as string)[0]).toMatchObject({ room: '일반실', price: expect.stringContaining('만원') });
-    expect(inspections).toBe('[]');
-    expect(review).toBeNull();
-    expect(sortOrder).toBe(1);
+    // 이미 있는 행은 건드리지 않는다 — 관리자 수정이 배포로 되돌아가면 안 된다
+    expect(firstSql).toMatch(/\$2300\) ON CONFLICT \(slug\) DO NOTHING$/);
+    expect(firstSql).not.toContain('DO UPDATE');
 
-    const [staleSql, staleParams] = calls[13];
-    expect(staleSql).toBe('SELECT slug FROM salpyeo_facilities WHERE NOT (slug = ANY($1::text[]))');
-    expect(staleParams).toEqual([SALPYEO_FACILITY_SEED.map(s => s.slug)]);
-    expect(staleParams[0]).toHaveLength(456);
-    expect(calls[14]).toEqual(['DELETE FROM salpyeo_facilities WHERE slug = ANY($1::text[])', [['p1', 'n1']]]);
-    expect(calls).toHaveLength(15);
+    expect(firstParams.slice(0, 7)).toEqual(['post-a9656bde', 'post', '올리비움산후조리원', '서울 종로구', '서울', '종로구', '민간']);
+    // 주소·전화·홈페이지는 공식 홈페이지 수집 결과가 우선이라 값이 바뀔 수 있다 — 형식만 본다
+    expect(firstParams.slice(7, 10).every(v => typeof v === 'string')).toBe(true);
+
+    expect(calls).toHaveLength(19);
   });
 
-  it('시드 밖 slug 가 없으면 DELETE 를 실행하지 않는다', async () => {
+  it('시드에 없는 slug 를 지우지 않는다 (관리자가 관리하는 데이터)', async () => {
     delete process.env['SALPYEO_REPOSITORY'];
-    const query = jest.fn<Promise<unknown>, [string, unknown[]?]>().mockResolvedValue([]);
+    const query = jest.fn<Promise<unknown>, [string, unknown[]?]>().mockResolvedValue([[], 0]);
     await makeService(query).onModuleInit();
-    const sqls = query.mock.calls.map(([sql]) => sql.trim().split(' ')[0]);
-    expect(sqls.filter(s => s === 'DELETE')).toHaveLength(0);
-    expect(sqls).toHaveLength(14);
+
+    const verbs = query.mock.calls.map(([sql]) => sql.trim().split(' ')[0]);
+    expect(verbs.filter(v => v === 'DELETE')).toHaveLength(0);
+    expect(verbs.filter(v => v === 'SELECT')).toHaveLength(0);
+  });
+
+  it('시드 slug 는 456개 그대로다', () => {
+    expect(SALPYEO_FACILITY_SEED).toHaveLength(456);
+    expect(new Set(SALPYEO_FACILITY_SEED.map(s => s.slug)).size).toBe(456);
   });
 
   it('메모리 모드에서는 아무것도 실행하지 않는다', async () => {

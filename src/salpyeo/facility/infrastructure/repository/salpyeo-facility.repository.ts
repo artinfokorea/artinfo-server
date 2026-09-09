@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SalpyeoFacility } from '@/salpyeo/facility/domain/entity/salpyeo-facility.entity';
-import { ISalpyeoFacilityRepository } from '@/salpyeo/facility/domain/repository/salpyeo-facility.repository.interface';
+import { ISalpyeoFacilityRepository, SalpyeoFacilityPatch } from '@/salpyeo/facility/domain/repository/salpyeo-facility.repository.interface';
+import { SalpyeoFacilityNotFound } from '@/salpyeo/facility/domain/exception/salpyeo-facility.exception';
 import { SALPYEO_VERTICAL_KEYS, SalpyeoVerticalKey } from '@/salpyeo/facility/domain/constant/salpyeo-vertical.constant';
 
 @Injectable()
@@ -18,6 +19,26 @@ export class SalpyeoFacilityRepository implements ISalpyeoFacilityRepository {
 
   async findBySlug(slug: string): Promise<SalpyeoFacility | null> {
     return this.repo.findOne({ where: { slug, isActive: true } });
+  }
+
+  async findByVerticalForAdmin(vertical: SalpyeoVerticalKey): Promise<SalpyeoFacility[]> {
+    return this.repo.find({ where: { vertical }, order: { sortOrder: 'ASC', id: 'ASC' } });
+  }
+
+  async findBySlugForAdmin(slug: string): Promise<SalpyeoFacility | null> {
+    return this.repo.findOne({ where: { slug } });
+  }
+
+  async update(slug: string, patch: SalpyeoFacilityPatch): Promise<SalpyeoFacility> {
+    const facility = await this.findBySlugForAdmin(slug);
+    if (!facility) throw new SalpyeoFacilityNotFound();
+
+    await this.repo.update({ slug }, patch);
+
+    const updated = await this.findBySlugForAdmin(slug);
+    if (!updated) throw new SalpyeoFacilityNotFound();
+
+    return updated;
   }
 
   async countByVertical(): Promise<Record<SalpyeoVerticalKey, number>> {
