@@ -3,6 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { IOngiAlbumRepository, OngiAlbumView } from '@/ongi/album/domain/repository/ongi-album.repository.interface';
 import { OngiAlbum, OngiAlbumCreator } from '@/ongi/album/domain/entity/ongi-album.entity';
+import { pickAlbumCoverUrl } from '@/ongi/album/domain/service/ongi-album-cover';
+
+/** 앨범당 커버 후보로 읽어 오는 최신 항목 수 — 포스터 없는 영상이 연달아 있어도 커버를 찾을 만큼 */
+const COVER_CANDIDATES = 10;
 
 @Injectable()
 export class OngiAlbumRepository implements IOngiAlbumRepository {
@@ -62,25 +66,39 @@ export class OngiAlbumRepository implements IOngiAlbumRepository {
         GROUP BY album_id`,
       [albumIds, excludedAuthorMemberIds],
     );
-    const latestRows: { album_id: number; url: string; thumb_url: string | null; created_at: Date }[] = await this.albumRepository.manager.query(
-      `SELECT DISTINCT ON (album_id) album_id, url, thumb_url, created_at
-         FROM ongi_photos
-        WHERE album_id = ANY($1) AND deleted_at IS NULL AND NOT (author_member_id = ANY($2))
-        ORDER BY album_id, created_at DESC, id DESC`,
-      [albumIds, excludedAuthorMemberIds],
-    );
+    // 커버 후보는 앨범당 최신 COVER_CANDIDATES 개 — 포스터 없는 영상이 최신이면 그 아래 항목까지 내려가야 한다
+    const latestRows: { album_id: number; url: string; thumb_url: string | null; media_type: string | null; created_at: Date; rn: string }[] =
+      await this.albumRepository.manager.query(
+        `SELECT album_id, url, thumb_url, media_type, created_at, rn FROM (
+           SELECT album_id, url, thumb_url, media_type, created_at,
+                  ROW_NUMBER() OVER (PARTITION BY album_id ORDER BY created_at DESC, id DESC) AS rn
+             FROM ongi_photos
+            WHERE album_id = ANY($1) AND deleted_at IS NULL AND NOT (author_member_id = ANY($2))
+         ) ranked
+          WHERE rn <= $3
+          ORDER BY album_id, rn`,
+        [albumIds, excludedAuthorMemberIds, COVER_CANDIDATES],
+      );
 
     const photoCounts = new Map(countRows.map(row => [Number(row.album_id), Number(row.count)]));
-    const latests = new Map(latestRows.map(row => [Number(row.album_id), row]));
+    const candidates = new Map<number, typeof latestRows>();
+    for (const row of latestRows) {
+      const albumId = Number(row.album_id);
+      const list = candidates.get(albumId);
+      if (list) list.push(row);
+      else candidates.set(albumId, [row]);
+    }
 
     return albums.map(album => {
-      const latest = latests.get(album.id);
+      const rows = candidates.get(album.id) ?? [];
+      const latest = rows[0];
 
       return {
         album,
         photoCount: photoCounts.get(album.id) ?? 0,
-        // 커버는 축소본 우선 — 영상이 최신이면 url 이 mp4 라 이미지로 못 그리므로 포스터(thumb_url)를 쓴다
-        latestPhotoUrl: latest ? (latest.thumb_url ?? latest.url) : null,
+        // 커버는 그릴 수 있는 가장 최근 항목 — 포스터 없는 영상은 건너뛴다
+        latestPhotoUrl: pickAlbumCoverUrl(rows),
+        // '최근 추가' 표기는 실제 최신 항목 기준 (커버가 아래로 내려가도 시각은 그대로)
         latestPhotoAt: latest ? new Date(latest.created_at) : null,
       };
     });
