@@ -15,6 +15,24 @@ import { SalpyeoFacilityMemoryRepository } from '@/salpyeo/facility/infrastructu
 import { SALPYEO_ADMIN_FACILITY_USE_CASES, SALPYEO_FACILITY_CONTROLLERS, SALPYEO_FACILITY_USE_CASES } from '@/salpyeo/facility/salpyeo-facility.module';
 import { SalpyeoAdminFacilityController } from '@/salpyeo/facility/presentation/controller/salpyeo-admin-facility.controller';
 import { SalpyeoTokenIssuer } from '@/salpyeo/auth/infrastructure/service/salpyeo-token.issuer';
+import { AwsS3Service, AwsS3UploadResult } from '@/aws/s3/aws-s3.service';
+
+/** S3 를 흉내 내 올라간 경로만 기록한다 */
+class FakeS3Service {
+  uploads: { path: string; mimetype: string; size: number }[] = [];
+
+  async uploadStream(buffer: Buffer, mimetype: string, uploadFilePath: string): Promise<AwsS3UploadResult> {
+    this.uploads.push({ path: uploadFilePath, mimetype, size: buffer.length });
+
+    return { key: uploadFilePath, tag: 'etag', location: `https://artinfo.s3.ap-northeast-2.amazonaws.com/test/${uploadFilePath}` };
+  }
+}
+
+/** 3x2 회색 PNG (sharp 가 크기를 읽을 수 있는 실제 파일) */
+const PNG_3X2 = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAMAAAACCAIAAAASFvFNAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAADklEQVR4nGM4AQMMcBYAjLQOETxAoQ8AAAAASUVORK5CYII=',
+  'base64',
+);
 
 /** 올리비움산후조리원 — 시드 첫 번째 시설 */
 const SLUG = 'post-a9656bde';
@@ -28,14 +46,17 @@ const SLUG = 'post-a9656bde';
  * 5) 수정 결과가 공개 API(GET /salpyeo/facilities/:slug)에도 그대로 보인다
  * 6) isActive=false 로 내리면 공개 API 에서는 404, 관리자 목록에는 남는다
  * 7) 값 검증: 이름 빈 문자열·가격 음수·요금표 형식 오류는 400
+ * 8) POST /salpyeo/admin/facilities/:slug/images → S3 공개 URL + 실제 이미지 크기를 돌려준다 (이미지가 아니면 400)
  */
 describe('Salpyeo admin facility API (memory repository)', () => {
   let app: INestApplication;
   let adminToken: string;
   let userToken: string;
+  let s3: FakeS3Service;
 
   beforeAll(async () => {
     process.env['JWT_TOKEN_KEY'] = 'salpyeo-admin-test-key';
+    s3 = new FakeS3Service();
     const userRepository = new SalpyeoUserMemoryRepository();
 
     const moduleRef = await Test.createTestingModule({
@@ -49,6 +70,7 @@ describe('Salpyeo admin facility API (memory repository)', () => {
         ...SALPYEO_ADMIN_FACILITY_USE_CASES,
         { provide: SALPYEO_FACILITY_REPOSITORY, useValue: new SalpyeoFacilityMemoryRepository() },
         { provide: SALPYEO_USER_REPOSITORY, useValue: userRepository },
+        { provide: AwsS3Service, useValue: s3 },
       ],
     }).compile();
 
@@ -161,5 +183,27 @@ describe('Salpyeo admin facility API (memory repository)', () => {
     await asAdmin(request(app.getHttpServer()).put(`/salpyeo/admin/facilities/${SLUG}`))
       .send({ priceRows: [{ room: '일반실' }] })
       .expect(400);
+  });
+
+  it('사진 업로드 — S3 공개 URL 과 실제 크기를 돌려준다 (이미지가 아니면 400)', async () => {
+    const res = await asAdmin(request(app.getHttpServer()).post(`/salpyeo/admin/facilities/${SLUG}/images`))
+      .attach('imageFile', PNG_3X2, { filename: 'room.png', contentType: 'image/png' })
+      .expect(201);
+
+    expect(res.body.item).toMatchObject({ alt: '시설 사진', width: 3, height: 2 });
+    expect(res.body.item.url).toMatch(/^https:\/\/artinfo\.s3\./);
+    expect(s3.uploads.at(-1)?.path).toMatch(new RegExp(`^salpyeo/facilities/${SLUG}/\\d+-[a-z0-9]+\\.png$`));
+
+    const notImage = await asAdmin(request(app.getHttpServer()).post(`/salpyeo/admin/facilities/${SLUG}/images`))
+      .attach('imageFile', Buffer.from('hello'), { filename: 'a.txt', contentType: 'text/plain' })
+      .expect(400);
+    expect(notImage.body.code).toBe('SALPYEO-FACILITY-002');
+
+    // 일반 사용자는 업로드도 막힌다
+    await request(app.getHttpServer())
+      .post(`/salpyeo/admin/facilities/${SLUG}/images`)
+      .set('Authorization', `Bearer ${userToken}`)
+      .attach('imageFile', PNG_3X2, { filename: 'room.png', contentType: 'image/png' })
+      .expect(403);
   });
 });
