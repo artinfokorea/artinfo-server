@@ -6,8 +6,9 @@
  * 내려받아 우리 버킷에 public-read 로 올리고 URL 을 바꾼다.
  *
  * 두 단계이고, 각각 껐다 켤 수 있으며 몇 번을 다시 돌려도 안전하다(이미 우리 버킷인 URL 은 건너뛴다).
- *   1) --from-seed : 시드 상수에는 있는데 DB 행에는 사진이 비어 있으면 먼저 채운다.
- *      부트스트랩이 더 이상 기존 행을 덮어쓰지 않으므로(원천이 DB), 배포만으로는 사진이 들어가지 않는다.
+ *   1) --from-seed : 시드 상수에는 있는데 DB 행에는 **비어 있는** 값(사진·공식 홈페이지)을 먼저 채운다.
+ *      부트스트랩이 더 이상 기존 행을 덮어쓰지 않으므로(원천이 DB), 배포만으로는 보강 데이터가 들어가지 않는다.
+ *      이미 값이 있는 필드는 절대 건드리지 않는다 — 관리자가 고친 값을 되돌리면 안 되기 때문.
  *   2) 재호스팅   : DB 의 외부 URL 사진을 내려받아 S3 에 올리고 URL 을 바꾼다.
  *
  * 사용:
@@ -33,6 +34,7 @@ const ALLOWED_MIME: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png':
 interface FacilityRow {
   slug: string;
   images: SalpyeoFacilityImage[] | null;
+  website?: string | null;
 }
 
 const argv = process.argv.slice(2);
@@ -97,29 +99,49 @@ async function upload(s3: S3Client, slug: string, index: number, file: { buffer:
   return `https://${BUCKET}.s3.${process.env['AWS_REGION']}.amazonaws.com/${key}`;
 }
 
-/** 시드에는 있는데 DB 가 비어 있는 시설의 사진을 채운다 (부트스트랩이 기존 행을 덮어쓰지 않으므로) */
-async function backfillFromSeed(dataSource: DataSource): Promise<number> {
-  const seedImages = new Map(SALPYEO_FACILITY_SEED.filter(s => s.images.length > 0).map(s => [s.slug, s.images]));
-  if (seedImages.size === 0) {
-    console.log('[from-seed] 시드에 사진이 없습니다 — 건너뜁니다');
-    return 0;
-  }
+/**
+ * 시드에는 있는데 DB 가 비어 있는 값을 채운다 (부트스트랩이 기존 행을 덮어쓰지 않으므로).
+ * **비어 있는 필드만** 채운다 — 관리자가 고친 값을 되돌리면 안 된다.
+ * 요금·전화·주소처럼 이미 공공데이터 값이 들어 있는 필드는 대상이 아니다 (덮어쓰기가 되므로).
+ */
+async function backfillFromSeed(dataSource: DataSource): Promise<void> {
+  const seed = new Map(SALPYEO_FACILITY_SEED.map(s => [s.slug, s]));
 
-  const empty: FacilityRow[] = await dataSource.query(`SELECT slug, images FROM salpyeo_facilities WHERE images IS NULL OR jsonb_array_length(images) = 0`);
-  let filled = 0;
+  const rows: FacilityRow[] = await dataSource.query(
+    `SELECT slug, images, website FROM salpyeo_facilities
+      WHERE images IS NULL OR jsonb_array_length(images) = 0 OR website IS NULL OR website = ''`,
+  );
 
-  for (const row of empty) {
-    const images = seedImages.get(row.slug);
-    if (!images?.length) continue;
+  let filledImages = 0;
+  let filledWebsite = 0;
+
+  for (const row of rows) {
+    const source = seed.get(row.slug);
+    if (!source) continue;
+
+    const sets: string[] = [];
+    const params: unknown[] = [];
+
+    const hasImages = (row.images?.length ?? 0) > 0;
+    if (!hasImages && source.images.length > 0) {
+      params.push(JSON.stringify(source.images));
+      sets.push(`images = $${params.length}::jsonb`);
+      filledImages += 1;
+    }
+    if (!row.website && source.website) {
+      params.push(source.website);
+      sets.push(`website = $${params.length}`);
+      filledWebsite += 1;
+    }
+    if (sets.length === 0) continue;
 
     if (!options.dryRun) {
-      await dataSource.query(`UPDATE salpyeo_facilities SET images = $1::jsonb, updated_at = now() WHERE slug = $2`, [JSON.stringify(images), row.slug]);
+      params.push(row.slug);
+      await dataSource.query(`UPDATE salpyeo_facilities SET ${sets.join(', ')}, updated_at = now() WHERE slug = $${params.length}`, params);
     }
-    filled += 1;
   }
 
-  console.log(`[from-seed] 사진이 비어 있던 ${empty.length}곳 중 ${filled}곳을 시드 사진으로 채웠습니다${options.dryRun ? ' (dry-run)' : ''}`);
-  return filled;
+  console.log(`[from-seed] 사진 ${filledImages}곳 · 공식 홈페이지 ${filledWebsite}곳을 채웠습니다${options.dryRun ? ' (dry-run)' : ''}`);
 }
 
 async function rehost(dataSource: DataSource, s3: S3Client): Promise<void> {
