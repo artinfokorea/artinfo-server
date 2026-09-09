@@ -24,9 +24,17 @@ import { SalpyeoAuthModule } from '@/salpyeo/auth/salpyeo-auth.module';
 })
 class SalpyeoStandaloneModule {}
 
+/** 로컬 단독 기동 전용 서명 키 — 운영(src/main.ts)에는 JWT_TOKEN_KEY 가 반드시 주입된다 */
+const LOCAL_JWT_TOKEN_KEY = 'salpyeo-local-dev-key';
+
 async function bootstrap() {
   if (process.env['SALPYEO_REPOSITORY'] !== 'memory') {
     throw new Error('salpyeo-standalone 은 SALPYEO_REPOSITORY=memory 로만 기동합니다. DB 연동은 src/main.ts 를 사용하세요.');
+  }
+  // 공용 JwtStrategy 와 토큰 발급기가 기동 시점에 읽는다 — 로컬 확인용이라 키를 요구하지 않는다
+  if (!process.env['JWT_TOKEN_KEY']) {
+    process.env['JWT_TOKEN_KEY'] = LOCAL_JWT_TOKEN_KEY;
+    console.warn(`[salpyeo-standalone] JWT_TOKEN_KEY 가 없어 로컬 전용 키로 기동합니다 (발급된 토큰은 이 프로세스에서만 유효).`);
   }
   const app = await NestFactory.create(SalpyeoStandaloneModule);
   app.useGlobalPipes(new ValidationPipe({ transform: true }));

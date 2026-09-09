@@ -1,15 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { SalpyeoUser } from '@/salpyeo/user/domain/entity/salpyeo-user.entity';
-import { isSalpyeoMemoryRepository } from '@/salpyeo/common/salpyeo-repository-mode';
 
 export interface SalpyeoTokenPayload {
   token: string;
   expiresIn: Date;
 }
-
-/** Postgres 없이 띄우는 로컬 전용 키 — 운영에서는 JWT_TOKEN_KEY 가 반드시 주입된다 */
-const MEMORY_MODE_DEV_KEY = 'salpyeo-local-dev-key';
 
 export const SALPYEO_ACCESS_TOKEN_EXPIRE_IN = 60 * 60; // 1 hour
 export const SALPYEO_REFRESH_TOKEN_EXPIRE_IN = 60 * 24 * 60 * 60; // 60 days
@@ -47,9 +43,8 @@ export class SalpyeoTokenIssuer {
 
   private secret(): string {
     const key = process.env['JWT_TOKEN_KEY'];
-    if (key) return key;
-    if (isSalpyeoMemoryRepository()) return MEMORY_MODE_DEV_KEY;
+    if (!key) throw new Error('JWT_TOKEN_KEY 가 설정되지 않았습니다.');
 
-    throw new Error('JWT_TOKEN_KEY 가 설정되지 않았습니다.');
+    return key;
   }
 }
