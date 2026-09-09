@@ -1,12 +1,16 @@
-import { Body, Param, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
-import { RestApiController, RestApiGet, RestApiPut } from '@/common/decorator/rest-api';
+import { Body, Param, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
+import { UploadFile } from '@/common/type/type';
+import { RestApiController, RestApiGet, RestApiPost, RestApiPut } from '@/common/decorator/rest-api';
 import { SalpyeoAdminGuard } from '@/salpyeo/common/salpyeo-admin.guard';
 import {
   SalpyeoAdminGetFacilityUseCase,
   SalpyeoAdminScanFacilitiesUseCase,
   SalpyeoAdminUpdateFacilityUseCase,
 } from '@/salpyeo/facility/application/usecase/salpyeo-admin-facility.usecase';
+import { SalpyeoAdminUploadImageUseCase } from '@/salpyeo/facility/application/usecase/salpyeo-admin-upload-image.usecase';
+import { SalpyeoAdminImageResponse } from '@/salpyeo/facility/presentation/dto/response/salpyeo-admin-facility.response';
 import { SalpyeoAdminScanFacilitiesRequest } from '@/salpyeo/facility/presentation/dto/request/salpyeo-admin-scan-facilities.request';
 import { SalpyeoAdminUpdateFacilityRequest } from '@/salpyeo/facility/presentation/dto/request/salpyeo-admin-update-facility.request';
 import { SalpyeoAdminFacilitiesResponse, SalpyeoAdminFacilityResponse } from '@/salpyeo/facility/presentation/dto/response/salpyeo-admin-facility.response';
@@ -23,6 +27,7 @@ export class SalpyeoAdminFacilityController {
     private readonly scanUseCase: SalpyeoAdminScanFacilitiesUseCase,
     private readonly getUseCase: SalpyeoAdminGetFacilityUseCase,
     private readonly updateUseCase: SalpyeoAdminUpdateFacilityUseCase,
+    private readonly uploadImageUseCase: SalpyeoAdminUploadImageUseCase,
   ) {}
 
   @RestApiGet(SalpyeoAdminFacilitiesResponse, { path: '/', description: '관리자 시설 목록 (노출 내린 시설 포함)' })
@@ -44,5 +49,15 @@ export class SalpyeoAdminFacilityController {
     const facility = await this.updateUseCase.execute(slug, request);
 
     return new SalpyeoAdminFacilityResponse(facility);
+  }
+
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('imageFile', { limits: { fileSize: 10 * 1024 * 1024 } }))
+  @RestApiPost(SalpyeoAdminImageResponse, { path: '/:slug/images', description: '관리자 시설 사진 업로드 (S3 공개 URL)' })
+  async uploadImage(@Param('slug') slug: string, @UploadedFile() file: UploadFile) {
+    // 업로드만 하고 시설에는 반영하지 않는다 — 관리자가 편집 폼에서 저장을 눌러야 반영된다
+    const image = await this.uploadImageUseCase.execute(slug, file);
+
+    return new SalpyeoAdminImageResponse(image);
   }
 }

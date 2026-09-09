@@ -25,6 +25,7 @@
 | `GET /salpyeo/admin/facilities?vertical=&q=` | **관리자** 목록. 노출 내린 시설 포함 |
 | `GET /salpyeo/admin/facilities/:slug` | **관리자** 상세 — 편집 폼용으로 저장된 컬럼을 그대로 |
 | `PUT /salpyeo/admin/facilities/:slug` | **관리자** 수정. 보낸 필드만 반영 |
+| `POST /salpyeo/admin/facilities/:slug/images` | **관리자** 사진 업로드(multipart `imageFile`) → S3 공개 URL. 시설 반영은 위 PUT 으로 |
 
 시설 조회는 전부 공개(비로그인)이고, `/salpyeo/auths/*` 와 `/salpyeo/users/me` 는 로그인, `/salpyeo/admin/*` 은 `SalpyeoAdminGuard`(토큰 검증 후 **DB 의 role 을 다시 조회**)로 관리자만. 토큰에 role 을 담지 않는 이유는 권한을 내렸을 때 이미 발급된 토큰(최대 1시간)이 살아남으면 안 되기 때문이다.
 
@@ -34,6 +35,11 @@
 
 - 테이블 prefix `salpyeo_`. DDL 은 `facility/salpyeo-facilities.ddl.sql`. synchronize:false 이므로 `common/salpyeo-schema-bootstrap.service.ts` 가 기동 시 `CREATE TABLE IF NOT EXISTS` + `ALTER TABLE ADD COLUMN IF NOT EXISTS` 를 멱등 적용한다.
 - **시설 정보의 원천은 DB 다 (2026-09-09 결정).** 갱신은 관리자 페이지(`PUT /salpyeo/admin/facilities/:slug`)로만 하고, 공공데이터로 다시 덮어쓰지 않는다. 그래서 부트스트랩의 시드 동기화는 `INSERT ... ON CONFLICT (slug) DO NOTHING` (100건 배치)뿐이다 — **이미 있는 행은 절대 건드리지 않고, 시드에 없는 slug 를 지우지도 않는다**. 시드 상수는 빈 DB(새 환경)를 채우는 용도로만 남는다. 예전의 `DO UPDATE` + prune 규칙은 관리자 수정이 배포마다 되돌아가기 때문에 없앴다.
+- **시설 사진은 우리 S3(`artinfo` 버킷)에 둔다 (2026-09-09 결정).** 원래는 각 조리원 공식 홈페이지의 이미지 URL 을 그대로 참조했는데, 홈페이지 개편·핫링크 차단으로 깨지고 남의 서버 트래픽을 쓰게 되어 재호스팅으로 바꿨다.
+  - 살펴 사진은 공개 정보라 **public-read 로 올리고 평범한 공개 URL 을 그대로 저장한다** — 온기처럼 presigned URL 을 쓰지 않는다 (온기는 가족 사진이라 private 저장 + 서명).
+  - S3 키는 `{NODE_ENV}/salpyeo/facilities/{slug}/…`. 관리자 업로드는 `SalpyeoAdminUploadImageUseCase` (폭·높이는 sharp 로 파일에서 직접 읽는다 — 화면 레이아웃에 필요).
+  - 기존 사진 일괄 이전은 `scripts/rehost-facility-images.ts`. 몇 번을 다시 돌려도 안전하고(이미 우리 버킷이면 건너뜀), **내려받지 못한 사진은 원래 URL 을 그대로 남긴다**. `--from-seed` 는 시드에만 있고 DB 에는 없는 사진을 먼저 채운다 (부트스트랩이 기존 행을 덮어쓰지 않으므로 배포만으로는 들어가지 않는다). `--dry-run`·`--limit` 지원.
+  - 프론트 `next.config.ts` 의 remotePatterns 가 임의 호스트를 허용하므로, 아직 남아 있는 외부 URL 의 검증 책임은 수집 스크립트에 있다.
 - **데이터 원천 = 공공데이터 그대로.** 산후조리원은 공공데이터포털 "보건복지부_전국 산후조리원 현황" (2023-12-31, 456건) CSV 를 `scripts/import-post-facility-csv.ts` 로 변환한 `domain/constant/salpyeo-post-facility-data.constant.ts` (자동 생성, 손으로 수정 금지). 새 CSV 가 나오면 같은 스크립트로 재생성해 커밋하면 배포 시 bootstrap 이 반영한다. 원본 요금 단위는 만원(2주 기준) → 원으로 환산.
 - 레코드 → 시설 변환은 `domain/service/salpyeo-post-facility-seed.ts` (순수 함수). **공공데이터에 없는 값은 지어내지 않는다**: distance `''/0`, inspectionBadge `''`, inspections `[]`, rating/reviewCount `0`, review `null`, images `[]`. 일반실 미공개는 price `0`. `vsAvgPercent` 는 같은 시도 안 일반실 평균 대비. `slug` 는 `post-` + sha1(시도|시군구|이름) 앞 8자리라 데이터 갱신으로 순번이 바뀌어도 URL 이 유지된다.
 - 검색·정렬은 `domain/service/salpyeo-facility-query.ts` 순수 함수 (전국 456건이라 메모리 처리). 수천 건 규모가 되면 repository 쿼리로 내리고 pagination·지역 파라미터 추가.
