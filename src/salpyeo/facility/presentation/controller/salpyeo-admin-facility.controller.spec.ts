@@ -49,7 +49,7 @@ const SLUG = 'post-a9656bde';
  * 8) POST /salpyeo/admin/facilities/:slug/images → S3 공개 URL + 실제 이미지 크기를 돌려준다 (이미지가 아니면 400)
  * 9) POST /salpyeo/admin/facilities/rehost-images → 외부 URL 사진을 우리 S3 로 옮기고 남은 시설 수를 돌려준다.
  *    내려받지 못한 사진은 원래 URL 로 남고, 이미 우리 버킷인 사진은 건너뛴다. 반복 호출해도 안전하다.
- *    slug 를 주면 그 시설만 처리한다
+ *    slug 를 주면 그 시설만 처리한다. 동시에 두 번 돌지 않는다(409)
  */
 describe('Salpyeo admin facility API (memory repository)', () => {
   let app: INestApplication;
@@ -251,6 +251,33 @@ describe('Salpyeo admin facility API (memory repository)', () => {
         .set('Authorization', `Bearer ${userToken}`)
         .send({ slug: SLUG })
         .expect(403);
+    } finally {
+      global.fetch = realFetch;
+    }
+  });
+
+  it('사진 이전은 동시에 두 번 돌지 않는다', async () => {
+    const realFetch = global.fetch;
+    // 첫 요청이 끝나기 전에 두 번째 요청이 들어오도록 응답을 늦춘다
+    global.fetch = (async () => {
+      await new Promise(resolve => setTimeout(resolve, 120));
+      return new Response(PNG_3X2, { status: 200, headers: { 'Content-Type': 'image/png' } });
+    }) as typeof fetch;
+
+    try {
+      await asAdmin(request(app.getHttpServer()).put(`/salpyeo/admin/facilities/${SLUG}`))
+        .send({ images: [{ url: 'https://www.olivium.co.kr/slow.jpg', alt: '시설 사진', width: 10, height: 10 }] })
+        .expect(200);
+
+      // supertest 는 then 을 부를 때 실제로 요청을 보낸다 — 먼저 띄워 두고 두 번째를 겹치게 한다
+      const first = asAdmin(request(app.getHttpServer()).post('/salpyeo/admin/facilities/rehost-images'))
+        .send({ slug: SLUG })
+        .then(res => res);
+      await new Promise(resolve => setTimeout(resolve, 30));
+      const second = await asAdmin(request(app.getHttpServer()).post('/salpyeo/admin/facilities/rehost-images')).send({ slug: SLUG }).expect(409);
+
+      expect(second.body.code).toBe('SALPYEO-FACILITY-003');
+      expect((await first).status).toBe(201);
     } finally {
       global.fetch = realFetch;
     }
