@@ -27,7 +27,7 @@
 | `GET /salpyeo/admin/facilities/:slug` | **관리자** 상세 — 편집 폼용으로 저장된 컬럼을 그대로 |
 | `PUT /salpyeo/admin/facilities/:slug` | **관리자** 수정. 보낸 필드만 반영 |
 | `POST /salpyeo/admin/facilities/:slug/images` | **관리자** 사진 업로드(multipart `imageFile`) → S3 공개 URL. 시설 반영은 위 PUT 으로 |
-| `POST /salpyeo/inquiries` | **공개** 문의 접수 (multipart: title·content·email + `imageFiles` 최대 3장·각 5MB) |
+| `POST /salpyeo/inquiries` | **공개** 문의 접수 (multipart: title·content·email + `imageFiles` 최대 10장·각 5MB) |
 | `GET /salpyeo/admin/inquiries` | **관리자** 문의 목록 (최근 접수 순, 최대 200건) |
 | `PUT /salpyeo/admin/inquiries/:id/resolved` | **관리자** 처리 완료 표시 |
 | `POST /salpyeo/admin/facilities/rehost-images` | **관리자** 조리원 홈페이지 사진을 S3 로 이전. 한 번에 `limit` 곳(최대 10)씩, `remaining` 이 0 이 될 때까지 반복 호출. `slug` 로 한 곳만 재시도 가능 |

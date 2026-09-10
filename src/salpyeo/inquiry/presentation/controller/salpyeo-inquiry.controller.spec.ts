@@ -35,7 +35,7 @@ const PNG_3X2 = Buffer.from(
 /**
  * 스펙 (문의 페이지가 기대하는 계약):
  * 1) POST /salpyeo/inquiries — **비로그인 공개**. 제목·내용·이메일로 접수하고 접수번호를 돌려준다
- * 2) 이미지 첨부(최대 3장)는 S3 에 올리고 URL 을 함께 저장한다. 이미지가 아닌 파일은 400
+ * 2) 이미지 첨부(최대 10장)는 S3 에 올리고 URL 을 함께 저장한다. 이미지가 아닌 파일·10장 초과는 400
  * 3) 값 검증: 제목·내용·이메일 필수, 이메일 형식, 제목 100자·내용 2000자 초과는 400
  * 4) GET /salpyeo/admin/inquiries — 관리자만. 최근 접수가 먼저. 비로그인 401 · 일반 사용자 403
  * 5) PUT /salpyeo/admin/inquiries/:id/resolved — 처리 완료 표시 토글
@@ -121,6 +121,26 @@ describe('Salpyeo inquiry API (memory repository)', () => {
     expect(notImage.body.code).toBe('SALPYEO-INQUIRY-001');
   });
 
+  it('사진 10장까지 붙일 수 있고, 넘기면 400', async () => {
+    const withTen = request(app.getHttpServer())
+      .post('/salpyeo/inquiries')
+      .field('title', '사진 여러 장')
+      .field('content', '여러 각도에서 찍었습니다.')
+      .field('email', 'mom10@example.com');
+    for (let i = 0; i < 10; i++) withTen.attach('imageFiles', PNG_3X2, { filename: `${i}.png`, contentType: 'image/png' });
+
+    const res = await withTen.expect(201);
+    expect(res.body.item.images).toHaveLength(10);
+
+    const withEleven = request(app.getHttpServer())
+      .post('/salpyeo/inquiries')
+      .field('title', '사진 너무 많음')
+      .field('content', '11장')
+      .field('email', 'mom11@example.com');
+    for (let i = 0; i < 11; i++) withEleven.attach('imageFiles', PNG_3X2, { filename: `${i}.png`, contentType: 'image/png' });
+    await withEleven.expect(400);
+  });
+
   it('값 검증 — 필수값 누락·이메일 형식 오류·길이 초과는 400', async () => {
     await request(app.getHttpServer()).post('/salpyeo/inquiries').field('content', '내용').field('email', 'a@b.com').expect(400);
     await request(app.getHttpServer()).post('/salpyeo/inquiries').field('title', '제목').field('email', 'a@b.com').expect(400);
@@ -145,9 +165,8 @@ describe('Salpyeo inquiry API (memory repository)', () => {
 
     const res = await request(app.getHttpServer()).get('/salpyeo/admin/inquiries').set('Authorization', `Bearer ${adminToken}`).expect(200);
     const inquiries = res.body.item.inquiries;
-    expect(inquiries).toHaveLength(2);
-    expect(inquiries[0].title).toBe('사진이 실제와 달라요');
-    expect(inquiries[1].title).toBe('요금 정보가 실제와 달라요');
+    expect(inquiries).toHaveLength(3);
+    expect(inquiries.map((i: { title: string }) => i.title)).toEqual(['사진 여러 장', '사진이 실제와 달라요', '요금 정보가 실제와 달라요']);
   });
 
   it('처리 완료를 표시한다', async () => {

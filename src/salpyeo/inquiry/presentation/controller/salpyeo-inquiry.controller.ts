@@ -7,8 +7,8 @@ import { SalpyeoCreateInquiryUseCase } from '@/salpyeo/inquiry/application/useca
 import { SalpyeoCreateInquiryRequest } from '@/salpyeo/inquiry/presentation/dto/request/salpyeo-create-inquiry.request';
 import { SalpyeoInquiryResponse } from '@/salpyeo/inquiry/presentation/dto/response/salpyeo-inquiry.response';
 
-/** 한 문의에 붙일 수 있는 사진 수·크기 — 공개 API 라 넉넉하게 두지 않는다 */
-export const SALPYEO_INQUIRY_MAX_FILES = 3;
+/** 한 문의에 붙일 수 있는 사진 수·크기 — 공개 API 라 무제한으로 두지 않는다 */
+export const SALPYEO_INQUIRY_MAX_FILES = 10;
 export const SALPYEO_INQUIRY_MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 /** 문의 접수 — 로그인 없이 누구나 보낼 수 있다 */
@@ -18,7 +18,7 @@ export class SalpyeoInquiryController {
 
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FilesInterceptor('imageFiles', SALPYEO_INQUIRY_MAX_FILES, { limits: { fileSize: SALPYEO_INQUIRY_MAX_FILE_SIZE } }))
-  @RestApiPost(SalpyeoInquiryResponse, { path: '/', description: '문의 접수 (비로그인, 사진 최대 3장)' })
+  @RestApiPost(SalpyeoInquiryResponse, { path: '/', description: '문의 접수 (비로그인, 사진 최대 10장)' })
   async create(@Body() request: SalpyeoCreateInquiryRequest, @UploadedFiles() files?: UploadFile[]) {
     const inquiry = await this.createInquiryUseCase.execute({
       title: request.title.trim(),
