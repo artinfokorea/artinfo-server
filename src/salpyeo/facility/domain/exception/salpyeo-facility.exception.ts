@@ -23,3 +23,9 @@ export class SalpyeoInvalidImage extends HttpException {
     super({ code: 'SALPYEO-FACILITY-002', message: '이미지 파일(jpg·png·webp)만 올릴 수 있어요.' }, HttpStatus.BAD_REQUEST);
   }
 }
+
+export class SalpyeoRehostAlreadyRunning extends HttpException {
+  constructor() {
+    super({ code: 'SALPYEO-FACILITY-003', message: '사진 이전이 이미 진행 중이에요. 끝난 뒤 다시 눌러 주세요.' }, HttpStatus.CONFLICT);
+  }
+}
