@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { SalpyeoFacility, SalpyeoFacilityImage } from '@/salpyeo/facility/domain/entity/salpyeo-facility.entity';
+import { SalpyeoRehostResult } from '@/salpyeo/facility/application/usecase/salpyeo-admin-rehost-images.usecase';
 import { SALPYEO_VERTICAL_KEYS, SalpyeoVerticalKey } from '@/salpyeo/facility/domain/constant/salpyeo-vertical.constant';
 import { SalpyeoFacilityImageResponse, SalpyeoPriceRowResponse } from '@/salpyeo/facility/presentation/dto/response/salpyeo-facility.response';
 
@@ -69,5 +70,20 @@ export class SalpyeoAdminImageResponse implements SalpyeoFacilityImage {
     this.alt = image.alt;
     this.width = image.width;
     this.height = image.height;
+  }
+}
+
+/** 사진 이전 한 번의 결과 — remaining 이 0 이 될 때까지 반복 호출한다 */
+export class SalpyeoAdminRehostResponse {
+  @ApiProperty({ description: '이번 호출에서 처리한 시설 수', example: 3 }) facilities: number;
+  @ApiProperty({ description: '우리 S3 로 옮긴 사진 수', example: 41 }) moved: number;
+  @ApiProperty({ description: '내려받지 못해 원래 URL 로 남긴 사진 수', example: 2 }) failed: number;
+  @ApiProperty({ description: '아직 외부 URL 사진이 남은 시설 수', example: 306 }) remaining: number;
+
+  constructor(result: SalpyeoRehostResult) {
+    this.facilities = result.facilities;
+    this.moved = result.moved;
+    this.failed = result.failed;
+    this.remaining = result.remaining;
   }
 }

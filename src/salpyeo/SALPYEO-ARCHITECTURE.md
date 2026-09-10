@@ -26,6 +26,7 @@
 | `GET /salpyeo/admin/facilities/:slug` | **관리자** 상세 — 편집 폼용으로 저장된 컬럼을 그대로 |
 | `PUT /salpyeo/admin/facilities/:slug` | **관리자** 수정. 보낸 필드만 반영 |
 | `POST /salpyeo/admin/facilities/:slug/images` | **관리자** 사진 업로드(multipart `imageFile`) → S3 공개 URL. 시설 반영은 위 PUT 으로 |
+| `POST /salpyeo/admin/facilities/rehost-images` | **관리자** 조리원 홈페이지 사진을 S3 로 이전. 한 번에 `limit` 곳(최대 10)씩, `remaining` 이 0 이 될 때까지 반복 호출. `slug` 로 한 곳만 재시도 가능 |
 
 시설 조회는 전부 공개(비로그인)이고, `/salpyeo/auths/*` 와 `/salpyeo/users/me` 는 로그인, `/salpyeo/admin/*` 은 `SalpyeoAdminGuard`(토큰 검증 후 **DB 의 role 을 다시 조회**)로 관리자만. 토큰에 role 을 담지 않는 이유는 권한을 내렸을 때 이미 발급된 토큰(최대 1시간)이 살아남으면 안 되기 때문이다.
 
@@ -43,7 +44,8 @@
 - **시설 사진은 우리 S3(`artinfo` 버킷)에 둔다 (2026-09-09 결정).** 원래는 각 조리원 공식 홈페이지의 이미지 URL 을 그대로 참조했는데, 홈페이지 개편·핫링크 차단으로 깨지고 남의 서버 트래픽을 쓰게 되어 재호스팅으로 바꿨다.
   - 살펴 사진은 공개 정보라 **public-read 로 올리고 평범한 공개 URL 을 그대로 저장한다** — 온기처럼 presigned URL 을 쓰지 않는다 (온기는 가족 사진이라 private 저장 + 서명).
   - S3 키는 `{NODE_ENV}/salpyeo/facilities/{slug}/…`. 관리자 업로드는 `SalpyeoAdminUploadImageUseCase` (폭·높이는 sharp 로 파일에서 직접 읽는다 — 화면 레이아웃에 필요).
-  - 기존 사진 일괄 이전은 `scripts/rehost-facility-images.ts`. 몇 번을 다시 돌려도 안전하고(이미 우리 버킷이면 건너뜀), **내려받지 못한 사진은 원래 URL 을 그대로 남긴다**. `--from-seed` 는 시드에만 있고 DB 에는 없는 사진을 먼저 채운다 (부트스트랩이 기존 행을 덮어쓰지 않으므로 배포만으로는 들어가지 않는다). `--dry-run`·`--limit` 지원.
+  - 기존 사진 이전은 두 경로 — **운영에서는 `POST /salpyeo/admin/facilities/rehost-images`** (운영 서버가 이미 AWS 키·DB 를 갖고 있어 로컬 자격증명이 필요 없다. 요청이 길어지지 않게 한 번에 몇 곳씩 끊어 처리하고 `remaining` 을 돌려준다), 로컬 일괄 실행은 `scripts/rehost-facility-images.ts`. 다운로드·검증·S3 키 규칙은 `infrastructure/service/salpyeo-image-fetch.ts` 를 공유한다.
+  - 두 경로 모두 몇 번을 다시 돌려도 안전하고(이미 우리 버킷이면 건너뜀), **내려받지 못한 사진은 원래 URL 을 그대로 남긴다**. `--from-seed` 는 시드에만 있고 DB 에는 없는 사진을 먼저 채운다 (부트스트랩이 기존 행을 덮어쓰지 않으므로 배포만으로는 들어가지 않는다). `--dry-run`·`--limit` 지원.
   - 프론트 `next.config.ts` 의 remotePatterns 가 임의 호스트를 허용하므로, 아직 남아 있는 외부 URL 의 검증 책임은 수집 스크립트에 있다.
 - 검색·정렬은 `domain/service/salpyeo-facility-query.ts` 순수 함수 (전국 456건이라 메모리 처리). 수천 건 규모가 되면 repository 쿼리로 내리고 pagination·지역 파라미터 추가.
 - Postgres 없이 확인할 때는 `SALPYEO_REPOSITORY=memory PORT=4000 npx ts-node -r tsconfig-paths/register src/salpyeo/salpyeo-standalone.ts` 로 살펴 모듈만 시드 메모리 리포지토리로 띄운다 (로컬 프론트 연동 확인용, 배포 워크플로는 주입하지 않음). 전체 앱(`src/main.ts`)은 `PORT` 환경변수로 포트를 바꿀 수 있다 (기본 3000).

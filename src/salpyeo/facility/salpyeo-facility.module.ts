@@ -17,6 +17,7 @@ import {
   SalpyeoAdminUpdateFacilityUseCase,
 } from '@/salpyeo/facility/application/usecase/salpyeo-admin-facility.usecase';
 import { SalpyeoAdminUploadImageUseCase } from '@/salpyeo/facility/application/usecase/salpyeo-admin-upload-image.usecase';
+import { SalpyeoAdminRehostImagesUseCase } from '@/salpyeo/facility/application/usecase/salpyeo-admin-rehost-images.usecase';
 import { SalpyeoAdminGuard } from '@/salpyeo/common/salpyeo-admin.guard';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { SalpyeoUserModule } from '@/salpyeo/user/salpyeo-user.module';
@@ -28,6 +29,7 @@ export const SALPYEO_ADMIN_FACILITY_USE_CASES = [
   SalpyeoAdminGetFacilityUseCase,
   SalpyeoAdminUpdateFacilityUseCase,
   SalpyeoAdminUploadImageUseCase,
+  SalpyeoAdminRehostImagesUseCase,
 ];
 export const SALPYEO_FACILITY_CONTROLLERS = [SalpyeoVerticalController, SalpyeoFacilityController];
 

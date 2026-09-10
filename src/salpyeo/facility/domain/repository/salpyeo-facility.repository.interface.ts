@@ -33,4 +33,8 @@ export interface ISalpyeoFacilityRepository {
   findBySlugForAdmin(slug: string): Promise<SalpyeoFacility | null>;
   /** 보낸 필드만 갱신하고 갱신된 시설을 돌려준다 */
   update(slug: string, patch: SalpyeoFacilityPatch): Promise<SalpyeoFacility>;
+  /** 아직 우리 S3 로 옮기지 않은 사진이 남은 시설 (사진 이전용). limit 개만 */
+  findWithExternalImages(limit: number): Promise<SalpyeoFacility[]>;
+  /** 위 조건에 해당하는 시설 수 — 이전 진행률 표시용 */
+  countWithExternalImages(): Promise<number>;
 }

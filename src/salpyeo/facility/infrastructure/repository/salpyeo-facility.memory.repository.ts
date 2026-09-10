@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { SalpyeoFacility } from '@/salpyeo/facility/domain/entity/salpyeo-facility.entity';
 import { ISalpyeoFacilityRepository, SalpyeoFacilityPatch } from '@/salpyeo/facility/domain/repository/salpyeo-facility.repository.interface';
 import { SalpyeoFacilityNotFound } from '@/salpyeo/facility/domain/exception/salpyeo-facility.exception';
+import { isOurBucketUrl } from '@/salpyeo/facility/infrastructure/service/salpyeo-image-fetch';
 import { SALPYEO_VERTICAL_KEYS, SalpyeoVerticalKey } from '@/salpyeo/facility/domain/constant/salpyeo-vertical.constant';
 import { SALPYEO_FACILITY_SEED, SalpyeoFacilitySeed } from '@/salpyeo/facility/domain/constant/salpyeo-facility-seed.constant';
 
@@ -42,6 +43,21 @@ export class SalpyeoFacilityMemoryRepository implements ISalpyeoFacilityReposito
     Object.assign(facility, patch, { updatedAt: new Date() });
 
     return facility;
+  }
+
+  private hasExternalImage(f: SalpyeoFacility): boolean {
+    return (f.images ?? []).some(image => !isOurBucketUrl(image.url));
+  }
+
+  async findWithExternalImages(limit: number): Promise<SalpyeoFacility[]> {
+    return this.items
+      .filter(f => this.hasExternalImage(f))
+      .sort((a, b) => a.slug.localeCompare(b.slug))
+      .slice(0, limit);
+  }
+
+  async countWithExternalImages(): Promise<number> {
+    return this.items.filter(f => this.hasExternalImage(f)).length;
   }
 
   async countByVertical(): Promise<Record<SalpyeoVerticalKey, number>> {

@@ -10,7 +10,9 @@ import {
   SalpyeoAdminUpdateFacilityUseCase,
 } from '@/salpyeo/facility/application/usecase/salpyeo-admin-facility.usecase';
 import { SalpyeoAdminUploadImageUseCase } from '@/salpyeo/facility/application/usecase/salpyeo-admin-upload-image.usecase';
-import { SalpyeoAdminImageResponse } from '@/salpyeo/facility/presentation/dto/response/salpyeo-admin-facility.response';
+import { SalpyeoAdminRehostImagesUseCase } from '@/salpyeo/facility/application/usecase/salpyeo-admin-rehost-images.usecase';
+import { SalpyeoAdminRehostRequest } from '@/salpyeo/facility/presentation/dto/request/salpyeo-admin-rehost.request';
+import { SalpyeoAdminImageResponse, SalpyeoAdminRehostResponse } from '@/salpyeo/facility/presentation/dto/response/salpyeo-admin-facility.response';
 import { SalpyeoAdminScanFacilitiesRequest } from '@/salpyeo/facility/presentation/dto/request/salpyeo-admin-scan-facilities.request';
 import { SalpyeoAdminUpdateFacilityRequest } from '@/salpyeo/facility/presentation/dto/request/salpyeo-admin-update-facility.request';
 import { SalpyeoAdminFacilitiesResponse, SalpyeoAdminFacilityResponse } from '@/salpyeo/facility/presentation/dto/response/salpyeo-admin-facility.response';
@@ -28,6 +30,7 @@ export class SalpyeoAdminFacilityController {
     private readonly getUseCase: SalpyeoAdminGetFacilityUseCase,
     private readonly updateUseCase: SalpyeoAdminUpdateFacilityUseCase,
     private readonly uploadImageUseCase: SalpyeoAdminUploadImageUseCase,
+    private readonly rehostImagesUseCase: SalpyeoAdminRehostImagesUseCase,
   ) {}
 
   @RestApiGet(SalpyeoAdminFacilitiesResponse, { path: '/', description: '관리자 시설 목록 (노출 내린 시설 포함)' })
@@ -59,5 +62,15 @@ export class SalpyeoAdminFacilityController {
     const image = await this.uploadImageUseCase.execute(slug, file);
 
     return new SalpyeoAdminImageResponse(image);
+  }
+
+  @RestApiPost(SalpyeoAdminRehostResponse, {
+    path: '/rehost-images',
+    description: '조리원 홈페이지 사진을 우리 S3 로 이전 (한 번에 limit 곳, remaining 이 0 이 될 때까지 반복 호출)',
+  })
+  async rehostImages(@Body() request: SalpyeoAdminRehostRequest) {
+    const result = await this.rehostImagesUseCase.execute(request.limit, request.slug?.trim() || undefined);
+
+    return new SalpyeoAdminRehostResponse(result);
   }
 }

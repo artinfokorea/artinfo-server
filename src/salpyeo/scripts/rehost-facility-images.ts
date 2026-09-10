@@ -22,14 +22,14 @@
 import { DataSource } from 'typeorm';
 import { S3Client, PutObjectCommand, ObjectCannedACL } from '@aws-sdk/client-s3';
 import * as path from 'path';
-import * as sharp from 'sharp';
 import { SALPYEO_FACILITY_SEED } from '@/salpyeo/facility/domain/constant/salpyeo-facility-seed.constant';
 import { SalpyeoFacilityImage } from '@/salpyeo/facility/domain/entity/salpyeo-facility.entity';
-
-const BUCKET = 'artinfo';
-const DOWNLOAD_TIMEOUT_MS = 15_000;
-const MAX_BYTES = 12 * 1024 * 1024;
-const ALLOWED_MIME: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
+import {
+  fetchExternalImage,
+  isOurBucketUrl,
+  SALPYEO_IMAGE_BUCKET,
+  SALPYEO_IMAGE_EXTENSION,
+} from '@/salpyeo/facility/infrastructure/service/salpyeo-image-fetch';
 
 interface FacilityRow {
   slug: string;
@@ -47,8 +47,6 @@ const options = {
   })(),
 };
 
-const isOurBucket = (url: string) => url.includes(`${BUCKET}.s3.`);
-
 function makeS3Client(): S3Client {
   return new S3Client({
     credentials: { accessKeyId: process.env['AWS_ACCESS_KEY']!, secretAccessKey: process.env['AWS_SECRET_ACCESS_KEY']! },
@@ -56,38 +54,11 @@ function makeS3Client(): S3Client {
   });
 }
 
-async function download(url: string): Promise<{ buffer: Buffer; mimetype: string } | null> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), DOWNLOAD_TIMEOUT_MS);
-  try {
-    // 일부 홈페이지는 Referer 없는 요청을 막는다 — 원본 페이지에서 온 것처럼 보이게 한다
-    const res = await fetch(url, {
-      signal: controller.signal,
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; salpyeo-image-rehost/1.0)', Referer: new URL(url).origin },
-    });
-    if (!res.ok) return null;
-
-    const buffer = Buffer.from(await res.arrayBuffer());
-    if (buffer.length === 0 || buffer.length > MAX_BYTES) return null;
-
-    // Content-Type 을 못 믿는 서버가 있어 실제 바이트로 형식을 다시 확인한다
-    const meta = await sharp(buffer).metadata();
-    const mimetype = meta.format === 'png' ? 'image/png' : meta.format === 'webp' ? 'image/webp' : meta.format === 'jpeg' ? 'image/jpeg' : '';
-    if (!ALLOWED_MIME[mimetype]) return null;
-
-    return { buffer, mimetype };
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
 async function upload(s3: S3Client, slug: string, index: number, file: { buffer: Buffer; mimetype: string }): Promise<string> {
-  const key = path.posix.join(process.env['NODE_ENV']!, 'salpyeo', 'facilities', slug, `${index}-${Date.now()}.${ALLOWED_MIME[file.mimetype]}`);
+  const key = path.posix.join(process.env['NODE_ENV']!, 'salpyeo', 'facilities', slug, `${index}-${Date.now()}.${SALPYEO_IMAGE_EXTENSION[file.mimetype]}`);
   await s3.send(
     new PutObjectCommand({
-      Bucket: BUCKET,
+      Bucket: SALPYEO_IMAGE_BUCKET,
       Key: key,
       Body: file.buffer,
       ContentType: file.mimetype,
@@ -96,7 +67,7 @@ async function upload(s3: S3Client, slug: string, index: number, file: { buffer:
     }),
   );
 
-  return `https://${BUCKET}.s3.${process.env['AWS_REGION']}.amazonaws.com/${key}`;
+  return `https://${SALPYEO_IMAGE_BUCKET}.s3.${process.env['AWS_REGION']}.amazonaws.com/${key}`;
 }
 
 /**
@@ -158,19 +129,19 @@ async function rehost(dataSource: DataSource, s3: S3Client): Promise<void> {
     if (facilities >= options.limit) break;
 
     const images = row.images ?? [];
-    const external = images.filter(image => !isOurBucket(image.url));
+    const external = images.filter(image => !isOurBucketUrl(image.url));
     if (external.length === 0) continue;
     facilities += 1;
 
     const next: SalpyeoFacilityImage[] = [];
     for (const [index, image] of images.entries()) {
-      if (isOurBucket(image.url)) {
+      if (isOurBucketUrl(image.url)) {
         next.push(image);
         skipped += 1;
         continue;
       }
 
-      const file = await download(image.url);
+      const file = await fetchExternalImage(image.url);
       if (!file) {
         // 내려받지 못한 사진은 원래 URL 그대로 남긴다 — 지우면 복구할 방법이 없다
         console.warn(`  실패 ${row.slug} #${index} ${image.url}`);
