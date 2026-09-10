@@ -69,7 +69,7 @@ function seedValues(s: SalpyeoFacilitySeed): unknown[] {
  * 그래서 예전의 "매 기동마다 시드로 덮어쓰기 + 시드에 없는 slug DELETE" 규칙을 없앴다 — 관리자가 고친 값이
  * 배포 때마다 공공데이터로 되돌아가면 안 되기 때문. 시드 상수는 빈 DB(새 환경)를 채우는 용도로만 남는다.
  *
- * 원본 DDL: facility/salpyeo-facilities.ddl.sql · user/salpyeo-users.ddl.sql · auth/salpyeo-auths.ddl.sql
+ * 원본 DDL: facility/salpyeo-facilities.ddl.sql · user/salpyeo-users.ddl.sql · auth/salpyeo-auths.ddl.sql · inquiry/salpyeo-inquiries.ddl.sql
  */
 @Injectable()
 export class SalpyeoSchemaBootstrapService implements OnModuleInit {
@@ -170,6 +170,20 @@ export class SalpyeoSchemaBootstrapService implements OnModuleInit {
     )`);
     await this.dataSource.query(`CREATE INDEX IF NOT EXISTS idx_salpyeo_auths_user ON salpyeo_auths (user_id)`);
     await this.dataSource.query(`CREATE INDEX IF NOT EXISTS idx_salpyeo_auths_tokens ON salpyeo_auths (access_token, refresh_token)`);
+
+    // 문의 (비로그인 접수) — inquiry/salpyeo-inquiries.ddl.sql 과 같은 문장
+    await this.dataSource.query(`CREATE TABLE IF NOT EXISTS salpyeo_inquiries (
+      id          SERIAL PRIMARY KEY,
+      title       VARCHAR(100) NOT NULL,
+      content     TEXT NOT NULL,
+      email       VARCHAR(200) NOT NULL,
+      images      JSONB NOT NULL DEFAULT '[]',
+      is_resolved BOOLEAN NOT NULL DEFAULT false,
+      created_at  TIMESTAMP NOT NULL DEFAULT now(),
+      updated_at  TIMESTAMP NOT NULL DEFAULT now(),
+      deleted_at  TIMESTAMP
+    )`);
+    await this.dataSource.query(`CREATE INDEX IF NOT EXISTS idx_salpyeo_inquiries_created ON salpyeo_inquiries (created_at DESC)`);
   }
 
   /** 빈 DB 를 채우는 용도 — 이미 있는 slug 는 건드리지 않는다 (관리자 수정 보존) */

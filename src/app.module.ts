@@ -87,6 +87,7 @@ import { SalpyeoModule } from '@/salpyeo/salpyeo.module';
 import { SalpyeoFacility } from '@/salpyeo/facility/domain/entity/salpyeo-facility.entity';
 import { SalpyeoUser } from '@/salpyeo/user/domain/entity/salpyeo-user.entity';
 import { SalpyeoAuth } from '@/salpyeo/auth/domain/entity/salpyeo-auth.entity';
+import { SalpyeoInquiry } from '@/salpyeo/inquiry/domain/entity/salpyeo-inquiry.entity';
 
 const entities = [
   User,
@@ -151,6 +152,7 @@ const entities = [
   SalpyeoFacility,
   SalpyeoUser,
   SalpyeoAuth,
+  SalpyeoInquiry,
 ];
 const modules = [
   SchedulerModule,
