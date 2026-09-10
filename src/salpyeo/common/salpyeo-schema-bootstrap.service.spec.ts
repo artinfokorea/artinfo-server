@@ -6,7 +6,8 @@ import { SALPYEO_FACILITY_SEED } from '@/salpyeo/facility/domain/constant/salpye
  * 스펙 (DataSource 를 흉내 내 실행되는 SQL 형태만 검증 — 실제 Postgres 검증은 배포 후 운영 확인):
  * 1) DDL: 시설 CREATE TABLE IF NOT EXISTS 1회 + 인덱스 1회 + ALTER ... ADD COLUMN IF NOT EXISTS,
  *    (뒤늦게 추가된 컬럼은 sido·sigungu·operator_type·address·phone·website 6개),
- *    이어서 계정·세션(salpyeo_users·salpyeo_auths) 테이블 2개 + 인덱스 3개 + role 컬럼 ALTER 1개
+ *    이어서 계정·세션(salpyeo_users·salpyeo_auths) 테이블 2개 + 인덱스 3개 + role 컬럼 ALTER 1개,
+ *    문의(salpyeo_inquiries) 테이블 1개 + 인덱스 1개
  * 2) 시드 456건은 100건씩 5번 INSERT — 한 행당 파라미터 23개(slug + 22 컬럼), jsonb 컬럼은 ::jsonb 캐스팅
  * 3) **ON CONFLICT (slug) DO NOTHING** — 이미 있는 행은 절대 덮어쓰지 않는다 (관리자 수정 보존).
  *    예전의 DO UPDATE / 시드 밖 slug DELETE 는 없어졌다.
@@ -49,8 +50,10 @@ describe('SalpyeoSchemaBootstrapService', () => {
     expect(calls[11][0]).toMatch(/^CREATE TABLE IF NOT EXISTS salpyeo_auths \(/);
     expect(calls[12][0]).toBe('CREATE INDEX IF NOT EXISTS idx_salpyeo_auths_user ON salpyeo_auths (user_id)');
     expect(calls[13][0]).toBe('CREATE INDEX IF NOT EXISTS idx_salpyeo_auths_tokens ON salpyeo_auths (access_token, refresh_token)');
+    expect(calls[14][0]).toMatch(/^CREATE TABLE IF NOT EXISTS salpyeo_inquiries \(/);
+    expect(calls[15][0]).toBe('CREATE INDEX IF NOT EXISTS idx_salpyeo_inquiries_created ON salpyeo_inquiries (created_at DESC)');
 
-    const inserts = calls.slice(14, 19);
+    const inserts = calls.slice(16, 21);
     expect(inserts.map(c => c[1].length)).toEqual([2300, 2300, 2300, 2300, 56 * 23]);
 
     const [firstSql, firstParams] = inserts[0];
@@ -66,7 +69,7 @@ describe('SalpyeoSchemaBootstrapService', () => {
     // 주소·전화·홈페이지는 공식 홈페이지 수집 결과가 우선이라 값이 바뀔 수 있다 — 형식만 본다
     expect(firstParams.slice(7, 10).every(v => typeof v === 'string')).toBe(true);
 
-    expect(calls).toHaveLength(19);
+    expect(calls).toHaveLength(21);
   });
 
   it('시드에 없는 slug 를 지우지 않는다 (관리자가 관리하는 데이터)', async () => {

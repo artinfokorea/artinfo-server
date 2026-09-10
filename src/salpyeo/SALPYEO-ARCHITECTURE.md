@@ -9,6 +9,7 @@
 - **facility** (`salpyeo_facilities`) — 5개 버티컬 공통 시설 레코드. `slug` 가 URL 식별자(예: `post-a9656bde`). 요금표·점검·사진·후기처럼 버티컬마다 항목 수가 다른 값은 JSONB (`price_rows`, `inspections`, `images`, `review`). 시설 정보 컬럼은 `sido`·`sigungu`·`operator_type`·`address`·`phone`·`website`.
 - **user** (`salpyeo_users`) — 구글 로그인 계정. `(sns_type, sns_id)` 유니크(소프트 삭제 제외). 로그인할 때마다 구글 프로필(이름·이메일·사진)을 덮어쓴다. `role` 은 `USER` | `ADMIN` 이고 **가입 경로로는 ADMIN 이 될 수 없다** — 승격은 DB 에서 직접 `UPDATE salpyeo_users SET role = 'ADMIN' WHERE email = '…'`.
 - **auth** (`salpyeo_auths`) — 발급된 로그인 세션(access/refresh 토큰과 각 만료시각).
+- **inquiry** (`salpyeo_inquiries`) — 사용자가 보낸 문의. **로그인 없이 접수**하고 관리자만 읽는다. 첨부 사진은 S3 URL 배열.
 - **vertical** — 테이블 없음. `domain/constant/salpyeo-vertical.constant.ts` 상수. `enabled` 플래그로 준비 중 버티컬을 제어하고, `count` 는 DB 집계로 채운다.
 
 ## API
@@ -26,9 +27,12 @@
 | `GET /salpyeo/admin/facilities/:slug` | **관리자** 상세 — 편집 폼용으로 저장된 컬럼을 그대로 |
 | `PUT /salpyeo/admin/facilities/:slug` | **관리자** 수정. 보낸 필드만 반영 |
 | `POST /salpyeo/admin/facilities/:slug/images` | **관리자** 사진 업로드(multipart `imageFile`) → S3 공개 URL. 시설 반영은 위 PUT 으로 |
+| `POST /salpyeo/inquiries` | **공개** 문의 접수 (multipart: title·content·email + `imageFiles` 최대 3장·각 5MB) |
+| `GET /salpyeo/admin/inquiries` | **관리자** 문의 목록 (최근 접수 순, 최대 200건) |
+| `PUT /salpyeo/admin/inquiries/:id/resolved` | **관리자** 처리 완료 표시 |
 | `POST /salpyeo/admin/facilities/rehost-images` | **관리자** 조리원 홈페이지 사진을 S3 로 이전. 한 번에 `limit` 곳(최대 10)씩, `remaining` 이 0 이 될 때까지 반복 호출. `slug` 로 한 곳만 재시도 가능 |
 
-시설 조회는 전부 공개(비로그인)이고, `/salpyeo/auths/*` 와 `/salpyeo/users/me` 는 로그인, `/salpyeo/admin/*` 은 `SalpyeoAdminGuard`(토큰 검증 후 **DB 의 role 을 다시 조회**)로 관리자만. 토큰에 role 을 담지 않는 이유는 권한을 내렸을 때 이미 발급된 토큰(최대 1시간)이 살아남으면 안 되기 때문이다.
+시설 조회와 문의 접수는 공개(비로그인)이고, `/salpyeo/auths/*` 와 `/salpyeo/users/me` 는 로그인, `/salpyeo/admin/*` 은 `SalpyeoAdminGuard`(토큰 검증 후 **DB 의 role 을 다시 조회**)로 관리자만. 토큰에 role 을 담지 않는 이유는 권한을 내렸을 때 이미 발급된 토큰(최대 1시간)이 살아남으면 안 되기 때문이다.
 
 응답은 공용 `ResponseInterceptor` 봉투 `{ code: 'OK', message: null, item }`.
 
@@ -51,6 +55,7 @@
 - Postgres 없이 확인할 때는 `SALPYEO_REPOSITORY=memory PORT=4000 npx ts-node -r tsconfig-paths/register src/salpyeo/salpyeo-standalone.ts` 로 살펴 모듈만 시드 메모리 리포지토리로 띄운다 (로컬 프론트 연동 확인용, 배포 워크플로는 주입하지 않음). 전체 앱(`src/main.ts`)은 `PORT` 환경변수로 포트를 바꿀 수 있다 (기본 3000).
 - **로그인은 구글만, 온기와 같은 방식** — 프론트가 Google Identity Services 로 구글 access token 을 받아 `POST /salpyeo/auths/login` 에 넘기고, 서버는 그 토큰으로 `googleapis.com/oauth2/v3/userinfo` 를 조회해 신원을 확인한 뒤 자체 JWT 를 발급한다. 서버가 리디렉션·코드 교환을 하지 않으므로 **구글 client secret 은 쓰지 않는다** (프론트의 `NEXT_PUBLIC_GOOGLE_CLIENT_ID` 와 콘솔의 '승인된 JavaScript 원본'만 있으면 된다). access token payload 는 공용 `JwtStrategy` 가 그대로 `UserSignature` 로 넘기므로 `id`·`name`·`email` 을 담고, 서명 키는 공용 `JWT_TOKEN_KEY` 다.
 - 계정·세션도 `SALPYEO_REPOSITORY=memory` 인메모리 구현이 있어 standalone 으로 로그인까지 확인할 수 있다 (프로세스를 내리면 가입 기록이 사라진다). 이때만 `JWT_TOKEN_KEY` 가 없어도 로컬 전용 키로 동작한다.
+- **문의 첨부는 접수 요청에 함께 받는다** — 따로 공개 업로드 엔드포인트를 두면 아무나 S3 에 파일을 쌓을 수 있다. 첨부는 Content-Type 을 믿지 않고 sharp 로 실제 바이트를 확인하며, 하나라도 이미지가 아니면 아무것도 저장하지 않고 400. 키는 `{NODE_ENV}/salpyeo/inquiries/{YYYY-MM}/…` 라 나중에 월 단위로 정리하기 쉽다.
 - 에러 코드는 `SALPYEO-{DOMAIN}-{NNN}`.
 - 게이트: `npx tsc --noEmit` · `npx eslint "src/salpyeo/**/*.ts"` · `npx jest src/salpyeo` (CI 동일).
 
@@ -59,7 +64,8 @@
 - 지역(시도/시군구) 필터 파라미터 및 사용자 위치 기반 거리 — 현재 전국 목록 + 검색어만.
 - 보건소 점검 결과·후기 데이터 연동 (현재 빈 값). 다른 버티컬 공공데이터 연동.
 - 홈페이지를 못 찾은 시설의 사진 보강.
-- 비교 리포트 AI 요약 서버 생성 (`POST /salpyeo/reports`), 문의 전달, 인증 후기 작성.
+- 비교 리포트 AI 요약 서버 생성 (`POST /salpyeo/reports`), 인증 후기 작성.
+- 문의 알림 — 지금은 DB 에 쌓이기만 하고 관리자가 직접 들어가 봐야 한다. 이메일/SMS 알림, 답변 발송, 스팸 방지(rate limit·캡차)는 아직 없다.
 - 로그인으로 할 수 있는 일 — 찜/비교함 서버 저장, 후기 작성, 회원 탈퇴(`DELETE /salpyeo/users/me`). 현재는 로그인·내 정보 조회·관리자 편집까지.
 - 관리자 편집에서 빠진 것: 시설 추가·삭제(노출 끄기로 대신), 점검·후기·평점(연동 전), 수정 이력.
 - 요양원·장례식장·어린이집·학원 `enabled` 전환.
