@@ -28,6 +28,16 @@ export class OngiSchemaBootstrapService implements OnModuleInit {
       `INSERT INTO ongi_configs (key, value) VALUES ('min_ios_version', '1.0.0'), ('latest_ios_version', '1.0.1') ON CONFLICT (key) DO NOTHING`,
       // 사용자 등급 (2026-09-14) — USER · ADMIN · SUPER_ADMIN. 엔티티가 매핑하므로 배포 전에 컬럼이 있어야 한다
       `ALTER TABLE ongi_users ADD COLUMN IF NOT EXISTS type VARCHAR(16) NOT NULL DEFAULT 'USER'`,
+      // 운영자 사진 열람 기록 (2026-09-14) — 개인정보 처리방침 5·7조. 열람 API 가 매 요청 기록하므로 배포 전에 있어야 한다
+      `CREATE TABLE IF NOT EXISTS ongi_admin_access_logs (
+        id            SERIAL PRIMARY KEY,
+        admin_user_id INTEGER NOT NULL,
+        action        VARCHAR(32) NOT NULL,
+        target_type   VARCHAR(16) NOT NULL,
+        target_id     INTEGER NOT NULL,
+        created_at    TIMESTAMP NOT NULL DEFAULT now()
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_ongi_admin_access_logs_created ON ongi_admin_access_logs (created_at DESC)`,
       // 안드로이드 강제 업데이트 (2026-09-14) — 1.0.0 은 게이트 미적용
       `INSERT INTO ongi_configs (key, value) VALUES ('min_android_version', '1.0.0'), ('latest_android_version', '1.0.0') ON CONFLICT (key) DO NOTHING`,
       // 사진 목록용 축소본 컬럼 (2026-08-31) — 배포/DDL 순서 사고 방지

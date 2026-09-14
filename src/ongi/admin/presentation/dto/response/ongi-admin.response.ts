@@ -2,9 +2,11 @@ import { ApiProperty } from '@nestjs/swagger';
 import { signOngiMediaUrl } from '@/ongi/common/ongi-media-url';
 import { OngiAdminMeView } from '@/ongi/admin/application/usecase/ongi-admin.usecase';
 import {
+  OngiAdminAccessLogRow,
   OngiAdminDashboardTotals,
   OngiAdminGroupMemberRow,
   OngiAdminGroupRow,
+  OngiAdminPhotoRow,
   OngiAdminReportRow,
   OngiAdminUserGroupRow,
   OngiAdminUserRow,
@@ -180,5 +182,61 @@ export class OngiAdminConfigListResponse {
 
   constructor(configs: { key: string; value: string }[]) {
     this.configs = configs;
+  }
+}
+
+export class OngiAdminPhotoListResponse {
+  @ApiProperty({ type: [Object], description: '사진·영상 (최신순, 50개씩) — URL 은 presigned' }) photos: {
+    id: string;
+    groupId: string;
+    groupName: string;
+    authorName: string | null;
+    authorUserId: string | null;
+    url: string;
+    thumbUrl: string | null;
+    mediaType: string;
+    caption: string | null;
+    createdAt: string;
+  }[];
+
+  constructor(rows: OngiAdminPhotoRow[]) {
+    this.photos = rows.map(row => ({
+      id: String(row.id),
+      groupId: String(row.groupId),
+      groupName: row.groupName,
+      authorName: row.authorName,
+      authorUserId: row.authorUserId === null ? null : String(row.authorUserId),
+      url: signOngiMediaUrl(row.url),
+      thumbUrl: signOngiMediaUrl(row.thumbUrl),
+      mediaType: row.mediaType ?? 'photo',
+      caption: row.caption,
+      createdAt: new Date(row.createdAt).toISOString(),
+    }));
+  }
+}
+
+export class OngiAdminAccessLogListResponse {
+  @ApiProperty({ type: [Object], description: '운영자 사진 열람 기록 (최신순, 50개씩)' }) logs: {
+    id: string;
+    adminUserId: string;
+    adminName: string | null;
+    action: string;
+    targetType: string;
+    targetId: string;
+    targetName: string | null;
+    createdAt: string;
+  }[];
+
+  constructor(rows: OngiAdminAccessLogRow[]) {
+    this.logs = rows.map(row => ({
+      id: String(row.id),
+      adminUserId: String(row.adminUserId),
+      adminName: row.adminName,
+      action: row.action,
+      targetType: row.targetType,
+      targetId: String(row.targetId),
+      targetName: row.targetName,
+      createdAt: new Date(row.createdAt).toISOString(),
+    }));
   }
 }

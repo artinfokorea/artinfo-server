@@ -50,6 +50,10 @@ describe('hasAdminPermission — 등급별 권한', () => {
     expect(hasAdminPermission('ADMIN', 'sensitive')).toBe(false);
   });
 
+  it('ADMIN: 가족 사진 열람은 불가 (신고된 사진은 reports 로 본다)', () => {
+    expect(hasAdminPermission('ADMIN', 'photos')).toBe(false);
+  });
+
   it('SUPER_ADMIN: 전부 가능', () => {
     expect(hasAdminPermission('SUPER_ADMIN', 'dashboard')).toBe(true);
     expect(hasAdminPermission('SUPER_ADMIN', 'reports')).toBe(true);
@@ -57,6 +61,7 @@ describe('hasAdminPermission — 등급별 권한', () => {
     expect(hasAdminPermission('SUPER_ADMIN', 'configs')).toBe(true);
     expect(hasAdminPermission('SUPER_ADMIN', 'grant')).toBe(true);
     expect(hasAdminPermission('SUPER_ADMIN', 'sensitive')).toBe(true);
+    expect(hasAdminPermission('SUPER_ADMIN', 'photos')).toBe(true);
   });
 });
 

@@ -2,9 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   IOngiAdminRepository,
   ONGI_ADMIN_REPOSITORY,
+  OngiAdminAccessLogRow,
   OngiAdminDashboardTotals,
   OngiAdminGroupMemberRow,
   OngiAdminGroupRow,
+  OngiAdminPhotoRow,
   OngiAdminReportRow,
   OngiAdminUserGroupRow,
   OngiAdminUserRow,
@@ -59,7 +61,7 @@ export class OngiAdminMeUseCase {
 
   async execute(actor: OngiAdminActor): Promise<OngiAdminMeView> {
     const user = await this.adminRepository.findUserTypeById(actor.userId);
-    const all: OngiAdminPermission[] = ['dashboard', 'reports', 'directory', 'configs', 'grant', 'sensitive'];
+    const all: OngiAdminPermission[] = ['dashboard', 'reports', 'directory', 'configs', 'grant', 'sensitive', 'photos'];
 
     return { userId: actor.userId, name: user?.name ?? '', type: actor.type, permissions: all.filter(p => hasAdminPermission(actor.type, p)) };
   }
@@ -193,5 +195,34 @@ export class OngiAdminConfigUseCase {
 
     await this.adminRepository.upsertConfig(key, value);
     this.appConfigUseCase.invalidate();
+  }
+}
+
+/** 가족 사진 열람 — 대상이 있는지 확인하고, 조회할 때마다 열람 기록을 남긴다 */
+@Injectable()
+export class OngiAdminPhotoUseCase {
+  constructor(
+    @Inject(ONGI_ADMIN_REPOSITORY)
+    private readonly adminRepository: IOngiAdminRepository,
+  ) {}
+
+  async scanGroupPhotos(actor: OngiAdminActor, groupId: number, page: number): Promise<OngiAdminPhotoRow[]> {
+    if (!(await this.adminRepository.findGroupById(groupId))) throw new OngiAdminNotFound();
+
+    await this.adminRepository.createAccessLog({ adminUserId: actor.userId, action: 'view_photos', targetType: 'group', targetId: groupId });
+
+    return this.adminRepository.scanGroupPhotos(groupId, pageOf(page));
+  }
+
+  async scanUserPhotos(actor: OngiAdminActor, userId: number, page: number): Promise<OngiAdminPhotoRow[]> {
+    if (!(await this.adminRepository.findUserById(userId))) throw new OngiAdminNotFound();
+
+    await this.adminRepository.createAccessLog({ adminUserId: actor.userId, action: 'view_photos', targetType: 'user', targetId: userId });
+
+    return this.adminRepository.scanUserPhotos(userId, pageOf(page));
+  }
+
+  scanAccessLogs(page: number): Promise<OngiAdminAccessLogRow[]> {
+    return this.adminRepository.scanAccessLogs(pageOf(page));
   }
 }

@@ -7,16 +7,19 @@ import {
   OngiAdminDashboardUseCase,
   OngiAdminDirectoryUseCase,
   OngiAdminMeUseCase,
+  OngiAdminPhotoUseCase,
   OngiAdminReportUseCase,
 } from '@/ongi/admin/application/usecase/ongi-admin.usecase';
 import { OngiAdminConfigRequest, OngiAdminReportStatusRequest, OngiAdminUserTypeRequest } from '@/ongi/admin/presentation/dto/request/ongi-admin.request';
 import {
+  OngiAdminAccessLogListResponse,
   OngiAdminConfigListResponse,
   OngiAdminDashboardResponse,
   OngiAdminGroupDetailResponse,
   OngiAdminGroupListResponse,
   OngiAdminMeResponse,
   OngiAdminOkResponse,
+  OngiAdminPhotoListResponse,
   OngiAdminReportListResponse,
   OngiAdminUserDetailResponse,
   OngiAdminUserListResponse,
@@ -36,6 +39,7 @@ export class OngiAdminController {
     private readonly reportUseCase: OngiAdminReportUseCase,
     private readonly directoryUseCase: OngiAdminDirectoryUseCase,
     private readonly configUseCase: OngiAdminConfigUseCase,
+    private readonly photoUseCase: OngiAdminPhotoUseCase,
   ) {}
 
   @RestApiGet(OngiAdminMeResponse, { path: '/me', description: '내 관리자 등급과 권한' })
@@ -101,6 +105,24 @@ export class OngiAdminController {
   @RestApiGet(OngiAdminGroupDetailResponse, { path: '/groups/:id', description: '가족 공간 상세 · 구성원' })
   async group(@Param('id', ParseIntPipe) id: number) {
     return new OngiAdminGroupDetailResponse(await this.directoryUseCase.getGroup(id));
+  }
+
+  @RequireOngiAdminPermission('photos')
+  @RestApiGet(OngiAdminPhotoListResponse, { path: '/groups/:id/photos', description: '가족 공간 사진 열람 (열람 기록 남김) — ?page=' })
+  async groupPhotos(@AdminActor() actor: OngiAdminActor, @Param('id', ParseIntPipe) id: number, @Query('page') page?: string) {
+    return new OngiAdminPhotoListResponse(await this.photoUseCase.scanGroupPhotos(actor, id, pageNumber(page)));
+  }
+
+  @RequireOngiAdminPermission('photos')
+  @RestApiGet(OngiAdminPhotoListResponse, { path: '/users/:id/photos', description: '사용자가 올린 사진 열람 (열람 기록 남김) — ?page=' })
+  async userPhotos(@AdminActor() actor: OngiAdminActor, @Param('id', ParseIntPipe) id: number, @Query('page') page?: string) {
+    return new OngiAdminPhotoListResponse(await this.photoUseCase.scanUserPhotos(actor, id, pageNumber(page)));
+  }
+
+  @RequireOngiAdminPermission('photos')
+  @RestApiGet(OngiAdminAccessLogListResponse, { path: '/access-logs', description: '운영자 사진 열람 기록 — ?page=' })
+  async accessLogs(@Query('page') page?: string) {
+    return new OngiAdminAccessLogListResponse(await this.photoUseCase.scanAccessLogs(pageNumber(page)));
   }
 
   @RequireOngiAdminPermission('configs')
