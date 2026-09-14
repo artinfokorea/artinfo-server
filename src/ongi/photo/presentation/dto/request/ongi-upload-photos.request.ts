@@ -4,8 +4,6 @@ import { ArrayNotEmpty, IsArray, IsIn, IsNumber, IsOptional, IsString, MaxLength
 import { NotBlank } from '@/common/decorator/validator';
 import { OngiUploadPhotosCommand } from '@/ongi/photo/application/command/ongi-upload-photos.command';
 
-const toNumberIds = (ids: string[] | undefined): number[] => (ids ?? []).map(id => Number(id)).filter(id => Number.isInteger(id));
-
 export class OngiUploadPhotoItemRequest {
   @NotBlank()
   @ApiProperty({ type: String, required: true, description: '사진 URL' })
@@ -40,12 +38,6 @@ export class OngiUploadTargetRequest {
   @IsOptional()
   @ApiProperty({ type: String, required: false, description: '담을 앨범 id', example: '2' })
   albumId?: string;
-
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  @ApiProperty({ type: [String], required: false, description: '함께 찍힌 인물 id 목록', example: ['3'] })
-  personIds?: string[];
 }
 
 export class OngiUploadPhotosRequest {
@@ -81,7 +73,6 @@ export class OngiUploadPhotosRequest {
       targets: this.targets.map(target => ({
         groupId: Number(target.groupId),
         albumId: target.albumId ? Number(target.albumId) : null,
-        personIds: toNumberIds(target.personIds),
       })),
     });
   }

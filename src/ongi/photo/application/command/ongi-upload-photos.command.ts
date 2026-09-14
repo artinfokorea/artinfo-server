@@ -11,7 +11,6 @@ export interface OngiUploadPhotoItem {
 export interface OngiUploadTargetItem {
   groupId: number;
   albumId: number | null;
-  personIds: number[];
 }
 
 export class OngiUploadPhotosCommand {

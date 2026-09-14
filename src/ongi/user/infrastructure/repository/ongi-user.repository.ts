@@ -46,22 +46,12 @@ export class OngiUserRepository implements IOngiUserRepository {
     await this.userRepository.manager.transaction(async manager => {
       await manager.getRepository(OngiUser).update({ id: userId }, userPatch);
 
-      // 피드·인물 표시가 어긋나지 않도록 구성원과 자동 생성 인물에도 전파
+      // 피드 표시가 어긋나지 않도록 구성원에도 전파
       if (patch.name !== undefined) {
         await manager.query('UPDATE ongi_members SET name = $1 WHERE user_id = $2 AND deleted_at IS NULL', [patch.name, userId]);
-        await manager.query(
-          `UPDATE ongi_people SET name = $1
-            WHERE member_id IN (SELECT id FROM ongi_members WHERE user_id = $2) AND deleted_at IS NULL`,
-          [patch.name, userId],
-        );
       }
       if (patch.iconImageUrl !== undefined) {
         await manager.query('UPDATE ongi_members SET avatar_url = $1 WHERE user_id = $2 AND deleted_at IS NULL', [patch.iconImageUrl, userId]);
-        await manager.query(
-          `UPDATE ongi_people SET image_url = $1
-            WHERE member_id IN (SELECT id FROM ongi_members WHERE user_id = $2) AND deleted_at IS NULL`,
-          [patch.iconImageUrl, userId],
-        );
       }
     });
   }
@@ -134,12 +124,6 @@ export class OngiUserRepository implements IOngiUserRepository {
         `UPDATE ongi_photos SET deleted_at = now()
           WHERE deleted_at IS NULL
             AND author_member_id IN (SELECT id FROM ongi_members WHERE user_id = $1)`,
-        [id],
-      );
-      await manager.query(
-        `UPDATE ongi_people SET deleted_at = now()
-          WHERE deleted_at IS NULL
-            AND member_id IN (SELECT id FROM ongi_members WHERE user_id = $1)`,
         [id],
       );
       await manager.query(`UPDATE ongi_members SET deleted_at = now() WHERE user_id = $1 AND deleted_at IS NULL`, [id]);

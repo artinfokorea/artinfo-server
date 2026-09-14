@@ -9,14 +9,12 @@ import {
 import { IOngiMemberRepository, ONGI_MEMBER_REPOSITORY } from '@/ongi/group/domain/repository/ongi-member.repository.interface';
 import { IOngiBlockRepository, ONGI_BLOCK_REPOSITORY } from '@/ongi/group/domain/repository/ongi-block.repository.interface';
 import { IOngiAlbumRepository, ONGI_ALBUM_REPOSITORY } from '@/ongi/album/domain/repository/ongi-album.repository.interface';
-import { IOngiPersonRepository, ONGI_PERSON_REPOSITORY } from '@/ongi/person/domain/repository/ongi-person.repository.interface';
 import { OngiPhoto } from '@/ongi/photo/domain/entity/ongi-photo.entity';
 import { OngiPhotoComment } from '@/ongi/photo/domain/entity/ongi-photo-comment.entity';
 import { ONGI_MEMBER_ROLE, OngiMember } from '@/ongi/group/domain/entity/ongi-member.entity';
 import { OngiUploadPhotosCommand } from '@/ongi/photo/application/command/ongi-upload-photos.command';
 import { OngiNotGroupMember } from '@/ongi/group/domain/exception/ongi-group.exception';
 import { OngiAlbumNotFound } from '@/ongi/album/domain/exception/ongi-album.exception';
-import { OngiPersonNotFound } from '@/ongi/person/domain/exception/ongi-person.exception';
 import {
   OngiAlbumNotInGroup,
   OngiCommentDeleteForbidden,
@@ -122,30 +120,6 @@ export class OngiScanAlbumPhotosUseCase {
     await this.accessService.requireMember(album.groupId, userId);
 
     const photos = await this.photoRepository.scanByAlbumId(albumId, await scanOptions(this.accessService, userId, page));
-
-    return toViews(this.photoRepository, this.accessService, userId, photos);
-  }
-}
-
-@Injectable()
-export class OngiScanPersonPhotosUseCase {
-  constructor(
-    @Inject(ONGI_PHOTO_REPOSITORY)
-    private readonly photoRepository: IOngiPhotoRepository,
-
-    @Inject(ONGI_PERSON_REPOSITORY)
-    private readonly personRepository: IOngiPersonRepository,
-
-    private readonly accessService: OngiPhotoAccessService,
-  ) {}
-
-  async execute(userId: number, personId: number, page?: OngiPhotoPage): Promise<OngiPhotoView[]> {
-    const person = await this.personRepository.findById(personId);
-    if (!person) throw new OngiPersonNotFound();
-
-    await this.accessService.requireMember(person.groupId, userId);
-
-    const photos = await this.photoRepository.scanByPersonId(person.groupId, personId, await scanOptions(this.accessService, userId, page));
 
     return toViews(this.photoRepository, this.accessService, userId, photos);
   }
@@ -318,7 +292,6 @@ export class OngiCopyPhotosUseCase {
         aspectRatio: photo.aspectRatio,
         caption: photo.caption,
         location: photo.location,
-        personIds: [],
         mediaType: photo.mediaType ?? 'photo',
         durationSeconds: photo.durationSeconds ?? null,
       });
@@ -523,9 +496,6 @@ export class OngiUploadPhotosUseCase {
     @Inject(ONGI_ALBUM_REPOSITORY)
     private readonly albumRepository: IOngiAlbumRepository,
 
-    @Inject(ONGI_PERSON_REPOSITORY)
-    private readonly personRepository: IOngiPersonRepository,
-
     private readonly accessService: OngiPhotoAccessService,
     private readonly pushService: OngiPushService,
   ) {}
@@ -545,10 +515,6 @@ export class OngiUploadPhotosUseCase {
         if (!album || album.groupId !== target.groupId) throw new OngiAlbumNotInGroup();
       }
 
-      // 다른 그룹의 인물 id 가 섞여 들어오지 않도록 그룹 소속 인물만 남긴다
-      const people = await this.personRepository.scanByGroupIdAndIds(target.groupId, target.personIds);
-      const personIds = people.map(person => person.id);
-
       for (let i = 0; i < command.photos.length; i++) {
         const item = command.photos[i];
         const photo = await this.photoRepository.create({
@@ -560,7 +526,6 @@ export class OngiUploadPhotosUseCase {
           aspectRatio: item.aspectRatio,
           caption: i === 0 ? command.caption : null,
           location: null,
-          personIds,
           mediaType: item.mediaType,
           durationSeconds: item.durationSeconds,
         });

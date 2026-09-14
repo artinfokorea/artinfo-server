@@ -78,7 +78,6 @@ import { OngiUser } from '@/ongi/user/domain/entity/ongi-user.entity';
 import { OngiAuth } from '@/ongi/auth/domain/entity/ongi-auth.entity';
 import { OngiGroup } from '@/ongi/group/domain/entity/ongi-group.entity';
 import { OngiMember } from '@/ongi/group/domain/entity/ongi-member.entity';
-import { OngiPerson } from '@/ongi/person/domain/entity/ongi-person.entity';
 import { OngiAlbum } from '@/ongi/album/domain/entity/ongi-album.entity';
 import { OngiPhoto } from '@/ongi/photo/domain/entity/ongi-photo.entity';
 import { OngiPhotoLike } from '@/ongi/photo/domain/entity/ongi-photo-like.entity';
@@ -144,7 +143,6 @@ const entities = [
   OngiAuth,
   OngiGroup,
   OngiMember,
-  OngiPerson,
   OngiAlbum,
   OngiPhoto,
   OngiPhotoLike,

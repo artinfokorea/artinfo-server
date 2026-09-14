@@ -44,7 +44,11 @@ export class OngiPhotoResponse {
   @ApiProperty({ type: Boolean, description: '내가 따뜻해요를 눌렀는지' })
   likedByMe: boolean;
 
-  @ApiProperty({ type: [String], description: '함께 찍힌 인물 id 목록' })
+  @ApiProperty({
+    type: [String],
+    description:
+      '(폐기) 인물 태그 — 항상 빈 배열. 구버전 앱(iOS 1.0.6·Android 1.0.2 등)이 personIds.map 을 호출하므로, 양 플랫폼 최소 버전이 인물 코드 제거판 이상이 되면 삭제',
+  })
   personIds: string[];
 
   @ApiProperty({ type: String, description: "매체 종류 — 'photo' | 'video' (영상은 url 이 mp4, thumbUrl 이 포스터)" })
@@ -71,7 +75,7 @@ export class OngiPhotoResponse {
     this.likeCount = photo.likeCount;
     this.commentCount = view.commentCount;
     this.likedByMe = view.likedByMe;
-    this.personIds = (photo.personIds ?? []).map(id => String(id));
+    this.personIds = [];
   }
 }
 

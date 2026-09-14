@@ -29,7 +29,6 @@ export class OngiPhotoRepository implements IOngiPhotoRepository {
       aspectRatio: creator.aspectRatio,
       caption: creator.caption,
       location: creator.location,
-      personIds: creator.personIds,
       mediaType: creator.mediaType,
       durationSeconds: creator.durationSeconds,
     });
@@ -62,13 +61,6 @@ export class OngiPhotoRepository implements IOngiPhotoRepository {
 
   async scanUnfiledByGroupId(groupId: number, options?: OngiPhotoScanOptions): Promise<OngiPhoto[]> {
     return this.listQuery(options).andWhere('photo.groupId = :groupId', { groupId }).andWhere('photo.album_id IS NULL').getMany();
-  }
-
-  async scanByPersonId(groupId: number, personId: number, options?: OngiPhotoScanOptions): Promise<OngiPhoto[]> {
-    return this.listQuery(options)
-      .andWhere('photo.groupId = :groupId', { groupId })
-      .andWhere('photo.person_ids @> :personId::jsonb', { personId: JSON.stringify([personId]) })
-      .getMany();
   }
 
   async likedPhotoIdsOf(userId: number, photoIds: number[]): Promise<number[]> {

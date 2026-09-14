@@ -18,7 +18,6 @@ import {
   OngiScanAlbumPhotosUseCase,
   OngiScanCommentsUseCase,
   OngiScanFeedUseCase,
-  OngiScanPersonPhotosUseCase,
   OngiScanUnfiledPhotosUseCase,
   OngiToggleLikeUseCase,
   OngiUploadPhotoFilesUseCase,
@@ -52,7 +51,6 @@ export class OngiPhotoController {
   constructor(
     private readonly scanFeedUseCase: OngiScanFeedUseCase,
     private readonly scanAlbumPhotosUseCase: OngiScanAlbumPhotosUseCase,
-    private readonly scanPersonPhotosUseCase: OngiScanPersonPhotosUseCase,
     private readonly scanUnfiledPhotosUseCase: OngiScanUnfiledPhotosUseCase,
     private readonly getPhotoUseCase: OngiGetPhotoUseCase,
     private readonly toggleLikeUseCase: OngiToggleLikeUseCase,
@@ -99,18 +97,6 @@ export class OngiPhotoController {
     @Query('after') after?: string,
   ) {
     const views = await this.scanAlbumPhotosUseCase.execute(signature.id, albumId, pageOf(limit, after));
-
-    return new OngiPhotoListResponse(views);
-  }
-
-  @RestApiGet(OngiPhotoListResponse, { path: '/people/:personId/photos', description: '인물이 태그된 사진 (최신순)', auth: [USER_TYPE.CLIENT] })
-  async scanPersonPhotos(
-    @AuthSignature() signature: UserSignature,
-    @Param('personId', ParseIntPipe) personId: number,
-    @Query('limit') limit?: string,
-    @Query('after') after?: string,
-  ) {
-    const views = await this.scanPersonPhotosUseCase.execute(signature.id, personId, pageOf(limit, after));
 
     return new OngiPhotoListResponse(views);
   }
