@@ -26,6 +26,8 @@ export class OngiSchemaBootstrapService implements OnModuleInit {
         value VARCHAR NOT NULL
       )`,
       `INSERT INTO ongi_configs (key, value) VALUES ('min_ios_version', '1.0.0'), ('latest_ios_version', '1.0.1') ON CONFLICT (key) DO NOTHING`,
+      // 안드로이드 강제 업데이트 (2026-09-14) — 1.0.0 은 게이트 미적용
+      `INSERT INTO ongi_configs (key, value) VALUES ('min_android_version', '1.0.0'), ('latest_android_version', '1.0.0') ON CONFLICT (key) DO NOTHING`,
       // 사진 목록용 축소본 컬럼 (2026-08-31) — 배포/DDL 순서 사고 방지
       `ALTER TABLE ongi_photos ADD COLUMN IF NOT EXISTS thumb_url VARCHAR`,
       // 영상 게시 지원 (2026-09-07)
