@@ -35,3 +35,9 @@ export class OngiAdminUnsupportedTarget extends HttpException {
     super({ code: 'ONGI-ADMIN-006', message: '구성원 신고는 삭제할 콘텐츠가 없어요. 사용자 조회에서 확인해 주세요.' }, HttpStatus.BAD_REQUEST);
   }
 }
+
+export class OngiAdminInvalidAnswer extends HttpException {
+  constructor() {
+    super({ code: 'ONGI-ADMIN-007', message: '답변을 1~2000자로 입력해 주세요.' }, HttpStatus.BAD_REQUEST);
+  }
+}

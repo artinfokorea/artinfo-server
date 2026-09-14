@@ -24,3 +24,9 @@ export class OngiAdminConfigRequest {
   @ApiProperty({ type: String, required: true, description: '버전 (x.y.z)', example: '1.0.3' })
   value: string;
 }
+
+export class OngiAdminInquiryAnswerRequest {
+  @IsString({ message: '답변을 입력해 주세요.' })
+  @ApiProperty({ type: String, required: true, description: '답변 (1~2000자) — 다시 보내면 수정', example: '확인해 보니 해결됐어요.' })
+  answer: string;
+}

@@ -7,6 +7,7 @@ import {
   OngiAdminDashboardTotals,
   OngiAdminGroupMemberRow,
   OngiAdminGroupRow,
+  OngiAdminInquiryRow,
   OngiAdminPage,
   OngiAdminPhotoRow,
   OngiAdminReportRow,
@@ -43,7 +44,8 @@ export class OngiAdminRepository implements IOngiAdminRepository {
          (SELECT count(*) FROM ongi_photos WHERE deleted_at IS NULL AND media_type <> 'video')::int AS "photos",
          (SELECT count(*) FROM ongi_photos WHERE deleted_at IS NULL AND media_type = 'video')::int AS "videos",
          (SELECT count(*) FROM ongi_photo_comments WHERE deleted_at IS NULL)::int AS "comments",
-         (SELECT count(*) FROM ongi_reports WHERE status = 'open')::int AS "openReports"`,
+         (SELECT count(*) FROM ongi_reports WHERE status = 'open')::int AS "openReports",
+         (SELECT count(*) FROM ongi_inquiries WHERE answer IS NULL)::int AS "openInquiries"`,
     );
 
     return row;
@@ -234,6 +236,37 @@ export class OngiAdminRepository implements IOngiAdminRepository {
         LIMIT $1 OFFSET $2`,
       [page.limit, page.offset],
     );
+  }
+
+  private readonly inquirySelect = `
+    SELECT i.id, i.user_id AS "userId", u.name AS "userName", u.email AS "userEmail", i.content, i.answer,
+           a.name AS "answeredByName", i.answered_at AS "answeredAt", i.created_at AS "createdAt"
+      FROM ongi_inquiries i
+      LEFT JOIN ongi_users u ON u.id = i.user_id
+      LEFT JOIN ongi_users a ON a.id = i.answered_by_user_id`;
+
+  async scanInquiries(status: string | null, page: OngiAdminPage): Promise<OngiAdminInquiryRow[]> {
+    return this.dataSource.query(
+      `${this.inquirySelect}
+        WHERE ($1::varchar IS NULL OR ($1 = 'open' AND i.answer IS NULL) OR ($1 = 'answered' AND i.answer IS NOT NULL))
+        ORDER BY i.created_at DESC, i.id DESC
+        LIMIT $2 OFFSET $3`,
+      [status, page.limit, page.offset],
+    );
+  }
+
+  async findInquiryById(id: number): Promise<OngiAdminInquiryRow | null> {
+    const [row] = await this.dataSource.query(`${this.inquirySelect} WHERE i.id = $1`, [id]);
+
+    return row ?? null;
+  }
+
+  async answerInquiry(id: number, answer: string, adminUserId: number): Promise<void> {
+    await this.dataSource.query(`UPDATE ongi_inquiries SET answer = $2, answered_by_user_id = $3, answered_at = now(), updated_at = now() WHERE id = $1`, [
+      id,
+      answer,
+      adminUserId,
+    ]);
   }
 
   async scanConfigs(keys: readonly string[]): Promise<{ key: string; value: string }[]> {

@@ -8,15 +8,17 @@ import {
   OngiAdminConfigUseCase,
   OngiAdminDashboardUseCase,
   OngiAdminDirectoryUseCase,
+  OngiAdminInquiryUseCase,
   OngiAdminMeUseCase,
   OngiAdminPhotoUseCase,
   OngiAdminReportUseCase,
 } from '@/ongi/admin/application/usecase/ongi-admin.usecase';
 import { OngiPhotoModule } from '@/ongi/photo/ongi-photo.module';
 import { OngiConfigModule } from '@/ongi/config/ongi-config.module';
+import { OngiPushModule } from '@/ongi/push/ongi-push.module';
 
 @Module({
-  imports: [OngiPhotoModule, OngiConfigModule],
+  imports: [OngiPhotoModule, OngiConfigModule, OngiPushModule],
   controllers: [OngiAdminController],
   providers: [
     { provide: ONGI_ADMIN_REPOSITORY, useClass: OngiAdminRepository },
@@ -27,6 +29,7 @@ import { OngiConfigModule } from '@/ongi/config/ongi-config.module';
     OngiAdminDirectoryUseCase,
     OngiAdminConfigUseCase,
     OngiAdminPhotoUseCase,
+    OngiAdminInquiryUseCase,
     AwsS3Service,
   ],
 })
