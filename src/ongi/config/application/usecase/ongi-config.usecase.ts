@@ -30,4 +30,9 @@ export class OngiGetAppConfigUseCase {
 
     return buildAppConfig(platform, this.cached.rows);
   }
+
+  /** 관리자 화면에서 버전을 바꾸면 이 인스턴스의 캐시를 비운다 (다른 인스턴스는 최대 1분 뒤 반영) */
+  invalidate(): void {
+    this.cached = null;
+  }
 }

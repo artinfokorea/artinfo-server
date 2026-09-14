@@ -7,6 +7,13 @@ export enum ONGI_SNS_TYPE {
   APPLE = 'apple',
 }
 
+/** 사용자 등급 — ADMIN 은 관리자 화면에서 지정, SUPER_ADMIN 은 DB 에서만 지정 (가입 경로로는 항상 USER) */
+export enum ONGI_USER_TYPE {
+  USER = 'USER',
+  ADMIN = 'ADMIN',
+  SUPER_ADMIN = 'SUPER_ADMIN',
+}
+
 export interface OngiUserCreator {
   name: string;
   snsType: ONGI_SNS_TYPE;
@@ -34,6 +41,9 @@ export class OngiUser extends BaseEntity {
 
   @Column({ type: 'varchar', name: 'email', nullable: true })
   email: string | null;
+
+  @Column({ type: 'varchar', name: 'type', length: 16, default: ONGI_USER_TYPE.USER })
+  type: string;
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
