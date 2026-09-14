@@ -74,6 +74,31 @@ export interface OngiAdminGroupMemberRow {
   photoCount: number;
 }
 
+export interface OngiAdminPhotoRow {
+  id: number;
+  groupId: number;
+  groupName: string;
+  authorMemberId: number;
+  authorName: string | null;
+  authorUserId: number | null;
+  url: string;
+  thumbUrl: string | null;
+  mediaType: string;
+  caption: string | null;
+  createdAt: Date;
+}
+
+export interface OngiAdminAccessLogRow {
+  id: number;
+  adminUserId: number;
+  adminName: string | null;
+  action: string;
+  targetType: string;
+  targetId: number;
+  targetName: string | null;
+  createdAt: Date;
+}
+
 export interface OngiAdminPage {
   limit: number;
   offset: number;
@@ -101,6 +126,12 @@ export interface IOngiAdminRepository {
   scanGroups(query: string | null, page: OngiAdminPage): Promise<OngiAdminGroupRow[]>;
   findGroupById(id: number): Promise<OngiAdminGroupRow | null>;
   scanGroupMembers(groupId: number): Promise<OngiAdminGroupMemberRow[]>;
+
+  /** 삭제되지 않은 사진·영상 (최신순) */
+  scanGroupPhotos(groupId: number, page: OngiAdminPage): Promise<OngiAdminPhotoRow[]>;
+  scanUserPhotos(userId: number, page: OngiAdminPage): Promise<OngiAdminPhotoRow[]>;
+  createAccessLog(log: { adminUserId: number; action: string; targetType: string; targetId: number }): Promise<void>;
+  scanAccessLogs(page: OngiAdminPage): Promise<OngiAdminAccessLogRow[]>;
 
   scanConfigs(keys: readonly string[]): Promise<{ key: string; value: string }[]>;
   upsertConfig(key: string, value: string): Promise<void>;

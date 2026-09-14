@@ -3,10 +3,12 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import {
   IOngiAdminRepository,
+  OngiAdminAccessLogRow,
   OngiAdminDashboardTotals,
   OngiAdminGroupMemberRow,
   OngiAdminGroupRow,
   OngiAdminPage,
+  OngiAdminPhotoRow,
   OngiAdminReportRow,
   OngiAdminUserGroupRow,
   OngiAdminUserRow,
@@ -179,6 +181,58 @@ export class OngiAdminRepository implements IOngiAdminRepository {
         WHERE m.group_id = $1 AND m.deleted_at IS NULL
         ORDER BY m.created_at`,
       [groupId],
+    );
+  }
+
+  private readonly photoSelect = `
+    SELECT p.id, p.group_id AS "groupId", g.name AS "groupName", p.author_member_id AS "authorMemberId",
+           m.name AS "authorName", m.user_id AS "authorUserId",
+           p.url, p.thumb_url AS "thumbUrl", p.media_type AS "mediaType", p.caption, p.created_at AS "createdAt"
+      FROM ongi_photos p
+      JOIN ongi_groups g ON g.id = p.group_id
+      LEFT JOIN ongi_members m ON m.id = p.author_member_id`;
+
+  async scanGroupPhotos(groupId: number, page: OngiAdminPage): Promise<OngiAdminPhotoRow[]> {
+    return this.dataSource.query(
+      `${this.photoSelect}
+        WHERE p.group_id = $1 AND p.deleted_at IS NULL
+        ORDER BY p.created_at DESC, p.id DESC
+        LIMIT $2 OFFSET $3`,
+      [groupId, page.limit, page.offset],
+    );
+  }
+
+  async scanUserPhotos(userId: number, page: OngiAdminPage): Promise<OngiAdminPhotoRow[]> {
+    return this.dataSource.query(
+      `${this.photoSelect}
+        WHERE m.user_id = $1 AND p.deleted_at IS NULL
+        ORDER BY p.created_at DESC, p.id DESC
+        LIMIT $2 OFFSET $3`,
+      [userId, page.limit, page.offset],
+    );
+  }
+
+  async createAccessLog(log: { adminUserId: number; action: string; targetType: string; targetId: number }): Promise<void> {
+    await this.dataSource.query(`INSERT INTO ongi_admin_access_logs (admin_user_id, action, target_type, target_id) VALUES ($1, $2, $3, $4)`, [
+      log.adminUserId,
+      log.action,
+      log.targetType,
+      log.targetId,
+    ]);
+  }
+
+  async scanAccessLogs(page: OngiAdminPage): Promise<OngiAdminAccessLogRow[]> {
+    return this.dataSource.query(
+      `SELECT l.id, l.admin_user_id AS "adminUserId", u.name AS "adminName", l.action, l.target_type AS "targetType", l.target_id AS "targetId",
+              CASE l.target_type WHEN 'group' THEN g.name WHEN 'user' THEN tu.name END AS "targetName",
+              l.created_at AS "createdAt"
+         FROM ongi_admin_access_logs l
+         LEFT JOIN ongi_users u ON u.id = l.admin_user_id
+         LEFT JOIN ongi_groups g ON l.target_type = 'group' AND g.id = l.target_id
+         LEFT JOIN ongi_users tu ON l.target_type = 'user' AND tu.id = l.target_id
+        ORDER BY l.created_at DESC, l.id DESC
+        LIMIT $1 OFFSET $2`,
+      [page.limit, page.offset],
     );
   }
 
