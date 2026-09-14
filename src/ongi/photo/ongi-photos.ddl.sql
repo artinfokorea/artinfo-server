@@ -10,7 +10,6 @@ CREATE TABLE IF NOT EXISTS ongi_photos (
   aspect_ratio     DOUBLE PRECISION NOT NULL DEFAULT 1,
   caption          VARCHAR,
   location         VARCHAR,
-  person_ids       JSONB NOT NULL DEFAULT '[]'::jsonb,
   like_count       INTEGER NOT NULL DEFAULT 0,
   comment_count    INTEGER NOT NULL DEFAULT 0,
   created_at       TIMESTAMP NOT NULL DEFAULT now(),
@@ -20,7 +19,12 @@ CREATE TABLE IF NOT EXISTS ongi_photos (
 CREATE INDEX IF NOT EXISTS idx_ongi_photos_group_created ON ongi_photos (group_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_ongi_photos_album ON ongi_photos (album_id);
 CREATE INDEX IF NOT EXISTS idx_ongi_photos_author ON ongi_photos (author_member_id);
-CREATE INDEX IF NOT EXISTS idx_ongi_photos_person_ids ON ongi_photos USING GIN (person_ids);
+
+-- 인물 태그 제거 (2026-09-14) — 태그 UI 가 없어 쓰이지 않던 기능. 서버 배포(ongi_people·person_ids 참조 제거) 확인 후 실행
+-- 응답의 personIds 는 1.0.6 앱 호환을 위해 서버가 빈 배열로 채운다 (DB 컬럼과 무관)
+DROP INDEX IF EXISTS idx_ongi_photos_person_ids;
+ALTER TABLE ongi_photos DROP COLUMN IF EXISTS person_ids;
+DROP TABLE IF EXISTS ongi_people;
 
 -- 온기 따뜻해요 (사용자 × 사진)
 CREATE TABLE IF NOT EXISTS ongi_photo_likes (

@@ -26,7 +26,6 @@ export interface IOngiPhotoRepository {
   scanByGroupId(groupId: number, options?: OngiPhotoScanOptions): Promise<OngiPhoto[]>;
   scanByAlbumId(albumId: number, options?: OngiPhotoScanOptions): Promise<OngiPhoto[]>;
   scanUnfiledByGroupId(groupId: number, options?: OngiPhotoScanOptions): Promise<OngiPhoto[]>;
-  scanByPersonId(groupId: number, personId: number, options?: OngiPhotoScanOptions): Promise<OngiPhoto[]>;
   likedPhotoIdsOf(userId: number, photoIds: number[]): Promise<number[]>;
   /** 사진별 살아있는 댓글 수 — excludedMemberIds 작성자 댓글은 제외 */
   countCommentsByPhotoIds(photoIds: number[], excludedMemberIds: number[]): Promise<Map<number, number>>;

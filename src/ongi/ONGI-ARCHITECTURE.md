@@ -9,9 +9,8 @@
 - **user** (`ongi_users`) — 계정. SNS 로그인(kakao/naver/google) 기준. `(sns_type, sns_id)` 유니크.
 - **auth** (`ongi_auths`) — 발급된 access/refresh 토큰 세션.
 - **group** (`ongi_groups`, `ongi_members`) — 가족 공간. 구성원(member)은 사용자 × 그룹 레코드이며 그룹마다 호칭(name)이 다르다. **사진 작성자와 댓글 작성자는 user id 가 아니라 member id** 를 가리킨다.
-- **person** (`ongi_people`) — 인물 태그 대상. 구성원이 아닌 아이 등도 포함되므로 member 와 별개.
 - **album** (`ongi_albums`) — 커버/부가정보(meta)는 앨범의 최신 사진에서 계산.
-- **photo** (`ongi_photos`, `ongi_photo_likes`, `ongi_photo_comments`) — 그룹 피드 게시물. 여러 그룹 동시 업로드 시 그룹마다 독립 레코드가 생겨 좋아요·댓글이 분리된다. 인물 태그는 `person_ids jsonb` 배열. `like_count`/`comment_count` 는 비정규화 카운터.
+- **photo** (`ongi_photos`, `ongi_photo_likes`, `ongi_photo_comments`) — 그룹 피드 게시물. 여러 그룹 동시 업로드 시 그룹마다 독립 레코드가 생겨 좋아요·댓글이 분리된다. 인물 태그 기능은 2026-09-14 제거(`ongi_people`·`person_ids` 삭제) — 응답의 `personIds` 는 구버전 앱 호환용 빈 배열. `like_count`/`comment_count` 는 비정규화 카운터.
 - **legal** — 약관·정책 문서 (코드 상수, 테이블 없음, 공개 엔드포인트).
 
 ## 규칙/결정 사항
