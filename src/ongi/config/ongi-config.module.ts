@@ -5,5 +5,6 @@ import { OngiGetAppConfigUseCase } from '@/ongi/config/application/usecase/ongi-
 @Module({
   controllers: [OngiConfigController],
   providers: [OngiGetAppConfigUseCase],
+  exports: [OngiGetAppConfigUseCase],
 })
 export class OngiConfigModule {}
