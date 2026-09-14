@@ -6,6 +6,7 @@ import {
   OngiAdminDashboardTotals,
   OngiAdminGroupMemberRow,
   OngiAdminGroupRow,
+  OngiAdminInquiryRow,
   OngiAdminPhotoRow,
   OngiAdminReportRow,
   OngiAdminUserGroupRow,
@@ -22,6 +23,7 @@ import {
   OngiAdminType,
 } from '@/ongi/admin/domain/service/ongi-admin-policy';
 import {
+  OngiAdminInvalidAnswer,
   OngiAdminInvalidConfig,
   OngiAdminInvalidGrant,
   OngiAdminNotFound,
@@ -32,6 +34,8 @@ import { IOngiPhotoRepository, ONGI_PHOTO_REPOSITORY } from '@/ongi/photo/domain
 import { ONGI_REPORT_STATUS, ONGI_REPORT_TARGET_TYPE } from '@/ongi/report/domain/entity/ongi-report.entity';
 import { OngiGetAppConfigUseCase } from '@/ongi/config/application/usecase/ongi-config.usecase';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
+import { normalizeInquiryText } from '@/ongi/inquiry/domain/service/ongi-inquiry-policy';
+import { OngiPushService } from '@/ongi/push/application/service/ongi-push.service';
 
 const PAGE_SIZE = 50;
 const SIGNUP_DAYS = 14;
@@ -61,7 +65,7 @@ export class OngiAdminMeUseCase {
 
   async execute(actor: OngiAdminActor): Promise<OngiAdminMeView> {
     const user = await this.adminRepository.findUserTypeById(actor.userId);
-    const all: OngiAdminPermission[] = ['dashboard', 'reports', 'directory', 'configs', 'grant', 'sensitive', 'photos'];
+    const all: OngiAdminPermission[] = ['dashboard', 'reports', 'inquiries', 'directory', 'configs', 'grant', 'sensitive', 'photos'];
 
     return { userId: actor.userId, name: user?.name ?? '', type: actor.type, permissions: all.filter(p => hasAdminPermission(actor.type, p)) };
   }
@@ -224,5 +228,42 @@ export class OngiAdminPhotoUseCase {
 
   scanAccessLogs(page: number): Promise<OngiAdminAccessLogRow[]> {
     return this.adminRepository.scanAccessLogs(pageOf(page));
+  }
+}
+
+@Injectable()
+export class OngiAdminInquiryUseCase {
+  constructor(
+    @Inject(ONGI_ADMIN_REPOSITORY)
+    private readonly adminRepository: IOngiAdminRepository,
+
+    private readonly pushService: OngiPushService,
+  ) {}
+
+  async scan(actor: OngiAdminActor, status: string | null, page: number): Promise<OngiAdminInquiryRow[]> {
+    const filter = status === 'open' || status === 'answered' ? status : null;
+    const rows = await this.adminRepository.scanInquiries(filter, pageOf(page));
+    if (hasAdminPermission(actor.type, 'sensitive')) return rows;
+
+    return rows.map(row => ({ ...row, userEmail: maskEmail(row.userEmail) }));
+  }
+
+  /** 답변 저장 — 처음 답변할 때만 문의한 사용자에게 푸시 (수정은 조용히 반영) */
+  async answer(actor: OngiAdminActor, inquiryId: number, rawAnswer: string): Promise<void> {
+    const answer = normalizeInquiryText(rawAnswer);
+    if (!answer) throw new OngiAdminInvalidAnswer();
+
+    const inquiry = await this.adminRepository.findInquiryById(inquiryId);
+    if (!inquiry) throw new OngiAdminNotFound();
+
+    await this.adminRepository.answerInquiry(inquiryId, answer, actor.userId);
+
+    if (inquiry.answer === null) {
+      this.pushService.notifyUsers([inquiry.userId], {
+        title: '온기',
+        body: '남겨주신 문의에 답변이 등록됐어요.',
+        data: { type: 'inquiry_answered', inquiryId: String(inquiryId) },
+      });
+    }
   }
 }

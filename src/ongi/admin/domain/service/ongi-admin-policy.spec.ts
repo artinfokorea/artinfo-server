@@ -38,7 +38,8 @@ describe('adminTypeOfSession — 관리자 API 를 쓰는 사람의 등급', () 
 });
 
 describe('hasAdminPermission — 등급별 권한', () => {
-  it('ADMIN: 대시보드 · 신고 처리 · 사용자/가족 공간 조회', () => {
+  it('ADMIN: 대시보드 · 신고 처리 · 문의 답변 · 사용자/가족 공간 조회', () => {
+    expect(hasAdminPermission('ADMIN', 'inquiries')).toBe(true);
     expect(hasAdminPermission('ADMIN', 'dashboard')).toBe(true);
     expect(hasAdminPermission('ADMIN', 'reports')).toBe(true);
     expect(hasAdminPermission('ADMIN', 'directory')).toBe(true);
@@ -62,6 +63,7 @@ describe('hasAdminPermission — 등급별 권한', () => {
     expect(hasAdminPermission('SUPER_ADMIN', 'grant')).toBe(true);
     expect(hasAdminPermission('SUPER_ADMIN', 'sensitive')).toBe(true);
     expect(hasAdminPermission('SUPER_ADMIN', 'photos')).toBe(true);
+    expect(hasAdminPermission('SUPER_ADMIN', 'inquiries')).toBe(true);
   });
 });
 

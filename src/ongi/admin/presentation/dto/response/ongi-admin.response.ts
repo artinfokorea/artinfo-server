@@ -6,6 +6,7 @@ import {
   OngiAdminDashboardTotals,
   OngiAdminGroupMemberRow,
   OngiAdminGroupRow,
+  OngiAdminInquiryRow,
   OngiAdminPhotoRow,
   OngiAdminReportRow,
   OngiAdminUserGroupRow,
@@ -236,6 +237,32 @@ export class OngiAdminAccessLogListResponse {
       targetType: row.targetType,
       targetId: String(row.targetId),
       targetName: row.targetName,
+      createdAt: new Date(row.createdAt).toISOString(),
+    }));
+  }
+}
+
+export class OngiAdminInquiryListResponse {
+  @ApiProperty({ type: [Object], description: '문의 목록 (최근 순, 50개씩) — 민감 정보 권한이 없으면 이메일은 가려진다' }) inquiries: {
+    id: string;
+    status: 'open' | 'answered';
+    user: { id: string; name: string | null; email: string | null };
+    content: string;
+    answer: string | null;
+    answeredByName: string | null;
+    answeredAt: string | null;
+    createdAt: string;
+  }[];
+
+  constructor(rows: OngiAdminInquiryRow[]) {
+    this.inquiries = rows.map(row => ({
+      id: String(row.id),
+      status: row.answer === null ? 'open' : 'answered',
+      user: { id: String(row.userId), name: row.userName, email: row.userEmail },
+      content: row.content,
+      answer: row.answer,
+      answeredByName: row.answeredByName,
+      answeredAt: iso(row.answeredAt),
       createdAt: new Date(row.createdAt).toISOString(),
     }));
   }

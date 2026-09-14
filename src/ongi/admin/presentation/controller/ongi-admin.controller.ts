@@ -6,17 +6,24 @@ import {
   OngiAdminConfigUseCase,
   OngiAdminDashboardUseCase,
   OngiAdminDirectoryUseCase,
+  OngiAdminInquiryUseCase,
   OngiAdminMeUseCase,
   OngiAdminPhotoUseCase,
   OngiAdminReportUseCase,
 } from '@/ongi/admin/application/usecase/ongi-admin.usecase';
-import { OngiAdminConfigRequest, OngiAdminReportStatusRequest, OngiAdminUserTypeRequest } from '@/ongi/admin/presentation/dto/request/ongi-admin.request';
+import {
+  OngiAdminConfigRequest,
+  OngiAdminInquiryAnswerRequest,
+  OngiAdminReportStatusRequest,
+  OngiAdminUserTypeRequest,
+} from '@/ongi/admin/presentation/dto/request/ongi-admin.request';
 import {
   OngiAdminAccessLogListResponse,
   OngiAdminConfigListResponse,
   OngiAdminDashboardResponse,
   OngiAdminGroupDetailResponse,
   OngiAdminGroupListResponse,
+  OngiAdminInquiryListResponse,
   OngiAdminMeResponse,
   OngiAdminOkResponse,
   OngiAdminPhotoListResponse,
@@ -40,6 +47,7 @@ export class OngiAdminController {
     private readonly directoryUseCase: OngiAdminDirectoryUseCase,
     private readonly configUseCase: OngiAdminConfigUseCase,
     private readonly photoUseCase: OngiAdminPhotoUseCase,
+    private readonly inquiryUseCase: OngiAdminInquiryUseCase,
   ) {}
 
   @RestApiGet(OngiAdminMeResponse, { path: '/me', description: '내 관리자 등급과 권한' })
@@ -71,6 +79,20 @@ export class OngiAdminController {
   @RestApiPost(OngiAdminOkResponse, { path: '/reports/:id/remove-target', description: '신고된 사진·댓글 삭제 후 처리 완료' })
   async removeReportTarget(@Param('id', ParseIntPipe) id: number) {
     await this.reportUseCase.removeTarget(id);
+
+    return new OngiAdminOkResponse();
+  }
+
+  @RequireOngiAdminPermission('inquiries')
+  @RestApiGet(OngiAdminInquiryListResponse, { path: '/inquiries', description: '앱 문의 — ?status=open|answered, ?page=' })
+  async inquiries(@AdminActor() actor: OngiAdminActor, @Query('status') status?: string, @Query('page') page?: string) {
+    return new OngiAdminInquiryListResponse(await this.inquiryUseCase.scan(actor, status ?? null, pageNumber(page)));
+  }
+
+  @RequireOngiAdminPermission('inquiries')
+  @RestApiPut(OngiAdminOkResponse, { path: '/inquiries/:id/answer', description: '문의 답변 작성·수정 — 첫 답변이면 문의한 사용자에게 푸시' })
+  async answerInquiry(@AdminActor() actor: OngiAdminActor, @Param('id', ParseIntPipe) id: number, @Body() request: OngiAdminInquiryAnswerRequest) {
+    await this.inquiryUseCase.answer(actor, id, request.answer);
 
     return new OngiAdminOkResponse();
   }

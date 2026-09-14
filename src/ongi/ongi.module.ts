@@ -10,6 +10,7 @@ import { OngiReportModule } from '@/ongi/report/ongi-report.module';
 import { OngiPushModule } from '@/ongi/push/ongi-push.module';
 import { OngiEventModule } from '@/ongi/event/ongi-event.module';
 import { OngiAdminModule } from '@/ongi/admin/ongi-admin.module';
+import { OngiInquiryModule } from '@/ongi/inquiry/ongi-inquiry.module';
 import { OngiSchemaBootstrapService } from '@/ongi/common/ongi-schema-bootstrap.service';
 
 @Module({
@@ -25,6 +26,7 @@ import { OngiSchemaBootstrapService } from '@/ongi/common/ongi-schema-bootstrap.
     OngiConfigModule,
     OngiEventModule,
     OngiAdminModule,
+    OngiInquiryModule,
   ],
   providers: [OngiSchemaBootstrapService],
 })

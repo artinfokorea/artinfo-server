@@ -4,13 +4,13 @@ export type OngiAdminType = `${ONGI_USER_TYPE.ADMIN}` | `${ONGI_USER_TYPE.SUPER_
 
 /**
  * 관리자 화면 기능 단위 — directory 는 사용자·가족 공간 조회, sensitive 는 이메일 원문·SNS 종류 등 개인정보,
- * photos 는 가족 공간·사용자별 사진 열람 (개인정보 처리방침 5·7조의 운영 책임자 열람, 열람 기록을 남긴다)
+ * photos 는 가족 공간·사용자별 사진 열람 (개인정보 처리방침 5·7조의 운영 책임자 열람, 열람 기록을 남긴다), inquiries 는 앱 문의 답변
  */
-export type OngiAdminPermission = 'dashboard' | 'reports' | 'directory' | 'configs' | 'grant' | 'sensitive' | 'photos';
+export type OngiAdminPermission = 'dashboard' | 'reports' | 'inquiries' | 'directory' | 'configs' | 'grant' | 'sensitive' | 'photos';
 
 const PERMISSIONS: Record<OngiAdminType, readonly OngiAdminPermission[]> = {
-  [ONGI_USER_TYPE.ADMIN]: ['dashboard', 'reports', 'directory'],
-  [ONGI_USER_TYPE.SUPER_ADMIN]: ['dashboard', 'reports', 'directory', 'configs', 'grant', 'sensitive', 'photos'],
+  [ONGI_USER_TYPE.ADMIN]: ['dashboard', 'reports', 'inquiries', 'directory'],
+  [ONGI_USER_TYPE.SUPER_ADMIN]: ['dashboard', 'reports', 'inquiries', 'directory', 'configs', 'grant', 'sensitive', 'photos'],
 };
 
 /**

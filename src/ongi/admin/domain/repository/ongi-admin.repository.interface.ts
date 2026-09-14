@@ -8,6 +8,7 @@ export interface OngiAdminDashboardTotals {
   videos: number;
   comments: number;
   openReports: number;
+  openInquiries: number;
 }
 
 export interface OngiAdminReportRow {
@@ -99,6 +100,18 @@ export interface OngiAdminAccessLogRow {
   createdAt: Date;
 }
 
+export interface OngiAdminInquiryRow {
+  id: number;
+  userId: number;
+  userName: string | null;
+  userEmail: string | null;
+  content: string;
+  answer: string | null;
+  answeredByName: string | null;
+  answeredAt: Date | null;
+  createdAt: Date;
+}
+
 export interface OngiAdminPage {
   limit: number;
   offset: number;
@@ -132,6 +145,11 @@ export interface IOngiAdminRepository {
   scanUserPhotos(userId: number, page: OngiAdminPage): Promise<OngiAdminPhotoRow[]>;
   createAccessLog(log: { adminUserId: number; action: string; targetType: string; targetId: number }): Promise<void>;
   scanAccessLogs(page: OngiAdminPage): Promise<OngiAdminAccessLogRow[]>;
+
+  /** status: 'open' 답변 전 · 'answered' 답변 완료 · null 전체 */
+  scanInquiries(status: string | null, page: OngiAdminPage): Promise<OngiAdminInquiryRow[]>;
+  findInquiryById(id: number): Promise<OngiAdminInquiryRow | null>;
+  answerInquiry(id: number, answer: string, adminUserId: number): Promise<void>;
 
   scanConfigs(keys: readonly string[]): Promise<{ key: string; value: string }[]>;
   upsertConfig(key: string, value: string): Promise<void>;

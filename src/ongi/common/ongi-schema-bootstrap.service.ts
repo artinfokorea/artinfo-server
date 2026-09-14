@@ -38,6 +38,19 @@ export class OngiSchemaBootstrapService implements OnModuleInit {
         created_at    TIMESTAMP NOT NULL DEFAULT now()
       )`,
       `CREATE INDEX IF NOT EXISTS idx_ongi_admin_access_logs_created ON ongi_admin_access_logs (created_at DESC)`,
+      // 앱 문의 (2026-09-14) — 관리자 대시보드 집계가 매 요청 읽으므로 배포 전에 있어야 한다
+      `CREATE TABLE IF NOT EXISTS ongi_inquiries (
+        id                  SERIAL PRIMARY KEY,
+        user_id             INTEGER NOT NULL,
+        content             VARCHAR NOT NULL,
+        answer              VARCHAR,
+        answered_by_user_id INTEGER,
+        answered_at         TIMESTAMP,
+        created_at          TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at          TIMESTAMP NOT NULL DEFAULT now()
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_ongi_inquiries_user ON ongi_inquiries (user_id, created_at DESC)`,
+      `CREATE INDEX IF NOT EXISTS idx_ongi_inquiries_created ON ongi_inquiries (created_at DESC)`,
       // 안드로이드 강제 업데이트 (2026-09-14) — 1.0.0 은 게이트 미적용
       `INSERT INTO ongi_configs (key, value) VALUES ('min_android_version', '1.0.0'), ('latest_android_version', '1.0.0') ON CONFLICT (key) DO NOTHING`,
       // 사진 목록용 축소본 컬럼 (2026-08-31) — 배포/DDL 순서 사고 방지
