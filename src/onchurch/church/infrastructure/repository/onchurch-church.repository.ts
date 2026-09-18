@@ -95,6 +95,13 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
     return this.churchRepository.save(created);
   }
 
+  async updateSiteTemplate(ownerId: number, siteTemplate: string): Promise<OnchurchChurch> {
+    const church = await this.churchRepository.findOneBy({ ownerId });
+    if (!church) throw new OnchurchChurchNotFound();
+    church.siteTemplate = siteTemplate;
+    return this.churchRepository.save(church);
+  }
+
   async updatePublished(ownerId: number, isPublished: boolean, firstPublishedAt?: Date): Promise<OnchurchChurch> {
     const church = await this.churchRepository.findOneBy({ ownerId });
     if (!church) throw new OnchurchChurchNotFound();
