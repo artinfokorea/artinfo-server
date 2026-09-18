@@ -15,6 +15,8 @@ export class OnchurchSignupWithChurchCommand {
   pastorName: string;
   worshipName: string;
   worshipTime: string;
+  // 다른 교회의 추천 코드(선택). 유효하지 않으면 가입은 그대로 통과시킨다.
+  referralCode: string | null;
 
   constructor(params: {
     slug: string;
@@ -26,6 +28,7 @@ export class OnchurchSignupWithChurchCommand {
     pastorName: string;
     worshipName: string;
     worshipTime: string;
+    referralCode: string | null;
   }) {
     this.slug = params.slug;
     this.churchName = params.churchName;
@@ -36,5 +39,6 @@ export class OnchurchSignupWithChurchCommand {
     this.pastorName = params.pastorName;
     this.worshipName = params.worshipName;
     this.worshipTime = params.worshipTime;
+    this.referralCode = params.referralCode;
   }
 }

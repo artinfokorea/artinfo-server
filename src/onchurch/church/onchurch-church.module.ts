@@ -15,6 +15,7 @@ import { OnchurchUpsertMyChurchUseCase } from '@/onchurch/church/application/use
 import { OnchurchPublishMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-publish-my-church.usecase';
 import { OnchurchCheckSlugUseCase } from '@/onchurch/church/application/usecase/onchurch-check-slug.usecase';
 import { OnchurchUpdateMySiteTemplateUseCase } from '@/onchurch/church/application/usecase/onchurch-update-my-site-template.usecase';
+import { OnchurchApplyReferralCodeUseCase, OnchurchGetMyReferralUseCase } from '@/onchurch/church/application/usecase/onchurch-referral.usecase';
 import { OnchurchGetPublicChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-get-public-church.usecase';
 import { OnchurchGetLiveStatusUseCase } from '@/onchurch/church/application/usecase/onchurch-get-live-status.usecase';
 import { OnchurchListPublicChurchesUseCase } from '@/onchurch/church/application/usecase/onchurch-list-public-churches.usecase';
@@ -34,6 +35,8 @@ import { AwsSesService } from '@/aws/ses/aws-ses.service';
     OnchurchPublishMyChurchUseCase,
     OnchurchCheckSlugUseCase,
     OnchurchUpdateMySiteTemplateUseCase,
+    OnchurchGetMyReferralUseCase,
+    OnchurchApplyReferralCodeUseCase,
     OnchurchGetPublicChurchUseCase,
     OnchurchGetLiveStatusUseCase,
     OnchurchListPublicChurchesUseCase,
@@ -52,6 +55,7 @@ import { AwsSesService } from '@/aws/ses/aws-ses.service';
     OnchurchChurchManagerResolver,
     OnchurchUpsertMyChurchUseCase,
     OnchurchPublishMyChurchUseCase,
+    OnchurchApplyReferralCodeUseCase,
   ],
 })
 export class OnchurchChurchModule {}

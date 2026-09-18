@@ -71,3 +71,51 @@ export class OnchurchOwnerGradeImmutable extends HttpException {
     );
   }
 }
+
+export class OnchurchReferralCodeNotFound extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-CHURCH-007',
+        message: '추천인 코드를 찾을 수 없습니다.',
+      },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+}
+
+export class OnchurchReferralAlreadyApplied extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-CHURCH-008',
+        message: '이미 추천인 코드를 입력했습니다. 한 번 입력하면 변경할 수 없습니다.',
+      },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+}
+
+export class OnchurchReferralSelfNotAllowed extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-CHURCH-009',
+        message: '우리 교회 추천 코드는 입력할 수 없습니다.',
+      },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+}
+
+export class OnchurchReferralWindowClosed extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-CHURCH-010',
+        message: '첫 결제가 확인된 이후에는 추천인 코드를 입력할 수 없습니다.',
+      },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+}

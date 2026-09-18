@@ -87,6 +87,14 @@ export class OnchurchChurch extends BaseEntity {
   @Column({ type: 'varchar', name: 'site_template', default: () => "'default'" })
   siteTemplate: string;
 
+  // 추천인 이벤트용 교회 고유 코드. 관리자 결제 화면에서 처음 조회하는 시점에 생성·저장한다(기존 교회 포함).
+  @Column({ type: 'varchar', name: 'referral_code', unique: true, nullable: true })
+  referralCode: string | null;
+
+  // 이 교회가 입력한 추천인(추천한 교회)의 id. 한 번 정해지면 변경하지 않는다.
+  @Column({ type: 'int', name: 'referred_by_church_id', nullable: true })
+  referredByChurchId: number | null;
+
   @Column({ type: 'int', name: 'sort_order', nullable: true })
   sortOrder: number | null;
 

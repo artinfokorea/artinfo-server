@@ -21,6 +21,10 @@ export class OnchurchChurchOverviewResponse {
   @ApiProperty({ type: String, nullable: true, description: '네이버 사이트 인증 코드' }) naverVerification: string | null;
   @ApiProperty({ type: String, description: "공개 홈페이지 템플릿 ID (미지정 시 'default')" }) siteTemplate: string;
   @ApiProperty({ type: Boolean, description: '소유자가 테스트 계정인지 여부' }) isTest: boolean;
+  @ApiProperty({ type: String, nullable: true, description: '이 교회의 추천 코드(미발급이면 null)' }) referralCode: string | null;
+  @ApiProperty({ type: String, nullable: true, description: '이 교회가 입력한 추천인 교회 이름' }) referredByChurchName: string | null;
+  @ApiProperty({ type: Number, description: '이 교회 코드로 가입한 교회 수' }) referredCount: number;
+
   @ApiProperty({ type: String, nullable: true, description: '소유자 마지막 접속(세션 갱신) 시각(ISO)' }) lastActivity: string | null;
 
   constructor(row: OnchurchChurchOverviewRow, now: Date) {
@@ -38,6 +42,9 @@ export class OnchurchChurchOverviewResponse {
     this.isPaidActive = !!row.paidUntil && row.paidUntil.getTime() > now.getTime();
     this.naverVerification = row.naverVerification;
     this.siteTemplate = row.siteTemplate;
+    this.referralCode = row.referralCode;
+    this.referredByChurchName = row.referredByChurchName;
+    this.referredCount = row.referredCount;
     this.isTest = row.isTest;
     this.lastActivity = toIso(row.lastActivity);
   }
