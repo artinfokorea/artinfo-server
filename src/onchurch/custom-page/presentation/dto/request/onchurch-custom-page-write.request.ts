@@ -16,6 +16,12 @@ export class OnchurchCustomPageWriteRequest {
   title: string;
 
   @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  @ApiProperty({ type: String, required: false, nullable: true, description: '제목 아래 한 줄 설명', example: '우리 교회가 바라보는 방향입니다.' })
+  summary?: string | null;
+
+  @IsOptional()
   @IsArray()
   @ApiProperty({ type: [Object], required: false, description: '본문 블록 배열. 지원 타입/옵션의 단일 소스는 프론트다' })
   blocks?: OnchurchCustomPageBlock[];
@@ -29,6 +35,7 @@ export class OnchurchCustomPageWriteRequest {
     return new OnchurchCustomPageWriteCommand({
       slug: this.slug,
       title: this.title,
+      summary: this.summary?.trim() || null,
       blocks: this.blocks ?? [],
       isActive: this.isActive ?? true,
     });
