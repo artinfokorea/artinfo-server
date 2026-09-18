@@ -4,6 +4,7 @@ import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
 import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
 import { OnchurchBannerModule } from '@/onchurch/banner/onchurch-banner.module';
 import { OnchurchNoticeModule } from '@/onchurch/notice/onchurch-notice.module';
+import { OnchurchCustomPageModule } from '@/onchurch/custom-page/onchurch-custom-page.module';
 import { OnchurchEventModule } from '@/onchurch/event/onchurch-event.module';
 import { OnchurchAboutModule } from '@/onchurch/about/onchurch-about.module';
 import { OnchurchTransportationModule } from '@/onchurch/transportation/onchurch-transportation.module';
@@ -25,6 +26,7 @@ import { OnchurchMasterModule } from '@/onchurch/master/onchurch-master.module';
     OnchurchChurchModule,
     OnchurchBannerModule,
     OnchurchNoticeModule,
+    OnchurchCustomPageModule,
     OnchurchEventModule,
     OnchurchAboutModule,
     OnchurchTransportationModule,
