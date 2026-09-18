@@ -7,8 +7,10 @@ import { OnchurchScanMyChurchUseCase } from '@/onchurch/church/application/useca
 import { OnchurchUpsertMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-upsert-my-church.usecase';
 import { OnchurchPublishMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-publish-my-church.usecase';
 import { OnchurchCheckSlugUseCase } from '@/onchurch/church/application/usecase/onchurch-check-slug.usecase';
+import { OnchurchUpdateMySiteTemplateUseCase } from '@/onchurch/church/application/usecase/onchurch-update-my-site-template.usecase';
 import { OnchurchUpsertMyChurchRequest } from '@/onchurch/church/presentation/dto/request/onchurch-upsert-my-church.request';
 import { OnchurchPublishMyChurchRequest } from '@/onchurch/church/presentation/dto/request/onchurch-publish-my-church.request';
+import { OnchurchUpdateMySiteTemplateRequest } from '@/onchurch/church/presentation/dto/request/onchurch-update-my-site-template.request';
 import { OnchurchChurchResponse, OnchurchMyChurchResponse } from '@/onchurch/church/presentation/dto/response/onchurch-church.response';
 import { OnchurchCheckSlugResponse } from '@/onchurch/church/presentation/dto/response/onchurch-check-slug.response';
 
@@ -19,6 +21,7 @@ export class OnchurchChurchController {
     private readonly upsertMyChurchUseCase: OnchurchUpsertMyChurchUseCase,
     private readonly publishMyChurchUseCase: OnchurchPublishMyChurchUseCase,
     private readonly checkSlugUseCase: OnchurchCheckSlugUseCase,
+    private readonly updateMySiteTemplateUseCase: OnchurchUpdateMySiteTemplateUseCase,
   ) {}
 
   @RestApiGet(OnchurchCheckSlugResponse, { path: '/check-slug', description: '서브도메인 사용 가능 여부 확인 (본인이 이미 점유 중인 경우 사용 가능 처리)', auth: [USER_TYPE.CLIENT] })
@@ -36,6 +39,12 @@ export class OnchurchChurchController {
   @RestApiPut(OnchurchChurchResponse, { path: '/me', description: '내 교회 정보 생성/수정', auth: [USER_TYPE.CLIENT] })
   async upsertMyChurch(@AuthSignature() signature: UserSignature, @Body() request: OnchurchUpsertMyChurchRequest) {
     const church = await this.upsertMyChurchUseCase.execute(signature.id, request.toCommand());
+    return new OnchurchChurchResponse(church);
+  }
+
+  @RestApiPut(OnchurchChurchResponse, { path: '/me/site-template', description: '내 교회 공개 홈페이지 템플릿 변경', auth: [USER_TYPE.CLIENT] })
+  async updateMySiteTemplate(@AuthSignature() signature: UserSignature, @Body() request: OnchurchUpdateMySiteTemplateRequest) {
+    const church = await this.updateMySiteTemplateUseCase.execute(signature.id, request.siteTemplate ?? null);
     return new OnchurchChurchResponse(church);
   }
 
