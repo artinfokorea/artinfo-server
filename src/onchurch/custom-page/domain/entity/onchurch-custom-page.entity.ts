@@ -25,6 +25,10 @@ export class OnchurchCustomPage extends BaseEntity {
   @Column({ type: 'varchar', name: 'title', length: 100 })
   title: string;
 
+  // 페이지 제목 아래에 들어가는 한 줄 설명. 고정 페이지들의 안내 문구와 같은 자리다.
+  @Column({ type: 'varchar', name: 'summary', length: 200, nullable: true })
+  summary: string | null;
+
   @Column({ type: 'jsonb', name: 'blocks', default: () => "'[]'::jsonb" })
   blocks: OnchurchCustomPageBlock[];
 

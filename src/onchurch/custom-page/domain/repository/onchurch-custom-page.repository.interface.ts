@@ -5,6 +5,7 @@ export const ONCHURCH_CUSTOM_PAGE_REPOSITORY = Symbol('ONCHURCH_CUSTOM_PAGE_REPO
 export interface OnchurchCustomPageWriteParams {
   slug: string;
   title: string;
+  summary: string | null;
   blocks: OnchurchCustomPageBlock[];
   isActive: boolean;
 }
