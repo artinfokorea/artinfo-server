@@ -13,6 +13,7 @@ export class OnchurchChurchOverviewResponse {
   @ApiProperty({ type: Boolean, description: '사이트 운영(공개) 여부' }) isPublished: boolean;
   @ApiProperty({ type: String, nullable: true, description: '소유자 이름' }) ownerName: string | null;
   @ApiProperty({ type: String, nullable: true, description: '소유자 연락처' }) ownerPhone: string | null;
+  @ApiProperty({ type: String, nullable: true, description: '담임목사 이름' }) pastorName: string | null;
   @ApiProperty({ type: String, nullable: true, description: '프리티어 시작 시각(최초 운영 시작, ISO)' }) freeTrialStartAt: string | null;
   @ApiProperty({ type: String, nullable: true, description: '프리티어 종료 시각(ISO)' }) freeTrialUntil: string | null;
   @ApiProperty({ type: String, nullable: true, description: '결제 만료 시각(ISO)' }) paidUntil: string | null;
@@ -35,6 +36,7 @@ export class OnchurchChurchOverviewResponse {
     this.isPublished = row.isPublished;
     this.ownerName = row.ownerName;
     this.ownerPhone = row.ownerPhone;
+    this.pastorName = row.pastorName;
     this.freeTrialStartAt = toIso(row.firstPublishedAt);
     this.freeTrialUntil = toIso(row.freeTrialUntil);
     this.paidUntil = toIso(row.paidUntil);

@@ -8,6 +8,7 @@ import {
 import { OnchurchChurch } from '@/onchurch/church/domain/entity/onchurch-church.entity';
 import { OnchurchUser } from '@/onchurch/user/domain/entity/onchurch-user.entity';
 import { OnchurchAuth } from '@/onchurch/auth/domain/entity/onchurch-auth.entity';
+import { OnchurchPastor } from '@/onchurch/about/domain/entity/onchurch-pastor.entity';
 import { PagingItems } from '@/common/type/type';
 
 @Injectable()
@@ -26,15 +27,17 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
     const keyword = params.keyword?.trim();
 
     // church.owner_id = user.id 직접 조인 (정식 relation이 아니므로 임의 조인 사용)
+    // 담임목사(onchurch_pastors)는 church_id가 unique라 1:1 조인. 소프트 삭제 행은 제외한다.
     const base = (): SelectQueryBuilder<OnchurchChurch> => {
       const qb = this.churchRepository
         .createQueryBuilder('church')
-        .leftJoin(OnchurchUser, 'owner', 'owner.id = church.owner_id');
+        .leftJoin(OnchurchUser, 'owner', 'owner.id = church.owner_id')
+        .leftJoin(OnchurchPastor, 'pastor', 'pastor.church_id = church.id AND pastor.deleted_at IS NULL');
       if (params.publishedOnly) {
         qb.andWhere('church.is_published = :published', { published: true });
       }
       if (keyword) {
-        qb.andWhere('(church.name ILIKE :kw OR owner.name ILIKE :kw OR owner.phone ILIKE :kw)', {
+        qb.andWhere('(church.name ILIKE :kw OR pastor.name ILIKE :kw OR owner.name ILIKE :kw OR owner.phone ILIKE :kw)', {
           kw: `%${keyword}%`,
         });
       }
@@ -77,6 +80,7 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
       .addSelect('church.first_published_at', 'firstPublishedAt')
       .addSelect('owner.name', 'ownerName')
       .addSelect('owner.phone', 'ownerPhone')
+      .addSelect('pastor.name', 'pastorName')
       .addSelect('owner.free_trial_until', 'freeTrialUntil')
       .addSelect('owner.paid_until', 'paidUntil')
       .addSelect('owner.is_test', 'isTest')
@@ -100,6 +104,7 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
       firstPublishedAt: r.firstPublishedAt ? new Date(r.firstPublishedAt) : null,
       ownerName: r.ownerName ?? null,
       ownerPhone: r.ownerPhone ?? null,
+      pastorName: r.pastorName ?? null,
       freeTrialUntil: r.freeTrialUntil ? new Date(r.freeTrialUntil) : null,
       paidUntil: r.paidUntil ? new Date(r.paidUntil) : null,
       naverVerification: r.naverVerification ?? null,
