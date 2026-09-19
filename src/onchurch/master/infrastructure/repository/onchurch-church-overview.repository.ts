@@ -56,6 +56,19 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
         'sess',
         'sess.user_id = church.owner_id',
       )
+      // 추천인 이벤트: 추천한 교회 이름(self join) + 이 교회를 추천인으로 입력한 교회 수.
+      .leftJoin(OnchurchChurch, 'referrer', 'referrer.id = church.referred_by_church_id')
+      .leftJoin(
+        (sub) =>
+          sub
+            .select('c2.referred_by_church_id', 'church_id')
+            .addSelect('COUNT(*)', 'referred_count')
+            .from(OnchurchChurch, 'c2')
+            .where('c2.referred_by_church_id IS NOT NULL')
+            .groupBy('c2.referred_by_church_id'),
+        'ref',
+        'ref.church_id = church.id',
+      )
       .select('church.id', 'id')
       .addSelect('church.name', 'name')
       .addSelect('church.slug', 'slug')
@@ -69,6 +82,9 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
       .addSelect('owner.is_test', 'isTest')
       .addSelect('church.naver_verification', 'naverVerification')
       .addSelect('church.site_template', 'siteTemplate')
+      .addSelect('church.referral_code', 'referralCode')
+      .addSelect('referrer.name', 'referredByChurchName')
+      .addSelect('ref.referred_count', 'referredCount')
       .addSelect('sess.last_activity', 'lastActivity')
       .orderBy('church.id', 'DESC')
       .offset((params.page - 1) * params.size)
@@ -88,6 +104,9 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
       paidUntil: r.paidUntil ? new Date(r.paidUntil) : null,
       naverVerification: r.naverVerification ?? null,
       siteTemplate: r.siteTemplate?.trim() || 'default',
+      referralCode: r.referralCode ?? null,
+      referredByChurchName: r.referredByChurchName ?? null,
+      referredCount: Number(r.referredCount ?? 0),
       isTest: !!r.isTest,
       lastActivity: r.lastActivity ? new Date(r.lastActivity) : null,
     }));

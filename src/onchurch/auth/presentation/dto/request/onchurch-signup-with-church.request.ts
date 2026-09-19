@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Equals, Matches, MaxLength, MinLength } from 'class-validator';
+import { Equals, IsOptional, Matches, MaxLength, MinLength } from 'class-validator';
 import { Email, IsPhone, NotBlank } from '@/common/decorator/validator';
 import { OnchurchSignupWithChurchCommand } from '@/onchurch/auth/application/command/onchurch-signup-with-church.command';
 
@@ -52,6 +52,11 @@ export class OnchurchSignupWithChurchRequest {
   @ApiProperty({ type: String, required: true, description: '대표 예배 시간', example: '주일 오전 11:00' })
   worshipTime: string;
 
+  @IsOptional()
+  @MaxLength(20)
+  @ApiProperty({ type: String, required: false, nullable: true, description: '추천인 코드(선택). 유효하지 않으면 조용히 무시된다.', example: 'A3K9QF' })
+  referralCode?: string | null;
+
   @Equals(true, { message: '이용약관 및 개인정보 처리방침에 동의해야 합니다.' })
   @ApiProperty({ type: Boolean, required: true, description: '약관 동의 (true 필수)', example: true })
   agree: boolean;
@@ -67,6 +72,7 @@ export class OnchurchSignupWithChurchRequest {
       pastorName: this.pastorName.trim(),
       worshipName: this.worshipName.trim(),
       worshipTime: this.worshipTime.trim(),
+      referralCode: this.referralCode?.trim() || null,
     });
   }
 }

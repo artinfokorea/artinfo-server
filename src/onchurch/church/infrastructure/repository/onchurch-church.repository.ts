@@ -102,6 +102,28 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
     return this.churchRepository.save(church);
   }
 
+  async findByReferralCode(referralCode: string): Promise<OnchurchChurch | null> {
+    return this.churchRepository.findOneBy({ referralCode });
+  }
+
+  async updateReferralCode(churchId: number, referralCode: string): Promise<OnchurchChurch> {
+    const church = await this.churchRepository.findOneBy({ id: churchId });
+    if (!church) throw new OnchurchChurchNotFound();
+    church.referralCode = referralCode;
+    return this.churchRepository.save(church);
+  }
+
+  async updateReferredByChurchId(churchId: number, referredByChurchId: number): Promise<OnchurchChurch> {
+    const church = await this.churchRepository.findOneBy({ id: churchId });
+    if (!church) throw new OnchurchChurchNotFound();
+    church.referredByChurchId = referredByChurchId;
+    return this.churchRepository.save(church);
+  }
+
+  async countReferredByChurchId(churchId: number): Promise<number> {
+    return this.churchRepository.countBy({ referredByChurchId: churchId });
+  }
+
   async updatePublished(ownerId: number, isPublished: boolean, firstPublishedAt?: Date): Promise<OnchurchChurch> {
     const church = await this.churchRepository.findOneBy({ ownerId });
     if (!church) throw new OnchurchChurchNotFound();

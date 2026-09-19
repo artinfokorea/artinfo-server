@@ -11,6 +11,7 @@ import { RedisRepository } from '@/common/redis/redis-repository.service';
 import { SystemService } from '@/system/service/system.service';
 import { OnchurchUpsertMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-upsert-my-church.usecase';
 import { OnchurchPublishMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-publish-my-church.usecase';
+import { OnchurchApplyReferralCodeUseCase } from '@/onchurch/church/application/usecase/onchurch-referral.usecase';
 import { OnchurchUpsertMyChurchCommand } from '@/onchurch/church/application/command/onchurch-upsert-my-church.command';
 import { OnchurchUpsertMyPastorUseCase } from '@/onchurch/about/application/usecase/onchurch-pastor.usecase';
 import { OnchurchPastorWriteCommand } from '@/onchurch/about/application/command/onchurch-about-write.command';
@@ -54,6 +55,7 @@ export class OnchurchSignupWithChurchUseCase {
     private readonly publishChurchUseCase: OnchurchPublishMyChurchUseCase,
     private readonly upsertPastorUseCase: OnchurchUpsertMyPastorUseCase,
     private readonly createWorshipServiceUseCase: OnchurchCreateMyWorshipServiceUseCase,
+    private readonly applyReferralCodeUseCase: OnchurchApplyReferralCodeUseCase,
   ) {}
 
   async execute(command: OnchurchSignupWithChurchCommand): Promise<OnchurchAuth> {
@@ -94,6 +96,15 @@ export class OnchurchSignupWithChurchUseCase {
 
     // 필수 4단계가 모두 채워졌으므로 자동 공개 → 7일 무료체험 즉시 시작.
     await this.publishChurchUseCase.execute(userId, true);
+
+    // 추천인 코드(선택). 코드가 틀렸다고 가입을 실패시키지는 않는다 — 관리자 결제 화면에서 다시 입력할 수 있다.
+    if (command.referralCode) {
+      try {
+        await this.applyReferralCodeUseCase.execute(userId, command.referralCode);
+      } catch (err) {
+        this.logger.warn(`추천인 코드 적용 실패: userId=${userId}, code=${command.referralCode}`, err as any);
+      }
+    }
 
     const user = await this.userRepository.findOneOrThrowById(userId);
 

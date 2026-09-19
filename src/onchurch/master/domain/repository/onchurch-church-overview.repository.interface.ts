@@ -17,6 +17,12 @@ export type OnchurchChurchOverviewRow = {
   naverVerification: string | null;
   // 공개 홈페이지 템플릿 ID. 미지정 시 'default'.
   siteTemplate: string;
+  // 추천인 이벤트: 이 교회 자기 코드(미발급이면 null).
+  referralCode: string | null;
+  // 이 교회가 입력한 추천인 교회 이름(미입력이면 null).
+  referredByChurchName: string | null;
+  // 이 교회 코드를 입력하고 가입한 교회 수.
+  referredCount: number;
   // 소유자가 테스트 계정인지 여부(owner.is_test). 달력 등에서 제외 판단에 사용.
   isTest: boolean;
   // 소유자의 마지막 세션 갱신 시각(onchurch_auths.updated_at 최대값) = 마지막 접속 근사치. 접속 이력 없으면 null.
