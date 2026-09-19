@@ -6,7 +6,7 @@ import { List } from '@/common/type/type';
 export class OnchurchListChurchesRequest extends List {
   @IsOptional()
   @IsString()
-  @ApiProperty({ type: String, required: false, description: '검색 키워드 (교회명·소유자명·연락처)' })
+  @ApiProperty({ type: String, required: false, description: '검색 키워드 (교회명·목사명·소유자명·연락처)' })
   keyword?: string;
 
   // 생략 시 true(운영중인 교회만). 명시적으로 'false'를 보내면 전체 조회.
