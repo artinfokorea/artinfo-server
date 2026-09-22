@@ -36,6 +36,15 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
     });
   }
 
+  async findAllWithCustomDomain(): Promise<OnchurchChurch[]> {
+    return this.churchRepository
+      .createQueryBuilder('church')
+      .where('church.custom_domain IS NOT NULL')
+      .andWhere("church.custom_domain <> ''")
+      .orderBy('church.id', 'ASC')
+      .getMany();
+  }
+
   async findPublishedWithExpiredSubscription(now: Date): Promise<OnchurchChurch[]> {
     // 무료체험 대상자(결제 이력이 아예 없는 사용자)만 자동 OFF 대상.
     //  - free_trial 만료(null 이거나 now 이하)

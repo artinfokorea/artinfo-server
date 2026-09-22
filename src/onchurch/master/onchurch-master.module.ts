@@ -28,6 +28,7 @@ import { OnchurchListChurchesUseCase } from '@/onchurch/master/application/useca
 import { OnchurchUpdateChurchPaidUntilUseCase } from '@/onchurch/master/application/usecase/onchurch-update-church-paid-until.usecase';
 import { OnchurchUpdateChurchNaverVerificationUseCase } from '@/onchurch/master/application/usecase/onchurch-update-church-naver-verification.usecase';
 import { OnchurchUpdateChurchSiteTemplateUseCase } from '@/onchurch/master/application/usecase/onchurch-update-church-site-template.usecase';
+import { OnchurchUpdateChurchCustomDomainUseCase } from '@/onchurch/master/application/usecase/onchurch-update-church-custom-domain.usecase';
 import { OnchurchUpdateChurchPublishedUseCase } from '@/onchurch/master/application/usecase/onchurch-update-church-published.usecase';
 import { OnchurchTransferChurchOwnerUseCase } from '@/onchurch/master/application/usecase/onchurch-transfer-church-owner.usecase';
 import { OnchurchSearchUsersUseCase } from '@/onchurch/master/application/usecase/onchurch-search-users.usecase';
@@ -94,6 +95,7 @@ import { OnchurchDashboardRepository } from '@/onchurch/master/infrastructure/re
     OnchurchUpdateChurchPaidUntilUseCase,
     OnchurchUpdateChurchNaverVerificationUseCase,
     OnchurchUpdateChurchSiteTemplateUseCase,
+    OnchurchUpdateChurchCustomDomainUseCase,
     OnchurchUpdateChurchPublishedUseCase,
     OnchurchTransferChurchOwnerUseCase,
     OnchurchSearchUsersUseCase,

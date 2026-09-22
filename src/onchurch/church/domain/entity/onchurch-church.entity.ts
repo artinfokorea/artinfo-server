@@ -49,6 +49,12 @@ export class OnchurchChurch extends BaseEntity {
   @Column({ type: 'varchar', name: 'naver_verification', nullable: true })
   naverVerification: string | null;
 
+  // 교회가 직접 보유한 도메인(대표 호스트). 예: 'www.eunseok.kr' 또는 'eunseok.kr'.
+  // 값이 있으면 그 주소로 이 교회 홈페이지가 서빙되고, {slug}.everychurch.co.kr 은 이 주소로 308 리다이렉트된다.
+  // 마스터만 설정하며, DB 등록만으로는 동작하지 않는다 — Vercel 프로젝트 Domains 등록 + 교회 DNS 변경이 함께 끝나야 한다.
+  @Column({ type: 'varchar', name: 'custom_domain', nullable: true })
+  customDomain: string | null;
+
   // 관리자가 등록하는 라이브 영상 URL(watch?v=...). 켤 때 이 영상으로 임베드한다.
   @Column({ type: 'varchar', name: 'live_url', nullable: true })
   liveUrl: string | null;
