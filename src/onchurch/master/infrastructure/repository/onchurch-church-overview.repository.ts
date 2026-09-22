@@ -124,6 +124,11 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
     return church?.ownerId ?? null;
   }
 
+  async findNameById(churchId: number): Promise<string | null> {
+    const church = await this.churchRepository.findOne({ where: { id: churchId }, select: { id: true, name: true } });
+    return church?.name ?? null;
+  }
+
   async updateNaverVerification(churchId: number, naverVerification: string | null): Promise<boolean> {
     const result = await this.churchRepository.update({ id: churchId }, { naverVerification });
     return (result.affected ?? 0) > 0;
