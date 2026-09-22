@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { OnchurchChurch, OnchurchHomeCustomLink } from '@/onchurch/church/domain/entity/onchurch-church.entity';
 import { OnchurchUser } from '@/onchurch/user/domain/entity/onchurch-user.entity';
+import { OnchurchCustomDomainMapping } from '@/onchurch/church/application/usecase/onchurch-list-custom-domains.usecase';
 
 export class OnchurchChurchResponse {
   @ApiProperty({ type: Number, required: true })
@@ -72,6 +73,9 @@ export class OnchurchChurchResponse {
   @ApiProperty({ type: String, required: true, description: "공개 홈페이지 템플릿 ID (미지정 시 'default'). 지원 템플릿 목록은 프론트 레지스트리가 관리하며, 미지원 값은 프론트에서 default로 폴백" })
   siteTemplate: string;
 
+  @ApiProperty({ type: String, required: false, nullable: true, description: '교회 자체 도메인 대표 호스트 (미연결이면 null). 이 값이 있으면 공개 사이트의 대표 주소가 된다' })
+  customDomain: string | null;
+
   @ApiProperty({ type: Boolean, required: true, description: '사이트 운영 중 여부' })
   isPublished: boolean;
 
@@ -104,6 +108,7 @@ export class OnchurchChurchResponse {
     // 서버는 템플릿 ID를 화이트리스트하지 않고 그대로 전달한다(새 템플릿 추가 시 서버 배포 불필요).
     // 미지원 값 처리는 프론트 템플릿 레지스트리의 default 폴백이 담당한다.
     this.siteTemplate = church.siteTemplate?.trim() || 'default';
+    this.customDomain = church.customDomain?.trim() || null;
     this.isPublished = church.isPublished ?? false;
     // 한 번이라도 사이트를 오픈(첫 publish)하면 채워지고, 이후 OFF해도 유지된다.
     this.firstPublishedAt = church.firstPublishedAt ? church.firstPublishedAt.toISOString() : null;
@@ -154,6 +159,7 @@ export class OnchurchPublicChurchListItemResponse {
   @ApiProperty({ type: String, nullable: true }) eng: string | null;
   @ApiProperty({ type: String, nullable: true }) tagline: string | null;
   @ApiProperty({ type: String, nullable: true }) logoUrl: string | null;
+  @ApiProperty({ type: String, nullable: true, description: '교회 자체 도메인 대표 호스트 (미연결이면 null)' }) customDomain: string | null;
 
   constructor(church: OnchurchChurch) {
     this.id = church.id;
@@ -162,6 +168,7 @@ export class OnchurchPublicChurchListItemResponse {
     this.eng = church.eng;
     this.tagline = church.tagline;
     this.logoUrl = church.logoUrl;
+    this.customDomain = church.customDomain?.trim() || null;
   }
 }
 
@@ -188,5 +195,24 @@ export class OnchurchMyChurchResponse {
     this.church = church ? new OnchurchChurchResponse(church) : null;
     this.subscription = new OnchurchSubscriptionResponse(user);
     this.churchRole = churchRole;
+  }
+}
+
+export class OnchurchCustomDomainItemResponse {
+  @ApiProperty({ type: String, description: '교회 자체 도메인 대표 호스트' }) host: string;
+  @ApiProperty({ type: String, description: '교회 slug' }) slug: string;
+
+  constructor(mapping: OnchurchCustomDomainMapping) {
+    this.host = mapping.host;
+    this.slug = mapping.slug;
+  }
+}
+
+export class OnchurchCustomDomainListResponse {
+  @ApiProperty({ type: [OnchurchCustomDomainItemResponse] })
+  domains: OnchurchCustomDomainItemResponse[];
+
+  constructor(mappings: OnchurchCustomDomainMapping[]) {
+    this.domains = mappings.map((m) => new OnchurchCustomDomainItemResponse(m));
   }
 }

@@ -85,6 +85,7 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
       .addSelect('owner.paid_until', 'paidUntil')
       .addSelect('owner.is_test', 'isTest')
       .addSelect('church.naver_verification', 'naverVerification')
+      .addSelect('church.custom_domain', 'customDomain')
       .addSelect('church.site_template', 'siteTemplate')
       .addSelect('church.referral_code', 'referralCode')
       .addSelect('referrer.name', 'referredByChurchName')
@@ -108,6 +109,7 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
       freeTrialUntil: r.freeTrialUntil ? new Date(r.freeTrialUntil) : null,
       paidUntil: r.paidUntil ? new Date(r.paidUntil) : null,
       naverVerification: r.naverVerification ?? null,
+      customDomain: r.customDomain?.trim() || null,
       siteTemplate: r.siteTemplate?.trim() || 'default',
       referralCode: r.referralCode ?? null,
       referredByChurchName: r.referredByChurchName ?? null,
@@ -137,6 +139,16 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
   async updateSiteTemplate(churchId: number, siteTemplate: string): Promise<boolean> {
     const result = await this.churchRepository.update({ id: churchId }, { siteTemplate });
     return (result.affected ?? 0) > 0;
+  }
+
+  async updateCustomDomain(churchId: number, customDomain: string | null): Promise<boolean> {
+    const result = await this.churchRepository.update({ id: churchId }, { customDomain });
+    return (result.affected ?? 0) > 0;
+  }
+
+  async findChurchIdByCustomDomain(customDomain: string): Promise<number | null> {
+    const church = await this.churchRepository.findOne({ where: { customDomain }, select: { id: true } });
+    return church?.id ?? null;
   }
 
   async updatePublished(churchId: number, isPublished: boolean): Promise<boolean> {

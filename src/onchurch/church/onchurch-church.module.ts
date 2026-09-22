@@ -19,6 +19,7 @@ import { OnchurchApplyReferralCodeUseCase, OnchurchGetMyReferralUseCase } from '
 import { OnchurchGetPublicChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-get-public-church.usecase';
 import { OnchurchGetLiveStatusUseCase } from '@/onchurch/church/application/usecase/onchurch-get-live-status.usecase';
 import { OnchurchListPublicChurchesUseCase } from '@/onchurch/church/application/usecase/onchurch-list-public-churches.usecase';
+import { OnchurchListCustomDomainsUseCase } from '@/onchurch/church/application/usecase/onchurch-list-custom-domains.usecase';
 import { OnchurchAutoUnpublishExpiredUseCase } from '@/onchurch/church/application/usecase/onchurch-auto-unpublish-expired.usecase';
 import { OnchurchChurchRequiredService } from '@/onchurch/church/application/service/onchurch-church-required.service';
 import { OnchurchSubscriptionScheduler } from '@/onchurch/church/scheduler/onchurch-subscription.scheduler';
@@ -40,6 +41,7 @@ import { AwsSesService } from '@/aws/ses/aws-ses.service';
     OnchurchGetPublicChurchUseCase,
     OnchurchGetLiveStatusUseCase,
     OnchurchListPublicChurchesUseCase,
+    OnchurchListCustomDomainsUseCase,
     OnchurchAutoUnpublishExpiredUseCase,
     OnchurchChurchRequiredService,
     OnchurchSubscriptionScheduler,

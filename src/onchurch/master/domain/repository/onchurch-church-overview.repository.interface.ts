@@ -17,6 +17,8 @@ export type OnchurchChurchOverviewRow = {
   freeTrialUntil: Date | null;
   paidUntil: Date | null;
   naverVerification: string | null;
+  // 교회 자체 도메인 대표 호스트. 미연결이면 null.
+  customDomain: string | null;
   // 공개 홈페이지 템플릿 ID. 미지정 시 'default'.
   siteTemplate: string;
   // 추천인 이벤트: 이 교회 자기 코드(미발급이면 null).
@@ -45,6 +47,10 @@ export interface IOnchurchChurchOverviewRepository {
   updateNaverVerification(churchId: number, naverVerification: string | null): Promise<boolean>;
   // 교회의 공개 홈페이지 템플릿을 갱신한다. 대상 교회가 없으면 false.
   updateSiteTemplate(churchId: number, siteTemplate: string): Promise<boolean>;
+  // 교회의 자체 도메인을 갱신한다(null 이면 연결 해제). 대상 교회가 없으면 false.
+  updateCustomDomain(churchId: number, customDomain: string | null): Promise<boolean>;
+  // 해당 호스트를 이미 다른 교회가 쓰고 있는지 확인한다(중복 등록 방지).
+  findChurchIdByCustomDomain(customDomain: string): Promise<number | null>;
   // 교회의 운영 여부(is_published)를 갱신한다. 대상 교회가 없으면 false.
   updatePublished(churchId: number, isPublished: boolean): Promise<boolean>;
 }

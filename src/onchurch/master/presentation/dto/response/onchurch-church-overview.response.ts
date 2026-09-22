@@ -20,6 +20,7 @@ export class OnchurchChurchOverviewResponse {
   @ApiProperty({ type: Boolean, description: '프리티어 유효 여부' }) isFreeTrialActive: boolean;
   @ApiProperty({ type: Boolean, description: '유료 결제 유효 여부' }) isPaidActive: boolean;
   @ApiProperty({ type: String, nullable: true, description: '네이버 사이트 인증 코드' }) naverVerification: string | null;
+  @ApiProperty({ type: String, nullable: true, description: '교회 자체 도메인 대표 호스트 (미연결이면 null)' }) customDomain: string | null;
   @ApiProperty({ type: String, description: "공개 홈페이지 템플릿 ID (미지정 시 'default')" }) siteTemplate: string;
   @ApiProperty({ type: Boolean, description: '소유자가 테스트 계정인지 여부' }) isTest: boolean;
   @ApiProperty({ type: String, nullable: true, description: '이 교회의 추천 코드(미발급이면 null)' }) referralCode: string | null;
@@ -43,6 +44,7 @@ export class OnchurchChurchOverviewResponse {
     this.isFreeTrialActive = !!row.freeTrialUntil && row.freeTrialUntil.getTime() > now.getTime();
     this.isPaidActive = !!row.paidUntil && row.paidUntil.getTime() > now.getTime();
     this.naverVerification = row.naverVerification;
+    this.customDomain = row.customDomain;
     this.siteTemplate = row.siteTemplate;
     this.referralCode = row.referralCode;
     this.referredByChurchName = row.referredByChurchName;

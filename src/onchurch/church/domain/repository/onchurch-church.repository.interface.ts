@@ -30,6 +30,9 @@ export interface IOnchurchChurchRepository {
   findBySlug(slug: string): Promise<OnchurchChurch | null>;
   findPublishedBySlug(slug: string): Promise<OnchurchChurch | null>;
   findAllPublished(): Promise<OnchurchChurch[]>;
+  // 자체 도메인(custom_domain)이 설정된 교회 전체. 미들웨어의 호스트→교회 매핑에 쓴다.
+  // 미공개(is_published=false) 교회도 포함한다 — 라우팅은 되어야 하고, 색인 차단은 robots 단계가 맡는다.
+  findAllWithCustomDomain(): Promise<OnchurchChurch[]>;
   findPublishedWithExpiredSubscription(now: Date): Promise<OnchurchChurch[]>;
   bulkUnpublishByOwnerIds(ownerIds: number[]): Promise<number>;
   upsertByOwnerId(ownerId: number, params: OnchurchChurchUpsertParams): Promise<OnchurchChurch>;
