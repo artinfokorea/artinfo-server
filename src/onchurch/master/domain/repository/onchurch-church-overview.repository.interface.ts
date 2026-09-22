@@ -37,6 +37,8 @@ export interface IOnchurchChurchOverviewRepository {
     size: number;
   }): Promise<PagingItems<OnchurchChurchOverviewRow>>;
   findOwnerIdByChurchId(churchId: number): Promise<number | null>;
+  // 가계부 메모에 쓸 교회 이름. 대상 교회가 없으면 null.
+  findNameById(churchId: number): Promise<string | null>;
   // 교회의 네이버 사이트 인증 코드를 갱신한다. 대상 교회가 없으면 false.
   updateNaverVerification(churchId: number, naverVerification: string | null): Promise<boolean>;
   // 교회의 공개 홈페이지 템플릿을 갱신한다. 대상 교회가 없으면 false.
