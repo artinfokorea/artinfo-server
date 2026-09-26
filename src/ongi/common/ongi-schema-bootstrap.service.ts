@@ -110,6 +110,17 @@ export class OngiSchemaBootstrapService implements OnModuleInit {
       )`,
       `CREATE UNIQUE INDEX IF NOT EXISTS uidx_ongi_push_tokens_token ON ongi_push_tokens (token)`,
       `CREATE INDEX IF NOT EXISTS idx_ongi_push_tokens_user ON ongi_push_tokens (user_id)`,
+      // 푸시 종류별 수신 설정 (2026-09-26) — 사용자당 1행, 없으면 전부 켜짐. 원본 DDL: push/ongi-push-preferences.ddl.sql
+      `CREATE TABLE IF NOT EXISTS ongi_push_preferences (
+        user_id         INTEGER PRIMARY KEY,
+        photo_enabled   BOOLEAN NOT NULL DEFAULT true,
+        comment_enabled BOOLEAN NOT NULL DEFAULT true,
+        like_enabled    BOOLEAN NOT NULL DEFAULT true,
+        event_enabled   BOOLEAN NOT NULL DEFAULT true,
+        family_enabled  BOOLEAN NOT NULL DEFAULT true,
+        created_at      TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at      TIMESTAMP NOT NULL DEFAULT now()
+      )`,
     ];
 
     try {

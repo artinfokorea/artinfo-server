@@ -2,12 +2,16 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { IOngiPushTokenRepository, ONGI_PUSH_TOKEN_REPOSITORY } from '@/ongi/push/domain/repository/ongi-push-token.repository.interface';
 import { IOngiMemberRepository, ONGI_MEMBER_REPOSITORY } from '@/ongi/group/domain/repository/ongi-member.repository.interface';
 import { IOngiBlockRepository, ONGI_BLOCK_REPOSITORY } from '@/ongi/group/domain/repository/ongi-block.repository.interface';
+import { IOngiPushPreferenceRepository, ONGI_PUSH_PREFERENCE_REPOSITORY } from '@/ongi/push/domain/repository/ongi-push-preference.repository.interface';
+import { filterUserIdsByPreference, OngiPushCategory } from '@/ongi/push/domain/service/ongi-push-preference';
 
 export interface OngiPushMessage {
   title: string;
   body: string;
   /** 앱이 탭 시 이동에 쓰는 페이로드 (groupId, photoId 등) */
   data?: Record<string, string>;
+  /** 사용자가 끌 수 있는 종류 — 없으면(문의 답변·운영) 설정과 무관하게 보낸다 */
+  category?: OngiPushCategory;
 }
 
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';
@@ -30,6 +34,9 @@ export class OngiPushService {
 
     @Inject(ONGI_BLOCK_REPOSITORY)
     private readonly blockRepository: IOngiBlockRepository,
+
+    @Inject(ONGI_PUSH_PREFERENCE_REPOSITORY)
+    private readonly preferenceRepository: IOngiPushPreferenceRepository,
   ) {}
 
   /** 그룹 구성원 전원(제외 사용자 빼고)에게 발송. 발신자를 차단한 사용자에게는 보내지 않는다 */
@@ -42,7 +49,7 @@ export class OngiPushService {
   /** 여러 사용자에게 시스템 알림 — 발신자 개념이 없는 알림(일정 리마인더 등)에 사용, 차단 필터 없음 */
   notifyUsers(userIds: number[], message: OngiPushMessage): void {
     void (async () => {
-      const unique = [...new Set(userIds)];
+      const unique = await this.applyPreference([...new Set(userIds)], message.category);
       if (unique.length === 0) return;
       const tokens = await this.pushTokenRepository.scanByUserIds(unique);
       await this.send(
@@ -63,6 +70,7 @@ export class OngiPushService {
     if (userId === senderUserId) return;
     const blocked = await this.blockRepository.blockedUserIdsOf(userId);
     if (blocked.includes(senderUserId)) return;
+    if ((await this.applyPreference([userId], message.category)).length === 0) return;
     const tokens = await this.pushTokenRepository.scanByUserIds([userId]);
     await this.send(
       tokens.map(t => t.token),
@@ -82,11 +90,17 @@ export class OngiPushService {
       if (!blocked.includes(senderUserId)) recipients.push(userId);
     }
 
-    const tokens = await this.pushTokenRepository.scanByUserIds(recipients);
+    const tokens = await this.pushTokenRepository.scanByUserIds(await this.applyPreference(recipients, message.category));
     await this.send(
       tokens.map(t => t.token),
       message,
     );
+  }
+
+  /** 종류별 수신 설정에서 그 종류를 끈 사용자를 뺀다 — 설정을 저장한 적 없으면 켜짐 */
+  private async applyPreference(userIds: number[], category: OngiPushCategory | undefined): Promise<number[]> {
+    if (!category || userIds.length === 0) return userIds;
+    return filterUserIdsByPreference(userIds, await this.preferenceRepository.scanByUserIds(userIds), category);
   }
 
   private async send(tokens: string[], message: OngiPushMessage): Promise<void> {

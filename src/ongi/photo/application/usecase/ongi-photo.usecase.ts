@@ -27,7 +27,7 @@ import {
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { OngiPushService } from '@/ongi/push/application/service/ongi-push.service';
 import { OngiLikePushThrottle } from '@/ongi/photo/domain/service/ongi-like-push-throttle';
-import { commentPushTargets } from '@/ongi/photo/domain/service/ongi-comment-push';
+import { commentPushTargets, OngiCommentPushRole } from '@/ongi/photo/domain/service/ongi-comment-push';
 import { ObjectCannedACL } from '@aws-sdk/client-s3';
 import { UploadFile } from '@/common/type/type';
 import { Util } from '@/common/util/util';
@@ -179,6 +179,7 @@ export class OngiToggleLikeUseCase {
           title: '온기',
           body: `${me.name}님이 회원님의 사진을 좋아해요 ❤️`,
           data: { type: 'like', groupId: String(photo.groupId), photoId: String(photo.id) },
+          category: 'like',
         });
       }
     }
@@ -460,19 +461,28 @@ export class OngiAddCommentUseCase {
     return comment;
   }
 
-  /** 사진 작성자 + 이 사진에 이미 한마디를 남긴 사람들에게 푸시 — 대화에 참여한 사람은 뒷이야기를 알 수 있어야 한다 */
+  /** 가족 전원에게 푸시 (본인 제외) — 작성자·댓글 참여자·나머지 가족 문구가 다르다. 종류별 설정('comment')으로 끌 수 있다 */
   private async notifyComment(photo: OngiPhoto, me: OngiMember, text: string): Promise<void> {
+    // scanByGroupId 는 살아있는 구성원만 준다 — 나간 구성원은 여기서 걸러진다
+    const alive = await this.memberRepository.scanByGroupId(photo.groupId);
     const commenterMemberIds = await this.photoRepository.scanCommentAuthorMemberIdsByPhotoId(photo.id);
     const targets = commentPushTargets({
+      groupMemberIds: alive.map(member => member.id),
       photoAuthorMemberId: photo.authorMemberId,
       existingCommenterMemberIds: commenterMemberIds,
       actorMemberId: me.id,
     });
     if (targets.length === 0) return;
 
-    // 나간 구성원은 스스로 걸러진다 — scanByGroupId 는 살아있는 구성원만 준다
-    const members = new Map((await this.memberRepository.scanByGroupId(photo.groupId)).map(member => [member.id, member]));
+    const members = new Map(alive.map(member => [member.id, member]));
     const preview = text.length > 40 ? `${text.slice(0, 40)}…` : text;
+    const authorName = members.get(photo.authorMemberId)?.name;
+    const whose = photo.authorMemberId === me.id ? '올린 사진에' : authorName ? `${authorName}님 사진에` : '사진에';
+    const bodyOf = (role: OngiCommentPushRole): string => {
+      if (role === 'author') return `${me.name}님이 회원님 사진에 한마디를 남겼어요: ${preview}`;
+      if (role === 'participant') return `${me.name}님도 한마디를 남겼어요: ${preview}`;
+      return `${me.name}님이 ${whose} 한마디를 남겼어요: ${preview}`;
+    };
 
     for (const target of targets) {
       const member = members.get(target.memberId);
@@ -480,8 +490,9 @@ export class OngiAddCommentUseCase {
 
       this.pushService.notifyUser(member.userId, me.userId, {
         title: '온기',
-        body: target.isPhotoAuthor ? `${me.name}님이 회원님 사진에 한마디를 남겼어요: ${preview}` : `${me.name}님도 한마디를 남겼어요: ${preview}`,
+        body: bodyOf(target.role),
         data: { type: 'comment', groupId: String(photo.groupId), photoId: String(photo.id) },
+        category: 'comment',
       });
     }
   }
@@ -540,6 +551,7 @@ export class OngiUploadPhotosUseCase {
         title: '온기',
         body: `${me.name}님이 ${hasVideo ? `사진·영상 ${count}개` : `사진 ${count}장`}를 올렸어요${command.caption ? ` · ${command.caption}` : ''}`,
         data: { type: 'photo', groupId: String(target.groupId), photoId: first ? String(first.id) : '' },
+        category: 'photo',
       });
     }
 
