@@ -28,6 +28,7 @@ import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { OngiPushService } from '@/ongi/push/application/service/ongi-push.service';
 import { OngiLikePushThrottle } from '@/ongi/photo/domain/service/ongi-like-push-throttle';
 import { commentPushTargets, OngiCommentPushRole } from '@/ongi/photo/domain/service/ongi-comment-push';
+import { inOriginalOrder } from '@/ongi/photo/domain/service/ongi-copy-order';
 import { ObjectCannedACL } from '@aws-sdk/client-s3';
 import { UploadFile } from '@/common/type/type';
 import { Util } from '@/common/util/util';
@@ -264,10 +265,11 @@ export class OngiCopyPhotosUseCase {
       if (!album || album.groupId !== targetGroupId) throw new OngiAlbumNotInGroup();
     }
 
-    const copiedIds: number[] = [];
     const skippedIds: number[] = [];
     const memberByGroup = new Map<number, OngiMember | null>();
 
+    // 권한 확인을 먼저 끝내고, 복사는 원본 게시 순서(오래된 것부터)로 — 선택 순서대로 만들면 대상 공간에서 순서가 뒤집힌다
+    const eligible: OngiPhoto[] = [];
     for (const photoId of photoIds) {
       const photo = await this.photoRepository.findById(photoId);
       if (!photo || photo.groupId === targetGroupId) {
@@ -283,7 +285,11 @@ export class OngiCopyPhotosUseCase {
         skippedIds.push(photoId);
         continue;
       }
+      eligible.push(photo);
+    }
 
+    const copiedIds: number[] = [];
+    for (const photo of inOriginalOrder(eligible)) {
       await this.photoRepository.create({
         groupId: targetGroupId,
         authorMemberId: target.id,
@@ -296,7 +302,7 @@ export class OngiCopyPhotosUseCase {
         mediaType: photo.mediaType ?? 'photo',
         durationSeconds: photo.durationSeconds ?? null,
       });
-      copiedIds.push(photoId);
+      copiedIds.push(photo.id);
     }
 
     return { copiedIds, skippedIds };
