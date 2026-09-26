@@ -84,13 +84,16 @@ export class OngiAdminController {
   }
 
   @RequireOngiAdminPermission('inquiries')
-  @RestApiGet(OngiAdminInquiryListResponse, { path: '/inquiries', description: '앱 문의 — ?status=open|answered, ?page=' })
+  @RestApiGet(OngiAdminInquiryListResponse, { path: '/inquiries', description: '앱 문의 — ?status=open|answered(답변 없이 완료 포함), ?page=' })
   async inquiries(@AdminActor() actor: OngiAdminActor, @Query('status') status?: string, @Query('page') page?: string) {
     return new OngiAdminInquiryListResponse(await this.inquiryUseCase.scan(actor, status ?? null, pageNumber(page)));
   }
 
   @RequireOngiAdminPermission('inquiries')
-  @RestApiPut(OngiAdminOkResponse, { path: '/inquiries/:id/answer', description: '문의 답변 작성·수정 — 첫 답변이면 문의한 사용자에게 푸시' })
+  @RestApiPut(OngiAdminOkResponse, {
+    path: '/inquiries/:id/answer',
+    description: '문의 답변 작성·수정 — 빈 답변이면 답변 없이 완료 처리, 내용 있는 첫 답변이면 문의한 사용자에게 푸시',
+  })
   async answerInquiry(@AdminActor() actor: OngiAdminActor, @Param('id', ParseIntPipe) id: number, @Body() request: OngiAdminInquiryAnswerRequest) {
     await this.inquiryUseCase.answer(actor, id, request.answer);
 

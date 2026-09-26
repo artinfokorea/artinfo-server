@@ -38,6 +38,6 @@ export class OngiAdminUnsupportedTarget extends HttpException {
 
 export class OngiAdminInvalidAnswer extends HttpException {
   constructor() {
-    super({ code: 'ONGI-ADMIN-007', message: '답변을 1~2000자로 입력해 주세요.' }, HttpStatus.BAD_REQUEST);
+    super({ code: 'ONGI-ADMIN-007', message: '답변은 2000자까지 입력할 수 있어요.' }, HttpStatus.BAD_REQUEST);
   }
 }

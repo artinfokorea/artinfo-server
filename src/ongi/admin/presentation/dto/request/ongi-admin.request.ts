@@ -26,7 +26,12 @@ export class OngiAdminConfigRequest {
 }
 
 export class OngiAdminInquiryAnswerRequest {
-  @IsString({ message: '답변을 입력해 주세요.' })
-  @ApiProperty({ type: String, required: true, description: '답변 (1~2000자) — 다시 보내면 수정', example: '확인해 보니 해결됐어요.' })
+  @IsString({ message: '답변이 올바르지 않아요.' })
+  @ApiProperty({
+    type: String,
+    required: true,
+    description: '답변 (2000자까지) — 빈 문자열이면 답변 없이 완료 처리, 다시 보내면 수정',
+    example: '확인해 보니 해결됐어요.',
+  })
   answer: string;
 }
