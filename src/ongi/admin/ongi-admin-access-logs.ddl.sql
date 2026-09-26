@@ -1,5 +1,6 @@
 -- 운영자 사진 열람 기록 (2026-09-14) — bootstrap 이 기동 시 자동 생성
 -- 개인정보 처리방침 5·7조: 운영 책임자의 가족 사진 열람은 모두 기록한다
+-- action: 'view_photos' 사진 열람 · 'delete_group' 가족 공간 삭제 (2026-09-27)
 CREATE TABLE IF NOT EXISTS ongi_admin_access_logs (
   id            SERIAL PRIMARY KEY,
   admin_user_id INTEGER NOT NULL,

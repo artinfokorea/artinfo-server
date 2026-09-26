@@ -1,6 +1,6 @@
 import { Body, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { RestApiController, RestApiGet, RestApiPost, RestApiPut } from '@/common/decorator/rest-api';
+import { RestApiController, RestApiDelete, RestApiGet, RestApiPost, RestApiPut } from '@/common/decorator/rest-api';
 import { AdminActor, OngiAdminActor, OngiAdminGuard, RequireOngiAdminPermission } from '@/ongi/admin/presentation/guard/ongi-admin.guard';
 import {
   OngiAdminConfigUseCase,
@@ -127,6 +127,14 @@ export class OngiAdminController {
   @RestApiGet(OngiAdminGroupDetailResponse, { path: '/groups/:id', description: '가족 공간 상세 · 구성원' })
   async group(@Param('id', ParseIntPipe) id: number) {
     return new OngiAdminGroupDetailResponse(await this.directoryUseCase.getGroup(id));
+  }
+
+  @RequireOngiAdminPermission('deleteGroup')
+  @RestApiDelete(OngiAdminOkResponse, { path: '/groups/:id', description: '가족 공간 삭제 — 구성원·앨범·사진·댓글·일정까지 소프트 삭제 (삭제 기록 남김)' })
+  async removeGroup(@AdminActor() actor: OngiAdminActor, @Param('id', ParseIntPipe) id: number) {
+    await this.directoryUseCase.removeGroup(actor, id);
+
+    return new OngiAdminOkResponse();
   }
 
   @RequireOngiAdminPermission('photos')

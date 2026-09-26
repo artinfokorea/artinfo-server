@@ -65,7 +65,7 @@ export class OngiAdminMeUseCase {
 
   async execute(actor: OngiAdminActor): Promise<OngiAdminMeView> {
     const user = await this.adminRepository.findUserTypeById(actor.userId);
-    const all: OngiAdminPermission[] = ['dashboard', 'reports', 'inquiries', 'directory', 'configs', 'grant', 'sensitive', 'photos'];
+    const all: OngiAdminPermission[] = ['dashboard', 'reports', 'inquiries', 'directory', 'configs', 'grant', 'sensitive', 'photos', 'deleteGroup'];
 
     return { userId: actor.userId, name: user?.name ?? '', type: actor.type, permissions: all.filter(p => hasAdminPermission(actor.type, p)) };
   }
@@ -175,6 +175,13 @@ export class OngiAdminDirectoryUseCase {
     if (!group) throw new OngiAdminNotFound();
 
     return { group, members: await this.adminRepository.scanGroupMembers(groupId) };
+  }
+
+  /** 가족 공간 삭제 — 구성원·앨범·사진·댓글·일정까지 함께 소프트 삭제 (S3 원본은 남긴다) */
+  async removeGroup(actor: OngiAdminActor, groupId: number): Promise<void> {
+    if (!(await this.adminRepository.findGroupById(groupId))) throw new OngiAdminNotFound();
+
+    await this.adminRepository.softDeleteGroup(groupId, actor.userId);
   }
 }
 

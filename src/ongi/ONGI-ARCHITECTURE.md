@@ -38,6 +38,7 @@
 - 차단 `POST|DELETE /ongi/members/:memberId/block` → `ongi_blocks (user_id, blocked_user_id)`. 차단한 사용자의 사진·댓글은 피드/앨범/미분류/인물/댓글 조회에서 숨긴다 (`OngiPhotoAccessService.withoutBlocked`). 구성원 응답에 `blockedByMe`, `isMe` 포함.
 - 내보내기 `DELETE /ongi/groups/:groupId/members/:memberId` (관리자 전용, 본인·다른 관리자 불가)
 - 회원 탈퇴 `DELETE /ongi/users/me`: 사용자 익명화(sns_id 변경으로 재가입 가능) + 구성원·사진·댓글·인물 소프트 삭제 + 좋아요·차단·토큰 삭제. S3 파일은 남음.
+- 관리자 가족 공간 삭제 `DELETE /ongi/admin/groups/:id` (2026-09-27, SUPER_ADMIN 전용 `deleteGroup` 권한): 공간 + 구성원·앨범·사진·댓글·일정을 한 트랜잭션에서 소프트 삭제. 함께 지워진 행은 공간과 `deleted_at` 이 같다(복구 기준). 좋아요·S3 원본은 남기고, `ongi_admin_access_logs` 에 `delete_group` 기록을 남긴다.
 - 약관·개인정보처리방침(`legal/domain/constant`)에 무관용·신고·24시간 조치·위탁(Google, AWS) 조항 반영. 사업자 정보는 `[플레이스홀더]` — 출시 전 교체 필수.
 
 ## 남은 일 (TODO)

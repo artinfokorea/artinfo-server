@@ -24,7 +24,8 @@ export class OngiAdminMeResponse {
   @ApiProperty({ type: String }) userId: string;
   @ApiProperty({ type: String }) name: string;
   @ApiProperty({ type: String, description: "'ADMIN' | 'SUPER_ADMIN'" }) type: string;
-  @ApiProperty({ type: [String], description: 'dashboard · reports · directory · configs · grant · sensitive' }) permissions: string[];
+  @ApiProperty({ type: [String], description: 'dashboard · reports · inquiries · directory · configs · grant · sensitive · photos · deleteGroup' })
+  permissions: string[];
 
   constructor(view: OngiAdminMeView) {
     this.userId = String(view.userId);

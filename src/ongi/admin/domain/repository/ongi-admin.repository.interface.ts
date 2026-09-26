@@ -139,6 +139,8 @@ export interface IOngiAdminRepository {
   scanGroups(query: string | null, page: OngiAdminPage): Promise<OngiAdminGroupRow[]>;
   findGroupById(id: number): Promise<OngiAdminGroupRow | null>;
   scanGroupMembers(groupId: number): Promise<OngiAdminGroupMemberRow[]>;
+  /** 가족 공간과 딸린 구성원·앨범·사진·댓글·일정을 한 트랜잭션에서 소프트 삭제하고 삭제 기록을 남긴다 */
+  softDeleteGroup(groupId: number, adminUserId: number): Promise<void>;
 
   /** 삭제되지 않은 사진·영상 (최신순) */
   scanGroupPhotos(groupId: number, page: OngiAdminPage): Promise<OngiAdminPhotoRow[]>;
