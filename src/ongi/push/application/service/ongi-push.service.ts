@@ -4,6 +4,8 @@ import { IOngiMemberRepository, ONGI_MEMBER_REPOSITORY } from '@/ongi/group/doma
 import { IOngiBlockRepository, ONGI_BLOCK_REPOSITORY } from '@/ongi/group/domain/repository/ongi-block.repository.interface';
 import { IOngiPushPreferenceRepository, ONGI_PUSH_PREFERENCE_REPOSITORY } from '@/ongi/push/domain/repository/ongi-push-preference.repository.interface';
 import { filterUserIdsByPreference, OngiPushCategory } from '@/ongi/push/domain/service/ongi-push-preference';
+import { IOngiNotificationRepository, ONGI_NOTIFICATION_REPOSITORY } from '@/ongi/notification/domain/repository/ongi-notification.repository.interface';
+import { notificationRecordsOf } from '@/ongi/notification/domain/service/ongi-notification';
 
 export interface OngiPushMessage {
   title: string;
@@ -37,6 +39,9 @@ export class OngiPushService {
 
     @Inject(ONGI_PUSH_PREFERENCE_REPOSITORY)
     private readonly preferenceRepository: IOngiPushPreferenceRepository,
+
+    @Inject(ONGI_NOTIFICATION_REPOSITORY)
+    private readonly notificationRepository: IOngiNotificationRepository,
   ) {}
 
   /** 그룹 구성원 전원(제외 사용자 빼고)에게 발송. 발신자를 차단한 사용자에게는 보내지 않는다 */
@@ -49,7 +54,9 @@ export class OngiPushService {
   /** 여러 사용자에게 시스템 알림 — 발신자 개념이 없는 알림(일정 리마인더 등)에 사용, 차단 필터 없음 */
   notifyUsers(userIds: number[], message: OngiPushMessage): void {
     void (async () => {
-      const unique = await this.applyPreference([...new Set(userIds)], message.category);
+      const all = [...new Set(userIds)];
+      await this.record(all, null, message);
+      const unique = await this.applyPreference(all, message.category);
       if (unique.length === 0) return;
       const tokens = await this.pushTokenRepository.scanByUserIds(unique);
       await this.send(
@@ -70,6 +77,7 @@ export class OngiPushService {
     if (userId === senderUserId) return;
     const blocked = await this.blockRepository.blockedUserIdsOf(userId);
     if (blocked.includes(senderUserId)) return;
+    await this.record([userId], senderUserId, message);
     if ((await this.applyPreference([userId], message.category)).length === 0) return;
     const tokens = await this.pushTokenRepository.scanByUserIds([userId]);
     await this.send(
@@ -90,11 +98,21 @@ export class OngiPushService {
       if (!blocked.includes(senderUserId)) recipients.push(userId);
     }
 
+    await this.record(recipients, senderUserId, message);
     const tokens = await this.pushTokenRepository.scanByUserIds(await this.applyPreference(recipients, message.category));
     await this.send(
       tokens.map(t => t.token),
       message,
     );
+  }
+
+  /** 앱 내 알림 목록에 남긴다 — 푸시 설정과 무관하게 수신자 전원. 저장 실패가 발송을 막지 않게 따로 잡는다 */
+  private async record(userIds: number[], senderUserId: number | null, message: OngiPushMessage): Promise<void> {
+    try {
+      await this.notificationRepository.createMany(notificationRecordsOf(message, userIds, senderUserId));
+    } catch (error) {
+      this.logger.warn(`notification record failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
   /** 종류별 수신 설정에서 그 종류를 끈 사용자를 뺀다 — 설정을 저장한 적 없으면 켜짐 */
