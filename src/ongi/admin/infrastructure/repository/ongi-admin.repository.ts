@@ -186,6 +186,31 @@ export class OngiAdminRepository implements IOngiAdminRepository {
     );
   }
 
+  /**
+   * 가족 공간 삭제 — 공간에 딸린 데이터까지 한 트랜잭션에서 소프트 삭제한다.
+   * - 트랜잭션 안의 now() 는 값이 같으므로, 함께 지워진 행은 공간과 deleted_at 이 같다 (복구할 때 이 값으로 고른다)
+   * - 좋아요(ongi_photo_likes)는 deleted_at 이 없고 사진이 가려지면 노출되지 않으므로 그대로 둔다
+   * - S3 원본은 지우지 않는다 — 소프트 삭제라 복구할 수 있어야 한다
+   */
+  async softDeleteGroup(groupId: number, adminUserId: number): Promise<void> {
+    await this.dataSource.transaction(async manager => {
+      await manager.query(
+        `UPDATE ongi_photo_comments SET deleted_at = now()
+          WHERE deleted_at IS NULL AND photo_id IN (SELECT id FROM ongi_photos WHERE group_id = $1)`,
+        [groupId],
+      );
+      await manager.query(`UPDATE ongi_photos SET deleted_at = now() WHERE group_id = $1 AND deleted_at IS NULL`, [groupId]);
+      await manager.query(`UPDATE ongi_albums SET deleted_at = now() WHERE group_id = $1 AND deleted_at IS NULL`, [groupId]);
+      await manager.query(`UPDATE ongi_events SET deleted_at = now() WHERE group_id = $1 AND deleted_at IS NULL`, [groupId]);
+      await manager.query(`UPDATE ongi_members SET deleted_at = now() WHERE group_id = $1 AND deleted_at IS NULL`, [groupId]);
+      await manager.query(`UPDATE ongi_groups SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL`, [groupId]);
+      await manager.query(`INSERT INTO ongi_admin_access_logs (admin_user_id, action, target_type, target_id) VALUES ($1, 'delete_group', 'group', $2)`, [
+        adminUserId,
+        groupId,
+      ]);
+    });
+  }
+
   private readonly photoSelect = `
     SELECT p.id, p.group_id AS "groupId", g.name AS "groupName", p.author_member_id AS "authorMemberId",
            m.name AS "authorName", m.user_id AS "authorUserId",

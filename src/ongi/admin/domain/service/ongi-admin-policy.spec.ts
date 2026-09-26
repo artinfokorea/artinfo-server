@@ -55,6 +55,14 @@ describe('hasAdminPermission — 등급별 권한', () => {
     expect(hasAdminPermission('ADMIN', 'photos')).toBe(false);
   });
 
+  it('ADMIN: 가족 공간 삭제는 불가', () => {
+    expect(hasAdminPermission('ADMIN', 'deleteGroup')).toBe(false);
+  });
+
+  it('SUPER_ADMIN: 가족 공간 삭제 가능', () => {
+    expect(hasAdminPermission('SUPER_ADMIN', 'deleteGroup')).toBe(true);
+  });
+
   it('SUPER_ADMIN: 전부 가능', () => {
     expect(hasAdminPermission('SUPER_ADMIN', 'dashboard')).toBe(true);
     expect(hasAdminPermission('SUPER_ADMIN', 'reports')).toBe(true);
