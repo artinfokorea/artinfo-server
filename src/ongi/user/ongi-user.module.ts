@@ -14,9 +14,10 @@ import {
 } from '@/ongi/user/application/usecase/ongi-user.usecase';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { OngiPushModule } from '@/ongi/push/ongi-push.module';
+import { OngiNotificationModule } from '@/ongi/notification/ongi-notification.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OngiUser]), OngiPushModule],
+  imports: [TypeOrmModule.forFeature([OngiUser]), OngiPushModule, OngiNotificationModule],
   controllers: [OngiUserController],
   providers: [
     { provide: ONGI_USER_REPOSITORY, useClass: OngiUserRepository },

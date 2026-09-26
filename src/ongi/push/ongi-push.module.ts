@@ -16,9 +16,10 @@ import {
 } from '@/ongi/push/application/usecase/ongi-push.usecase';
 import { OngiPushService } from '@/ongi/push/application/service/ongi-push.service';
 import { OngiGroupModule } from '@/ongi/group/ongi-group.module';
+import { OngiNotificationModule } from '@/ongi/notification/ongi-notification.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OngiPushToken, OngiPushPreference]), forwardRef(() => OngiGroupModule)],
+  imports: [TypeOrmModule.forFeature([OngiPushToken, OngiPushPreference]), forwardRef(() => OngiGroupModule), OngiNotificationModule],
   controllers: [OngiPushController, OngiPushPreferenceController],
   providers: [
     { provide: ONGI_PUSH_TOKEN_REPOSITORY, useClass: OngiPushTokenRepository },
