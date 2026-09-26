@@ -14,7 +14,8 @@ export class OngiInquiryResponse {
     this.id = String(inquiry.id);
     this.status = inquiryStatusOf(inquiry.answer);
     this.content = inquiry.content;
-    this.answer = inquiry.answer ?? undefined;
+    // 답변 없이 완료한 문의는 answer 가 빈 문자열 — 앱에는 내려주지 않는다
+    this.answer = inquiry.answer || undefined;
     this.answeredAt = inquiry.answeredAt ? new Date(inquiry.answeredAt).toISOString() : undefined;
     this.createdAt = new Date(inquiry.createdAt).toISOString();
   }

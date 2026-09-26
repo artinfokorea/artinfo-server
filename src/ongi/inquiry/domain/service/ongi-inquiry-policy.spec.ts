@@ -1,4 +1,11 @@
-import { buildInquiryNotifyMail, inquiryStatusOf, normalizeInquiryText, ONGI_INQUIRY_MAX_LENGTH } from '@/ongi/inquiry/domain/service/ongi-inquiry-policy';
+import {
+  buildInquiryNotifyMail,
+  inquiryStatusOf,
+  normalizeInquiryAnswer,
+  normalizeInquiryText,
+  ONGI_INQUIRY_MAX_LENGTH,
+  shouldNotifyInquiryAnswer,
+} from '@/ongi/inquiry/domain/service/ongi-inquiry-policy';
 
 describe('normalizeInquiryText — 문의·답변 본문', () => {
   it('앞뒤 공백을 걷어낸 본문을 돌려준다', () => {
@@ -29,6 +36,48 @@ describe('inquiryStatusOf — 답변 여부로 상태가 정해진다', () => {
 
   it('답변이 있으면 answered', () => {
     expect(inquiryStatusOf('확인해 보니 해결됐어요.')).toBe('answered');
+  });
+
+  it('답변 없이 완료 처리한 문의(빈 문자열)도 answered', () => {
+    expect(inquiryStatusOf('')).toBe('answered');
+  });
+});
+
+describe('normalizeInquiryAnswer — 운영자 답변 (비워 두면 답변 없이 완료)', () => {
+  it('앞뒤 공백을 걷어낸 답변을 돌려준다', () => {
+    expect(normalizeInquiryAnswer('  확인해 보니 해결됐어요.\n')).toBe('확인해 보니 해결됐어요.');
+  });
+
+  it('비어 있거나 공백뿐이면 빈 문자열 — 답변 없이 완료', () => {
+    expect(normalizeInquiryAnswer('')).toBe('');
+    expect(normalizeInquiryAnswer('   \n\t ')).toBe('');
+    expect(normalizeInquiryAnswer(undefined)).toBe('');
+    expect(normalizeInquiryAnswer(null)).toBe('');
+  });
+
+  it('최대 2000자까지 허용하고 넘으면 null', () => {
+    expect(normalizeInquiryAnswer('가'.repeat(2000))).toBe('가'.repeat(2000));
+    expect(normalizeInquiryAnswer('가'.repeat(2001))).toBeNull();
+  });
+});
+
+describe('shouldNotifyInquiryAnswer — 문의한 사용자에게 답변 푸시를 보낼지', () => {
+  it('처음으로 내용 있는 답변을 쓰면 보낸다', () => {
+    expect(shouldNotifyInquiryAnswer(null, '확인해 보니 해결됐어요.')).toBe(true);
+  });
+
+  it('답변 없이 완료했던 문의에 나중에 답변을 쓰면 보낸다', () => {
+    expect(shouldNotifyInquiryAnswer('', '확인해 보니 해결됐어요.')).toBe(true);
+  });
+
+  it('답변 없이 완료 처리할 때는 보내지 않는다', () => {
+    expect(shouldNotifyInquiryAnswer(null, '')).toBe(false);
+    expect(shouldNotifyInquiryAnswer('', '')).toBe(false);
+  });
+
+  it('이미 있는 답변을 고칠 때는 보내지 않는다', () => {
+    expect(shouldNotifyInquiryAnswer('처음 답변', '고친 답변')).toBe(false);
+    expect(shouldNotifyInquiryAnswer('처음 답변', '')).toBe(false);
   });
 });
 

@@ -10,9 +10,24 @@ export function normalizeInquiryText(raw: string | undefined | null): string | n
   return text;
 }
 
-/** 상태는 따로 저장하지 않고 답변 유무로 정한다 — 답변을 쓰는 순간 answered */
+/**
+ * 운영자 답변 — 앞뒤 공백을 걷어낸다. 비워 두면 빈 문자열(답변 없이 완료 처리), 2000자를 넘으면 null
+ */
+export function normalizeInquiryAnswer(raw: string | undefined | null): string | null {
+  const text = (raw ?? '').trim();
+  if (text.length > ONGI_INQUIRY_MAX_LENGTH) return null;
+
+  return text;
+}
+
+/** 상태는 따로 저장하지 않고 답변 유무로 정한다 — 답변을 쓰거나 답변 없이 완료(빈 문자열)하는 순간 answered */
 export function inquiryStatusOf(answer: string | null): OngiInquiryStatus {
   return answer === null ? 'open' : 'answered';
+}
+
+/** 답변 푸시는 내용 있는 답변이 처음 달릴 때만 — 답변 없이 완료·답변 수정은 조용히 반영 */
+export function shouldNotifyInquiryAnswer(previous: string | null, next: string): boolean {
+  return next.length > 0 && (previous === null || previous.length === 0);
 }
 
 /** 문의가 들어오면 알림 메일을 받을 운영자 주소 */

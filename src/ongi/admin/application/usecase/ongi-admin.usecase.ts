@@ -34,7 +34,7 @@ import { IOngiPhotoRepository, ONGI_PHOTO_REPOSITORY } from '@/ongi/photo/domain
 import { ONGI_REPORT_STATUS, ONGI_REPORT_TARGET_TYPE } from '@/ongi/report/domain/entity/ongi-report.entity';
 import { OngiGetAppConfigUseCase } from '@/ongi/config/application/usecase/ongi-config.usecase';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
-import { normalizeInquiryText } from '@/ongi/inquiry/domain/service/ongi-inquiry-policy';
+import { normalizeInquiryAnswer, shouldNotifyInquiryAnswer } from '@/ongi/inquiry/domain/service/ongi-inquiry-policy';
 import { OngiPushService } from '@/ongi/push/application/service/ongi-push.service';
 
 const PAGE_SIZE = 50;
@@ -255,17 +255,20 @@ export class OngiAdminInquiryUseCase {
     return rows.map(row => ({ ...row, userEmail: maskEmail(row.userEmail) }));
   }
 
-  /** 답변 저장 — 처음 답변할 때만 문의한 사용자에게 푸시 (수정은 조용히 반영) */
+  /**
+   * 답변 저장 — 비워 두면 답변 없이 완료 처리(빈 문자열로 저장).
+   * 푸시는 내용 있는 답변이 처음 달릴 때만 (답변 없이 완료·수정은 조용히 반영)
+   */
   async answer(actor: OngiAdminActor, inquiryId: number, rawAnswer: string): Promise<void> {
-    const answer = normalizeInquiryText(rawAnswer);
-    if (!answer) throw new OngiAdminInvalidAnswer();
+    const answer = normalizeInquiryAnswer(rawAnswer);
+    if (answer === null) throw new OngiAdminInvalidAnswer();
 
     const inquiry = await this.adminRepository.findInquiryById(inquiryId);
     if (!inquiry) throw new OngiAdminNotFound();
 
     await this.adminRepository.answerInquiry(inquiryId, answer, actor.userId);
 
-    if (inquiry.answer === null) {
+    if (shouldNotifyInquiryAnswer(inquiry.answer, answer)) {
       this.pushService.notifyUsers([inquiry.userId], {
         title: '온기',
         body: '남겨주신 문의에 답변이 등록됐어요.',
