@@ -114,6 +114,7 @@ export class OngiCreateEventUseCase {
         title: '온기',
         body: `${me.name}님이 '${event.title}' 일정을 등록했어요 📅`,
         data: { type: 'event_created', groupId: String(groupId), eventId: String(event.id) },
+        category: 'event',
       },
     );
 
@@ -148,7 +149,12 @@ export class OngiUpdateEventUseCase {
 
     this.pushService.notifyUsers(
       notifyUserIds.filter(id => id !== userId),
-      { title: '온기', body: `'${draft.title}' 일정이 변경됐어요`, data: { type: 'event_updated', groupId: String(event.groupId), eventId: String(eventId) } },
+      {
+        title: '온기',
+        body: `'${draft.title}' 일정이 변경됐어요`,
+        data: { type: 'event_updated', groupId: String(event.groupId), eventId: String(eventId) },
+        category: 'event',
+      },
     );
 
     const updated = await this.eventRepository.findById(eventId);

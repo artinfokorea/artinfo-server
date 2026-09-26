@@ -160,6 +160,7 @@ export class OngiJoinGroupUseCase {
         title: '온기',
         body: `${userName}님이 우리 가족 공간에 함께하게 됐어요 🎉`,
         data: { type: 'member_joined', groupId: String(group.id) },
+        category: 'family',
       });
     }
 

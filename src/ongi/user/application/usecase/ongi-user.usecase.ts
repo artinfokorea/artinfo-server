@@ -3,6 +3,7 @@ import { IOngiUserRepository, ONGI_USER_REPOSITORY, OngiProfileStats } from '@/o
 import { OngiUser } from '@/ongi/user/domain/entity/ongi-user.entity';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { IOngiPushTokenRepository, ONGI_PUSH_TOKEN_REPOSITORY } from '@/ongi/push/domain/repository/ongi-push-token.repository.interface';
+import { IOngiPushPreferenceRepository, ONGI_PUSH_PREFERENCE_REPOSITORY } from '@/ongi/push/domain/repository/ongi-push-preference.repository.interface';
 import { ObjectCannedACL } from '@aws-sdk/client-s3';
 import { UploadFile } from '@/common/type/type';
 import { Util } from '@/common/util/util';
@@ -64,6 +65,9 @@ export class OngiDeleteAccountUseCase {
     @Inject(ONGI_PUSH_TOKEN_REPOSITORY)
     private readonly pushTokenRepository: IOngiPushTokenRepository,
 
+    @Inject(ONGI_PUSH_PREFERENCE_REPOSITORY)
+    private readonly pushPreferenceRepository: IOngiPushPreferenceRepository,
+
     private readonly awsS3Service: AwsS3Service,
   ) {}
 
@@ -72,6 +76,7 @@ export class OngiDeleteAccountUseCase {
     await this.userRepository.findOneOrThrowById(userId);
     const fileUrls = await this.userRepository.softDeleteById(userId);
     await this.pushTokenRepository.deleteByUserId(userId);
+    await this.pushPreferenceRepository.deleteByUserId(userId);
     await this.awsS3Service.deleteByUrls(fileUrls);
   }
 }

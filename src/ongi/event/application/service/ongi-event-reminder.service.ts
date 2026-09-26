@@ -58,6 +58,7 @@ export class OngiEventReminderService {
         title: '온기',
         body: `내일 '${event.title}' 일정이 있어요${timeSuffix} ⏰`,
         data: { type: 'event_reminder', groupId: String(event.groupId), eventId: String(event.id) },
+        category: 'event',
       });
     }
 
@@ -66,6 +67,7 @@ export class OngiEventReminderService {
         title: '온기',
         body: `1시간 뒤 '${event.title}' 일정이 있어요 ⏰`,
         data: { type: 'event_reminder', groupId: String(event.groupId), eventId: String(event.id) },
+        category: 'event',
       });
     }
   }
