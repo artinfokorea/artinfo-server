@@ -12,6 +12,7 @@
 - **album** (`ongi_albums`) — 커버/부가정보(meta)는 앨범의 최신 사진에서 계산.
 - **photo** (`ongi_photos`, `ongi_photo_likes`, `ongi_photo_comments`) — 그룹 피드 게시물. 여러 그룹 동시 업로드 시 그룹마다 독립 레코드가 생겨 좋아요·댓글이 분리된다. 인물 태그 기능은 2026-09-14 제거(`ongi_people`·`person_ids` 삭제) — 응답의 `personIds` 는 구버전 앱 호환용 빈 배열. `like_count`/`comment_count` 는 비정규화 카운터.
 - **legal** — 약관·정책 문서 (코드 상수, 테이블 없음, 공개 엔드포인트).
+- **chat** (`ongi_chat_rooms`, `ongi_chat_participants`, `ongi_chat_messages`) — 채팅 (2026-09-27). 가족 공간과 **따로 존재**한다: 참여자는 구성원이 아니라 **사용자(user id)**, 공간을 나가거나 공간이 삭제돼도 방·메시지·참여는 그대로. 공간은 방을 만들거나 초대하는 순간에만 확인한다(요청자가 속한 공간의 구성원만 — 여러 공간 사람을 섞을 수 있다).
 
 ## 규칙/결정 사항
 
@@ -40,6 +41,15 @@
 - 회원 탈퇴 `DELETE /ongi/users/me`: 사용자 익명화(sns_id 변경으로 재가입 가능) + 구성원·사진·댓글·인물 소프트 삭제 + 좋아요·차단·토큰 삭제. S3 파일은 남음.
 - 관리자 가족 공간 삭제 `DELETE /ongi/admin/groups/:id` (2026-09-27, SUPER_ADMIN 전용 `deleteGroup` 권한): 공간 + 구성원·앨범·사진·댓글·일정을 한 트랜잭션에서 소프트 삭제. 함께 지워진 행은 공간과 `deleted_at` 이 같다(복구 기준). 좋아요·S3 원본은 남기고, `ongi_admin_access_logs` 에 `delete_group` 기록을 남긴다.
 - 약관·개인정보처리방침(`legal/domain/constant`)에 무관용·신고·24시간 조치·위탁(Google, AWS) 조항 반영. 사업자 정보는 `[플레이스홀더]` — 출시 전 교체 필수.
+
+## 채팅 (2026-09-27)
+
+- API `/ongi/chat/*`: `GET rooms` · `GET unread-count` · `POST rooms {memberIds, name?}` (1명 = 1:1 — `direct_key` 로 두 사람당 하나, 2명 이상 = 그룹방) · `GET rooms/:id` · `GET|POST rooms/:id/messages` (최신 순, `?before=`) · `POST rooms/:id/read {messageId}` · `POST rooms/:id/invite {memberIds}` (그룹방, 참여자 누구나) · `POST rooms/:id/leave` (그룹방은 나가기 + 시스템 메시지, 1:1 은 내 목록에서만 지우기 — `visible_from_message_id` 를 옮겨 지운 대화는 안 보이고, 상대가 새로 보내면 다시 나타난다).
+- 보이는 범위: `visible_from_message_id` 이하 메시지는 안 보인다 (초대 전 메시지 · 1:1 방을 지우기 전 메시지). 읽음 표시는 참여자별 `last_read_message_id` — 메시지마다 "안 읽은 사람 수"(카톡식)를 서버가 계산해 내려준다.
+- 차단: 1:1 은 어느 한쪽이라도 차단했거나 상대가 탈퇴하면 보낼 수 없음(`canSend=false`). 내가 차단한 사람은 방 만들기·초대 불가, 그룹방에서 그 사람 메시지는 내게 안 보이고 안 읽은 수에서도 빠진다. 신고 `targetType: chat_message` (그 방 참여자이고 볼 수 있는 메시지만).
+- 실시간: socket.io 네임스페이스 `/ongi-chat` (access token + `ongi_auths` 세션 확인, `user:{id}` 방). 이벤트는 `chat:message` · `chat:read` · `chat:room` 에 roomId 만 싣고, 앱은 받으면 REST 로 다시 불러온다. **서버가 컨테이너 2대**라 Redis 채널 `ongi:chat:events` 로 발행 → 각 서버가 자기 소켓에 전달. 앱은 `transports: ['websocket']` 만 사용 (polling 은 sticky session 필요).
+- 푸시: 카테고리 `chat` (푸시 설정 `chat_enabled`), `inbox: false` 라 앱 내 알림 목록에는 남기지 않는다. data `{ type: 'chat', roomId }`.
+- 회원 탈퇴 시 모든 방에서 나간다(`left_at`). 보낸 메시지는 남고 이름은 '탈퇴한 사용자'.
 
 ## 남은 일 (TODO)
 

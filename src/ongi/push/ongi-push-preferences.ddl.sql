@@ -6,6 +6,9 @@ CREATE TABLE IF NOT EXISTS ongi_push_preferences (
   like_enabled    BOOLEAN NOT NULL DEFAULT true,
   event_enabled   BOOLEAN NOT NULL DEFAULT true,
   family_enabled  BOOLEAN NOT NULL DEFAULT true,
+  chat_enabled    BOOLEAN NOT NULL DEFAULT true,
   created_at      TIMESTAMP NOT NULL DEFAULT now(),
   updated_at      TIMESTAMP NOT NULL DEFAULT now()
 );
+-- 채팅 알림 항목 (2026-09-27)
+ALTER TABLE ongi_push_preferences ADD COLUMN IF NOT EXISTS chat_enabled BOOLEAN NOT NULL DEFAULT true;

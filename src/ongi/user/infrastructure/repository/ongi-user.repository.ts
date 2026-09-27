@@ -127,6 +127,8 @@ export class OngiUserRepository implements IOngiUserRepository {
         [id],
       );
       await manager.query(`UPDATE ongi_members SET deleted_at = now() WHERE user_id = $1 AND deleted_at IS NULL`, [id]);
+      // 채팅방에서 나간다 — 보낸 메시지는 남고 이름은 '탈퇴한 사용자'로 보인다
+      await manager.query(`UPDATE ongi_chat_participants SET left_at = now(), updated_at = now() WHERE user_id = $1 AND left_at IS NULL`, [id]);
 
       await manager.query(`DELETE FROM ongi_photo_likes WHERE user_id = $1`, [id]);
 

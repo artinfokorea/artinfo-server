@@ -21,7 +21,9 @@ describe('푸시 알림 세부 설정', () => {
     });
 
     it('카테고리 없는 알림(문의 답변·운영)은 설정과 무관하게 항상 허용', () => {
-      expect(allowsPushCategory({ ...DEFAULT_PUSH_PREFERENCES, photo: false, comment: false, like: false, event: false, family: false, chat: false }, undefined)).toBe(true);
+      expect(
+        allowsPushCategory({ ...DEFAULT_PUSH_PREFERENCES, photo: false, comment: false, like: false, event: false, family: false, chat: false }, undefined),
+      ).toBe(true);
     });
 
     it('끈 카테고리는 막힌다', () => {

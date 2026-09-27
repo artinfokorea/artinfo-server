@@ -10,7 +10,7 @@ export class OngiCreateReportRequest {
   targetType: ONGI_REPORT_TARGET_TYPE;
 
   @IsNumberString({}, { message: '신고 대상 id 가 올바르지 않아요.' })
-  @ApiProperty({ type: String, required: true, description: '신고 대상 id (사진·댓글·구성원 id)', example: '12' })
+  @ApiProperty({ type: String, required: true, description: '신고 대상 id (사진·댓글·구성원·채팅 메시지 id)', example: '12' })
   targetId: string;
 
   @NotBlank()

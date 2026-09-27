@@ -1,12 +1,12 @@
 /** 사용자가 끄고 켤 수 있는 푸시 종류 — 문의 답변·운영 알림은 여기 없고 항상 보낸다 */
-export const ONGI_PUSH_CATEGORIES = ['photo', 'comment', 'like', 'event', 'family'] as const;
+export const ONGI_PUSH_CATEGORIES = ['photo', 'comment', 'like', 'event', 'family', 'chat'] as const;
 export type OngiPushCategory = (typeof ONGI_PUSH_CATEGORIES)[number];
 
 /** 종류별 수신 여부 */
 export type OngiPushPreferences = Record<OngiPushCategory, boolean>;
 
 /** 가입 시 기본값 — 전부 켜짐. 저장된 행이 없는 사용자는 이 값으로 본다 */
-export const DEFAULT_PUSH_PREFERENCES: OngiPushPreferences = Object.freeze({ photo: true, comment: true, like: true, event: true, family: true });
+export const DEFAULT_PUSH_PREFERENCES: OngiPushPreferences = Object.freeze({ photo: true, comment: true, like: true, event: true, family: true, chat: true });
 
 /** 이 사용자에게 이 종류의 푸시를 보내도 되는가. 카테고리가 없는 알림은 설정과 무관하게 허용 */
 export function allowsPushCategory(preferences: OngiPushPreferences | null | undefined, category: OngiPushCategory | undefined): boolean {

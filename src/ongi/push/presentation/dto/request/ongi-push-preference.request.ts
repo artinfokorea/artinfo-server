@@ -27,4 +27,9 @@ export class OngiUpdatePushPreferencesRequest {
   @IsBoolean()
   @ApiProperty({ type: Boolean, required: false, description: '가족 소식(새 구성원 참여) 알림' })
   family?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty({ type: Boolean, required: false, description: '채팅 새 메시지 알림' })
+  chat?: boolean;
 }

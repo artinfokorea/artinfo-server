@@ -21,6 +21,9 @@ export class OngiPushPreference extends BaseEntity {
   @Column({ type: 'boolean', name: 'family_enabled', default: true })
   familyEnabled: boolean;
 
+  @Column({ type: 'boolean', name: 'chat_enabled', default: true })
+  chatEnabled: boolean;
+
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 

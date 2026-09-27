@@ -4,6 +4,7 @@ export enum ONGI_REPORT_TARGET_TYPE {
   PHOTO = 'photo',
   COMMENT = 'comment',
   MEMBER = 'member',
+  CHAT_MESSAGE = 'chat_message',
 }
 
 export enum ONGI_REPORT_STATUS {

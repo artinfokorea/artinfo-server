@@ -7,9 +7,10 @@ import { OngiReportController } from '@/ongi/report/presentation/controller/ongi
 import { OngiCreateReportUseCase } from '@/ongi/report/application/usecase/ongi-report.usecase';
 import { OngiGroupModule } from '@/ongi/group/ongi-group.module';
 import { OngiPhotoModule } from '@/ongi/photo/ongi-photo.module';
+import { OngiChatModule } from '@/ongi/chat/ongi-chat.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OngiReport]), OngiGroupModule, OngiPhotoModule],
+  imports: [TypeOrmModule.forFeature([OngiReport]), OngiGroupModule, OngiPhotoModule, OngiChatModule],
   controllers: [OngiReportController],
   providers: [{ provide: ONGI_REPORT_REPOSITORY, useClass: OngiReportRepository }, OngiCreateReportUseCase],
 })

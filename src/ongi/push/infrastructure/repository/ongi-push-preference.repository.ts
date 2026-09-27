@@ -6,7 +6,14 @@ import { OngiPushPreference } from '@/ongi/push/domain/entity/ongi-push-preferen
 import { OngiPushPreferences } from '@/ongi/push/domain/service/ongi-push-preference';
 
 function toPreferences(row: OngiPushPreference): OngiPushPreferences {
-  return { photo: row.photoEnabled, comment: row.commentEnabled, like: row.likeEnabled, event: row.eventEnabled, family: row.familyEnabled };
+  return {
+    photo: row.photoEnabled,
+    comment: row.commentEnabled,
+    like: row.likeEnabled,
+    event: row.eventEnabled,
+    family: row.familyEnabled,
+    chat: row.chatEnabled,
+  };
 }
 
 @Injectable()
@@ -36,6 +43,7 @@ export class OngiPushPreferenceRepository implements IOngiPushPreferenceReposito
         likeEnabled: preferences.like,
         eventEnabled: preferences.event,
         familyEnabled: preferences.family,
+        chatEnabled: preferences.chat,
       }),
     );
   }

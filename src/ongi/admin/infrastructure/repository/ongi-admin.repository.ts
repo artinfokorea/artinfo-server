@@ -77,13 +77,14 @@ export class OngiAdminRepository implements IOngiAdminRepository {
               COALESCE(p.thumb_url, cp.thumb_url) AS "photoThumbUrl",
               COALESCE(p.media_type, cp.media_type) AS "photoMediaType",
               COALESCE(p.caption, cp.caption) AS "photoCaption",
-              c.text AS "commentText",
-              COALESCE(pm.name, cm.name, tm.name) AS "targetName",
-              COALESCE(pm.user_id, cm.user_id, tm.user_id) AS "targetUserId",
+              COALESCE(c.text, CASE WHEN chm.type = 'photo' THEN '[사진]' ELSE chm.content END) AS "commentText",
+              COALESCE(pm.name, cm.name, tm.name, chu.name) AS "targetName",
+              COALESCE(pm.user_id, cm.user_id, tm.user_id, chm.sender_user_id) AS "targetUserId",
               g.id AS "groupId", g.name AS "groupName",
               CASE r.target_type
                 WHEN 'photo' THEN p.id IS NULL OR p.deleted_at IS NOT NULL
                 WHEN 'comment' THEN c.id IS NULL OR c.deleted_at IS NOT NULL
+                WHEN 'chat_message' THEN chm.id IS NULL
                 ELSE tm.id IS NULL OR tm.deleted_at IS NOT NULL
               END AS "targetDeleted"
          FROM ongi_reports r
@@ -94,6 +95,8 @@ export class OngiAdminRepository implements IOngiAdminRepository {
          LEFT JOIN ongi_members cm ON cm.id = c.author_member_id
          LEFT JOIN ongi_photos cp ON cp.id = c.photo_id
          LEFT JOIN ongi_members tm ON r.target_type = 'member' AND tm.id = r.target_id
+         LEFT JOIN ongi_chat_messages chm ON r.target_type = 'chat_message' AND chm.id = r.target_id
+         LEFT JOIN ongi_users chu ON chu.id = chm.sender_user_id
          LEFT JOIN ongi_groups g ON g.id = COALESCE(p.group_id, cp.group_id, tm.group_id)
         WHERE ($1::varchar IS NULL OR r.status = $1)
         ORDER BY r.created_at DESC

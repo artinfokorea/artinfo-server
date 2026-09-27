@@ -18,10 +18,11 @@ export interface OngiNotificationCreator {
  * 푸시 종류별 수신 설정과 무관하게 저장한다 (설정은 "울릴지"만 정하고 목록에는 다 남는다).
  */
 export function notificationRecordsOf(
-  message: { title: string; body: string; data?: Record<string, string> },
+  message: { title: string; body: string; data?: Record<string, string>; inbox?: boolean },
   recipientUserIds: number[],
   actorUserId: number | null,
 ): OngiNotificationCreator[] {
+  if (message.inbox === false) return [];
   const data = message.data ?? {};
   const type = data.type || 'system';
   const seen = new Set<number>(actorUserId === null ? [] : [actorUserId]);
