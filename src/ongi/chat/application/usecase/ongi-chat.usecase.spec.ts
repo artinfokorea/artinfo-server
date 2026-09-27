@@ -57,7 +57,7 @@ class FakeChatRepository implements IOngiChatRepository {
       updatedAt: new Date(),
     } as OngiChatRoom;
     this.rooms.push(room);
-    await this.addParticipants(room.id, userIds, 0);
+    await this.addParticipants(room.id, userIds);
     return room;
   }
 
@@ -69,7 +69,8 @@ class FakeChatRepository implements IOngiChatRepository {
     return this.participants.filter(p => p.roomId === roomId);
   }
 
-  async addParticipants(roomId: number, userIds: number[], fromMessageId: number) {
+  async addParticipants(roomId: number, userIds: number[]) {
+    const fromMessageId = (await this.findRoomById(roomId))?.lastMessageId ?? 0;
     for (const userId of userIds) {
       const existing = await this.findParticipant(roomId, userId);
       if (existing) {
@@ -120,9 +121,10 @@ class FakeChatRepository implements IOngiChatRepository {
     return this.messages.find(m => m.id === messageId) ?? null;
   }
 
-  async scanMessages(roomId: number, visibleFromMessageId: number, beforeId: number | null, limit: number) {
+  async scanMessages(roomId: number, visibleFromMessageId: number, beforeId: number | null, limit: number, excludeSenderIds: number[]) {
     return this.messages
       .filter(m => m.roomId === roomId && m.id > visibleFromMessageId && (beforeId === null || m.id < beforeId))
+      .filter(m => m.senderUserId === null || !excludeSenderIds.includes(m.senderUserId))
       .sort((a, b) => b.id - a.id)
       .slice(0, limit);
   }
@@ -435,6 +437,20 @@ describe('OngiChatUseCase.scanMessages — 메시지 목록', () => {
     blocks.push([1, 2]);
 
     expect((await useCase.scanMessages(1, room.id, null, 30)).map(v => v.message.content)).toEqual(['민수 메시지', '엄마님이 대화방을 만들었어요']);
+  });
+});
+
+describe('OngiChatUseCase.scanMessages — 차단한 사람이 최근에 많이 보냈을 때', () => {
+  it('차단한 사람의 메시지는 페이지 크기에 세지 않는다 — 그 뒤의 이전 대화를 이어서 볼 수 있다', async () => {
+    const { useCase, blocks } = setup();
+    const { room } = await useCase.createRoom(1, { memberIds: [102, 103] });
+    await useCase.sendMessage(3, room.id, { type: 'text', content: '민수 옛날 메시지' });
+    await useCase.sendMessage(2, room.id, { type: 'text', content: '아빠 1' });
+    await useCase.sendMessage(2, room.id, { type: 'text', content: '아빠 2' });
+    await useCase.sendMessage(2, room.id, { type: 'text', content: '아빠 3' });
+    blocks.push([1, 2]);
+
+    expect((await useCase.scanMessages(1, room.id, null, 2)).map(v => v.message.content)).toEqual(['민수 옛날 메시지', '엄마님이 대화방을 만들었어요']);
   });
 });
 

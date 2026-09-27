@@ -61,17 +61,20 @@ export class OngiChatRepository implements IOngiChatRepository {
     return this.participantRepository.find({ where: { roomId }, order: { id: 'ASC' } });
   }
 
-  async addParticipants(roomId: number, userIds: number[], fromMessageId: number): Promise<void> {
+  async addParticipants(roomId: number, userIds: number[]): Promise<void> {
     if (userIds.length === 0) return;
+    // 보이기 시작하는 위치는 INSERT 순간의 방 마지막 메시지 — 앞에서 읽어 둔 값을 쓰면 그 사이 메시지가 초대된 사람에게 보인다
     await this.participantRepository.query(
       `INSERT INTO ongi_chat_participants (room_id, user_id, last_read_message_id, visible_from_message_id)
-       SELECT $1, u, $3, $3 FROM unnest($2::int[]) AS u
+       SELECT $1, u, r.last, r.last
+         FROM unnest($2::int[]) AS u,
+              (SELECT COALESCE(last_message_id, 0) AS last FROM ongi_chat_rooms WHERE id = $1) AS r
        ON CONFLICT (room_id, user_id) DO UPDATE
          SET left_at = NULL,
              last_read_message_id = EXCLUDED.last_read_message_id,
              visible_from_message_id = EXCLUDED.visible_from_message_id,
              updated_at = now()`,
-      [roomId, userIds, fromMessageId],
+      [roomId, userIds],
     );
   }
 
@@ -115,8 +118,11 @@ export class OngiChatRepository implements IOngiChatRepository {
       const message = await manager.save(manager.create(OngiChatMessage, creator));
       // 시각은 DB 안에서 복사 — JS Date 를 timezone 없는 컬럼에 다시 넣으면 서버·DB 시간대가 다를 때 어긋난다
       await manager.query(
+        // 앞으로만 — 동시에 보낸 두 메시지 중 늦게 커밋된 쪽이 더 작은 id 로 되돌리지 않게
         `UPDATE ongi_chat_rooms SET last_message_id = m.id, last_message_at = m.created_at, updated_at = now()
-           FROM ongi_chat_messages m WHERE ongi_chat_rooms.id = $1 AND m.id = $2`,
+           FROM ongi_chat_messages m
+          WHERE ongi_chat_rooms.id = $1 AND m.id = $2
+            AND (ongi_chat_rooms.last_message_id IS NULL OR ongi_chat_rooms.last_message_id < m.id)`,
         [creator.roomId, message.id],
       );
 
@@ -128,7 +134,13 @@ export class OngiChatRepository implements IOngiChatRepository {
     return this.messageRepository.findOneBy({ id: messageId });
   }
 
-  async scanMessages(roomId: number, visibleFromMessageId: number, beforeId: number | null, limit: number): Promise<OngiChatMessage[]> {
+  async scanMessages(
+    roomId: number,
+    visibleFromMessageId: number,
+    beforeId: number | null,
+    limit: number,
+    excludeSenderIds: number[],
+  ): Promise<OngiChatMessage[]> {
     const query = this.messageRepository
       .createQueryBuilder('m')
       .where('m.room_id = :roomId', { roomId })
@@ -136,6 +148,7 @@ export class OngiChatRepository implements IOngiChatRepository {
       .orderBy('m.id', 'DESC')
       .take(limit);
     if (beforeId !== null) query.andWhere('m.id < :beforeId', { beforeId });
+    if (excludeSenderIds.length > 0) query.andWhere('(m.sender_user_id IS NULL OR m.sender_user_id NOT IN (:...excludeSenderIds))', { excludeSenderIds });
 
     return query.getMany();
   }

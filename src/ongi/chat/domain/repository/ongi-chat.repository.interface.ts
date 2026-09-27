@@ -32,8 +32,8 @@ export interface IOngiChatRepository {
   findParticipant(roomId: number, userId: number): Promise<OngiChatParticipant | null>;
   /** 나간 사람까지 전부 (참여 순) */
   scanParticipants(roomId: number): Promise<OngiChatParticipant[]>;
-  /** 새로 넣거나 나갔던 사람을 되살린다 — fromMessageId 이하 메시지는 보이지 않는다 */
-  addParticipants(roomId: number, userIds: number[], fromMessageId: number): Promise<void>;
+  /** 새로 넣거나 나갔던 사람을 되살린다 — 지금 방의 마지막 메시지까지는 보이지 않는다 (DB 에서 그 순간 값을 읽는다) */
+  addParticipants(roomId: number, userIds: number[]): Promise<void>;
   leave(roomId: number, userId: number): Promise<void>;
   /** 1:1 방 지우기 — messageId 까지의 메시지를 내게서 숨기고 읽음 처리 (새 메시지가 오면 목록에 다시 나타난다) */
   hideUntil(roomId: number, userId: number, messageId: number): Promise<void>;
@@ -45,8 +45,8 @@ export interface IOngiChatRepository {
   /** 메시지를 저장하고 방의 마지막 메시지를 갱신한다 */
   createMessage(creator: OngiChatMessageCreator): Promise<OngiChatMessage>;
   findMessageById(messageId: number): Promise<OngiChatMessage | null>;
-  /** visibleFromMessageId 보다 크고 beforeId 보다 작은 메시지, 최신 순 limit 개 */
-  scanMessages(roomId: number, visibleFromMessageId: number, beforeId: number | null, limit: number): Promise<OngiChatMessage[]>;
+  /** visibleFromMessageId 보다 크고 beforeId 보다 작은 메시지, 최신 순 limit 개 — excludeSenderIds 가 보낸 메시지는 빼고 센다 */
+  scanMessages(roomId: number, visibleFromMessageId: number, beforeId: number | null, limit: number, excludeSenderIds: number[]): Promise<OngiChatMessage[]>;
 
   /** 내가 참여 중이고 볼 메시지가 있는 방 — 마지막 메시지 최신 순 */
   scanRoomRows(userId: number): Promise<OngiChatRoomRow[]>;

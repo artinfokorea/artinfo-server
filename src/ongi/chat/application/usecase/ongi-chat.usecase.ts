@@ -155,12 +155,12 @@ export class OngiChatUseCase {
     const { me } = await this.requireActive(userId, roomId);
     const size = Math.min(Math.max(limit, 1), MESSAGE_PAGE_MAX);
 
-    const [messages, participants, blocked] = await Promise.all([
-      this.chatRepository.scanMessages(roomId, me.visibleFromMessageId, beforeId, size),
+    // 차단한 사람의 메시지는 DB 에서 빼고 센다 — 걸러낸 뒤 페이지가 비어 이전 대화를 못 불러오는 일이 없게
+    const blocked = await this.blockRepository.blockedUserIdsOf(userId);
+    const [visible, participants] = await Promise.all([
+      this.chatRepository.scanMessages(roomId, me.visibleFromMessageId, beforeId, size, blocked),
       this.chatRepository.scanParticipants(roomId),
-      this.blockRepository.blockedUserIdsOf(userId),
     ]);
-    const visible = messages.filter(message => message.senderUserId === null || !blocked.includes(message.senderUserId));
     const senders = await this.summariesOf([...new Set(visible.flatMap(message => (message.senderUserId === null ? [] : [message.senderUserId])))]);
     const readStates = participants.map(readStateOf);
 
@@ -229,7 +229,7 @@ export class OngiChatUseCase {
     if (newIds.length === 0) return this.roomViewOf(userId, room);
     if (activeIds.length + newIds.length > ONGI_CHAT_MAX_PARTICIPANTS) throw new OngiChatTooManyParticipants();
 
-    await this.chatRepository.addParticipants(roomId, newIds, room.lastMessageId ?? 0);
+    await this.chatRepository.addParticipants(roomId, newIds);
     const summaries = await this.summariesOf([userId, ...newIds]);
     const everyone = [...activeIds, ...newIds];
     await this.postSystemMessage(
