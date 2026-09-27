@@ -27,6 +27,10 @@ describe('앱 내 알림 목록', () => {
       expect(record.data).toEqual({});
     });
 
+    it('알림 목록에 남기지 않는 푸시(채팅 — inbox: false)는 빈 배열', () => {
+      expect(notificationRecordsOf({ title: '엄마', body: '밥 먹었니', data: { type: 'chat', roomId: '3' }, inbox: false }, [1, 2], 5)).toEqual([]);
+    });
+
     it('수신자가 없으면 빈 배열', () => {
       expect(notificationRecordsOf(message, [], 5)).toEqual([]);
       expect(notificationRecordsOf(message, [5], 5)).toEqual([]);

@@ -14,6 +14,8 @@ export interface OngiPushMessage {
   data?: Record<string, string>;
   /** 사용자가 끌 수 있는 종류 — 없으면(문의 답변·운영) 설정과 무관하게 보낸다 */
   category?: OngiPushCategory;
+  /** false 면 앱 내 알림 목록에 남기지 않는다 — 채팅은 대화방 목록이 따로 있다 */
+  inbox?: boolean;
 }
 
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';

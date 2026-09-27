@@ -17,11 +17,15 @@ export class OngiPushPreferencesResponse {
   @ApiProperty({ type: Boolean, description: '가족 소식(새 구성원 참여) 알림' })
   family: boolean;
 
+  @ApiProperty({ type: Boolean, description: '채팅 새 메시지 알림' })
+  chat: boolean;
+
   constructor(preferences: OngiPushPreferences) {
     this.photo = preferences.photo;
     this.comment = preferences.comment;
     this.like = preferences.like;
     this.event = preferences.event;
     this.family = preferences.family;
+    this.chat = preferences.chat;
   }
 }

@@ -137,6 +137,45 @@ export class OngiSchemaBootstrapService implements OnModuleInit {
         user_id INTEGER PRIMARY KEY,
         seen_at TIMESTAMP NOT NULL
       )`,
+      // 채팅 (2026-09-27) — 관리자 신고 목록·회원 탈퇴가 이 테이블을 읽으므로 배포 전에 있어야 한다. 원본 DDL: chat/ongi-chat.ddl.sql
+      `CREATE TABLE IF NOT EXISTS ongi_chat_rooms (
+        id              SERIAL PRIMARY KEY,
+        type            VARCHAR(8) NOT NULL,
+        name            VARCHAR(30),
+        direct_key      VARCHAR(32),
+        creator_user_id INTEGER NOT NULL,
+        last_message_id INTEGER,
+        last_message_at TIMESTAMP,
+        created_at      TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at      TIMESTAMP NOT NULL DEFAULT now()
+      )`,
+      `CREATE UNIQUE INDEX IF NOT EXISTS uidx_ongi_chat_rooms_direct_key ON ongi_chat_rooms (direct_key) WHERE direct_key IS NOT NULL`,
+      `CREATE TABLE IF NOT EXISTS ongi_chat_participants (
+        id                      SERIAL PRIMARY KEY,
+        room_id                 INTEGER NOT NULL,
+        user_id                 INTEGER NOT NULL,
+        last_read_message_id    INTEGER NOT NULL DEFAULT 0,
+        visible_from_message_id INTEGER NOT NULL DEFAULT 0,
+        left_at                 TIMESTAMP,
+        created_at              TIMESTAMP NOT NULL DEFAULT now(),
+        updated_at              TIMESTAMP NOT NULL DEFAULT now()
+      )`,
+      `CREATE UNIQUE INDEX IF NOT EXISTS uidx_ongi_chat_participants_room_user ON ongi_chat_participants (room_id, user_id)`,
+      `CREATE INDEX IF NOT EXISTS idx_ongi_chat_participants_user ON ongi_chat_participants (user_id)`,
+      `CREATE TABLE IF NOT EXISTS ongi_chat_messages (
+        id             SERIAL PRIMARY KEY,
+        room_id        INTEGER NOT NULL,
+        sender_user_id INTEGER,
+        type           VARCHAR(8) NOT NULL,
+        content        TEXT NOT NULL DEFAULT '',
+        media_url      VARCHAR,
+        thumb_url      VARCHAR,
+        aspect_ratio   REAL NOT NULL DEFAULT 1,
+        created_at     TIMESTAMP NOT NULL DEFAULT now()
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_ongi_chat_messages_room_id ON ongi_chat_messages (room_id, id DESC)`,
+      // 푸시 설정 채팅 항목 (2026-09-27) — 엔티티가 매핑하므로 배포 전에 컬럼이 있어야 한다
+      `ALTER TABLE ongi_push_preferences ADD COLUMN IF NOT EXISTS chat_enabled BOOLEAN NOT NULL DEFAULT true`,
     ];
 
     try {
