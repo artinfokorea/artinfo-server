@@ -341,6 +341,18 @@ describe('OngiChatUseCase.sendMessage — 메시지 보내기', () => {
     expect([plain, wide, tooTall, tooWide].map(v => v.message.aspectRatio)).toEqual([1, 1.5, 0.25, 4]);
   });
 
+  it('사진은 보낸 사람이 직접 올린 파일(ongi/photos/{내 id}/)만 — 남의 사진 URL 은 거부', async () => {
+    const { useCase } = setup();
+    const { room } = await useCase.createRoom(1, { memberIds: [102] });
+    const othersPhoto = 'https://artinfo.s3.ap-northeast-2.amazonaws.com/ongi/photos/2/20260927/b.jpg';
+    const lookalike = 'https://artinfo.s3.ap-northeast-2.amazonaws.com/ongi/photos/12/20260927/c.jpg';
+
+    await expect(useCase.sendMessage(1, room.id, { type: 'photo', mediaUrl: othersPhoto })).rejects.toBeInstanceOf(OngiChatInvalidMessage);
+    await expect(useCase.sendMessage(1, room.id, { type: 'photo', mediaUrl: lookalike })).rejects.toBeInstanceOf(OngiChatInvalidMessage);
+    await expect(useCase.sendMessage(2, room.id, { type: 'photo', mediaUrl: othersPhoto, thumbUrl: PHOTO_URL })).rejects.toBeInstanceOf(OngiChatInvalidMessage);
+    expect((await useCase.sendMessage(2, room.id, { type: 'photo', mediaUrl: othersPhoto })).message.mediaUrl).toBe(othersPhoto);
+  });
+
   it('빈 메시지는 거부', async () => {
     const { useCase } = setup();
     const { room } = await useCase.createRoom(1, { memberIds: [102] });

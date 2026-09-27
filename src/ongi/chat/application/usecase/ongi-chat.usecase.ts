@@ -10,7 +10,7 @@ import {
   directKeyOf,
   invitedSystemText,
   inviteTargetsOf,
-  isOngiMediaUrl,
+  isOwnOngiMediaUrl,
   leftSystemText,
   normalizeChatText,
   normalizeRoomName,
@@ -313,7 +313,8 @@ export class OngiChatUseCase {
       return { roomId, senderUserId: userId, type: 'text', content, mediaUrl: null, thumbUrl: null, aspectRatio: 1 };
     }
     if (command.type === 'photo') {
-      if (!isOngiMediaUrl(command.mediaUrl) || (command.thumbUrl && !isOngiMediaUrl(command.thumbUrl))) throw new OngiChatInvalidMessage();
+      if (!isOwnOngiMediaUrl(command.mediaUrl, userId) || (command.thumbUrl && !isOwnOngiMediaUrl(command.thumbUrl, userId)))
+        throw new OngiChatInvalidMessage();
 
       return {
         roomId,

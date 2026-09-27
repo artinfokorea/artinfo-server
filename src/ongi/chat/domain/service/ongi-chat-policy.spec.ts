@@ -4,6 +4,7 @@ import {
   invitedSystemText,
   inviteTargetsOf,
   isOngiMediaUrl,
+  isOwnOngiMediaUrl,
   leftSystemText,
   createdSystemText,
   messagePreviewOf,
@@ -214,5 +215,18 @@ describe('isOngiMediaUrl — 사진 메시지는 우리 버킷의 온기 경로�
     expect(isOngiMediaUrl('https://artinfo.s3.ap-northeast-2.amazonaws.com/azeyo/a.jpg')).toBe(false);
     expect(isOngiMediaUrl('http://artinfo.s3.ap-northeast-2.amazonaws.com/ongi/a.jpg')).toBe(false);
     expect(isOngiMediaUrl('')).toBe(false);
+  });
+});
+
+describe('isOwnOngiMediaUrl — 사진 메시지는 보낸 사람이 올린 파일만', () => {
+  it('ongi/photos/{userId}/ 아래 파일이면 허용', () => {
+    expect(isOwnOngiMediaUrl('https://artinfo.s3.ap-northeast-2.amazonaws.com/ongi/photos/7/20260927/a.jpg', 7)).toBe(true);
+  });
+
+  it('다른 사용자 폴더 · id 가 앞부분만 같은 폴더 · 다른 온기 경로는 거부', () => {
+    expect(isOwnOngiMediaUrl('https://artinfo.s3.ap-northeast-2.amazonaws.com/ongi/photos/8/20260927/a.jpg', 7)).toBe(false);
+    expect(isOwnOngiMediaUrl('https://artinfo.s3.ap-northeast-2.amazonaws.com/ongi/photos/77/20260927/a.jpg', 7)).toBe(false);
+    expect(isOwnOngiMediaUrl('https://artinfo.s3.ap-northeast-2.amazonaws.com/ongi/avatars/7/a.jpg', 7)).toBe(false);
+    expect(isOwnOngiMediaUrl('https://evil.example.com/ongi/photos/7/a.jpg', 7)).toBe(false);
   });
 });

@@ -102,3 +102,10 @@ export function isOngiMediaUrl(url: string | undefined | null): boolean {
 
   return /^https:\/\/[a-z0-9.-]+\.s3\.[a-z0-9-]+\.amazonaws\.com\/(?:[^?#]*\/)?ongi\//.test(url);
 }
+
+/** 사진 메시지 URL — 보낸 사람이 직접 올린 파일(ongi/photos/{userId}/…)만. 남의 사진 경로를 넣어 서명 URL 을 받아가는 것을 막는다 */
+export function isOwnOngiMediaUrl(url: string | undefined | null, userId: number): boolean {
+  if (!url || !isOngiMediaUrl(url)) return false;
+
+  return new RegExp(`\\.amazonaws\\.com/(?:[^?#]*/)?ongi/photos/${userId}/`).test(url);
+}
