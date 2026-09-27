@@ -113,11 +113,12 @@ export class OngiChatRepository implements IOngiChatRepository {
   async createMessage(creator: OngiChatMessageCreator): Promise<OngiChatMessage> {
     return this.messageRepository.manager.transaction(async manager => {
       const message = await manager.save(manager.create(OngiChatMessage, creator));
-      await manager.query(`UPDATE ongi_chat_rooms SET last_message_id = $2, last_message_at = $3, updated_at = now() WHERE id = $1`, [
-        creator.roomId,
-        message.id,
-        message.createdAt,
-      ]);
+      // 시각은 DB 안에서 복사 — JS Date 를 timezone 없는 컬럼에 다시 넣으면 서버·DB 시간대가 다를 때 어긋난다
+      await manager.query(
+        `UPDATE ongi_chat_rooms SET last_message_id = m.id, last_message_at = m.created_at, updated_at = now()
+           FROM ongi_chat_messages m WHERE ongi_chat_rooms.id = $1 AND m.id = $2`,
+        [creator.roomId, message.id],
+      );
 
       return message;
     });
