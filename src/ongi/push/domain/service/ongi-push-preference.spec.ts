@@ -7,12 +7,12 @@ import {
 } from '@/ongi/push/domain/service/ongi-push-preference';
 
 describe('푸시 알림 세부 설정', () => {
-  it('카테고리는 사진·한마디·좋아요·일정·가족 소식 다섯 가지', () => {
-    expect(ONGI_PUSH_CATEGORIES).toEqual(['photo', 'comment', 'like', 'event', 'family']);
+  it('카테고리는 사진·한마디·좋아요·일정·가족 소식·채팅 여섯 가지', () => {
+    expect(ONGI_PUSH_CATEGORIES).toEqual(['photo', 'comment', 'like', 'event', 'family', 'chat']);
   });
 
   it('기본값은 전부 켜짐', () => {
-    expect(DEFAULT_PUSH_PREFERENCES).toEqual({ photo: true, comment: true, like: true, event: true, family: true });
+    expect(DEFAULT_PUSH_PREFERENCES).toEqual({ photo: true, comment: true, like: true, event: true, family: true, chat: true });
   });
 
   describe('allowsPushCategory — 이 사용자에게 이 종류의 푸시를 보내도 되는가', () => {
@@ -21,7 +21,7 @@ describe('푸시 알림 세부 설정', () => {
     });
 
     it('카테고리 없는 알림(문의 답변·운영)은 설정과 무관하게 항상 허용', () => {
-      expect(allowsPushCategory({ ...DEFAULT_PUSH_PREFERENCES, photo: false, comment: false, like: false, event: false, family: false }, undefined)).toBe(true);
+      expect(allowsPushCategory({ ...DEFAULT_PUSH_PREFERENCES, photo: false, comment: false, like: false, event: false, family: false, chat: false }, undefined)).toBe(true);
     });
 
     it('끈 카테고리는 막힌다', () => {
@@ -41,11 +41,12 @@ describe('푸시 알림 세부 설정', () => {
         like: false,
         event: true,
         family: true,
+        chat: true,
       });
     });
 
     it('현재 설정이 없으면(null) 기본값 위에 덮어쓴다', () => {
-      expect(mergePushPreferences(null, { event: false })).toEqual({ photo: true, comment: true, like: true, event: false, family: true });
+      expect(mergePushPreferences(null, { event: false })).toEqual({ photo: true, comment: true, like: true, event: false, family: true, chat: true });
     });
 
     it('undefined 값은 무시한다 (요청 DTO 의 빠진 필드)', () => {
@@ -55,6 +56,7 @@ describe('푸시 알림 세부 설정', () => {
         like: true,
         event: true,
         family: false,
+        chat: true,
       });
     });
   });
