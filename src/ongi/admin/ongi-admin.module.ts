@@ -12,6 +12,7 @@ import {
   OngiAdminMeUseCase,
   OngiAdminPhotoUseCase,
   OngiAdminReportUseCase,
+  OngiAdminStatsUseCase,
 } from '@/ongi/admin/application/usecase/ongi-admin.usecase';
 import { OngiPhotoModule } from '@/ongi/photo/ongi-photo.module';
 import { OngiConfigModule } from '@/ongi/config/ongi-config.module';
@@ -25,6 +26,7 @@ import { OngiPushModule } from '@/ongi/push/ongi-push.module';
     OngiAdminGuard,
     OngiAdminMeUseCase,
     OngiAdminDashboardUseCase,
+    OngiAdminStatsUseCase,
     OngiAdminReportUseCase,
     OngiAdminDirectoryUseCase,
     OngiAdminConfigUseCase,

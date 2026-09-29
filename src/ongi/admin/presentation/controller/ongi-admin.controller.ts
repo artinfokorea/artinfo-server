@@ -10,6 +10,7 @@ import {
   OngiAdminMeUseCase,
   OngiAdminPhotoUseCase,
   OngiAdminReportUseCase,
+  OngiAdminStatsUseCase,
 } from '@/ongi/admin/application/usecase/ongi-admin.usecase';
 import {
   OngiAdminConfigRequest,
@@ -28,6 +29,7 @@ import {
   OngiAdminOkResponse,
   OngiAdminPhotoListResponse,
   OngiAdminReportListResponse,
+  OngiAdminStatsResponse,
   OngiAdminUserDetailResponse,
   OngiAdminUserListResponse,
 } from '@/ongi/admin/presentation/dto/response/ongi-admin.response';
@@ -43,6 +45,7 @@ export class OngiAdminController {
   constructor(
     private readonly meUseCase: OngiAdminMeUseCase,
     private readonly dashboardUseCase: OngiAdminDashboardUseCase,
+    private readonly statsUseCase: OngiAdminStatsUseCase,
     private readonly reportUseCase: OngiAdminReportUseCase,
     private readonly directoryUseCase: OngiAdminDirectoryUseCase,
     private readonly configUseCase: OngiAdminConfigUseCase,
@@ -59,6 +62,12 @@ export class OngiAdminController {
   @RestApiGet(OngiAdminDashboardResponse, { path: '/dashboard', description: '운영 현황' })
   async dashboard() {
     return new OngiAdminDashboardResponse(await this.dashboardUseCase.execute());
+  }
+
+  @RequireOngiAdminPermission('dashboard')
+  @RestApiGet(OngiAdminStatsResponse, { path: '/stats', description: '지표 — 접속자(DAU·MAU) · 체류시간 · 재방문율 · 공간 · 가입 후 전환 (날짜는 한국 시간)' })
+  async stats() {
+    return new OngiAdminStatsResponse(await this.statsUseCase.execute());
   }
 
   @RequireOngiAdminPermission('reports')

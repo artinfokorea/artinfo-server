@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { signOngiMediaUrl } from '@/ongi/common/ongi-media-url';
-import { OngiAdminMeView } from '@/ongi/admin/application/usecase/ongi-admin.usecase';
+import { OngiAdminMeView, OngiAdminStatsView } from '@/ongi/admin/application/usecase/ongi-admin.usecase';
 import {
   OngiAdminAccessLogRow,
   OngiAdminDashboardTotals,
@@ -42,6 +42,35 @@ export class OngiAdminDashboardResponse {
   constructor(view: { totals: OngiAdminDashboardTotals; signups: { day: string; count: number }[] }) {
     this.totals = view.totals;
     this.signups = view.signups;
+  }
+}
+
+export class OngiAdminStatsResponse {
+  @ApiProperty({ type: String, description: "한국 시간 기준 오늘 'YYYY-MM-DD'" }) today: string;
+  @ApiProperty({ type: String, nullable: true, description: '활동 기록을 시작한 날 — 그 전의 접속 지표는 없다' }) trackingSince: string | null;
+  @ApiProperty({ type: Object, description: '접속자 — dau(오늘) · wau(7일) · mau(30일) · stickiness(하루 평균 ÷ 30일, %)' })
+  active: OngiAdminStatsView['active'];
+  @ApiProperty({ type: [Object], description: '최근 30일 일별 추이 (오래된 날부터)' }) daily: OngiAdminStatsView['daily'];
+  @ApiProperty({ type: Object, description: '최근 7일 체류시간 — 사용 시간을 보내는 앱(1.0.10 이상) 사용자만' })
+  engagement: OngiAdminStatsView['engagement'];
+  @ApiProperty({ type: [Object], description: '가입 1 · 7 · 30일 뒤 다시 온 비율 — 대상자가 없으면 rate 는 null' })
+  retention: OngiAdminStatsView['retention'];
+  @ApiProperty({ type: Object, description: '공간 — 혼자인 공간 · 최근 7일 활동한 공간 · 평균 구성원 수' }) spaces: OngiAdminStatsView['spaces'];
+  @ApiProperty({ type: Object, description: '가입 후 전환 — 공간 참여 · 첫 사진 · 첫 대화 · 푸시 허용' }) funnel: OngiAdminStatsView['funnel'];
+  @ApiProperty({ type: [Object], description: "최근 30일 접속자의 플랫폼 (모르면 'unknown')" }) platforms: OngiAdminStatsView['platforms'];
+  @ApiProperty({ type: [Object], description: "최근 30일 접속자의 앱 버전 (1.0.9 이하는 'unknown')" }) versions: OngiAdminStatsView['versions'];
+
+  constructor(view: OngiAdminStatsView) {
+    this.today = view.today;
+    this.trackingSince = view.trackingSince;
+    this.active = view.active;
+    this.daily = view.daily;
+    this.engagement = view.engagement;
+    this.retention = view.retention;
+    this.spaces = view.spaces;
+    this.funnel = view.funnel;
+    this.platforms = view.platforms;
+    this.versions = view.versions;
   }
 }
 

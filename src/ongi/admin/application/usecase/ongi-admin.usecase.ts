@@ -4,6 +4,7 @@ import {
   ONGI_ADMIN_REPOSITORY,
   OngiAdminAccessLogRow,
   OngiAdminDashboardTotals,
+  OngiAdminFunnel,
   OngiAdminGroupMemberRow,
   OngiAdminGroupRow,
   OngiAdminInquiryRow,
@@ -29,6 +30,7 @@ import {
   OngiAdminNotFound,
   OngiAdminUnsupportedTarget,
 } from '@/ongi/admin/domain/exception/ongi-admin.exception';
+import { averageOf, buildRetention, buildStickiness, dayKeysUntil, OngiRetentionView, percentOf } from '@/ongi/admin/domain/service/ongi-admin-stats-policy';
 import { OngiAdminActor } from '@/ongi/admin/presentation/guard/ongi-admin.guard';
 import { IOngiPhotoRepository, ONGI_PHOTO_REPOSITORY } from '@/ongi/photo/domain/repository/ongi-photo.repository.interface';
 import { ONGI_REPORT_STATUS, ONGI_REPORT_TARGET_TYPE } from '@/ongi/report/domain/entity/ongi-report.entity';
@@ -39,6 +41,8 @@ import { OngiPushService } from '@/ongi/push/application/service/ongi-push.servi
 
 const PAGE_SIZE = 50;
 const SIGNUP_DAYS = 14;
+const STATS_DAYS = 30;
+const ENGAGEMENT_DAYS = 7;
 
 const pageOf = (page: number) => ({ limit: PAGE_SIZE, offset: Math.max(0, page - 1) * PAGE_SIZE });
 
@@ -86,6 +90,110 @@ export class OngiAdminDashboardUseCase {
     ]);
 
     return { totals, signups: fillDailySeries(rows, todayKey, SIGNUP_DAYS) };
+  }
+}
+
+export interface OngiAdminStatsDailyView {
+  day: string;
+  activeUsers: number;
+  measuredUsers: number;
+  /** 시간을 잰 사용자 1명당 평균 사용 시간(초) */
+  avgSeconds: number;
+  sessions: number;
+  signups: number;
+  photos: number;
+  comments: number;
+  chatMessages: number;
+}
+
+export interface OngiAdminStatsView {
+  today: string;
+  trackingSince: string | null;
+  active: { dau: number; wau: number; mau: number; stickiness: number };
+  daily: OngiAdminStatsDailyView[];
+  /** 최근 7일, 앱이 사용 시간을 보낸 사용자만 */
+  engagement: { measuredUserDays: number; avgSecondsPerUser: number; avgSessionsPerUser: number; avgSecondsPerSession: number };
+  retention: OngiRetentionView[];
+  spaces: { total: number; solo: number; soloRate: number; active7d: number; activeRate: number; avgMembers: number };
+  funnel: { users: number } & Record<Exclude<keyof OngiAdminFunnel, 'users'>, { count: number; rate: number }>;
+  platforms: { platform: string; users: number }[];
+  versions: { version: string; users: number }[];
+}
+
+@Injectable()
+export class OngiAdminStatsUseCase {
+  constructor(
+    @Inject(ONGI_ADMIN_REPOSITORY)
+    private readonly adminRepository: IOngiAdminRepository,
+  ) {}
+
+  async execute(): Promise<OngiAdminStatsView> {
+    const [summary, activityRows, contentRows, retentionRows, spaces, funnel, platforms, versions] = await Promise.all([
+      this.adminRepository.getActivitySummary(),
+      this.adminRepository.scanDailyActivity(STATS_DAYS),
+      this.adminRepository.scanDailyContent(STATS_DAYS),
+      this.adminRepository.scanRetention(STATS_DAYS),
+      this.adminRepository.getSpaceStats(),
+      this.adminRepository.getFunnel(),
+      this.adminRepository.scanPlatforms(STATS_DAYS),
+      this.adminRepository.scanVersions(STATS_DAYS),
+    ]);
+
+    const activityOf = new Map(activityRows.map(row => [row.day, row]));
+    const contentOf = new Map(contentRows.map(row => [row.day, row]));
+    const daily = dayKeysUntil(summary.today, STATS_DAYS).map(day => {
+      const activity = activityOf.get(day);
+      const content = contentOf.get(day);
+
+      return {
+        day,
+        activeUsers: activity?.activeUsers ?? 0,
+        measuredUsers: activity?.measuredUsers ?? 0,
+        avgSeconds: averageOf(activity?.seconds ?? 0, activity?.measuredUsers ?? 0),
+        sessions: activity?.sessions ?? 0,
+        signups: content?.signups ?? 0,
+        photos: content?.photos ?? 0,
+        comments: content?.comments ?? 0,
+        chatMessages: content?.chatMessages ?? 0,
+      };
+    });
+
+    const recent = dayKeysUntil(summary.today, ENGAGEMENT_DAYS).map(day => activityOf.get(day));
+    const measuredUserDays = recent.reduce((sum, row) => sum + (row?.measuredUsers ?? 0), 0);
+    const seconds = recent.reduce((sum, row) => sum + (row?.seconds ?? 0), 0);
+    const sessions = recent.reduce((sum, row) => sum + (row?.sessions ?? 0), 0);
+    const rateOfUsers = (count: number) => ({ count, rate: percentOf(count, funnel.users) });
+
+    return {
+      today: summary.today,
+      trackingSince: summary.trackingSince,
+      active: { dau: summary.dau, wau: summary.wau, mau: summary.mau, stickiness: buildStickiness(daily, summary.mau, summary.trackingSince) },
+      daily,
+      engagement: {
+        measuredUserDays,
+        avgSecondsPerUser: averageOf(seconds, measuredUserDays),
+        avgSessionsPerUser: averageOf(sessions, measuredUserDays, 1),
+        avgSecondsPerSession: averageOf(seconds, sessions),
+      },
+      retention: buildRetention(retentionRows),
+      spaces: {
+        total: spaces.total,
+        solo: spaces.solo,
+        soloRate: percentOf(spaces.solo, spaces.total),
+        active7d: spaces.active7d,
+        activeRate: percentOf(spaces.active7d, spaces.total),
+        avgMembers: averageOf(spaces.members, spaces.total, 1),
+      },
+      funnel: {
+        users: funnel.users,
+        withGroup: rateOfUsers(funnel.withGroup),
+        withPhoto: rateOfUsers(funnel.withPhoto),
+        withChat: rateOfUsers(funnel.withChat),
+        withPush: rateOfUsers(funnel.withPush),
+      },
+      platforms: platforms.map(row => ({ platform: row.platform ?? 'unknown', users: row.users })),
+      versions: versions.map(row => ({ version: row.version ?? 'unknown', users: row.users })),
+    };
   }
 }
 
