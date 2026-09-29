@@ -11,6 +11,51 @@ export interface OngiAdminDashboardTotals {
   openInquiries: number;
 }
 
+export interface OngiAdminActivitySummary {
+  /** 한국 시간 기준 오늘 'YYYY-MM-DD' */
+  today: string;
+  /** 활동 기록이 처음 쌓인 날 — 기록이 없으면 null */
+  trackingSince: string | null;
+  dau: number;
+  wau: number;
+  mau: number;
+}
+
+export interface OngiAdminDailyActivityRow {
+  day: string;
+  activeUsers: number;
+  /** 앱이 사용 시간을 보낸 사용자 수 (1.0.10 이상) */
+  measuredUsers: number;
+  seconds: number;
+  sessions: number;
+}
+
+export interface OngiAdminDailyContentRow {
+  day: string;
+  signups: number;
+  photos: number;
+  comments: number;
+  chatMessages: number;
+}
+
+export interface OngiAdminSpaceStats {
+  total: number;
+  /** 구성원이 한 명뿐인 공간 */
+  solo: number;
+  /** 최근 7일 안에 사진·댓글이 올라온 공간 */
+  active7d: number;
+  /** 전체 공간의 구성원 수 합 */
+  members: number;
+}
+
+export interface OngiAdminFunnel {
+  users: number;
+  withGroup: number;
+  withPhoto: number;
+  withChat: number;
+  withPush: number;
+}
+
 export interface OngiAdminReportRow {
   id: number;
   status: string;
@@ -125,6 +170,18 @@ export interface IOngiAdminRepository {
   /** 최근 days 일 가입 수 — day 는 서버(DB) 기준 'YYYY-MM-DD' */
   scanDailySignups(days: number): Promise<{ day: string; count: number }[]>;
   todayKey(): Promise<string>;
+
+  /** 지표의 날짜는 전부 한국 시간 기준 */
+  getActivitySummary(): Promise<OngiAdminActivitySummary>;
+  scanDailyActivity(days: number): Promise<OngiAdminDailyActivityRow[]>;
+  scanDailyContent(days: number): Promise<OngiAdminDailyContentRow[]>;
+  /** 가입 N일(1·7·30) 뒤 접속 여부 — 그 N일째가 최근 windowDays 일 안이고 활동 기록을 시작한 뒤인 가입자만 대상 */
+  scanRetention(windowDays: number): Promise<{ days: number; cohort: number; retained: number }[]>;
+  getSpaceStats(): Promise<OngiAdminSpaceStats>;
+  getFunnel(): Promise<OngiAdminFunnel>;
+  /** 최근 days 일 접속자의 플랫폼 — 앱이 보낸 값이 없으면 푸시 토큰의 플랫폼, 그것도 없으면 null */
+  scanPlatforms(days: number): Promise<{ platform: string | null; users: number }[]>;
+  scanVersions(days: number): Promise<{ version: string | null; users: number }[]>;
 
   scanReports(status: string | null, page: OngiAdminPage): Promise<OngiAdminReportRow[]>;
   findReportById(id: number): Promise<{ id: number; targetType: string; targetId: number; status: string } | null>;

@@ -1,0 +1,59 @@
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/** 비율(%) — 소수 한 자리, 모수가 0이면 0 */
+export function percentOf(part: number, whole: number): number {
+  if (whole <= 0) return 0;
+
+  return Math.round((part / whole) * 1000) / 10;
+}
+
+/** 평균 — digits 자리까지, 개수가 0이면 0 */
+export function averageOf(total: number, count: number, digits = 0): number {
+  if (count <= 0) return 0;
+  const unit = 10 ** digits;
+
+  return Math.round((total / count) * unit) / unit;
+}
+
+/** todayKey('YYYY-MM-DD') 까지 days 일을 오래된 날부터 */
+export function dayKeysUntil(todayKey: string, days: number): string[] {
+  const today = new Date(`${todayKey}T00:00:00Z`).getTime();
+
+  return Array.from({ length: days }, (_, index) => new Date(today - (days - 1 - index) * DAY_MS).toISOString().slice(0, 10));
+}
+
+export const ONGI_RETENTION_DAYS = [1, 7, 30] as const;
+
+export interface OngiRetentionView {
+  days: number;
+  cohort: number;
+  retained: number;
+  /** 대상자가 없으면 null — 아무도 안 돌아온 0% 와 구분한다 */
+  rate: number | null;
+}
+
+/** 가입 N일 뒤 다시 온 비율 — 항상 1 · 7 · 30일 순서 */
+export function buildRetention(rows: { days: number; cohort: number; retained: number }[]): OngiRetentionView[] {
+  return ONGI_RETENTION_DAYS.map(days => {
+    const row = rows.find(r => r.days === days);
+    const cohort = row?.cohort ?? 0;
+    const retained = row?.retained ?? 0;
+
+    return { days, cohort, retained, rate: cohort > 0 ? percentOf(retained, cohort) : null };
+  });
+}
+
+const STICKINESS_DAYS = 7;
+
+/**
+ * 고착도 — 하루 평균 접속자 ÷ 최근 30일 접속자 (%).
+ * 평균은 최근 7일로 내되, 기록을 시작한 지 7일이 안 됐으면 시작한 날부터만 센다 (기록 전의 0 이 평균을 깎지 않게).
+ */
+export function buildStickiness(daily: { day: string; activeUsers: number }[], mau: number, trackingSince: string | null): number {
+  if (!trackingSince || mau <= 0) return 0;
+  const tracked = daily.slice(-STICKINESS_DAYS).filter(row => row.day >= trackingSince);
+  if (tracked.length === 0) return 0;
+  const averageDau = tracked.reduce((sum, row) => sum + row.activeUsers, 0) / tracked.length;
+
+  return percentOf(averageDau, mau);
+}

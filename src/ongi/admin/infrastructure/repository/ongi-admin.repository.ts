@@ -4,16 +4,27 @@ import { DataSource } from 'typeorm';
 import {
   IOngiAdminRepository,
   OngiAdminAccessLogRow,
+  OngiAdminActivitySummary,
+  OngiAdminDailyActivityRow,
+  OngiAdminDailyContentRow,
   OngiAdminDashboardTotals,
+  OngiAdminFunnel,
   OngiAdminGroupMemberRow,
   OngiAdminGroupRow,
   OngiAdminInquiryRow,
   OngiAdminPage,
   OngiAdminPhotoRow,
   OngiAdminReportRow,
+  OngiAdminSpaceStats,
   OngiAdminUserGroupRow,
   OngiAdminUserRow,
 } from '@/ongi/admin/domain/repository/ongi-admin.repository.interface';
+
+/** 지표의 하루는 한국 시간 — now() 는 timestamptz 라 DB 세션 시간대와 상관없이 한국 날짜가 나온다 */
+const KST_TODAY = `(now() AT TIME ZONE 'Asia/Seoul')::date`;
+
+/** created_at 같은 timestamp(시간대 없음) 컬럼은 DB 세션 시간대로 쓰여 있다 — 그 시간대로 읽어 한국 날짜로 바꾼다 */
+const kstDateOf = (column: string) => `((${column} AT TIME ZONE current_setting('TimeZone')) AT TIME ZONE 'Asia/Seoul')::date`;
 
 /** 관리자 조회는 여러 도메인 테이블을 가로지르는 읽기 전용 집계라 raw SQL 로 모은다 */
 @Injectable()
@@ -65,6 +76,145 @@ export class OngiAdminRepository implements IOngiAdminRepository {
     const [row] = await this.dataSource.query(`SELECT to_char(current_date, 'YYYY-MM-DD') AS "day"`);
 
     return row.day;
+  }
+
+  async getActivitySummary(): Promise<OngiAdminActivitySummary> {
+    const [row] = await this.dataSource.query(
+      `WITH t AS (SELECT ${KST_TODAY} AS today)
+       SELECT to_char(t.today, 'YYYY-MM-DD') AS "today",
+              (SELECT to_char(min(day), 'YYYY-MM-DD') FROM ongi_user_daily_activity) AS "trackingSince",
+              (SELECT count(*) FROM ongi_user_daily_activity WHERE day = t.today)::int AS "dau",
+              (SELECT count(DISTINCT user_id) FROM ongi_user_daily_activity WHERE day > t.today - 7)::int AS "wau",
+              (SELECT count(DISTINCT user_id) FROM ongi_user_daily_activity WHERE day > t.today - 30)::int AS "mau"
+         FROM t`,
+    );
+
+    return row;
+  }
+
+  async scanDailyActivity(days: number): Promise<OngiAdminDailyActivityRow[]> {
+    return this.dataSource.query(
+      `SELECT to_char(day, 'YYYY-MM-DD') AS "day",
+              count(*)::int AS "activeUsers",
+              (count(*) FILTER (WHERE session_count > 0 OR foreground_seconds > 0))::int AS "measuredUsers",
+              COALESCE(sum(foreground_seconds), 0)::int AS "seconds",
+              COALESCE(sum(session_count), 0)::int AS "sessions"
+         FROM ongi_user_daily_activity
+        WHERE day > ${KST_TODAY} - $1::int
+        GROUP BY day`,
+      [days],
+    );
+  }
+
+  /** 지운 사진·댓글도 센다 — 그날 있었던 활동량을 보는 수치다. 여러 공간에 함께 올린 사진은 공간마다 1장 */
+  async scanDailyContent(days: number): Promise<OngiAdminDailyContentRow[]> {
+    const recent = `created_at >= now() - make_interval(days => $1::int + 1)`;
+
+    return this.dataSource.query(
+      `WITH events AS (
+         SELECT ${kstDateOf('created_at')} AS day, 'signups' AS kind FROM ongi_users WHERE ${recent}
+         UNION ALL
+         SELECT ${kstDateOf('created_at')}, 'photos' FROM ongi_photos WHERE ${recent}
+         UNION ALL
+         SELECT ${kstDateOf('created_at')}, 'comments' FROM ongi_photo_comments WHERE ${recent}
+         UNION ALL
+         SELECT ${kstDateOf('created_at')}, 'chatMessages' FROM ongi_chat_messages WHERE type <> 'system' AND ${recent}
+       )
+       SELECT to_char(day, 'YYYY-MM-DD') AS "day",
+              (count(*) FILTER (WHERE kind = 'signups'))::int AS "signups",
+              (count(*) FILTER (WHERE kind = 'photos'))::int AS "photos",
+              (count(*) FILTER (WHERE kind = 'comments'))::int AS "comments",
+              (count(*) FILTER (WHERE kind = 'chatMessages'))::int AS "chatMessages"
+         FROM events
+        WHERE day > ${KST_TODAY} - $1::int
+        GROUP BY day`,
+      [days],
+    );
+  }
+
+  /** 오늘은 아직 끝나지 않았으므로 N일째가 어제까지인 가입자만 본다. 탈퇴한 사용자도 대상에 남는다 (돌아오지 않은 사람이다) */
+  async scanRetention(windowDays: number): Promise<{ days: number; cohort: number; retained: number }[]> {
+    return this.dataSource.query(
+      `WITH t AS (SELECT ${KST_TODAY} AS today, (SELECT min(day) FROM ongi_user_daily_activity) AS since),
+            cohort AS (SELECT id, ${kstDateOf('created_at')} AS signup_day FROM ongi_users)
+       SELECT n.days AS "days", count(*)::int AS "cohort", count(a.user_id)::int AS "retained"
+         FROM t
+         CROSS JOIN (VALUES (1), (7), (30)) AS n(days)
+         JOIN cohort c ON c.signup_day + n.days BETWEEN GREATEST(t.since, t.today - $1::int) AND t.today - 1
+         LEFT JOIN ongi_user_daily_activity a ON a.user_id = c.id AND a.day = c.signup_day + n.days
+        WHERE t.since IS NOT NULL
+        GROUP BY n.days`,
+      [windowDays],
+    );
+  }
+
+  async getSpaceStats(): Promise<OngiAdminSpaceStats> {
+    const [row] = await this.dataSource.query(
+      `WITH spaces AS (
+         SELECT g.id,
+                (SELECT count(*) FROM ongi_members m WHERE m.group_id = g.id AND m.deleted_at IS NULL) AS members,
+                (EXISTS (SELECT 1 FROM ongi_photos p WHERE p.group_id = g.id AND p.created_at >= now() - interval '7 days')
+                 OR EXISTS (SELECT 1 FROM ongi_photo_comments c JOIN ongi_photos p ON p.id = c.photo_id
+                             WHERE p.group_id = g.id AND c.created_at >= now() - interval '7 days')) AS active
+           FROM ongi_groups g
+          WHERE g.deleted_at IS NULL
+       )
+       SELECT count(*)::int AS "total",
+              (count(*) FILTER (WHERE members <= 1))::int AS "solo",
+              (count(*) FILTER (WHERE active))::int AS "active7d",
+              COALESCE(sum(members), 0)::int AS "members"
+         FROM spaces`,
+    );
+
+    return row;
+  }
+
+  async getFunnel(): Promise<OngiAdminFunnel> {
+    const [row] = await this.dataSource.query(
+      `SELECT count(*)::int AS "users",
+              (count(*) FILTER (WHERE EXISTS (SELECT 1 FROM ongi_members m JOIN ongi_groups g ON g.id = m.group_id
+                                               WHERE m.user_id = u.id AND m.deleted_at IS NULL AND g.deleted_at IS NULL)))::int AS "withGroup",
+              (count(*) FILTER (WHERE EXISTS (SELECT 1 FROM ongi_photos p JOIN ongi_members m ON m.id = p.author_member_id WHERE m.user_id = u.id)))::int AS "withPhoto",
+              (count(*) FILTER (WHERE EXISTS (SELECT 1 FROM ongi_chat_messages c WHERE c.sender_user_id = u.id AND c.type <> 'system')))::int AS "withChat",
+              (count(*) FILTER (WHERE EXISTS (SELECT 1 FROM ongi_push_tokens t WHERE t.user_id = u.id)))::int AS "withPush"
+         FROM ongi_users u
+        WHERE u.deleted_at IS NULL`,
+    );
+
+    return row;
+  }
+
+  async scanPlatforms(days: number): Promise<{ platform: string | null; users: number }[]> {
+    return this.dataSource.query(
+      `WITH latest AS (
+         SELECT DISTINCT ON (user_id) user_id, platform
+           FROM ongi_user_daily_activity
+          WHERE day > ${KST_TODAY} - $1::int
+          ORDER BY user_id, (platform IS NULL), day DESC
+       )
+       SELECT COALESCE(l.platform, (SELECT t.platform FROM ongi_push_tokens t WHERE t.user_id = l.user_id ORDER BY t.updated_at DESC LIMIT 1)) AS "platform",
+              count(*)::int AS "users"
+         FROM latest l
+        GROUP BY 1
+        ORDER BY 2 DESC, 1`,
+      [days],
+    );
+  }
+
+  async scanVersions(days: number): Promise<{ version: string | null; users: number }[]> {
+    return this.dataSource.query(
+      `WITH latest AS (
+         SELECT DISTINCT ON (user_id) user_id, app_version
+           FROM ongi_user_daily_activity
+          WHERE day > ${KST_TODAY} - $1::int
+          ORDER BY user_id, (app_version IS NULL), day DESC
+       )
+       SELECT app_version AS "version", count(*)::int AS "users"
+         FROM latest
+        GROUP BY 1
+        ORDER BY 2 DESC, 1`,
+      [days],
+    );
   }
 
   async scanReports(status: string | null, page: OngiAdminPage): Promise<OngiAdminReportRow[]> {

@@ -51,6 +51,18 @@
 - 푸시: 카테고리 `chat` (푸시 설정 `chat_enabled`), `inbox: false` 라 앱 내 알림 목록에는 남기지 않는다. data `{ type: 'chat', roomId }`.
 - 회원 탈퇴 시 모든 방에서 나간다(`left_at`). 보낸 메시지는 남고 이름은 '탈퇴한 사용자'.
 
+## 활동 기록 · 관리자 지표 (2026-09-29)
+
+- **activity** (`ongi_user_daily_activity`) — 사용자 × 날짜 당 1행. 날짜는 **한국 시간** 기준 (`(now() AT TIME ZONE 'Asia/Seoul')::date`).
+- 접속 기록: `OngiActivityMiddleware` 가 `/ongi/*` (관리자 `/ongi/admin/*` 제외) 의 인증된 성공 응답마다 `OngiActivityTracker.track` 을 부른다. DB 에는 사용자당 5분에 한 번만 쓴다(서버 메모리에 마지막 시각 보관, upsert 라 서버가 여러 대여도 결과는 같다). 앱을 고치지 않아도 모든 버전이 DAU·MAU 에 잡힌다. 기록은 응답 뒤에 하고 실패해도 요청에 영향이 없다.
+  - 미들웨어 경로는 `ongi/*` — 이 Nest 버전(10.4)에서 `ongi/(.*)` 는 매칭되지 않는다 (`ongi-activity.middleware.spec.ts` 가 확인).
+  - 토큰 id 만 믿지 않고 `ongi_auths` 에 그 access token 이 그 사용자 것으로 있는지 확인한다 (서비스들이 JWT 키를 같이 쓴다).
+- 사용 시간: `POST /ongi/activity/ping { seconds, newSession, platform, appVersion }` — 앱(1.0.10 이상)이 켤 때 · 쓰는 동안 1분마다 · 화면에서 내릴 때 보낸다. 한 번에 최대 1800초, 하루 최대 86400초. 5분 넘게 떠났다 돌아오면 새 방문(`newSession`). 형식이 틀려도 400 을 내지 않고 0 · null 로 저장한다.
+- 관리자 지표 `GET /ongi/admin/stats` (`dashboard` 권한): 접속자(DAU · WAU · MAU · 고착도) · 최근 30일 일별 추이 · 체류시간(최근 7일, 사용 시간을 보낸 사용자만) · 재방문율(가입 1 · 7 · 30일 뒤) · 공간(혼자인 공간 · 최근 7일 활동) · 가입 후 전환 · 플랫폼 · 앱 버전.
+  - `created_at` 같은 timestamp(시간대 없음) 컬럼은 DB 세션 시간대로 읽어 한국 날짜로 바꾼다 (`kstDateOf`). 기존 `/dashboard` 의 가입 추이는 DB 날짜 기준 그대로다.
+  - 접속 지표는 기록을 시작한 날(`trackingSince`)부터만 있다. 콘텐츠·공간·전환 지표는 기존 데이터로 계산한다.
+- SQL 확인: `ongi-admin-stats.repository.spec.ts` — `ONGI_TEST_DB_URL` 을 줄 때만 실제 PostgreSQL 에서 돈다 (CI 에서는 건너뜀).
+
 ## 남은 일 (TODO)
 
 - 사진 파일 업로드: 현재는 URL 기반 (`POST /ongi/photos` 에 url 전달). 자체 S3 버킷 + `src/ongi/common/ongi-s3.service.ts` 업로드 엔드포인트 추가 필요.
