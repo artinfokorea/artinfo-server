@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsIn, IsString } from 'class-validator';
+import { IsBoolean, IsIn, IsString } from 'class-validator';
 import { ONGI_REPORT_STATUS } from '@/ongi/report/domain/entity/ongi-report.entity';
 import { ONGI_USER_TYPE } from '@/ongi/user/domain/entity/ongi-user.entity';
 
@@ -13,6 +13,12 @@ export class OngiAdminUserTypeRequest {
   @IsIn([ONGI_USER_TYPE.USER, ONGI_USER_TYPE.ADMIN], { message: '등급이 올바르지 않아요.' })
   @ApiProperty({ type: String, required: true, description: "'USER' | 'ADMIN' — SUPER_ADMIN 은 DB 에서만", example: 'ADMIN' })
   type: string;
+}
+
+export class OngiAdminUserTestRequest {
+  @IsBoolean({ message: '값이 올바르지 않아요.' })
+  @ApiProperty({ type: Boolean, required: true, description: 'true 면 테스트 계정 — 관리자 수치에서 뺀다', example: true })
+  isTest: boolean;
 }
 
 export class OngiAdminConfigRequest {

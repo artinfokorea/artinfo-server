@@ -60,35 +60,50 @@ run(`지표 SQL (DB 시간대 ${DB_TZ})`, () => {
         (7, '탈퇴한 사용자', 'kakao', 'deleted-7', ${ago(2)}, now()),
         (8, '새벽 가입', 'kakao', 'k8', ${kstTodayEarly}, NULL);
 
+      -- 테스트 계정 — 아래에 심는 접속·가입·사진·댓글·채팅·공간·푸시가 어느 수치에도 들어가면 안 된다
+      INSERT INTO ongi_users (id, name, sns_type, sns_id, created_at, deleted_at, is_test) VALUES
+        (90, '심사용 계정', 'google', 'g90', ${ago(2)}, NULL, true),
+        (91, '탈퇴한 테스트 계정', 'kakao', 'deleted-91', ${ago(8)}, now(), true);
+
       INSERT INTO ongi_auths (type, user_id, access_token, access_token_expires_in, refresh_token, refresh_token_expires_in) VALUES
         ('kakao', 1, 'tok-u1', now() + interval '1 hour', 'ref-u1', now() + interval '60 days'),
         ('kakao', 6, 'tok-u6', now() + interval '1 hour', 'ref-u6', now() + interval '60 days'),
-        ('kakao', 7, 'tok-u7', now() + interval '1 hour', 'ref-u7', now() + interval '60 days');
+        ('kakao', 7, 'tok-u7', now() + interval '1 hour', 'ref-u7', now() + interval '60 days'),
+        ('google', 90, 'tok-u90', now() + interval '1 hour', 'ref-u90', now() + interval '60 days');
 
       INSERT INTO ongi_groups (id, name, invite_code, invite_expires_at, deleted_at) VALUES
         (1, '우리 가족', 'ONGI-AAAA', now() + interval '7 days', NULL),
         (2, '혼자지만 활발', 'ONGI-BBBB', now() + interval '7 days', NULL),
         (3, '혼자이고 조용', 'ONGI-CCCC', now() + interval '7 days', NULL),
         (4, '지워진 공간', 'ONGI-DDDD', now() + interval '7 days', now()),
-        (5, '한 명이 나간 공간', 'ONGI-EEEE', now() + interval '7 days', NULL);
+        (5, '한 명이 나간 공간', 'ONGI-EEEE', now() + interval '7 days', NULL),
+        (9, '테스트 계정뿐인 공간', 'ONGI-TEST', now() + interval '7 days', NULL);
 
       INSERT INTO ongi_members (id, group_id, user_id, name, deleted_at) VALUES
         (11, 1, 1, '엄마', NULL), (12, 1, 2, '아빠', NULL),
         (13, 2, 3, '딸', NULL),
         (15, 3, 5, '친구', NULL),
         (16, 4, 6, '옛친구', NULL),
-        (14, 5, 4, '아들', NULL), (17, 5, 7, '탈퇴한 사용자', now());
+        (14, 5, 4, '아들', NULL), (17, 5, 7, '탈퇴한 사용자', now()),
+        -- 테스트 계정이 실제 공간(3번, 혼자이고 조용)에 들어와 있어도 그 공간은 여전히 혼자이고 조용하다
+        (98, 3, 90, '심사용 계정', NULL),
+        (99, 9, 90, '심사용 계정', NULL);
 
       INSERT INTO ongi_photos (id, group_id, author_member_id, url, created_at) VALUES
         (101, 1, 11, 'https://x/1.jpg', ${ago(1)}),
-        (102, 2, 13, 'https://x/2.jpg', ${ago(10)});
-      INSERT INTO ongi_photo_comments (photo_id, author_member_id, text, created_at) VALUES (102, 13, '좋아요', ${ago(2)});
+        (102, 2, 13, 'https://x/2.jpg', ${ago(10)}),
+        (190, 3, 98, 'https://x/test-in-real-space.jpg', ${ago(1)}),
+        (191, 9, 99, 'https://x/test.jpg', now());
+      INSERT INTO ongi_photo_comments (photo_id, author_member_id, text, created_at) VALUES
+        (102, 13, '좋아요', ${ago(2)}),
+        (190, 98, '테스트 댓글', ${ago(1)});
 
       INSERT INTO ongi_chat_messages (room_id, sender_user_id, type, content) VALUES
         (1, 2, 'text', '안녕'),
-        (1, NULL, 'system', '아빠 님이 들어왔어요');
+        (1, NULL, 'system', '아빠 님이 들어왔어요'),
+        (2, 90, 'text', '테스트 메시지');
 
-      INSERT INTO ongi_push_tokens (user_id, token, platform) VALUES (3, 'ExponentPushToken[u3]', 'android');
+      INSERT INTO ongi_push_tokens (user_id, token, platform) VALUES (3, 'ExponentPushToken[u3]', 'android'), (90, 'ExponentPushToken[u90]', 'ios');
 
       INSERT INTO ongi_user_daily_activity (user_id, day, foreground_seconds, session_count, platform, app_version) VALUES
         (1, (now() AT TIME ZONE 'Asia/Seoul')::date - 9, 0, 0, NULL, NULL),
@@ -102,7 +117,11 @@ run(`지표 SQL (DB 시간대 ${DB_TZ})`, () => {
         (3, (now() AT TIME ZONE 'Asia/Seoul')::date, 0, 0, NULL, NULL),
         (4, (now() AT TIME ZONE 'Asia/Seoul')::date - 1, 0, 0, NULL, NULL),
         (5, (now() AT TIME ZONE 'Asia/Seoul')::date - 3, 0, 0, NULL, NULL),
-        (7, (now() AT TIME ZONE 'Asia/Seoul')::date - 2, 0, 0, NULL, NULL);
+        (7, (now() AT TIME ZONE 'Asia/Seoul')::date - 2, 0, 0, NULL, NULL),
+        (90, (now() AT TIME ZONE 'Asia/Seoul')::date - 20, 0, 0, NULL, NULL),
+        (90, (now() AT TIME ZONE 'Asia/Seoul')::date - 1, 900, 2, 'ios', '1.0.10'),
+        (90, (now() AT TIME ZONE 'Asia/Seoul')::date, 3000, 9, 'ios', '1.0.10'),
+        (91, (now() AT TIME ZONE 'Asia/Seoul')::date - 7, 0, 0, NULL, NULL);
     `);
   });
 
@@ -168,6 +187,45 @@ run(`지표 SQL (DB 시간대 ${DB_TZ})`, () => {
     ]);
   });
 
+  it('운영 현황 누적 수치에도 테스트 계정과 그 콘텐츠는 들어가지 않는다', async () => {
+    expect(await admin.getDashboardTotals()).toEqual({
+      users: 7,
+      newUsers7d: 4,
+      groups: 4,
+      photos: 2,
+      videos: 0,
+      comments: 1,
+      openReports: 0,
+      openInquiries: 0,
+    });
+  });
+
+  it('운영 현황 가입 추이에도 테스트 계정은 들어가지 않는다 — 최근 14일 가입 6명', async () => {
+    const rows = await admin.scanDailySignups(14);
+
+    expect(rows.reduce((sum, row) => sum + row.count, 0)).toBe(6);
+  });
+
+  it('수치에서 뺀 테스트 계정은 2개 (탈퇴한 계정 포함)', async () => {
+    expect(await admin.countTestUsers()).toBe(2);
+  });
+
+  it('사용자 목록·상세에 테스트 계정 여부가 나온다', async () => {
+    expect((await admin.findUserById(90))?.isTest).toBe(true);
+    expect((await admin.findUserById(1))?.isTest).toBe(false);
+    expect((await admin.scanUsers(null, false, { limit: 50, offset: 0 })).filter(user => user.isTest).map(user => user.id)).toEqual([91, 90]);
+  });
+
+  it('테스트 계정으로 지정하면 수치에서 빠지고, 풀면 다시 들어온다', async () => {
+    await admin.updateUserTest(3, true);
+    expect((await admin.getActivitySummary()).dau).toBe(1);
+    expect(await admin.countTestUsers()).toBe(3);
+
+    await admin.updateUserTest(3, false);
+    expect((await admin.getActivitySummary()).dau).toBe(2);
+    expect(await admin.countTestUsers()).toBe(2);
+  });
+
   it('앱 버전 — 사용 시간을 보내지 않는 버전은 null', async () => {
     expect(await admin.scanVersions(30)).toEqual([
       { version: null, users: 5 },
@@ -204,6 +262,13 @@ run(`지표 SQL (DB 시간대 ${DB_TZ})`, () => {
       await activity.touch(8, 'unknown-token');
 
       expect(await rowOf(8)).toBeNull();
+    });
+
+    it('테스트 계정의 접속도 기록은 한다 — 지정을 풀면 그동안의 기록이 수치에 돌아온다', async () => {
+      await dataSource.query(`DELETE FROM ongi_user_daily_activity WHERE user_id = 90 AND day = (now() AT TIME ZONE 'Asia/Seoul')::date`);
+      await activity.touch(90, 'tok-u90');
+
+      expect(await rowOf(90)).toEqual({ seconds: 0, sessions: 0, platform: null, appVersion: null });
     });
 
     it('탈퇴한 사용자는 기록하지 않는다', async () => {

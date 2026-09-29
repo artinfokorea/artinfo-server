@@ -61,6 +61,10 @@
 - 관리자 지표 `GET /ongi/admin/stats` (`dashboard` 권한): 접속자(DAU · WAU · MAU · 고착도) · 최근 30일 일별 추이 · 체류시간(최근 7일, 사용 시간을 보낸 사용자만) · 재방문율(가입 1 · 7 · 30일 뒤) · 공간(혼자인 공간 · 최근 7일 활동) · 가입 후 전환 · 플랫폼 · 앱 버전.
   - `created_at` 같은 timestamp(시간대 없음) 컬럼은 DB 세션 시간대로 읽어 한국 날짜로 바꾼다 (`kstDateOf`). 기존 `/dashboard` 의 가입 추이는 DB 날짜 기준 그대로다.
   - 접속 지표는 기록을 시작한 날(`trackingSince`)부터만 있다. 콘텐츠·공간·전환 지표는 기존 데이터로 계산한다.
+- **테스트 계정** (`ongi_users.is_test`, 2026-09-29): 관리자 수치(운영 현황 `/dashboard` · 지표 `/stats`)에서 뺀다 — 테스트 계정 자체, 그 계정이 올린 사진·댓글·채팅, 구성원이 테스트 계정뿐인 공간. 섞인 공간에서는 테스트 계정을 구성원 수에서만 뺀다. 미처리 신고·미답변 문의는 처리할 일이라 그대로 센다.
+  - 지정·해제 `PUT /ongi/admin/users/:id/test { isTest }` (`grant` 권한 — 최고 관리자). 본인·탈퇴한 계정도 지정할 수 있다. 사용자 응답에 `isTest`, 지표 응답에 `excludedTestUsers`.
+  - 접속 기록은 테스트 계정도 남긴다 — 지정을 풀면 그동안의 기록이 수치에 돌아온다.
+  - 엔티티에는 매핑하지 않았다 (관리자 raw SQL 만 읽고 쓴다) — 컬럼이 없어도 앱 API 는 영향이 없다.
 - SQL 확인: `ongi-admin-stats.repository.spec.ts` — `ONGI_TEST_DB_URL` 을 줄 때만 실제 PostgreSQL 에서 돈다 (CI 에서는 건너뜀).
 
 ## 남은 일 (TODO)

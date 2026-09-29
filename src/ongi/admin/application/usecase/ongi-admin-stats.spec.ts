@@ -33,6 +33,7 @@ function setup(overrides: Partial<IOngiAdminRepository> = {}) {
       { version: '1.0.10', users: 3 },
       { version: null, users: 3 },
     ],
+    countTestUsers: async () => 0,
     ...overrides,
   } as unknown as IOngiAdminRepository;
 

@@ -176,6 +176,8 @@ export class OngiSchemaBootstrapService implements OnModuleInit {
       `CREATE INDEX IF NOT EXISTS idx_ongi_chat_messages_room_id ON ongi_chat_messages (room_id, id DESC)`,
       // 푸시 설정 채팅 항목 (2026-09-27) — 엔티티가 매핑하므로 배포 전에 컬럼이 있어야 한다
       `ALTER TABLE ongi_push_preferences ADD COLUMN IF NOT EXISTS chat_enabled BOOLEAN NOT NULL DEFAULT true`,
+      // 테스트 계정 (2026-09-29) — 관리자 수치에서 뺀다. 관리자 조회만 읽으므로 엔티티에는 매핑하지 않는다
+      `ALTER TABLE ongi_users ADD COLUMN IF NOT EXISTS is_test BOOLEAN NOT NULL DEFAULT false`,
       // 사용자 일별 활동 (2026-09-29) — 관리자 지표(DAU·MAU·재방문율·체류시간). 원본 DDL: activity/ongi-user-daily-activity.ddl.sql
       `CREATE TABLE IF NOT EXISTS ongi_user_daily_activity (
         user_id            INTEGER NOT NULL,

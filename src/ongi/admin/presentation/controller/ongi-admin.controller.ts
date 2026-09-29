@@ -16,6 +16,7 @@ import {
   OngiAdminConfigRequest,
   OngiAdminInquiryAnswerRequest,
   OngiAdminReportStatusRequest,
+  OngiAdminUserTestRequest,
   OngiAdminUserTypeRequest,
 } from '@/ongi/admin/presentation/dto/request/ongi-admin.request';
 import {
@@ -125,6 +126,14 @@ export class OngiAdminController {
   @RestApiPut(OngiAdminOkResponse, { path: '/users/:id/type', description: '사용자 등급 변경 (USER ↔ ADMIN)' })
   async setUserType(@AdminActor() actor: OngiAdminActor, @Param('id', ParseIntPipe) id: number, @Body() request: OngiAdminUserTypeRequest) {
     await this.directoryUseCase.grantType(actor, id, request.type);
+
+    return new OngiAdminOkResponse();
+  }
+
+  @RequireOngiAdminPermission('grant')
+  @RestApiPut(OngiAdminOkResponse, { path: '/users/:id/test', description: '테스트 계정 지정·해제 — 테스트 계정은 운영 현황 · 지표 수치에서 빠진다' })
+  async setUserTest(@AdminActor() actor: OngiAdminActor, @Param('id', ParseIntPipe) id: number, @Body() request: OngiAdminUserTestRequest) {
+    await this.directoryUseCase.setTest(actor, id, request.isTest);
 
     return new OngiAdminOkResponse();
   }
