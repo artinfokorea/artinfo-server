@@ -1,3 +1,5 @@
+import { OngiAdminUserSort } from '@/ongi/admin/domain/service/ongi-admin-policy';
+
 export const ONGI_ADMIN_REPOSITORY = Symbol('ONGI_ADMIN_REPOSITORY');
 
 export interface OngiAdminDashboardTotals {
@@ -92,8 +94,12 @@ export interface OngiAdminUserRow {
   isTest: boolean;
   createdAt: Date;
   deletedAt: Date | null;
+  /** 마지막 접속 — 접속 기록을 시작한(2026-09-29) 뒤로 접속하지 않았으면 null */
+  lastSeenAt: Date | null;
   groupCount: number;
   photoCount: number;
+  /** 소속 공간 (들어온 순) — 나간 공간·지워진 공간은 빠진다 */
+  groups: { groupId: number; groupName: string; memberName: string; role: string }[];
 }
 
 export interface OngiAdminUserGroupRow {
@@ -189,8 +195,8 @@ export interface IOngiAdminRepository {
   findReportById(id: number): Promise<{ id: number; targetType: string; targetId: number; status: string } | null>;
   updateReportStatus(id: number, status: string): Promise<void>;
 
-  /** query 는 이름·id, includeEmail 이면 이메일까지 검색 */
-  scanUsers(query: string | null, includeEmail: boolean, page: OngiAdminPage): Promise<OngiAdminUserRow[]>;
+  /** query 는 이름·id, includeEmail 이면 이메일까지 검색. sort 'seen' 은 마지막 접속 순(기록 없는 사용자는 맨 뒤), 기본은 가입 순 */
+  scanUsers(query: string | null, includeEmail: boolean, page: OngiAdminPage, sort?: OngiAdminUserSort): Promise<OngiAdminUserRow[]>;
   findUserById(id: number): Promise<OngiAdminUserRow | null>;
   scanUserGroups(userId: number): Promise<OngiAdminUserGroupRow[]>;
   updateUserType(userId: number, type: string): Promise<void>;
