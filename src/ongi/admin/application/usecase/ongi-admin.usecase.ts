@@ -19,6 +19,7 @@ import {
   hasAdminPermission,
   isValidAdminConfig,
   maskEmail,
+  normalizeUserSort,
   ONGI_ADMIN_CONFIG_KEYS,
   OngiAdminPermission,
   OngiAdminType,
@@ -257,8 +258,8 @@ export class OngiAdminDirectoryUseCase {
     private readonly adminRepository: IOngiAdminRepository,
   ) {}
 
-  async scanUsers(actor: OngiAdminActor, query: string | null, page: number) {
-    const users = await this.adminRepository.scanUsers(query, hasAdminPermission(actor.type, 'sensitive'), pageOf(page));
+  async scanUsers(actor: OngiAdminActor, query: string | null, page: number, sort?: string) {
+    const users = await this.adminRepository.scanUsers(query, hasAdminPermission(actor.type, 'sensitive'), pageOf(page), normalizeUserSort(sort));
 
     return users.map(user => redactUser(actor.type, user));
   }

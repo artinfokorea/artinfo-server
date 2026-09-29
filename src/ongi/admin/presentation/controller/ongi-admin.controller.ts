@@ -111,9 +111,12 @@ export class OngiAdminController {
   }
 
   @RequireOngiAdminPermission('directory')
-  @RestApiGet(OngiAdminUserListResponse, { path: '/users', description: '사용자 목록 — ?q=이름·id(최상위 등급은 이메일도), ?page=' })
-  async users(@AdminActor() actor: OngiAdminActor, @Query('q') q?: string, @Query('page') page?: string) {
-    return new OngiAdminUserListResponse(await this.directoryUseCase.scanUsers(actor, searchQuery(q), pageNumber(page)));
+  @RestApiGet(OngiAdminUserListResponse, {
+    path: '/users',
+    description: '사용자 목록 — ?q=이름·id(최상위 등급은 이메일도), ?page=, ?sort=joined(가입 순, 기본)|seen(마지막 접속 순)',
+  })
+  async users(@AdminActor() actor: OngiAdminActor, @Query('q') q?: string, @Query('page') page?: string, @Query('sort') sort?: string) {
+    return new OngiAdminUserListResponse(await this.directoryUseCase.scanUsers(actor, searchQuery(q), pageNumber(page), sort));
   }
 
   @RequireOngiAdminPermission('directory')

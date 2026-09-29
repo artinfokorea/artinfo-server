@@ -122,6 +122,11 @@ run(`지표 SQL (DB 시간대 ${DB_TZ})`, () => {
         (90, (now() AT TIME ZONE 'Asia/Seoul')::date - 1, 900, 2, 'ios', '1.0.10'),
         (90, (now() AT TIME ZONE 'Asia/Seoul')::date, 3000, 9, 'ios', '1.0.10'),
         (91, (now() AT TIME ZONE 'Asia/Seoul')::date - 7, 0, 0, NULL, NULL);
+
+      -- 마지막 접속 시각: n일 전 날짜의 행은 지금으로부터 n일 전에 접속한 것으로 맞춘다
+      UPDATE ongi_user_daily_activity
+         SET first_seen_at = now() - ((now() AT TIME ZONE 'Asia/Seoul')::date - day) * interval '1 day',
+             last_seen_at = now() - ((now() AT TIME ZONE 'Asia/Seoul')::date - day) * interval '1 day';
     `);
   });
 
@@ -224,6 +229,50 @@ run(`지표 SQL (DB 시간대 ${DB_TZ})`, () => {
     await admin.updateUserTest(3, false);
     expect((await admin.getActivitySummary()).dau).toBe(2);
     expect(await admin.countTestUsers()).toBe(2);
+  });
+
+  describe('사용자 목록', () => {
+    const DAY_MS = 24 * 60 * 60 * 1000;
+    /** 실제 시각과 1분 안쪽으로 맞는지 — DB 시간대가 달라도 같은 순간이어야 한다 */
+    const expectAbout = (actual: Date | null | undefined, expectedMs: number) => {
+      expect(actual).toBeInstanceOf(Date);
+      expect(Math.abs((actual as Date).getTime() - expectedMs)).toBeLessThan(60 * 1000);
+    };
+
+    it('마지막 접속은 가장 최근 접속 기록의 시각', async () => {
+      expectAbout((await admin.findUserById(1))?.lastSeenAt, Date.now());
+      expectAbout((await admin.findUserById(2))?.lastSeenAt, Date.now() - DAY_MS);
+      expectAbout((await admin.findUserById(5))?.lastSeenAt, Date.now() - 3 * DAY_MS);
+    });
+
+    it('접속 기록이 없으면 마지막 접속은 null', async () => {
+      expect((await admin.findUserById(6))?.lastSeenAt).toBeNull();
+      expect((await admin.findUserById(8))?.lastSeenAt).toBeNull();
+    });
+
+    it('소속 공간을 함께 준다 — 나간 공간과 지워진 공간은 뺀다', async () => {
+      expect((await admin.findUserById(1))?.groups).toEqual([{ groupId: 1, groupName: '우리 가족', memberName: '엄마', role: 'member' }]);
+      expect((await admin.findUserById(6))?.groups).toEqual([]);
+      expect((await admin.findUserById(7))?.groups).toEqual([]);
+      expect((await admin.findUserById(90))?.groups.map(group => group.groupId)).toEqual([3, 9]);
+    });
+
+    it('기본 정렬은 최근 가입 순 (id 큰 순)', async () => {
+      const users = await admin.scanUsers(null, false, { limit: 50, offset: 0 });
+
+      expect(users.map(user => user.id)).toEqual([91, 90, 8, 7, 6, 5, 4, 3, 2, 1]);
+    });
+
+    it('마지막 접속 순 — 최근에 온 사람부터, 접속 기록이 없는 사람은 맨 뒤', async () => {
+      const users = await admin.scanUsers(null, false, { limit: 50, offset: 0 }, 'seen');
+
+      expect(users.map(user => user.id)).toEqual([90, 3, 1, 4, 2, 7, 5, 91, 8, 6]);
+    });
+
+    it('마지막 접속 순에서도 검색과 쪽 나누기가 된다', async () => {
+      expect((await admin.scanUsers('친구', false, { limit: 50, offset: 0 }, 'seen')).map(user => user.id)).toEqual([5, 6]);
+      expect((await admin.scanUsers(null, false, { limit: 3, offset: 3 }, 'seen')).map(user => user.id)).toEqual([4, 2, 7]);
+    });
   });
 
   it('앱 버전 — 사용 시간을 보내지 않는 버전은 null', async () => {

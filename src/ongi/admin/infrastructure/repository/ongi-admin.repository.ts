@@ -19,6 +19,7 @@ import {
   OngiAdminUserGroupRow,
   OngiAdminUserRow,
 } from '@/ongi/admin/domain/repository/ongi-admin.repository.interface';
+import { OngiAdminUserSort } from '@/ongi/admin/domain/service/ongi-admin-policy';
 
 /** 지표의 하루는 한국 시간 — now() 는 timestamptz 라 DB 세션 시간대와 상관없이 한국 날짜가 나온다 */
 const KST_TODAY = `(now() AT TIME ZONE 'Asia/Seoul')::date`;
@@ -290,19 +291,29 @@ export class OngiAdminRepository implements IOngiAdminRepository {
 
   private readonly userSelect = `
     SELECT u.id, u.name, u.email, u.sns_type AS "snsType", u.type, u.is_test AS "isTest", u.created_at AS "createdAt", u.deleted_at AS "deletedAt",
+           seen.at AS "lastSeenAt",
            (SELECT count(*) FROM ongi_members m WHERE m.user_id = u.id AND m.deleted_at IS NULL)::int AS "groupCount",
            (SELECT count(*) FROM ongi_photos p JOIN ongi_members m ON m.id = p.author_member_id
-             WHERE m.user_id = u.id AND p.deleted_at IS NULL)::int AS "photoCount"
-      FROM ongi_users u`;
+             WHERE m.user_id = u.id AND p.deleted_at IS NULL)::int AS "photoCount",
+           COALESCE((SELECT json_agg(json_build_object('groupId', g.id, 'groupName', g.name, 'memberName', m.name, 'role', m.role) ORDER BY m.created_at, m.id)
+                       FROM ongi_members m JOIN ongi_groups g ON g.id = m.group_id
+                      WHERE m.user_id = u.id AND m.deleted_at IS NULL AND g.deleted_at IS NULL), '[]'::json) AS "groups"
+      FROM ongi_users u
+      -- last_seen_at 은 DB 세션 시간대로 쓰인 timestamp — 그 시간대로 읽어 시각(timestamptz)으로 내려야 서버 시간대와 달라도 맞다
+      LEFT JOIN LATERAL (SELECT max(a.last_seen_at) AT TIME ZONE current_setting('TimeZone') AS at
+                           FROM ongi_user_daily_activity a WHERE a.user_id = u.id) seen ON true`;
 
-  async scanUsers(query: string | null, includeEmail: boolean, page: OngiAdminPage): Promise<OngiAdminUserRow[]> {
+  async scanUsers(query: string | null, includeEmail: boolean, page: OngiAdminPage, sort: OngiAdminUserSort = 'joined'): Promise<OngiAdminUserRow[]> {
+    // 정렬 기준은 값이 아니라 SQL 조각이라 매개변수로 못 넣는다 — 허용한 두 가지 중에서만 고른다
+    const orderBy = sort === 'seen' ? 'seen.at DESC NULLS LAST, u.id DESC' : 'u.id DESC';
+
     return this.dataSource.query(
       `${this.userSelect}
         WHERE $1::varchar IS NULL
            OR u.name ILIKE '%' || $1 || '%'
            OR u.id::varchar = $1
            OR ($2::boolean AND u.email ILIKE '%' || $1 || '%')
-        ORDER BY u.id DESC
+        ORDER BY ${orderBy}
         LIMIT $3 OFFSET $4`,
       [query, includeEmail, page.limit, page.offset],
     );

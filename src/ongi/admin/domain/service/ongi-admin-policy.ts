@@ -52,6 +52,13 @@ export function isValidAdminConfig(key: string, value: string): boolean {
   return (ONGI_ADMIN_CONFIG_KEYS as readonly string[]).includes(key) && /^\d+\.\d+\.\d+$/.test(value);
 }
 
+export type OngiAdminUserSort = 'joined' | 'seen';
+
+/** 사용자 목록 정렬 — 'seen' 은 마지막 접속 순, 그 밖에는 전부 가입 순 */
+export function normalizeUserSort(raw: unknown): OngiAdminUserSort {
+  return raw === 'seen' ? 'seen' : 'joined';
+}
+
 /** 'YYYY-MM-DD' 기준 최근 days 일(오늘 포함)을 오래된 날부터, 기록 없는 날은 0 */
 export function fillDailySeries(rows: { day: string; count: number }[], todayKey: string, days: number): { day: string; count: number }[] {
   const counts = new Map(rows.map(row => [row.day, row.count]));

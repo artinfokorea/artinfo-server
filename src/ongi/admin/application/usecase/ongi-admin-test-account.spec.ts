@@ -12,8 +12,10 @@ const userOf = (overrides: Partial<OngiAdminUserRow> = {}): OngiAdminUserRow => 
   isTest: false,
   createdAt: new Date('2026-09-20T01:00:00Z'),
   deletedAt: null,
+  lastSeenAt: null,
   groupCount: 1,
   photoCount: 4,
+  groups: [],
   ...overrides,
 });
 

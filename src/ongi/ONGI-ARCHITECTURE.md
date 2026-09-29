@@ -65,6 +65,7 @@
   - 지정·해제 `PUT /ongi/admin/users/:id/test { isTest }` (`grant` 권한 — 최고 관리자). 본인·탈퇴한 계정도 지정할 수 있다. 사용자 응답에 `isTest`, 지표 응답에 `excludedTestUsers`.
   - 접속 기록은 테스트 계정도 남긴다 — 지정을 풀면 그동안의 기록이 수치에 돌아온다.
   - 엔티티에는 매핑하지 않았다 (관리자 raw SQL 만 읽고 쓴다) — 컬럼이 없어도 앱 API 는 영향이 없다.
+- **사용자 목록** `GET /ongi/admin/users` (2026-09-29): 행마다 `lastSeenAt`(마지막 접속, 기록이 없으면 null) 과 `groups`(소속 공간) 를 함께 준다 — 관리자 화면이 상세로 들어가지 않고 표 하나로 보여준다. `?sort=seen` 은 마지막 접속 순(기록 없는 사용자는 맨 뒤).
 - SQL 확인: `ongi-admin-stats.repository.spec.ts` — `ONGI_TEST_DB_URL` 을 줄 때만 실제 PostgreSQL 에서 돈다 (CI 에서는 건너뜀).
 
 ## 남은 일 (TODO)

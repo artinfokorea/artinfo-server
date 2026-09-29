@@ -136,8 +136,11 @@ export const toAdminUserItem = (user: OngiAdminUserRow) => ({
   isTest: user.isTest,
   createdAt: new Date(user.createdAt).toISOString(),
   deletedAt: iso(user.deletedAt),
+  /** 접속 기록을 시작한 뒤로 접속하지 않았으면 null */
+  lastSeenAt: iso(user.lastSeenAt),
   groupCount: user.groupCount,
   photoCount: user.photoCount,
+  groups: user.groups.map(group => ({ groupId: String(group.groupId), groupName: group.groupName, memberName: group.memberName, role: group.role })),
 });
 
 export class OngiAdminUserListResponse {
