@@ -88,6 +88,8 @@ export interface OngiAdminUserRow {
   /** 민감 정보 권한이 없는 관리자에게는 null 로 가려진다 */
   snsType: string | null;
   type: string;
+  /** 테스트 계정 — 관리자 수치(운영 현황 · 지표)에서 뺀다 */
+  isTest: boolean;
   createdAt: Date;
   deletedAt: Date | null;
   groupCount: number;
@@ -171,7 +173,7 @@ export interface IOngiAdminRepository {
   scanDailySignups(days: number): Promise<{ day: string; count: number }[]>;
   todayKey(): Promise<string>;
 
-  /** 지표의 날짜는 전부 한국 시간 기준 */
+  /** 지표의 날짜는 전부 한국 시간 기준. 운영 현황 · 지표의 수치는 테스트 계정과 그 콘텐츠, 테스트 계정뿐인 공간을 뺀다 */
   getActivitySummary(): Promise<OngiAdminActivitySummary>;
   scanDailyActivity(days: number): Promise<OngiAdminDailyActivityRow[]>;
   scanDailyContent(days: number): Promise<OngiAdminDailyContentRow[]>;
@@ -192,6 +194,9 @@ export interface IOngiAdminRepository {
   findUserById(id: number): Promise<OngiAdminUserRow | null>;
   scanUserGroups(userId: number): Promise<OngiAdminUserGroupRow[]>;
   updateUserType(userId: number, type: string): Promise<void>;
+  updateUserTest(userId: number, isTest: boolean): Promise<void>;
+  /** 수치에서 뺀 테스트 계정 수 (탈퇴한 계정 포함) */
+  countTestUsers(): Promise<number>;
 
   scanGroups(query: string | null, page: OngiAdminPage): Promise<OngiAdminGroupRow[]>;
   findGroupById(id: number): Promise<OngiAdminGroupRow | null>;

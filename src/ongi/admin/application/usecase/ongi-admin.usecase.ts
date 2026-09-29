@@ -118,6 +118,8 @@ export interface OngiAdminStatsView {
   funnel: { users: number } & Record<Exclude<keyof OngiAdminFunnel, 'users'>, { count: number; rate: number }>;
   platforms: { platform: string; users: number }[];
   versions: { version: string; users: number }[];
+  /** 수치에서 뺀 테스트 계정 수 */
+  excludedTestUsers: number;
 }
 
 @Injectable()
@@ -128,7 +130,7 @@ export class OngiAdminStatsUseCase {
   ) {}
 
   async execute(): Promise<OngiAdminStatsView> {
-    const [summary, activityRows, contentRows, retentionRows, spaces, funnel, platforms, versions] = await Promise.all([
+    const [summary, activityRows, contentRows, retentionRows, spaces, funnel, platforms, versions, excludedTestUsers] = await Promise.all([
       this.adminRepository.getActivitySummary(),
       this.adminRepository.scanDailyActivity(STATS_DAYS),
       this.adminRepository.scanDailyContent(STATS_DAYS),
@@ -137,6 +139,7 @@ export class OngiAdminStatsUseCase {
       this.adminRepository.getFunnel(),
       this.adminRepository.scanPlatforms(STATS_DAYS),
       this.adminRepository.scanVersions(STATS_DAYS),
+      this.adminRepository.countTestUsers(),
     ]);
 
     const activityOf = new Map(activityRows.map(row => [row.day, row]));
@@ -193,6 +196,7 @@ export class OngiAdminStatsUseCase {
       },
       platforms: platforms.map(row => ({ platform: row.platform ?? 'unknown', users: row.users })),
       versions: versions.map(row => ({ version: row.version ?? 'unknown', users: row.users })),
+      excludedTestUsers,
     };
   }
 }
@@ -272,6 +276,13 @@ export class OngiAdminDirectoryUseCase {
     if (!canGrantUserType({ actorUserId: actor.userId, targetUserId: userId, targetCurrentType: user.type, nextType })) throw new OngiAdminInvalidGrant();
 
     await this.adminRepository.updateUserType(userId, nextType);
+  }
+
+  /** 테스트 계정 지정·해제 — 본인·탈퇴한 계정도 된다 (등급과 달리 권한이 아니라 수치에서 뺄지의 표시다) */
+  async setTest(_actor: OngiAdminActor, userId: number, isTest: boolean): Promise<void> {
+    if (!(await this.adminRepository.findUserById(userId))) throw new OngiAdminNotFound();
+
+    await this.adminRepository.updateUserTest(userId, isTest);
   }
 
   scanGroups(query: string | null, page: number): Promise<OngiAdminGroupRow[]> {

@@ -59,6 +59,7 @@ export class OngiAdminStatsResponse {
   @ApiProperty({ type: Object, description: '가입 후 전환 — 공간 참여 · 첫 사진 · 첫 대화 · 푸시 허용' }) funnel: OngiAdminStatsView['funnel'];
   @ApiProperty({ type: [Object], description: "최근 30일 접속자의 플랫폼 (모르면 'unknown')" }) platforms: OngiAdminStatsView['platforms'];
   @ApiProperty({ type: [Object], description: "최근 30일 접속자의 앱 버전 (1.0.9 이하는 'unknown')" }) versions: OngiAdminStatsView['versions'];
+  @ApiProperty({ type: Number, description: '수치에서 뺀 테스트 계정 수' }) excludedTestUsers: number;
 
   constructor(view: OngiAdminStatsView) {
     this.today = view.today;
@@ -71,6 +72,7 @@ export class OngiAdminStatsResponse {
     this.funnel = view.funnel;
     this.platforms = view.platforms;
     this.versions = view.versions;
+    this.excludedTestUsers = view.excludedTestUsers;
   }
 }
 
@@ -123,7 +125,7 @@ export class OngiAdminReportListResponse {
   }
 }
 
-const userItem = (user: OngiAdminUserRow) => ({
+export const toAdminUserItem = (user: OngiAdminUserRow) => ({
   id: String(user.id),
   name: user.name,
   /** 민감 정보 권한이 없으면 가려진 값 */
@@ -131,6 +133,7 @@ const userItem = (user: OngiAdminUserRow) => ({
   /** 민감 정보 권한이 없으면 null */
   snsType: user.snsType,
   type: user.type,
+  isTest: user.isTest,
   createdAt: new Date(user.createdAt).toISOString(),
   deletedAt: iso(user.deletedAt),
   groupCount: user.groupCount,
@@ -138,15 +141,15 @@ const userItem = (user: OngiAdminUserRow) => ({
 });
 
 export class OngiAdminUserListResponse {
-  @ApiProperty({ type: [Object], description: '사용자 목록 (최근 가입 순, 50개씩)' }) users: ReturnType<typeof userItem>[];
+  @ApiProperty({ type: [Object], description: '사용자 목록 (최근 가입 순, 50개씩)' }) users: ReturnType<typeof toAdminUserItem>[];
 
   constructor(rows: OngiAdminUserRow[]) {
-    this.users = rows.map(userItem);
+    this.users = rows.map(toAdminUserItem);
   }
 }
 
 export class OngiAdminUserDetailResponse {
-  @ApiProperty({ type: Object }) user: ReturnType<typeof userItem>;
+  @ApiProperty({ type: Object }) user: ReturnType<typeof toAdminUserItem>;
   @ApiProperty({ type: [Object], description: '소속 가족 공간' }) groups: {
     groupId: string;
     groupName: string;
@@ -156,7 +159,7 @@ export class OngiAdminUserDetailResponse {
   }[];
 
   constructor(view: { user: OngiAdminUserRow; groups: OngiAdminUserGroupRow[] }) {
-    this.user = userItem(view.user);
+    this.user = toAdminUserItem(view.user);
     this.groups = view.groups.map(group => ({
       groupId: String(group.groupId),
       groupName: group.groupName,
