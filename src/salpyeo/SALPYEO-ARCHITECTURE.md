@@ -2,7 +2,7 @@
 
 법으로 가격·평가 공개가 의무화된 시설(산후조리원·요양원·장례식장·어린이집·학원)의 공공데이터를 비교하는 서비스 **살펴** 의 백엔드 패키지. 클라이언트는 Next.js 웹(`choral7451/salpyeo-client`)이며, 모든 API 는 `/salpyeo/*` 로 제공한다.
 
-`AZEYO-ARCHITECTURE.md` 의 DDD 구조를 그대로 따른다: `presentation → application → domain ← infrastructure`. 작업 완료 후 구조/규칙 변경이 있으면 이 문서를 업데이트할 것.
+DDD 구조를 따른다: `presentation → application → domain ← infrastructure`. 작업 완료 후 구조/규칙 변경이 있으면 이 문서를 업데이트할 것.
 
 ## 도메인 모델
 

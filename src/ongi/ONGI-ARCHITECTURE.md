@@ -2,7 +2,7 @@
 
 가족 사진 공유 앱 **온기(ONGI)** 의 백엔드 패키지. 클라이언트는 Expo 앱(`ongi-corp/ongi`)이며, 모든 API 는 `/ongi/*` 전용으로 제공한다 (다른 프로젝트의 API 를 공유하지 않음).
 
-`AZEYO-ARCHITECTURE.md` 의 DDD 구조를 그대로 따른다: `presentation → application → domain ← infrastructure`. 작업 완료 후 구조/규칙 변경이 있으면 이 문서를 업데이트할 것.
+DDD 구조를 따른다: `presentation → application → domain ← infrastructure`. 작업 완료 후 구조/규칙 변경이 있으면 이 문서를 업데이트할 것.
 
 ## 도메인 모델
 
@@ -28,7 +28,7 @@
 - 로그인: `POST /ongi/auths/login` `{ provider, token?, name? }` — 미가입 시 자동 가입.
   - `token` 이 있으면 provider userinfo API 로 검증 (kakao/naver/google).
   - **개발용 로그인**: `token` 없이 호출하면 `dev-{provider}` 계정으로 로그인된다. 로컬 `.env` 에 `ONGI_DEV_LOGIN=true` 가 있을 때만 허용(기본 차단, 배포 워크플로는 주입하지 않음). 앱은 구글 네이티브 SDK access token / Apple identity token(JWT, 서버가 Apple JWKS 로 직접 검증, aud=`ONGI_APPLE_CLIENT_ID` 기본 `com.ongifamily.app`)으로 로그인한다. Apple 은 이름을 최초 1회만 앱에 주므로 요청 `name` 으로 전달한다.
-- 토큰: azeyo/onchurch 와 동일 (access 1시간 / refresh 60일, `POST /ongi/auths/refresh`, Redis 3초 dedupe). access 토큰 payload 는 `{ id, name }` (공용 `jwt.strategy` 가 `payload.name` 을 사용).
+- 토큰: onchurch 와 동일 (access 1시간 / refresh 60일, `POST /ongi/auths/refresh`, Redis 3초 dedupe). access 토큰 payload 는 `{ id, name }` (공용 `jwt.strategy` 가 `payload.name` 을 사용).
 - 가드: 공용 `RestApi*` 데코레이터의 `auth: [USER_TYPE.CLIENT]`.
 
 ## UGC 안전 장치 (2026-08-22, App Store 1.2 / 5.1.1 대응)
