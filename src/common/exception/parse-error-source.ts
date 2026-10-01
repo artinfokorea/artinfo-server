@@ -1,8 +1,8 @@
 /**
  * 스택트레이스에서 에러 발생 클래스명과 메서드명을 추출
  *
- * 예: "at AzeyoCreateCommunityPostUseCase.execute (/.../usecase.js:25:15)"
- *   → { className: "AzeyoCreateCommunityPostUseCase", methodName: "execute" }
+ * 예: "at OngiCreateGroupUseCase.execute (/.../usecase.js:25:15)"
+ *   → { className: "OngiCreateGroupUseCase", methodName: "execute" }
  */
 export function parseErrorSource(stack?: string): { className: string; methodName: string } {
   if (!stack) return { className: 'Unknown', methodName: 'Unknown' };

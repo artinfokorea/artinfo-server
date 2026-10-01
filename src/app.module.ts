@@ -47,21 +47,6 @@ import { AdmissionRound } from '@/admission/entity/admission-round.entity';
 import { AdmissionRoundTask } from '@/admission/entity/admission-round-task.entity';
 import { AdmissionModule } from '@/admission/admission.module';
 import { TovModule } from '@/tov/tov.module';
-import { AzeyoModule } from '@/azeyo/azeyo.module';
-import { AzeyoUser } from '@/azeyo/user/domain/entity/azeyo-user.entity';
-import { AzeyoAuth } from '@/azeyo/auth/domain/entity/azeyo-auth.entity';
-import { AzeyoCommunityPost } from '@/azeyo/community/domain/entity/azeyo-community-post.entity';
-import { AzeyoCommunityVote } from '@/azeyo/community/domain/entity/azeyo-community-vote.entity';
-import { AzeyoCommunityLike } from '@/azeyo/community/domain/entity/azeyo-community-like.entity';
-import { AzeyoCommunityComment } from '@/azeyo/community/domain/entity/azeyo-community-comment.entity';
-import { AzeyoJokboTemplate } from '@/azeyo/jokbo/domain/entity/azeyo-jokbo-template.entity';
-import { AzeyoNotification } from '@/azeyo/notification/domain/entity/azeyo-notification.entity';
-import { AzeyoNotificationSetting } from '@/azeyo/notification/domain/entity/azeyo-notification-setting.entity';
-import { AzeyoJokboLike } from '@/azeyo/jokbo/domain/entity/azeyo-jokbo-like.entity';
-import { AzeyoSchedule } from '@/azeyo/schedule/domain/entity/azeyo-schedule.entity';
-import { AzeyoScheduleTag } from '@/azeyo/schedule/domain/entity/azeyo-schedule-tag.entity';
-import { AzeyoScheduleRecommendation } from '@/azeyo/schedule/domain/entity/azeyo-schedule-recommendation.entity';
-import { AzeyoAlimtalkHistory } from '@/azeyo/notification/domain/entity/azeyo-alimtalk-history.entity';
 import { OnchurchModule } from '@/onchurch/onchurch.module';
 import { OnchurchUser } from '@/onchurch/user/domain/entity/onchurch-user.entity';
 import { OnchurchAuth } from '@/onchurch/auth/domain/entity/onchurch-auth.entity';
@@ -115,20 +100,6 @@ const entities = [
   Admission,
   AdmissionRound,
   AdmissionRoundTask,
-  AzeyoUser,
-  AzeyoAuth,
-  AzeyoCommunityPost,
-  AzeyoCommunityVote,
-  AzeyoCommunityLike,
-  AzeyoCommunityComment,
-  AzeyoJokboTemplate,
-  AzeyoJokboLike,
-  AzeyoSchedule,
-  AzeyoScheduleTag,
-  AzeyoScheduleRecommendation,
-  AzeyoNotification,
-  AzeyoNotificationSetting,
-  AzeyoAlimtalkHistory,
   OnchurchUser,
   OnchurchAuth,
   OnchurchChurch,
@@ -172,7 +143,6 @@ const modules = [
   LoggerModule,
   AdmissionModule,
   TovModule,
-  AzeyoModule,
   OnchurchModule,
   OngiModule,
   SalpyeoModule,
