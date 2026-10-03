@@ -67,11 +67,6 @@ import { OngiAlbum } from '@/ongi/album/domain/entity/ongi-album.entity';
 import { OngiPhoto } from '@/ongi/photo/domain/entity/ongi-photo.entity';
 import { OngiPhotoLike } from '@/ongi/photo/domain/entity/ongi-photo-like.entity';
 import { OngiPhotoComment } from '@/ongi/photo/domain/entity/ongi-photo-comment.entity';
-import { SalpyeoModule } from '@/salpyeo/salpyeo.module';
-import { SalpyeoFacility } from '@/salpyeo/facility/domain/entity/salpyeo-facility.entity';
-import { SalpyeoUser } from '@/salpyeo/user/domain/entity/salpyeo-user.entity';
-import { SalpyeoAuth } from '@/salpyeo/auth/domain/entity/salpyeo-auth.entity';
-import { SalpyeoInquiry } from '@/salpyeo/inquiry/domain/entity/salpyeo-inquiry.entity';
 
 const entities = [
   User,
@@ -118,10 +113,6 @@ const entities = [
   OngiPhoto,
   OngiPhotoLike,
   OngiPhotoComment,
-  SalpyeoFacility,
-  SalpyeoUser,
-  SalpyeoAuth,
-  SalpyeoInquiry,
 ];
 const modules = [
   SchedulerModule,
@@ -145,7 +136,6 @@ const modules = [
   TovModule,
   OnchurchModule,
   OngiModule,
-  SalpyeoModule,
 ];
 
 @Module({
