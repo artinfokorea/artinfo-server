@@ -50,6 +50,25 @@ export interface OngiAdminSpaceStats {
   members: number;
 }
 
+/** 7일 안 활성화 — 0→1 단계의 목표 지표. 공간은 만든 날, 사용자는 가입한 날 기준 */
+export interface OngiAdminActivation {
+  /** 만든 지 withinDays 가 지난 공간 수 */
+  spaces: number;
+  /** 그중 withinDays 안에 두 번째 구성원이 합류한 공간 수 */
+  spacesWithSecondMember: number;
+  /** 가입한 지 withinDays 가 지난 사용자 수 */
+  users: number;
+  /** 그중 withinDays 안에 첫 사진을 올린 사용자 수 */
+  usersWithPhoto: number;
+}
+
+/** 최근 N일 접속자 분해 — 신규(이번 주기에 가입) · 기존(직전 주기에도 접속) · 부활(그 전엔 있었지만 직전 주기엔 없던) */
+export interface OngiAdminActiveMix {
+  newUsers: number;
+  existing: number;
+  resurrected: number;
+}
+
 export interface OngiAdminFunnel {
   users: number;
   withGroup: number;
@@ -185,6 +204,13 @@ export interface IOngiAdminRepository {
   scanDailyContent(days: number): Promise<OngiAdminDailyContentRow[]>;
   /** 가입 N일(1·7·30) 뒤 접속 여부 — 그 N일째가 최근 windowDays 일 안이고 활동 기록을 시작한 뒤인 가입자만 대상 */
   scanRetention(windowDays: number): Promise<{ days: number; cohort: number; retained: number }[]>;
+  /** 재방문율을 역할로 나눠서 — admin(공간을 만든 사람) · member(초대받아 들어온 사람) · none(공간이 없는 사람) */
+  scanRetentionByRole(windowDays: number): Promise<{ role: string; days: number; cohort: number; retained: number }[]>;
+  /** 최근 windowDays 안에 withinDays 째를 맞은 공간·사용자의 활성화 */
+  getActivation(windowDays: number, withinDays: number): Promise<OngiAdminActivation>;
+  /** 최근 days 일 접속자가 며칠 접속했는지 분포 — days 는 1 이상, 접속자가 없는 일수는 빠진다 */
+  scanVisitDays(days: number): Promise<{ days: number; users: number }[]>;
+  getActiveMix(days: number): Promise<OngiAdminActiveMix>;
   getSpaceStats(): Promise<OngiAdminSpaceStats>;
   getFunnel(): Promise<OngiAdminFunnel>;
   /** 최근 days 일 접속자의 플랫폼 — 앱이 보낸 값이 없으면 푸시 토큰의 플랫폼, 그것도 없으면 null */

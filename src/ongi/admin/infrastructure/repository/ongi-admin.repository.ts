@@ -4,6 +4,8 @@ import { DataSource } from 'typeorm';
 import {
   IOngiAdminRepository,
   OngiAdminAccessLogRow,
+  OngiAdminActivation,
+  OngiAdminActiveMix,
   OngiAdminActivitySummary,
   OngiAdminDailyActivityRow,
   OngiAdminDailyContentRow,
@@ -163,6 +165,101 @@ export class OngiAdminRepository implements IOngiAdminRepository {
         GROUP BY n.days`,
       [windowDays],
     );
+  }
+
+  /** 역할은 그 사용자가 가장 크게 관여한 쪽으로 — 공간을 하나라도 만들었으면 admin, 아니면 들어간 적이 있으면 member (나간 공간도 센다) */
+  async scanRetentionByRole(windowDays: number): Promise<{ role: string; days: number; cohort: number; retained: number }[]> {
+    return this.dataSource.query(
+      `WITH t AS (SELECT ${KST_TODAY} AS today, (SELECT min(day) FROM ${REAL_ACTIVITY} a) AS since),
+            cohort AS (
+              SELECT u.id, ${kstDateOf('u.created_at')} AS signup_day,
+                     CASE WHEN EXISTS (SELECT 1 FROM ongi_members m WHERE m.user_id = u.id AND m.role = 'admin') THEN 'admin'
+                          WHEN EXISTS (SELECT 1 FROM ongi_members m WHERE m.user_id = u.id) THEN 'member'
+                          ELSE 'none' END AS role
+                FROM ongi_users u
+               WHERE NOT u.is_test
+            )
+       SELECT c.role AS "role", n.days AS "days", count(*)::int AS "cohort", count(a.user_id)::int AS "retained"
+         FROM t
+         CROSS JOIN (VALUES (1), (7), (30)) AS n(days)
+         JOIN cohort c ON c.signup_day + n.days BETWEEN GREATEST(t.since, t.today - $1::int) AND t.today - 1
+         LEFT JOIN ongi_user_daily_activity a ON a.user_id = c.id AND a.day = c.signup_day + n.days
+        WHERE t.since IS NOT NULL
+        GROUP BY c.role, n.days`,
+      [windowDays],
+    );
+  }
+
+  /**
+   * 7일 안 활성화. 오늘은 아직 끝나지 않았으므로 withinDays 째가 어제까지인 공간·사용자만 본다.
+   * 합류·사진은 지워졌어도 센다 (그때 일어난 일이다). 지워진 공간과 테스트 계정만의 공간, 테스트 계정은 뺀다.
+   */
+  async getActivation(windowDays: number, withinDays: number): Promise<OngiAdminActivation> {
+    const [row] = await this.dataSource.query(
+      `WITH t AS (SELECT ${KST_TODAY} AS today),
+            spaces AS (
+              SELECT g.id, g.created_at
+                FROM ongi_groups g, t
+               WHERE g.deleted_at IS NULL AND ${notTestOnlyGroup('g')}
+                 AND ${kstDateOf('g.created_at')} + $2::int BETWEEN t.today - $1::int AND t.today - 1
+            ),
+            users AS (
+              SELECT u.id, u.created_at
+                FROM ongi_users u, t
+               WHERE NOT u.is_test
+                 AND ${kstDateOf('u.created_at')} + $2::int BETWEEN t.today - $1::int AND t.today - 1
+            )
+       SELECT (SELECT count(*) FROM spaces)::int AS "spaces",
+              (SELECT count(*) FROM spaces s
+                WHERE (SELECT count(*) FROM ongi_members m
+                        WHERE m.group_id = s.id AND ${notTestUser('m.user_id')}
+                          AND m.created_at < s.created_at + make_interval(days => $2::int)) >= 2)::int AS "spacesWithSecondMember",
+              (SELECT count(*) FROM users)::int AS "users",
+              (SELECT count(*) FROM users u
+                WHERE EXISTS (SELECT 1 FROM ongi_photos p JOIN ongi_members m ON m.id = p.author_member_id
+                               WHERE m.user_id = u.id AND p.created_at < u.created_at + make_interval(days => $2::int)))::int AS "usersWithPhoto"`,
+      [windowDays, withinDays],
+    );
+
+    return row;
+  }
+
+  async scanVisitDays(days: number): Promise<{ days: number; users: number }[]> {
+    return this.dataSource.query(
+      `WITH per_user AS (
+         SELECT user_id, count(*) AS visit_days
+           FROM ${REAL_ACTIVITY} a
+          WHERE day > ${KST_TODAY} - $1::int
+          GROUP BY user_id
+       )
+       SELECT visit_days::int AS "days", count(*)::int AS "users"
+         FROM per_user
+        GROUP BY visit_days`,
+      [days],
+    );
+  }
+
+  /** 이번 주기 = 오늘까지 days 일, 직전 주기 = 그 앞 days 일. 신규는 이번 주기에 가입한 사람 (한국 날짜) */
+  async getActiveMix(days: number): Promise<OngiAdminActiveMix> {
+    const [row] = await this.dataSource.query(
+      `WITH t AS (SELECT ${KST_TODAY} AS today),
+            current_users AS (SELECT DISTINCT a.user_id FROM ${REAL_ACTIVITY} a, t WHERE a.day > t.today - $1::int),
+            previous_users AS (SELECT DISTINCT a.user_id FROM ${REAL_ACTIVITY} a, t WHERE a.day > t.today - 2 * $1::int AND a.day <= t.today - $1::int),
+            classified AS (
+              SELECT c.user_id,
+                     CASE WHEN ${kstDateOf('u.created_at')} > t.today - $1::int THEN 'new'
+                          WHEN c.user_id IN (SELECT user_id FROM previous_users) THEN 'existing'
+                          ELSE 'resurrected' END AS kind
+                FROM current_users c JOIN ongi_users u ON u.id = c.user_id, t
+            )
+       SELECT (count(*) FILTER (WHERE kind = 'new'))::int AS "newUsers",
+              (count(*) FILTER (WHERE kind = 'existing'))::int AS "existing",
+              (count(*) FILTER (WHERE kind = 'resurrected'))::int AS "resurrected"
+         FROM classified`,
+      [days],
+    );
+
+    return row;
   }
 
   async getSpaceStats(): Promise<OngiAdminSpaceStats> {

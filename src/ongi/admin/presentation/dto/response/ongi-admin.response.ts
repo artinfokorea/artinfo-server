@@ -55,6 +55,12 @@ export class OngiAdminStatsResponse {
   engagement: OngiAdminStatsView['engagement'];
   @ApiProperty({ type: [Object], description: '가입 1 · 7 · 30일 뒤 다시 온 비율 — 대상자가 없으면 rate 는 null' })
   retention: OngiAdminStatsView['retention'];
+  @ApiProperty({ type: [Object], description: '재방문율을 역할로 나눠서 — admin(공간을 만든 사람) · member(초대받은 사람) · none(공간 없음)' })
+  retentionByRole: OngiAdminStatsView['retentionByRole'];
+  @ApiProperty({ type: Object, description: '7일 안 활성화 — 만든 지 7일 지난 공간 중 두 번째 가족 합류, 가입 7일 지난 사용자 중 첫 사진 (최근 30일)' })
+  activation: OngiAdminStatsView['activation'];
+  @ApiProperty({ type: [Object], description: '최근 7일 접속자가 며칠 왔는지 — 1일부터 7일까지' }) visitDays: OngiAdminStatsView['visitDays'];
+  @ApiProperty({ type: Object, description: '최근 7일 접속자 구성 — 신규 · 기존 · 부활' }) activeMix: OngiAdminStatsView['activeMix'];
   @ApiProperty({ type: Object, description: '공간 — 혼자인 공간 · 최근 7일 활동한 공간 · 평균 구성원 수' }) spaces: OngiAdminStatsView['spaces'];
   @ApiProperty({ type: Object, description: '가입 후 전환 — 공간 참여 · 첫 사진 · 첫 대화 · 푸시 허용' }) funnel: OngiAdminStatsView['funnel'];
   @ApiProperty({ type: [Object], description: "최근 30일 접속자의 플랫폼 (모르면 'unknown')" }) platforms: OngiAdminStatsView['platforms'];
@@ -68,6 +74,10 @@ export class OngiAdminStatsResponse {
     this.daily = view.daily;
     this.engagement = view.engagement;
     this.retention = view.retention;
+    this.retentionByRole = view.retentionByRole;
+    this.activation = view.activation;
+    this.visitDays = view.visitDays;
+    this.activeMix = view.activeMix;
     this.spaces = view.spaces;
     this.funnel = view.funnel;
     this.platforms = view.platforms;

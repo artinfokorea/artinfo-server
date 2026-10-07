@@ -34,6 +34,17 @@ function setup(overrides: Partial<IOngiAdminRepository> = {}) {
       { version: null, users: 3 },
     ],
     countTestUsers: async () => 0,
+    scanRetentionByRole: async () => [
+      { role: 'admin', days: 1, cohort: 2, retained: 2 },
+      { role: 'admin', days: 7, cohort: 1, retained: 0 },
+      { role: 'member', days: 1, cohort: 2, retained: 1 },
+    ],
+    getActivation: async () => ({ spaces: 8, spacesWithSecondMember: 3, users: 12, usersWithPhoto: 9 }),
+    scanVisitDays: async () => [
+      { days: 1, users: 4 },
+      { days: 3, users: 2 },
+    ],
+    getActiveMix: async () => ({ newUsers: 3, existing: 2, resurrected: 1 }),
     ...overrides,
   } as unknown as IOngiAdminRepository;
 
@@ -138,5 +149,66 @@ describe('OngiAdminStatsUseCase — 관리자 지표', () => {
     expect(stats.trackingSince).toBeNull();
     expect(stats.active).toEqual({ dau: 0, wau: 0, mau: 0, stickiness: 0 });
     expect(stats.retention.map(r => r.rate)).toEqual([null, null, null]);
+  });
+
+  it('역할별 재방문율 — admin · member · none 순서, 없는 구간은 null', async () => {
+    const stats = await setup().useCase.execute();
+
+    expect(stats.retentionByRole).toEqual([
+      {
+        role: 'admin',
+        retention: [
+          { days: 1, cohort: 2, retained: 2, rate: 100 },
+          { days: 7, cohort: 1, retained: 0, rate: 0 },
+          { days: 30, cohort: 0, retained: 0, rate: null },
+        ],
+      },
+      {
+        role: 'member',
+        retention: [
+          { days: 1, cohort: 2, retained: 1, rate: 50 },
+          { days: 7, cohort: 0, retained: 0, rate: null },
+          { days: 30, cohort: 0, retained: 0, rate: null },
+        ],
+      },
+      {
+        role: 'none',
+        retention: [
+          { days: 1, cohort: 0, retained: 0, rate: null },
+          { days: 7, cohort: 0, retained: 0, rate: null },
+          { days: 30, cohort: 0, retained: 0, rate: null },
+        ],
+      },
+    ]);
+  });
+
+  it('7일 안 활성화 — 두 번째 가족 합류 3/8 = 37.5%, 첫 사진 9/12 = 75%', async () => {
+    const stats = await setup().useCase.execute();
+
+    expect(stats.activation).toEqual({
+      windowDays: 7,
+      secondMember: { cohort: 8, count: 3, rate: 37.5 },
+      firstPhoto: { cohort: 12, count: 9, rate: 75 },
+    });
+  });
+
+  it('방문일수 분포는 1~7일을 모두 채우고, 접속자 구성은 비율을 붙인다', async () => {
+    const stats = await setup().useCase.execute();
+
+    expect(stats.visitDays).toEqual([
+      { days: 1, users: 4 },
+      { days: 2, users: 0 },
+      { days: 3, users: 2 },
+      { days: 4, users: 0 },
+      { days: 5, users: 0 },
+      { days: 6, users: 0 },
+      { days: 7, users: 0 },
+    ]);
+    expect(stats.activeMix).toEqual({
+      total: 6,
+      newUsers: { count: 3, rate: 50 },
+      existing: { count: 2, rate: 33.3 },
+      resurrected: { count: 1, rate: 16.7 },
+    });
   });
 });

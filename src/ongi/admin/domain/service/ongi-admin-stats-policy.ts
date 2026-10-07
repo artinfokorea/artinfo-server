@@ -43,6 +43,23 @@ export function buildRetention(rows: { days: number; cohort: number; retained: n
   });
 }
 
+export const ONGI_RETENTION_ROLES = ['admin', 'member', 'none'] as const;
+
+export interface OngiRoleRetentionView {
+  role: (typeof ONGI_RETENTION_ROLES)[number];
+  retention: OngiRetentionView[];
+}
+
+/** 역할별 재방문율 — 항상 admin · member · none 순서, 행이 없는 역할도 null 로 채운다 */
+export function buildRetentionByRole(rows: { role: string; days: number; cohort: number; retained: number }[]): OngiRoleRetentionView[] {
+  return ONGI_RETENTION_ROLES.map(role => ({ role, retention: buildRetention(rows.filter(row => row.role === role)) }));
+}
+
+/** 방문일수 분포 — 1일부터 days 일까지 빠짐없이, 없는 일수는 0 */
+export function buildVisitDays(rows: { days: number; users: number }[], days: number): { days: number; users: number }[] {
+  return Array.from({ length: days }, (_, index) => ({ days: index + 1, users: rows.find(row => row.days === index + 1)?.users ?? 0 }));
+}
+
 const STICKINESS_DAYS = 7;
 
 /**

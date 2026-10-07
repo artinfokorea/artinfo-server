@@ -31,7 +31,17 @@ import {
   OngiAdminNotFound,
   OngiAdminUnsupportedTarget,
 } from '@/ongi/admin/domain/exception/ongi-admin.exception';
-import { averageOf, buildRetention, buildStickiness, dayKeysUntil, OngiRetentionView, percentOf } from '@/ongi/admin/domain/service/ongi-admin-stats-policy';
+import {
+  averageOf,
+  buildRetention,
+  buildRetentionByRole,
+  buildStickiness,
+  buildVisitDays,
+  dayKeysUntil,
+  OngiRetentionView,
+  OngiRoleRetentionView,
+  percentOf,
+} from '@/ongi/admin/domain/service/ongi-admin-stats-policy';
 import { OngiAdminActor } from '@/ongi/admin/presentation/guard/ongi-admin.guard';
 import { IOngiPhotoRepository, ONGI_PHOTO_REPOSITORY } from '@/ongi/photo/domain/repository/ongi-photo.repository.interface';
 import { ONGI_REPORT_STATUS, ONGI_REPORT_TARGET_TYPE } from '@/ongi/report/domain/entity/ongi-report.entity';
@@ -44,6 +54,9 @@ const PAGE_SIZE = 50;
 const SIGNUP_DAYS = 14;
 const STATS_DAYS = 30;
 const ENGAGEMENT_DAYS = 7;
+/** 0→1 목표 지표의 창 — 가입·공간 생성 후 이 안에 일어나야 활성화로 친다 */
+const ACTIVATION_DAYS = 7;
+const MIX_DAYS = 7;
 
 const pageOf = (page: number) => ({ limit: PAGE_SIZE, offset: Math.max(0, page - 1) * PAGE_SIZE });
 
@@ -115,6 +128,23 @@ export interface OngiAdminStatsView {
   /** 최근 7일, 앱이 사용 시간을 보낸 사용자만 */
   engagement: { measuredUserDays: number; avgSecondsPerUser: number; avgSessionsPerUser: number; avgSecondsPerSession: number };
   retention: OngiRetentionView[];
+  /** 재방문율을 역할로 나눠서 — 공간을 만든 사람 · 초대받은 사람 · 공간이 없는 사람 */
+  retentionByRole: OngiRoleRetentionView[];
+  /** 7일 안 활성화 — 두 번째 가족 합류 · 첫 사진 */
+  activation: {
+    windowDays: number;
+    secondMember: { cohort: number; count: number; rate: number };
+    firstPhoto: { cohort: number; count: number; rate: number };
+  };
+  /** 최근 7일 접속자가 며칠 왔는지 — 1일부터 7일까지 */
+  visitDays: { days: number; users: number }[];
+  /** 최근 7일 접속자 = 신규 + 기존 + 부활 */
+  activeMix: {
+    total: number;
+    newUsers: { count: number; rate: number };
+    existing: { count: number; rate: number };
+    resurrected: { count: number; rate: number };
+  };
   spaces: { total: number; solo: number; soloRate: number; active7d: number; activeRate: number; avgMembers: number };
   funnel: { users: number } & Record<Exclude<keyof OngiAdminFunnel, 'users'>, { count: number; rate: number }>;
   platforms: { platform: string; users: number }[];
@@ -131,17 +161,22 @@ export class OngiAdminStatsUseCase {
   ) {}
 
   async execute(): Promise<OngiAdminStatsView> {
-    const [summary, activityRows, contentRows, retentionRows, spaces, funnel, platforms, versions, excludedTestUsers] = await Promise.all([
-      this.adminRepository.getActivitySummary(),
-      this.adminRepository.scanDailyActivity(STATS_DAYS),
-      this.adminRepository.scanDailyContent(STATS_DAYS),
-      this.adminRepository.scanRetention(STATS_DAYS),
-      this.adminRepository.getSpaceStats(),
-      this.adminRepository.getFunnel(),
-      this.adminRepository.scanPlatforms(STATS_DAYS),
-      this.adminRepository.scanVersions(STATS_DAYS),
-      this.adminRepository.countTestUsers(),
-    ]);
+    const [summary, activityRows, contentRows, retentionRows, spaces, funnel, platforms, versions, excludedTestUsers, roleRows, activation, visitRows, mix] =
+      await Promise.all([
+        this.adminRepository.getActivitySummary(),
+        this.adminRepository.scanDailyActivity(STATS_DAYS),
+        this.adminRepository.scanDailyContent(STATS_DAYS),
+        this.adminRepository.scanRetention(STATS_DAYS),
+        this.adminRepository.getSpaceStats(),
+        this.adminRepository.getFunnel(),
+        this.adminRepository.scanPlatforms(STATS_DAYS),
+        this.adminRepository.scanVersions(STATS_DAYS),
+        this.adminRepository.countTestUsers(),
+        this.adminRepository.scanRetentionByRole(STATS_DAYS),
+        this.adminRepository.getActivation(STATS_DAYS, ACTIVATION_DAYS),
+        this.adminRepository.scanVisitDays(MIX_DAYS),
+        this.adminRepository.getActiveMix(MIX_DAYS),
+      ]);
 
     const activityOf = new Map(activityRows.map(row => [row.day, row]));
     const contentOf = new Map(contentRows.map(row => [row.day, row]));
@@ -167,6 +202,8 @@ export class OngiAdminStatsUseCase {
     const seconds = recent.reduce((sum, row) => sum + (row?.seconds ?? 0), 0);
     const sessions = recent.reduce((sum, row) => sum + (row?.sessions ?? 0), 0);
     const rateOfUsers = (count: number) => ({ count, rate: percentOf(count, funnel.users) });
+    const mixTotal = mix.newUsers + mix.existing + mix.resurrected;
+    const rateOfMix = (count: number) => ({ count, rate: percentOf(count, mixTotal) });
 
     return {
       today: summary.today,
@@ -180,6 +217,18 @@ export class OngiAdminStatsUseCase {
         avgSecondsPerSession: averageOf(seconds, sessions),
       },
       retention: buildRetention(retentionRows),
+      retentionByRole: buildRetentionByRole(roleRows),
+      activation: {
+        windowDays: ACTIVATION_DAYS,
+        secondMember: {
+          cohort: activation.spaces,
+          count: activation.spacesWithSecondMember,
+          rate: percentOf(activation.spacesWithSecondMember, activation.spaces),
+        },
+        firstPhoto: { cohort: activation.users, count: activation.usersWithPhoto, rate: percentOf(activation.usersWithPhoto, activation.users) },
+      },
+      visitDays: buildVisitDays(visitRows, MIX_DAYS),
+      activeMix: { total: mixTotal, newUsers: rateOfMix(mix.newUsers), existing: rateOfMix(mix.existing), resurrected: rateOfMix(mix.resurrected) },
       spaces: {
         total: spaces.total,
         solo: spaces.solo,
