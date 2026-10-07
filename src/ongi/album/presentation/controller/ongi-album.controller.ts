@@ -22,9 +22,9 @@ export class OngiAlbumController {
 
   @RestApiGet(OngiAlbumListResponse, { path: '/:groupId/albums', description: '그룹의 앨범 목록', auth: [USER_TYPE.CLIENT] })
   async scanAlbums(@AuthSignature() signature: UserSignature, @Param('groupId', ParseIntPipe) groupId: number) {
-    const views = await this.scanAlbumsUseCase.execute(signature.id, groupId);
+    const view = await this.scanAlbumsUseCase.execute(signature.id, groupId);
 
-    return new OngiAlbumListResponse(views);
+    return new OngiAlbumListResponse(view);
   }
 
   @RestApiPost(OngiAlbumResponse, { path: '/:groupId/albums', description: '앨범 만들기', auth: [USER_TYPE.CLIENT] })

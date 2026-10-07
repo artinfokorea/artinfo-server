@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { signOngiMediaUrl } from '@/ongi/common/ongi-media-url';
-import { OngiAlbumView } from '@/ongi/album/domain/repository/ongi-album.repository.interface';
+import { OngiAlbumListView, OngiAlbumView } from '@/ongi/album/domain/repository/ongi-album.repository.interface';
 
 /** 커버가 없는 앨범에 보여줄 기본 이미지 */
 const DEFAULT_COVER_URL = 'https://picsum.photos/seed/ongi-album/600/420?grayscale';
@@ -38,7 +38,15 @@ export class OngiAlbumListResponse {
   @ApiProperty({ type: [OngiAlbumResponse], description: '그룹의 앨범 목록' })
   albums: OngiAlbumResponse[];
 
-  constructor(views: OngiAlbumView[]) {
-    this.albums = views.map(view => new OngiAlbumResponse(view));
+  @ApiProperty({ type: Number, description: '그룹 전체 사진 수 (차단한 구성원 제외)' })
+  totalCount: number;
+
+  @ApiProperty({ type: Number, description: '앨범에 담기지 않은 사진 수 (차단한 구성원 제외)' })
+  unfiledCount: number;
+
+  constructor(view: OngiAlbumListView) {
+    this.albums = view.albums.map(album => new OngiAlbumResponse(album));
+    this.totalCount = view.totalCount;
+    this.unfiledCount = view.unfiledCount;
   }
 }
