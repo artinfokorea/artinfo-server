@@ -123,6 +123,19 @@ run(`지표 SQL (DB 시간대 ${DB_TZ})`, () => {
         (90, (now() AT TIME ZONE 'Asia/Seoul')::date, 3000, 9, 'ios', '1.0.10'),
         (91, (now() AT TIME ZONE 'Asia/Seoul')::date - 7, 0, 0, NULL, NULL);
 
+      -- 공간 생성·합류 시점 (두 번째 가족 합류율용) — 1번 공간은 만든 지 5일 만에 아빠가 합류, 2·3번은 혼자, 5번은 아직 7일이 안 됐다
+      UPDATE ongi_groups SET created_at = ${ago(20)} WHERE id = 1;
+      UPDATE ongi_groups SET created_at = ${ago(10)} WHERE id = 2;
+      UPDATE ongi_groups SET created_at = ${ago(12)} WHERE id = 3;
+      UPDATE ongi_groups SET created_at = ${ago(3)} WHERE id = 5;
+      UPDATE ongi_members SET created_at = ${ago(20)}, role = 'admin' WHERE id = 11;
+      UPDATE ongi_members SET created_at = ${ago(15)} WHERE id = 12;
+      UPDATE ongi_members SET created_at = ${ago(10)}, role = 'admin' WHERE id = 13;
+      UPDATE ongi_members SET created_at = ${ago(12)} WHERE id = 15;
+      UPDATE ongi_members SET created_at = ${ago(11)} WHERE id = 98;
+      UPDATE ongi_members SET created_at = ${ago(3)} WHERE id = 14;
+      UPDATE ongi_members SET created_at = ${ago(2)} WHERE id = 17;
+
       -- 마지막 접속 시각: n일 전 날짜의 행은 지금으로부터 n일 전에 접속한 것으로 맞춘다
       UPDATE ongi_user_daily_activity
          SET first_seen_at = now() - ((now() AT TIME ZONE 'Asia/Seoul')::date - day) * interval '1 day',
@@ -174,6 +187,55 @@ run(`지표 SQL (DB 시간대 ${DB_TZ})`, () => {
       { days: 7, cohort: 1, retained: 1 },
       { days: 30, cohort: 1, retained: 0 },
     ]);
+  });
+
+  it('역할별 재방문율 — 공간을 만든 사람(admin)과 초대받은 사람(member)을 나눠 센다', async () => {
+    const rows = await admin.scanRetentionByRole(30);
+
+    expect(rows.sort((a, b) => a.role.localeCompare(b.role) || a.days - b.days)).toEqual([
+      { role: 'admin', days: 1, cohort: 1, retained: 1 },
+      { role: 'member', days: 1, cohort: 3, retained: 1 },
+      { role: 'member', days: 7, cohort: 1, retained: 1 },
+      { role: 'member', days: 30, cohort: 1, retained: 0 },
+    ]);
+  });
+
+  it('7일 안 활성화 — 만든 지 7일 지난 공간 3곳 중 1곳에 두 번째 가족이 합류, 가입 7일 지난 2명 중 첫 사진은 0명', async () => {
+    expect(await admin.getActivation(30, 7)).toEqual({ spaces: 3, spacesWithSecondMember: 1, users: 2, usersWithPhoto: 0 });
+  });
+
+  it('7일 안 활성화 — 가입 6일째 올린 사진은 세고, 8일째 올린 사진은 세지 않는다', async () => {
+    // 아빠(8일 전 가입)가 2일 전(가입 6일째)에 올린 사진
+    await dataSource.query(
+      `INSERT INTO ongi_photos (id, group_id, author_member_id, url, created_at) VALUES (150, 1, 12, 'https://x/150.jpg', now() - interval '2 days')`,
+    );
+    expect((await admin.getActivation(30, 7)).usersWithPhoto).toBe(1);
+
+    await dataSource.query(`UPDATE ongi_photos SET created_at = now() WHERE id = 150`); // 가입 8일째
+    expect((await admin.getActivation(30, 7)).usersWithPhoto).toBe(0);
+
+    await dataSource.query(`DELETE FROM ongi_photos WHERE id = 150`);
+  });
+
+  it('방문일수 분포 — 최근 7일 접속자 6명: 하루 4명, 이틀 1명, 사흘 1명', async () => {
+    const rows = await admin.scanVisitDays(7);
+
+    expect(rows.sort((a, b) => a.days - b.days)).toEqual([
+      { days: 1, users: 4 },
+      { days: 2, users: 1 },
+      { days: 3, users: 1 },
+    ]);
+  });
+
+  it('접속자 구성 — 최근 7일 접속자 6명 = 신규 4 · 기존 2 · 부활 0', async () => {
+    expect(await admin.getActiveMix(7)).toEqual({ newUsers: 4, existing: 2, resurrected: 0 });
+  });
+
+  it('접속자 구성 — 지난주에 안 왔던 옛 사용자가 오면 부활', async () => {
+    await dataSource.query(`INSERT INTO ongi_user_daily_activity (user_id, day) VALUES (6, (now() AT TIME ZONE 'Asia/Seoul')::date)`);
+    expect(await admin.getActiveMix(7)).toEqual({ newUsers: 4, existing: 2, resurrected: 1 });
+
+    await dataSource.query(`DELETE FROM ongi_user_daily_activity WHERE user_id = 6`);
   });
 
   it('공간 — 지워진 공간은 빼고 4곳, 혼자 3곳, 최근 7일 활동 2곳, 구성원 합 5명', async () => {
@@ -251,7 +313,7 @@ run(`지표 SQL (DB 시간대 ${DB_TZ})`, () => {
     });
 
     it('소속 공간을 함께 준다 — 나간 공간과 지워진 공간은 뺀다', async () => {
-      expect((await admin.findUserById(1))?.groups).toEqual([{ groupId: 1, groupName: '우리 가족', memberName: '엄마', role: 'member' }]);
+      expect((await admin.findUserById(1))?.groups).toEqual([{ groupId: 1, groupName: '우리 가족', memberName: '엄마', role: 'admin' }]);
       expect((await admin.findUserById(6))?.groups).toEqual([]);
       expect((await admin.findUserById(7))?.groups).toEqual([]);
       expect((await admin.findUserById(90))?.groups.map(group => group.groupId)).toEqual([3, 9]);

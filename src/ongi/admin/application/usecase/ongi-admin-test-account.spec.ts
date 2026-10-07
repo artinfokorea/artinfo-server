@@ -93,6 +93,10 @@ describe('OngiAdminStatsUseCase — 수치에서 뺀 테스트 계정 수', () =
       scanPlatforms: async () => [],
       scanVersions: async () => [],
       countTestUsers: async () => 3,
+      scanRetentionByRole: async () => [],
+      getActivation: async () => ({ spaces: 0, spacesWithSecondMember: 0, users: 0, usersWithPhoto: 0 }),
+      scanVisitDays: async () => [],
+      getActiveMix: async () => ({ newUsers: 0, existing: 0, resurrected: 0 }),
     } as unknown as IOngiAdminRepository;
 
     expect((await new OngiAdminStatsUseCase(repository).execute()).excludedTestUsers).toBe(3);
