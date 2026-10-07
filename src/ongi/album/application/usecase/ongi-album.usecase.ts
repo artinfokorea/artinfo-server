@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { IOngiAlbumRepository, ONGI_ALBUM_REPOSITORY, OngiAlbumView } from '@/ongi/album/domain/repository/ongi-album.repository.interface';
+import { IOngiAlbumRepository, ONGI_ALBUM_REPOSITORY, OngiAlbumListView, OngiAlbumView } from '@/ongi/album/domain/repository/ongi-album.repository.interface';
 import { IOngiMemberRepository, ONGI_MEMBER_REPOSITORY } from '@/ongi/group/domain/repository/ongi-member.repository.interface';
 import { OngiNotGroupAdmin, OngiNotGroupMember } from '@/ongi/group/domain/exception/ongi-group.exception';
 import { ONGI_MEMBER_ROLE } from '@/ongi/group/domain/entity/ongi-member.entity';
@@ -25,11 +25,18 @@ export class OngiScanAlbumsUseCase {
     private readonly blockRepository: IOngiBlockRepository,
   ) {}
 
-  async execute(userId: number, groupId: number): Promise<OngiAlbumView[]> {
+  /** 앨범 목록 + 전체·미분류 장수 — 앱이 받은 페이지 길이가 아니라 서버가 센 값을 쓰도록 함께 내려준다 */
+  async execute(userId: number, groupId: number): Promise<OngiAlbumListView> {
     const me = await this.memberRepository.findByGroupIdAndUserId(groupId, userId);
     if (!me) throw new OngiNotGroupMember();
 
-    return this.albumRepository.scanViewsByGroupId(groupId, await blockedMemberIdsOf(this.blockRepository, this.memberRepository, userId));
+    const excluded = await blockedMemberIdsOf(this.blockRepository, this.memberRepository, userId);
+    const [albums, counts] = await Promise.all([
+      this.albumRepository.scanViewsByGroupId(groupId, excluded),
+      this.albumRepository.countPhotosByGroupId(groupId, excluded),
+    ]);
+
+    return { albums, totalCount: counts.total, unfiledCount: counts.unfiled };
   }
 }
 

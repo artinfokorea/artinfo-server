@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IOngiAlbumRepository, OngiAlbumView } from '@/ongi/album/domain/repository/ongi-album.repository.interface';
+import { IOngiAlbumRepository, OngiAlbumView, OngiGroupPhotoCounts } from '@/ongi/album/domain/repository/ongi-album.repository.interface';
 import { OngiAlbum, OngiAlbumCreator } from '@/ongi/album/domain/entity/ongi-album.entity';
 import { pickAlbumCoverUrl } from '@/ongi/album/domain/service/ongi-album-cover';
 
@@ -52,6 +52,17 @@ export class OngiAlbumRepository implements IOngiAlbumRepository {
     const [view] = await this.toViews([album], excludedAuthorMemberIds);
 
     return view ?? null;
+  }
+
+  async countPhotosByGroupId(groupId: number, excludedAuthorMemberIds: number[] = []): Promise<OngiGroupPhotoCounts> {
+    const [row]: { total: string; unfiled: string }[] = await this.albumRepository.manager.query(
+      `SELECT COUNT(*) AS total, COUNT(*) FILTER (WHERE album_id IS NULL) AS unfiled
+         FROM ongi_photos
+        WHERE group_id = $1 AND deleted_at IS NULL AND NOT (author_member_id = ANY($2))`,
+      [groupId, excludedAuthorMemberIds],
+    );
+
+    return { total: Number(row?.total ?? 0), unfiled: Number(row?.unfiled ?? 0) };
   }
 
   /** 차단한 구성원의 사진은 커버·장수에서 제외 — 피드·앨범 사진 목록의 차단 필터와 일관되게 */
