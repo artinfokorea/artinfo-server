@@ -41,6 +41,14 @@ const notTestMember = (column: string) => `${column} NOT IN ${TEST_MEMBER_IDS}`;
 const notTestOnlyGroup = (alias: string) =>
   `(EXISTS (SELECT 1 FROM ongi_members m WHERE m.group_id = ${alias}.id AND m.deleted_at IS NULL AND ${notTestUser('m.user_id')})
     OR NOT EXISTS (SELECT 1 FROM ongi_members m WHERE m.group_id = ${alias}.id AND m.deleted_at IS NULL))`;
+/** 가입자를 한국 날짜의 가입일과 역할로 — admin(공간을 만든 적 있음) · member(들어간 적 있음, 나간 공간도) · none */
+const SIGNUP_COHORT_BY_ROLE = `
+  SELECT u.id, ${kstDateOf('u.created_at')} AS signup_day,
+         CASE WHEN EXISTS (SELECT 1 FROM ongi_members m WHERE m.user_id = u.id AND m.role = 'admin') THEN 'admin'
+              WHEN EXISTS (SELECT 1 FROM ongi_members m WHERE m.user_id = u.id) THEN 'member'
+              ELSE 'none' END AS role
+    FROM ongi_users u
+   WHERE NOT u.is_test`;
 /** 테스트 계정을 뺀 활동 기록 */
 const REAL_ACTIVITY = `(SELECT * FROM ongi_user_daily_activity WHERE ${notTestUser('user_id')})`;
 
@@ -171,14 +179,7 @@ export class OngiAdminRepository implements IOngiAdminRepository {
   async scanRetentionByRole(windowDays: number): Promise<{ role: string; days: number; cohort: number; retained: number }[]> {
     return this.dataSource.query(
       `WITH t AS (SELECT ${KST_TODAY} AS today, (SELECT min(day) FROM ${REAL_ACTIVITY} a) AS since),
-            cohort AS (
-              SELECT u.id, ${kstDateOf('u.created_at')} AS signup_day,
-                     CASE WHEN EXISTS (SELECT 1 FROM ongi_members m WHERE m.user_id = u.id AND m.role = 'admin') THEN 'admin'
-                          WHEN EXISTS (SELECT 1 FROM ongi_members m WHERE m.user_id = u.id) THEN 'member'
-                          ELSE 'none' END AS role
-                FROM ongi_users u
-               WHERE NOT u.is_test
-            )
+            cohort AS (${SIGNUP_COHORT_BY_ROLE})
        SELECT c.role AS "role", n.days AS "days", count(*)::int AS "cohort", count(a.user_id)::int AS "retained"
          FROM t
          CROSS JOIN (VALUES (1), (7), (30)) AS n(days)
@@ -187,6 +188,22 @@ export class OngiAdminRepository implements IOngiAdminRepository {
         WHERE t.since IS NOT NULL
         GROUP BY c.role, n.days`,
       [windowDays],
+    );
+  }
+
+  /** 곡선은 같은 사람들을 따라가야 하므로 가입일로 묶는다 (재방문율의 세 점은 "그날을 맞은 사람"으로 묶어 조금 다르다) */
+  async scanRetentionCurve(windowDays: number, maxDays: number): Promise<{ role: string; days: number; cohort: number; retained: number }[]> {
+    return this.dataSource.query(
+      `WITH t AS (SELECT ${KST_TODAY} AS today, (SELECT min(day) FROM ${REAL_ACTIVITY} a) AS since),
+            cohort AS (${SIGNUP_COHORT_BY_ROLE})
+       SELECT c.role AS "role", n.days AS "days", count(*)::int AS "cohort", count(a.user_id)::int AS "retained"
+         FROM t
+         CROSS JOIN generate_series(1, $2::int) AS n(days)
+         JOIN cohort c ON c.signup_day BETWEEN GREATEST(t.since, t.today - $1::int) AND t.today - 1 AND c.signup_day + n.days <= t.today - 1
+         LEFT JOIN ongi_user_daily_activity a ON a.user_id = c.id AND a.day = c.signup_day + n.days
+        WHERE t.since IS NOT NULL
+        GROUP BY c.role, n.days`,
+      [windowDays, maxDays],
     );
   }
 

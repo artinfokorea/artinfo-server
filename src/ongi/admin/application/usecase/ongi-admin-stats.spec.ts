@@ -45,6 +45,11 @@ function setup(overrides: Partial<IOngiAdminRepository> = {}) {
       { days: 3, users: 2 },
     ],
     getActiveMix: async () => ({ newUsers: 3, existing: 2, resurrected: 1 }),
+    scanRetentionCurve: async () => [
+      { role: 'admin', days: 1, cohort: 2, retained: 2 },
+      { role: 'member', days: 1, cohort: 3, retained: 1 },
+      { role: 'member', days: 2, cohort: 1, retained: 1 },
+    ],
     ...overrides,
   } as unknown as IOngiAdminRepository;
 
@@ -210,5 +215,18 @@ describe('OngiAdminStatsUseCase — 관리자 지표', () => {
       existing: { count: 2, rate: 33.3 },
       resurrected: { count: 1, rate: 16.7 },
     });
+  });
+
+  it('재방문 곡선 — 1~30일을 채우고, 전체는 역할의 합, 대상자가 없는 날은 null', async () => {
+    const { retentionCurve } = await setup().useCase.execute();
+
+    expect(retentionCurve.total).toHaveLength(30);
+    expect(retentionCurve.total[0]).toEqual({ days: 1, cohort: 5, retained: 3, rate: 60 });
+    expect(retentionCurve.total[1]).toEqual({ days: 2, cohort: 1, retained: 1, rate: 100 });
+    expect(retentionCurve.total[29]).toEqual({ days: 30, cohort: 0, retained: 0, rate: null });
+    expect(retentionCurve.byRole.map(r => r.role)).toEqual(['admin', 'member', 'none']);
+    expect(retentionCurve.byRole[0].retention[0]).toEqual({ days: 1, cohort: 2, retained: 2, rate: 100 });
+    expect(retentionCurve.byRole[1].retention[1]).toEqual({ days: 2, cohort: 1, retained: 1, rate: 100 });
+    expect(retentionCurve.byRole[2].retention.every(p => p.rate === null)).toBe(true);
   });
 });

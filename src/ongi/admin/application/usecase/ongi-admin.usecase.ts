@@ -35,9 +35,11 @@ import {
   averageOf,
   buildRetention,
   buildRetentionByRole,
+  buildRetentionCurve,
   buildStickiness,
   buildVisitDays,
   dayKeysUntil,
+  OngiRetentionCurveView,
   OngiRetentionView,
   OngiRoleRetentionView,
   percentOf,
@@ -57,6 +59,8 @@ const ENGAGEMENT_DAYS = 7;
 /** 0→1 목표 지표의 창 — 가입·공간 생성 후 이 안에 일어나야 활성화로 친다 */
 const ACTIVATION_DAYS = 7;
 const MIX_DAYS = 7;
+/** 재방문 곡선은 가입 30일째까지 */
+const CURVE_DAYS = 30;
 
 const pageOf = (page: number) => ({ limit: PAGE_SIZE, offset: Math.max(0, page - 1) * PAGE_SIZE });
 
@@ -130,6 +134,8 @@ export interface OngiAdminStatsView {
   retention: OngiRetentionView[];
   /** 재방문율을 역할로 나눠서 — 공간을 만든 사람 · 초대받은 사람 · 공간이 없는 사람 */
   retentionByRole: OngiRoleRetentionView[];
+  /** 재방문 곡선 — 최근 30일 가입자가 가입 1~30일째에 다시 온 비율, 전체와 역할별 */
+  retentionCurve: OngiRetentionCurveView;
   /** 7일 안 활성화 — 두 번째 가족 합류 · 첫 사진 */
   activation: {
     windowDays: number;
@@ -161,22 +167,37 @@ export class OngiAdminStatsUseCase {
   ) {}
 
   async execute(): Promise<OngiAdminStatsView> {
-    const [summary, activityRows, contentRows, retentionRows, spaces, funnel, platforms, versions, excludedTestUsers, roleRows, activation, visitRows, mix] =
-      await Promise.all([
-        this.adminRepository.getActivitySummary(),
-        this.adminRepository.scanDailyActivity(STATS_DAYS),
-        this.adminRepository.scanDailyContent(STATS_DAYS),
-        this.adminRepository.scanRetention(STATS_DAYS),
-        this.adminRepository.getSpaceStats(),
-        this.adminRepository.getFunnel(),
-        this.adminRepository.scanPlatforms(STATS_DAYS),
-        this.adminRepository.scanVersions(STATS_DAYS),
-        this.adminRepository.countTestUsers(),
-        this.adminRepository.scanRetentionByRole(STATS_DAYS),
-        this.adminRepository.getActivation(STATS_DAYS, ACTIVATION_DAYS),
-        this.adminRepository.scanVisitDays(MIX_DAYS),
-        this.adminRepository.getActiveMix(MIX_DAYS),
-      ]);
+    const [
+      summary,
+      activityRows,
+      contentRows,
+      retentionRows,
+      spaces,
+      funnel,
+      platforms,
+      versions,
+      excludedTestUsers,
+      roleRows,
+      activation,
+      visitRows,
+      mix,
+      curveRows,
+    ] = await Promise.all([
+      this.adminRepository.getActivitySummary(),
+      this.adminRepository.scanDailyActivity(STATS_DAYS),
+      this.adminRepository.scanDailyContent(STATS_DAYS),
+      this.adminRepository.scanRetention(STATS_DAYS),
+      this.adminRepository.getSpaceStats(),
+      this.adminRepository.getFunnel(),
+      this.adminRepository.scanPlatforms(STATS_DAYS),
+      this.adminRepository.scanVersions(STATS_DAYS),
+      this.adminRepository.countTestUsers(),
+      this.adminRepository.scanRetentionByRole(STATS_DAYS),
+      this.adminRepository.getActivation(STATS_DAYS, ACTIVATION_DAYS),
+      this.adminRepository.scanVisitDays(MIX_DAYS),
+      this.adminRepository.getActiveMix(MIX_DAYS),
+      this.adminRepository.scanRetentionCurve(STATS_DAYS, CURVE_DAYS),
+    ]);
 
     const activityOf = new Map(activityRows.map(row => [row.day, row]));
     const contentOf = new Map(contentRows.map(row => [row.day, row]));
@@ -218,6 +239,7 @@ export class OngiAdminStatsUseCase {
       },
       retention: buildRetention(retentionRows),
       retentionByRole: buildRetentionByRole(roleRows),
+      retentionCurve: buildRetentionCurve(curveRows, CURVE_DAYS),
       activation: {
         windowDays: ACTIVATION_DAYS,
         secondMember: {
