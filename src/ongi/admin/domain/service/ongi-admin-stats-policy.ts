@@ -55,6 +55,30 @@ export function buildRetentionByRole(rows: { role: string; days: number; cohort:
   return ONGI_RETENTION_ROLES.map(role => ({ role, retention: buildRetention(rows.filter(row => row.role === role)) }));
 }
 
+export interface OngiRetentionCurveView {
+  /** 역할을 합친 전체 — 1일째부터 maxDays 일째까지 */
+  total: OngiRetentionView[];
+  byRole: OngiRoleRetentionView[];
+}
+
+/** 재방문 곡선 — 역할마다 1~maxDays 일째를 빠짐없이 채우고(대상 없는 날은 null), 전체는 역할의 합 */
+export function buildRetentionCurve(rows: { role: string; days: number; cohort: number; retained: number }[], maxDays: number): OngiRetentionCurveView {
+  const pointsOf = (filter: (row: { role: string }) => boolean): OngiRetentionView[] =>
+    Array.from({ length: maxDays }, (_, index) => {
+      const days = index + 1;
+      const matched = rows.filter(row => row.days === days && filter(row));
+      const cohort = matched.reduce((sum, row) => sum + row.cohort, 0);
+      const retained = matched.reduce((sum, row) => sum + row.retained, 0);
+
+      return { days, cohort, retained, rate: cohort > 0 ? percentOf(retained, cohort) : null };
+    });
+
+  return {
+    total: pointsOf(() => true),
+    byRole: ONGI_RETENTION_ROLES.map(role => ({ role, retention: pointsOf(row => row.role === role) })),
+  };
+}
+
 /** 방문일수 분포 — 1일부터 days 일까지 빠짐없이, 없는 일수는 0 */
 export function buildVisitDays(rows: { days: number; users: number }[], days: number): { days: number; users: number }[] {
   return Array.from({ length: days }, (_, index) => ({ days: index + 1, users: rows.find(row => row.days === index + 1)?.users ?? 0 }));

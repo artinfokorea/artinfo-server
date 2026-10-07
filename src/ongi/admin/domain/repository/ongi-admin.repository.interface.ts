@@ -211,6 +211,11 @@ export interface IOngiAdminRepository {
   /** 최근 days 일 접속자가 며칠 접속했는지 분포 — days 는 1 이상, 접속자가 없는 일수는 빠진다 */
   scanVisitDays(days: number): Promise<{ days: number; users: number }[]>;
   getActiveMix(days: number): Promise<OngiAdminActiveMix>;
+  /**
+   * 재방문 곡선 — 최근 windowDays 가입자(접속 기록 시작 이후)가 가입 1~maxDays 일째에 다시 온 비율을 역할별로.
+   * 아직 그날을 맞지 않은 사람은 그 점의 대상에서 뺀다. 대상이 없는 (역할, 일째)는 행이 없다
+   */
+  scanRetentionCurve(windowDays: number, maxDays: number): Promise<{ role: string; days: number; cohort: number; retained: number }[]>;
   getSpaceStats(): Promise<OngiAdminSpaceStats>;
   getFunnel(): Promise<OngiAdminFunnel>;
   /** 최근 days 일 접속자의 플랫폼 — 앱이 보낸 값이 없으면 푸시 토큰의 플랫폼, 그것도 없으면 null */

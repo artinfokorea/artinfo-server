@@ -200,6 +200,29 @@ run(`지표 SQL (DB 시간대 ${DB_TZ})`, () => {
     ]);
   });
 
+  it('재방문 곡선 — 최근 30일 가입자를 역할별로, 아직 그날을 맞지 않은 사람은 그 점에서 뺀다', async () => {
+    const rows = await admin.scanRetentionCurve(30, 30);
+    const of = (role: string) =>
+      rows
+        .filter(row => row.role === role)
+        .sort((a, b) => a.days - b.days)
+        .map(row => [row.days, row.cohort, row.retained]);
+
+    // 딸(admin, 2일 전 가입): 1일째만 맞았고 다시 왔다
+    expect(of('admin')).toEqual([[1, 1, 1]]);
+    // 아빠(8일 전) · 친구(3일 전) · 탈퇴한 사용자(2일 전): 1일째는 셋 중 아빠만, 7일째는 아빠 혼자 맞았고 다시 왔다
+    expect(of('member')).toEqual([
+      [1, 3, 1],
+      [2, 2, 0],
+      [3, 1, 0],
+      [4, 1, 0],
+      [5, 1, 0],
+      [6, 1, 0],
+      [7, 1, 1],
+    ]);
+    expect(of('none')).toEqual([]);
+  });
+
   it('7일 안 활성화 — 만든 지 7일 지난 공간 3곳 중 1곳에 두 번째 가족이 합류, 가입 7일 지난 2명 중 첫 사진은 0명', async () => {
     expect(await admin.getActivation(30, 7)).toEqual({ spaces: 3, spacesWithSecondMember: 1, users: 2, usersWithPhoto: 0 });
   });
