@@ -44,6 +44,7 @@
     "cache-manager": "^5.6.1",
     "cache-manager-ioredis": "^2.1.0",
     "chalk": "^4.1.2",
+    "cheerio": "1.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "coolsms-node-sdk": "^2.1.0",
