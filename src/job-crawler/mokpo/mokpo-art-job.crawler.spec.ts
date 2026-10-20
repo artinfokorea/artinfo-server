@@ -125,7 +125,8 @@ describe('MokpoArtJobCrawler', () => {
   });
 
   it("제목에 '합격' 이 들어간 공고는 제외한다", async () => {
-    const page = fixture('list-2026-10-20.html').replace('2026년도 목포시립예술단 단원 공개채용 공고', '2026년도 목포시립예술단 단원 공개채용 합격자 발표');
+    // 제목은 title 속성과 링크 텍스트 두 곳에 있으므로 모두 바꾼다
+    const page = fixture('list-2026-10-20.html').replace(/2026년도 목포시립예술단 단원 공개채용 공고/g, '2026년도 목포시립예술단 단원 공개채용 합격자 발표');
     const { crawler, calls } = build({ pages: { 1: page } });
     const summary = await crawler.crawl('2026-10-20');
     expect(summary.scanned).toBe(14);
