@@ -37,6 +37,7 @@
     "@nestjs/swagger": "^7.3.1",
     "@nestjs/typeorm": "^10.0.2",
     "@nestjs/websockets": "^11.1.17",
+    "@rhwp/core": "0.8.7",
     "axios": "^1.7.2",
     "bcrypt": "^5.1.1",
     "bullmq": "^5.79.0",

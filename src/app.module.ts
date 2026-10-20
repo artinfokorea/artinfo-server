@@ -59,6 +59,7 @@ import { OnchurchVision } from '@/onchurch/about/domain/entity/onchurch-vision.e
 import { OnchurchHistory } from '@/onchurch/about/domain/entity/onchurch-history.entity';
 import { OnchurchStaff } from '@/onchurch/about/domain/entity/onchurch-staff.entity';
 import { OngiModule } from '@/ongi/ongi.module';
+import { DocumentConverterModule } from '@/document-converter/document-converter.module';
 import { OngiUser } from '@/ongi/user/domain/entity/ongi-user.entity';
 import { OngiAuth } from '@/ongi/auth/domain/entity/ongi-auth.entity';
 import { OngiGroup } from '@/ongi/group/domain/entity/ongi-group.entity';
@@ -136,6 +137,7 @@ const modules = [
   TovModule,
   OnchurchModule,
   OngiModule,
+  DocumentConverterModule,
 ];
 
 @Module({
