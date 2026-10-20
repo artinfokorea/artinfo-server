@@ -13,6 +13,7 @@ import { JobSourceSupport, NoticeRegistration } from '../source/job-source.suppo
  * 3) 다른 날짜면 scanned 0 · matched 0
  * 4) 다운로드 실패는 failed 로 모이고 나머지 흐름은 계속된다
  * 5) 1페이지가 모두 그날이면 2페이지를 읽고, 전날 행이 나오거나 빈 페이지면 멈춘다
+ * 6) 제목에 '합격' 이 든 공고(합격자 발표)는 조건 낱말이 있어도 대상이 아니다
  */
 const fixture = (name: string) => fs.readFileSync(path.join(__dirname, '__fixtures__', name), 'utf8');
 const olderPage = fixture('list-2026-10-20.html').replace(/2026-10-20/g, '2026-10-19');
@@ -121,6 +122,15 @@ describe('MokpoArtJobCrawler', () => {
     const summary = await crawler.crawl('2026-10-20');
     expect(summary.scanned).toBe(15);
     expect(calls.list).toEqual([1, 2]);
+  });
+
+  it("제목에 '합격' 이 들어간 공고는 제외한다", async () => {
+    const page = fixture('list-2026-10-20.html').replace('2026년도 목포시립예술단 단원 공개채용 공고', '2026년도 목포시립예술단 단원 공개채용 합격자 발표');
+    const { crawler, calls } = build({ pages: { 1: page } });
+    const summary = await crawler.crawl('2026-10-20');
+    expect(summary.scanned).toBe(14);
+    expect(summary.matched).toBe(0);
+    expect(calls.detail).toEqual([]);
   });
 
   it('빈 페이지가 나오면 멈춘다', async () => {

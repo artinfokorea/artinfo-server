@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { jobCrawlerConfig } from '../job-crawler.config';
 import { CrawlSummary, CrawledJob, JobSourceCrawler, SkippedNotice, emptySummary } from '../source/job-source';
 import { JobSourceSupport } from '../source/job-source.support';
+import { isRecruitmentTitle } from '../source/title-filter';
 import { MokpoNoticeClient, MokpoNoticeGateway } from './mokpo-notice.client';
 import { MokpoNoticeRow, parseMokpoNoticeDetail, parseMokpoNoticeList, pickNoticeAttachment } from './mokpo-notice.parser';
 
@@ -61,8 +62,7 @@ export class MokpoArtJobCrawler implements JobSourceCrawler {
   }
 
   private isTargetTitle(title: string): boolean {
-    const compact = title.replace(/\s+/g, '');
-    return jobCrawlerConfig.mokpo.titleKeywords.every(keyword => compact.includes(keyword));
+    return isRecruitmentTitle(title, jobCrawlerConfig.mokpo.titleKeywords);
   }
 
   private async register(row: MokpoNoticeRow, date: string): Promise<CrawledJob | SkippedNotice> {

@@ -9,6 +9,8 @@ export const jobCrawlerConfig = {
   /** 공고문 이미지 배율·품질 (document-converter 와 같은 의미) */
   imageScale: Number(env('JOB_CRAWLER_IMAGE_SCALE', '2')),
   imageQuality: Number(env('JOB_CRAWLER_IMAGE_QUALITY', '80')),
+  /** 모든 소스 공통 — 제목에 이 낱말이 있으면 채용 공고로 보지 않는다 (합격자 발표 등). 공백 제거 후 비교 */
+  excludedTitleKeywords: ['합격'],
   mokpo: {
     listUrl: 'https://www.mokpo.go.kr/www/mokpo_news/notification/public_notice',
     downloadUrl: 'https://eminwon.mokpo.go.kr/emwp/jsp/ofr/FileDownNew.jsp',
