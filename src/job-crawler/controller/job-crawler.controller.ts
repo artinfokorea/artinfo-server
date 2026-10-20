@@ -1,32 +1,27 @@
-import { ConflictException, Query } from '@nestjs/common';
+import { Query } from '@nestjs/common';
+import { ApiQuery } from '@nestjs/swagger';
 import { RestApiController, RestApiPost } from '@/common/decorator/rest-api';
 import { USER_TYPE } from '@/user/entity/user.entity';
 import { todayInKst } from '../job-crawler.config';
-import { MokpoArtJobCrawler } from '../mokpo/mokpo-art-job.crawler';
+import { JobCrawlerService } from '../job-crawler.service';
 import { RunJobCrawlerQuery } from '../dto/run-job-crawler.request';
 import { JobCrawlerRunResponse } from '../dto/job-crawler.response';
 
-/** 채용 공고 크롤러 수동 실행 (관리자). 스케줄(매일 23:00 KST)과 같은 일을 지정한 날짜로 바로 돌린다. */
+/** 채용 공고 크롤러 수동 실행 (관리자). 스케줄(매일 23:00 KST)과 같은 일을 지정한 날짜로 바로, 모든 소스를 동시에 돌린다. */
 @RestApiController('/job-crawler', 'JobCrawler')
 export class JobCrawlerController {
-  private running: Promise<unknown> | null = null;
+  constructor(private readonly jobCrawlerService: JobCrawlerService) {}
 
-  constructor(private readonly mokpoCrawler: MokpoArtJobCrawler) {}
-
+  @ApiQuery({ name: 'date', required: false, type: String })
+  @ApiQuery({ name: 'source', required: false, type: [String] })
   @RestApiPost(JobCrawlerRunResponse, {
-    path: '/mokpo/run',
-    description: '목포시 고시·공고에서 지정한 날짜(기본 오늘)의 목포시립예술단 채용 공고를 수집해 채용으로 등록 (관리자 전용)',
+    path: '/run',
+    description: '지정한 날짜(기본 오늘 KST)에 올라온 채용 공고를 모든 소스에서 동시에 수집해 채용으로 등록 (관리자 전용). source 로 일부만 고를 수 있다',
     auth: [USER_TYPE.ADMIN],
   })
-  async runMokpo(@Query() query: RunJobCrawlerQuery): Promise<JobCrawlerRunResponse> {
-    if (this.running) throw new ConflictException({ code: 'JOB-CRAWLER-001', message: '크롤러가 이미 실행 중입니다. 끝난 뒤 다시 시도하세요.' });
+  async run(@Query() query: RunJobCrawlerQuery): Promise<JobCrawlerRunResponse> {
     const date = query.date ?? todayInKst();
-    const run = this.mokpoCrawler.crawl(date);
-    this.running = run.catch(() => undefined);
-    try {
-      return new JobCrawlerRunResponse(await run);
-    } finally {
-      this.running = null;
-    }
+    const summaries = await this.jobCrawlerService.runAll(date, query.source);
+    return new JobCrawlerRunResponse(date, summaries);
   }
 }
