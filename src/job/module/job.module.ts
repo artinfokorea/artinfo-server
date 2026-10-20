@@ -23,8 +23,23 @@ import { ImageRepository } from '@/system/repository/image.repository';
 import { FileConverterModule } from '@/file-converter/file-converter.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Job, JobMajorCategory, JobUser, JobProvince, MajorCategory, Province, User, JobSchedule, ImageEntity]), FileConverterModule],
+  imports: [
+    TypeOrmModule.forFeature([Job, JobMajorCategory, JobUser, JobProvince, MajorCategory, Province, User, JobSchedule, ImageEntity]),
+    FileConverterModule,
+  ],
   controllers: [JobController],
-  providers: [JobService, UserRepository, JobRepository, MajorRepository, RedisRepository, JobEvent, SystemService, AwsS3Service, AwsSesService, ImageRepository],
+  providers: [
+    JobService,
+    UserRepository,
+    JobRepository,
+    MajorRepository,
+    RedisRepository,
+    JobEvent,
+    SystemService,
+    AwsS3Service,
+    AwsSesService,
+    ImageRepository,
+  ],
+  exports: [JobService],
 })
 export class JobModule {}
