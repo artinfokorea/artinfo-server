@@ -17,8 +17,14 @@ export const jobCrawlerConfig = {
     /** 제목에 모두 들어 있어야 하는 낱말 (공백 제거 후 비교) */
     titleKeywords: ['목포시립예술단', '채용'],
     companyName: '목포시립예술단',
-    /** JobRepository 가 주소 첫 어절(시·도)로 지역을 매긴다 */
-    address: '전라남도 목포시',
+    /** 단체 주소. JobRepository 가 첫 어절을 provinces.name 과 맞춰 지역을 매긴다 */
+    address: '전남광주통합특별시 목포시 양을로 203',
+    addressDetail: '목포시청 3층 문화예술과',
+    /** 채용 대표 이미지 (이미 S3 에 올라가 있는 목포시 로고) */
+    imageUrl: env(
+      'JOB_CRAWLER_MOKPO_IMAGE_URL',
+      'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/4637/images/20261020/original/cLa2DrY-gIr.1792501357272.png',
+    ),
   },
 };
 
