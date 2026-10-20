@@ -7,7 +7,7 @@ import { JobSourceSupport, NoticeRegistration } from '../source/job-source.suppo
 /**
  * 스펙 (사이트는 가짜 게이트웨이, 등록은 가짜 JobSourceSupport, 파서는 실제 픽스처):
  * 1) 2026-10-20 목록(그날 14건 + 10-19 1건) 중 "목포시립예술단 … 채용" 1건 → 공고문 hwpx 다운로드 → 등록 요청
- *    - 제목 · 단체명 목포시립예술단 · 주소 '전남광주통합특별시 목포시 양을로 203' · 상세 '목포시청 3층 문화예술과' · 로고 mokpo.png · URL · 본문
+ *    - 제목 · 단체명 목포시립예술단 · 주소 '전남광주통합특별시 목포시 양을로 203' · 상세 '목포시청 3층 문화예술과' · 대표 이미지 URL · URL · 본문
  *    - 1페이지에 전날 행이 있으므로 2페이지는 읽지 않는다
  * 2) 같은 URL 이 이미 있으면 skipped (다운로드·등록 안 함)
  * 3) 다른 날짜면 scanned 0 · matched 0
@@ -79,7 +79,7 @@ describe('MokpoArtJobCrawler', () => {
       companyName: '목포시립예술단',
       address: '전남광주통합특별시 목포시 양을로 203',
       addressDetail: '목포시청 3층 문화예술과',
-      logoAsset: 'mokpo.png',
+      imageUrl: 'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/4637/images/20261020/original/cLa2DrY-gIr.1792501357272.png',
       date: '2026-10-20',
     });
     expect(reg.file.name).toBe('(공고문) 2026 시립예술단 단원 채용 모집 공고.hwpx');

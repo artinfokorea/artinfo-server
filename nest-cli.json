@@ -3,7 +3,6 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
-    "deleteOutDir": true,
-    "assets": [{ "include": "job-crawler/assets/**", "outDir": "dist" }]
+    "deleteOutDir": true
   }
 }

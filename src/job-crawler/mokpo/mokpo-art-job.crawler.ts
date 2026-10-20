@@ -75,7 +75,7 @@ export class MokpoArtJobCrawler implements JobSourceCrawler {
     if (!attachment) return { title: row.title, url: row.url, reason: `HWP/HWPX 첨부가 없음 (첨부 ${detail.attachments.length}개)` };
 
     const buffer = await this.gateway.downloadAttachment(page, detail.csrfToken, attachment);
-    const { companyName, address, addressDetail, logoAsset } = jobCrawlerConfig.mokpo;
+    const { companyName, address, addressDetail, imageUrl } = jobCrawlerConfig.mokpo;
     return this.support.register({
       source: this.key,
       title: detail.title || row.title,
@@ -85,7 +85,7 @@ export class MokpoArtJobCrawler implements JobSourceCrawler {
       companyName,
       address,
       addressDetail,
-      logoAsset,
+      imageUrl,
       date,
     });
   }

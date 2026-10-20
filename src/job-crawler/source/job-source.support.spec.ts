@@ -1,5 +1,3 @@
-import * as fs from 'fs';
-import * as path from 'path';
 import { Repository } from 'typeorm';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { DocumentConverterService } from '@/document-converter/service/document-converter.service';
@@ -14,14 +12,11 @@ import { JobSourceSupport, NoticeRegistration, buildContentsHtml } from './job-s
  * 스펙 (변환·S3·DB 는 가짜):
  * 1) 공고문 → WebP 2장 업로드(upload/{userId}/jobs/20261020/original/*.webp) → 채용 생성
  *    - userId · type ART_ORGANIZATION · 제목 · 단체명 · 주소/상세 · recruitSiteUrl · 전공 id(TRUMPET, SOPRANO) · contents 마크업
- *    - 로고가 있으면 assets 파일을 upload/job-crawler/{source}/{파일} 에 올리고 imageUrl 로 쓴다 (두 번 등록해도 한 번만 업로드)
- * 2) 로고가 없으면 imageUrl null, 등록 계정은 한 번만 조회
- * 3) 로고 파일이 없으면 등록이 실패한다 (조용히 null 로 넘어가지 않음)
- * 4) findRegisteredJobId 는 같은 URL 의 채용 id
+ *    - imageUrl 은 소스가 준 URL 그대로 (null 이면 null)
+ * 2) 두 번 등록해도 등록 계정은 한 번만 조회
+ * 3) findRegisteredJobId 는 같은 URL 의 채용 id
  */
-const assetsDir = path.join(__dirname, '..', 'assets');
-const logoFile = path.join(assetsDir, 'test-logo.png');
-const PNG_1PX = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+const LOGO = 'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/4637/images/20261020/original/cLa2DrY-gIr.1792501357272.png';
 
 function build(opts: { existing?: number } = {}) {
   const calls = { uploads: [] as [string, string, number][], commands: [] as CreateJobCommand[], userLookups: 0 };
@@ -70,29 +65,20 @@ const input = (over: Partial<NoticeRegistration> = {}): NoticeRegistration => ({
   companyName: '목포시립예술단',
   address: '전남광주통합특별시 목포시 양을로 203',
   addressDetail: '목포시청 3층 문화예술과',
-  logoAsset: 'test-logo.png',
+  imageUrl: LOGO,
   date: '2026-10-20',
   ...over,
 });
 
 describe('JobSourceSupport', () => {
-  beforeAll(() => {
-    fs.mkdirSync(assetsDir, { recursive: true });
-    fs.writeFileSync(logoFile, PNG_1PX);
-  });
-  afterAll(() => {
-    fs.rmSync(logoFile, { force: true });
-  });
-
-  it('WebP 를 올리고 로고를 대표 이미지로 채용을 만든다', async () => {
+  it('WebP 를 올리고 대표 이미지 URL 로 채용을 만든다', async () => {
     const { support, calls } = build();
     const result = await support.register(input());
 
     expect(result).toEqual({ jobId: 701, title: input().title, url: input().url, attachment: '공고문.hwpx', pageCount: 2, majors: ['TRUMPET', 'SOPRANO'] });
-    const pageKeys = calls.uploads.filter(u => u[1] === 'image/webp').map(u => u[0]);
-    expect(pageKeys).toHaveLength(2);
+    const pageKeys = calls.uploads.map(u => u[0]);
+    expect(calls.uploads.map(u => u[1])).toEqual(['image/webp', 'image/webp']);
     expect(pageKeys[0]).toMatch(/^upload\/42\/jobs\/20261020\/original\/[A-Za-z0-9_-]{11}\.\d+\.webp$/);
-    expect(calls.uploads.filter(u => u[1] === 'image/png')).toEqual([['upload/job-crawler/mokpo/test-logo.png', 'image/png', PNG_1PX.length]]);
 
     const command = calls.commands[0];
     expect(command).toMatchObject({
@@ -103,7 +89,7 @@ describe('JobSourceSupport', () => {
       address: '전남광주통합특별시 목포시 양을로 203',
       addressDetail: '목포시청 3층 문화예술과',
       recruitSiteUrl: 'https://www.mokpo.go.kr/x?idx=55362',
-      imageUrl: 'https://artinfo.s3.ap-northeast-2.amazonaws.com/upload/job-crawler/mokpo/test-logo.png',
+      imageUrl: LOGO,
       majorIds: [26, 10],
       fee: null,
     });
@@ -114,26 +100,18 @@ describe('JobSourceSupport', () => {
     );
   });
 
-  it('두 번 등록해도 로고 업로드와 계정 조회는 한 번', async () => {
+  it('두 번 등록해도 등록 계정 조회는 한 번', async () => {
     const { support, calls } = build();
     await support.register(input());
     await support.register(input({ url: 'https://www.mokpo.go.kr/x?idx=2' }));
-    expect(calls.uploads.filter(u => u[1] === 'image/png')).toHaveLength(1);
     expect(calls.userLookups).toBe(1);
     expect(calls.commands).toHaveLength(2);
   });
 
-  it('로고가 없으면 imageUrl 은 null', async () => {
+  it('이미지가 없으면 imageUrl 은 null', async () => {
     const { support, calls } = build();
-    await support.register(input({ logoAsset: undefined }));
+    await support.register(input({ imageUrl: null }));
     expect(calls.commands[0].imageUrl).toBeNull();
-    expect(calls.uploads.every(u => u[1] === 'image/webp')).toBe(true);
-  });
-
-  it('로고 파일이 없으면 등록이 실패한다', async () => {
-    const { support, calls } = build();
-    await expect(support.register(input({ logoAsset: 'missing.png' }))).rejects.toThrow(/로고 업로드 실패/);
-    expect(calls.commands).toEqual([]);
   });
 
   it('findRegisteredJobId 는 같은 URL 의 채용 id', async () => {

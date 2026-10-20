@@ -1,7 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as fs from 'fs';
-import * as path from 'path';
 import { In, Repository } from 'typeorm';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { Util } from '@/common/util/util';
@@ -27,14 +25,11 @@ export interface NoticeRegistration {
   companyName: string;
   address: string;
   addressDetail: string | null;
-  /** src/job-crawler/assets 안의 로고 파일명. 있으면 S3 에 올려 imageUrl 로 쓴다 */
-  logoAsset?: string;
+  /** 채용 대표 이미지 URL (없으면 null) */
+  imageUrl: string | null;
   /** 수집 날짜 (S3 경로) */
   date: string;
 }
-
-/** 로고 PNG 는 소스 코드와 함께 두고(nest-cli assets 로 dist 에 복사) 프로세스당 한 번 S3 에 올린다 */
-const ASSETS_DIR = path.join(__dirname, '..', 'assets');
 
 /**
  * 소스마다 공통인 등록 절차: 중복 확인 → 공고문 WebP 변환 → S3 업로드 → 전공 추출 → 채용 생성.
@@ -44,7 +39,6 @@ const ASSETS_DIR = path.join(__dirname, '..', 'assets');
 export class JobSourceSupport {
   private readonly logger = new Logger(JobSourceSupport.name);
   private posterId?: Promise<number>;
-  private readonly logoUrls = new Map<string, Promise<string>>();
 
   constructor(
     private readonly documentConverter: DocumentConverterService,
@@ -63,8 +57,6 @@ export class JobSourceSupport {
 
   async register(input: NoticeRegistration): Promise<CrawledJob> {
     const userId = await this.posterUserId();
-    // 로고가 없으면 페이지를 올리기 전에 실패시킨다 (쓸모없는 업로드 방지)
-    const imageUrl = input.logoAsset ? await this.logoUrl(input.source, input.logoAsset) : null;
     const converted = await this.documentConverter.convertToWebp(input.file.buffer, input.file.name, {
       scale: jobCrawlerConfig.imageScale,
       quality: jobCrawlerConfig.imageQuality,
@@ -90,7 +82,7 @@ export class JobSourceSupport {
         contents: buildContentsHtml(input.bodyText, images),
         companyName: input.companyName,
         recruitSiteUrl: input.url,
-        imageUrl,
+        imageUrl: input.imageUrl,
         address: input.address,
         addressDetail: input.addressDetail,
         fee: null,
@@ -111,23 +103,6 @@ export class JobSourceSupport {
       });
     }
     return this.posterId;
-  }
-
-  /** 로고는 소스당 한 번만 올린다 (같은 키에 덮어쓰므로 여러 번 올라가도 무방) */
-  private logoUrl(source: string, asset: string): Promise<string> {
-    let pending = this.logoUrls.get(source);
-    if (!pending) {
-      const file = path.join(ASSETS_DIR, asset);
-      pending = fs.promises
-        .readFile(file)
-        .then(buffer => this.upload(buffer, mimeOf(asset), ['upload', 'job-crawler', source, asset.replace(/[^A-Za-z0-9._-]/g, '_')].join('/')))
-        .catch(e => {
-          this.logoUrls.delete(source);
-          throw new Error(`로고 업로드 실패 (${file}): ${(e as Error).message}`);
-        });
-      this.logoUrls.set(source, pending);
-    }
-    return pending;
   }
 
   private async upload(buffer: Buffer, mimeType: string, key: string): Promise<string> {
@@ -156,11 +131,4 @@ export function buildContentsHtml(bodyText: string, images: { url: string; width
 
 function escapeHtml(text: string): string {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-function mimeOf(file: string): string {
-  const ext = file.slice(file.lastIndexOf('.') + 1).toLowerCase();
-  return (
-    { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', gif: 'image/gif', svg: 'image/svg+xml' }[ext] ?? 'application/octet-stream'
-  );
 }

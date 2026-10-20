@@ -20,8 +20,11 @@ export const jobCrawlerConfig = {
     /** 단체 주소. JobRepository 가 첫 어절을 provinces.name 과 맞춰 지역을 매긴다 */
     address: '전남광주통합특별시 목포시 양을로 203',
     addressDetail: '목포시청 3층 문화예술과',
-    /** src/job-crawler/assets 의 로고 — 채용 대표 이미지(imageUrl) */
-    logoAsset: 'mokpo.png',
+    /** 채용 대표 이미지 (이미 S3 에 올라가 있는 목포시 로고) */
+    imageUrl: env(
+      'JOB_CRAWLER_MOKPO_IMAGE_URL',
+      'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/4637/images/20261020/original/cLa2DrY-gIr.1792501357272.png',
+    ),
   },
 };
 
