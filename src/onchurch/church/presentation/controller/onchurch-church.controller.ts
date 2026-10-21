@@ -8,10 +8,12 @@ import { OnchurchUpsertMyChurchUseCase } from '@/onchurch/church/application/use
 import { OnchurchPublishMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-publish-my-church.usecase';
 import { OnchurchCheckSlugUseCase } from '@/onchurch/church/application/usecase/onchurch-check-slug.usecase';
 import { OnchurchUpdateMySiteTemplateUseCase } from '@/onchurch/church/application/usecase/onchurch-update-my-site-template.usecase';
+import { OnchurchUpdateMySiteDesignUseCase } from '@/onchurch/church/application/usecase/onchurch-update-my-site-design.usecase';
 import { OnchurchApplyReferralCodeUseCase, OnchurchGetMyReferralUseCase } from '@/onchurch/church/application/usecase/onchurch-referral.usecase';
 import { OnchurchUpsertMyChurchRequest } from '@/onchurch/church/presentation/dto/request/onchurch-upsert-my-church.request';
 import { OnchurchPublishMyChurchRequest } from '@/onchurch/church/presentation/dto/request/onchurch-publish-my-church.request';
 import { OnchurchUpdateMySiteTemplateRequest } from '@/onchurch/church/presentation/dto/request/onchurch-update-my-site-template.request';
+import { OnchurchUpdateMySiteDesignRequest } from '@/onchurch/church/presentation/dto/request/onchurch-update-my-site-design.request';
 import { OnchurchApplyReferralCodeRequest } from '@/onchurch/church/presentation/dto/request/onchurch-apply-referral-code.request';
 import { OnchurchChurchResponse, OnchurchMyChurchResponse } from '@/onchurch/church/presentation/dto/response/onchurch-church.response';
 import { OnchurchCheckSlugResponse } from '@/onchurch/church/presentation/dto/response/onchurch-check-slug.response';
@@ -25,6 +27,7 @@ export class OnchurchChurchController {
     private readonly publishMyChurchUseCase: OnchurchPublishMyChurchUseCase,
     private readonly checkSlugUseCase: OnchurchCheckSlugUseCase,
     private readonly updateMySiteTemplateUseCase: OnchurchUpdateMySiteTemplateUseCase,
+    private readonly updateMySiteDesignUseCase: OnchurchUpdateMySiteDesignUseCase,
     private readonly getMyReferralUseCase: OnchurchGetMyReferralUseCase,
     private readonly applyReferralCodeUseCase: OnchurchApplyReferralCodeUseCase,
   ) {}
@@ -38,7 +41,7 @@ export class OnchurchChurchController {
   @RestApiGet(OnchurchMyChurchResponse, { path: '/me', description: '내 교회 정보 + 구독 상태 조회', auth: [USER_TYPE.CLIENT] })
   async scanMyChurch(@AuthSignature() signature: UserSignature) {
     const { church, user, churchRole } = await this.scanMyChurchUseCase.execute(signature.id);
-    return new OnchurchMyChurchResponse(church, user, churchRole);
+    return new OnchurchMyChurchResponse(church, user, churchRole, user.isTest);
   }
 
   @RestApiPut(OnchurchChurchResponse, { path: '/me', description: '내 교회 정보 생성/수정', auth: [USER_TYPE.CLIENT] })
@@ -50,6 +53,12 @@ export class OnchurchChurchController {
   @RestApiPut(OnchurchChurchResponse, { path: '/me/site-template', description: '내 교회 공개 홈페이지 템플릿 변경', auth: [USER_TYPE.CLIENT] })
   async updateMySiteTemplate(@AuthSignature() signature: UserSignature, @Body() request: OnchurchUpdateMySiteTemplateRequest) {
     const church = await this.updateMySiteTemplateUseCase.execute(signature.id, request.siteTemplate ?? null);
+    return new OnchurchChurchResponse(church);
+  }
+
+  @RestApiPut(OnchurchChurchResponse, { path: '/me/site-design', description: '내 교회 공개 홈페이지 디자인 설정(섹션별 기본/모던 + 메인·포인트 색) 저장. 빈 설정이면 미설정(null)으로 되돌림', auth: [USER_TYPE.CLIENT] })
+  async updateMySiteDesign(@AuthSignature() signature: UserSignature, @Body() request: OnchurchUpdateMySiteDesignRequest) {
+    const church = await this.updateMySiteDesignUseCase.execute(signature.id, { colors: request.colors ?? null, sections: request.sections ?? null });
     return new OnchurchChurchResponse(church);
   }
 

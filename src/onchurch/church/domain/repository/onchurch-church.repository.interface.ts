@@ -1,4 +1,5 @@
 import { OnchurchChurch, OnchurchHomeCustomLink } from '@/onchurch/church/domain/entity/onchurch-church.entity';
+import type { OnchurchSiteDesign } from '@/onchurch/church/application/service/onchurch-site-design';
 
 export const ONCHURCH_CHURCH_REPOSITORY = Symbol('ONCHURCH_CHURCH_REPOSITORY');
 
@@ -38,6 +39,8 @@ export interface IOnchurchChurchRepository {
   upsertByOwnerId(ownerId: number, params: OnchurchChurchUpsertParams): Promise<OnchurchChurch>;
   updatePublished(ownerId: number, isPublished: boolean, firstPublishedAt?: Date): Promise<OnchurchChurch>;
   updateSiteTemplate(ownerId: number, siteTemplate: string): Promise<OnchurchChurch>;
+  // 공개 홈페이지 디자인 설정(섹션별 디자인 + 색) 저장. null 이면 미설정으로 되돌린다.
+  updateSiteDesign(ownerId: number, siteDesign: OnchurchSiteDesign | null): Promise<OnchurchChurch>;
   findByReferralCode(referralCode: string): Promise<OnchurchChurch | null>;
   // 교회의 추천 코드를 저장한다(최초 발급). 대상 교회가 없으면 404.
   updateReferralCode(churchId: number, referralCode: string): Promise<OnchurchChurch>;

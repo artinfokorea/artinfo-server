@@ -1,4 +1,5 @@
 import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import type { OnchurchSiteDesign } from '@/onchurch/church/application/service/onchurch-site-design';
 
 export type OnchurchHomeCustomLink = { title: string; desc: string; url: string };
 
@@ -92,6 +93,11 @@ export class OnchurchChurch extends BaseEntity {
   // 값 지정은 운영자가 DB에서 직접 변경한다(관리자 UI/일반 저장 경로에서는 건드리지 않음).
   @Column({ type: 'varchar', name: 'site_template', default: () => "'default'" })
   siteTemplate: string;
+
+  // 공개 홈페이지 디자인 설정(섹션별 기본/모던 + 메인·포인트 색). null 이면 미설정 — 프론트가 site_template 기준으로 폴백.
+  // 형식·정규화는 application/service/onchurch-site-design.ts 참고.
+  @Column({ type: 'jsonb', name: 'site_design', nullable: true })
+  siteDesign: OnchurchSiteDesign | null;
 
   // 추천인 이벤트용 교회 고유 코드. 관리자 결제 화면에서 처음 조회하는 시점에 생성·저장한다(기존 교회 포함).
   @Column({ type: 'varchar', name: 'referral_code', unique: true, nullable: true })

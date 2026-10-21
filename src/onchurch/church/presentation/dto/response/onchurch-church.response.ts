@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { OnchurchChurch, OnchurchHomeCustomLink } from '@/onchurch/church/domain/entity/onchurch-church.entity';
 import { OnchurchUser } from '@/onchurch/user/domain/entity/onchurch-user.entity';
 import { OnchurchCustomDomainMapping } from '@/onchurch/church/application/usecase/onchurch-list-custom-domains.usecase';
+import type { OnchurchSiteDesign } from '@/onchurch/church/application/service/onchurch-site-design';
 
 export class OnchurchChurchResponse {
   @ApiProperty({ type: Number, required: true })
@@ -73,6 +74,9 @@ export class OnchurchChurchResponse {
   @ApiProperty({ type: String, required: true, description: "공개 홈페이지 템플릿 ID (미지정 시 'default'). 지원 템플릿 목록은 프론트 레지스트리가 관리하며, 미지원 값은 프론트에서 default로 폴백" })
   siteTemplate: string;
 
+  @ApiProperty({ required: false, nullable: true, description: "공개 홈페이지 디자인 설정 { colors: { main, point } | null, sections: { [섹션키]: 'default' | 'modern' } }. null 이면 미설정(site_template 기준 렌더)" })
+  siteDesign: OnchurchSiteDesign | null;
+
   @ApiProperty({ type: String, required: false, nullable: true, description: '교회 자체 도메인 대표 호스트 (미연결이면 null). 이 값이 있으면 공개 사이트의 대표 주소가 된다' })
   customDomain: string | null;
 
@@ -108,6 +112,7 @@ export class OnchurchChurchResponse {
     // 서버는 템플릿 ID를 화이트리스트하지 않고 그대로 전달한다(새 템플릿 추가 시 서버 배포 불필요).
     // 미지원 값 처리는 프론트 템플릿 레지스트리의 default 폴백이 담당한다.
     this.siteTemplate = church.siteTemplate?.trim() || 'default';
+    this.siteDesign = church.siteDesign ?? null;
     this.customDomain = church.customDomain?.trim() || null;
     this.isPublished = church.isPublished ?? false;
     // 한 번이라도 사이트를 오픈(첫 publish)하면 채워지고, 이후 OFF해도 유지된다.
@@ -191,10 +196,14 @@ export class OnchurchMyChurchResponse {
   @ApiProperty({ type: String, enum: ['owner', 'admin', 'member'], required: false, nullable: true, description: '현재 사용자의 교회 내 등급 (관리자페이지 게이팅용)' })
   churchRole: 'owner' | 'admin' | 'member' | null;
 
-  constructor(church: OnchurchChurch | null, user: OnchurchUser, churchRole: 'owner' | 'admin' | 'member' | null = null) {
+  @ApiProperty({ type: Boolean, required: true, description: '교회 소유자가 테스트 계정(owner.is_test)인지 — 새 관리자 화면 등 시험 기능의 노출 판단용' })
+  isTest: boolean;
+
+  constructor(church: OnchurchChurch | null, user: OnchurchUser, churchRole: 'owner' | 'admin' | 'member' | null = null, isTest = false) {
     this.church = church ? new OnchurchChurchResponse(church) : null;
     this.subscription = new OnchurchSubscriptionResponse(user);
     this.churchRole = churchRole;
+    this.isTest = isTest;
   }
 }
 
