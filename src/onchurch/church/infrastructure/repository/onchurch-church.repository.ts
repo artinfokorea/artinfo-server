@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { IOnchurchChurchRepository, OnchurchChurchUpsertParams } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
 import { OnchurchChurch } from '@/onchurch/church/domain/entity/onchurch-church.entity';
+import type { OnchurchSiteDesign } from '@/onchurch/church/application/service/onchurch-site-design';
 import { OnchurchUser } from '@/onchurch/user/domain/entity/onchurch-user.entity';
 import { OnchurchChurchNotFound } from '@/onchurch/church/domain/exception/onchurch-church.exception';
 
@@ -108,6 +109,13 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
     const church = await this.churchRepository.findOneBy({ ownerId });
     if (!church) throw new OnchurchChurchNotFound();
     church.siteTemplate = siteTemplate;
+    return this.churchRepository.save(church);
+  }
+
+  async updateSiteDesign(ownerId: number, siteDesign: OnchurchSiteDesign | null): Promise<OnchurchChurch> {
+    const church = await this.churchRepository.findOneBy({ ownerId });
+    if (!church) throw new OnchurchChurchNotFound();
+    church.siteDesign = siteDesign;
     return this.churchRepository.save(church);
   }
 
