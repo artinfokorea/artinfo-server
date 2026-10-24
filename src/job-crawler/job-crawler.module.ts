@@ -14,6 +14,8 @@ import { MokpoNoticeClient } from './mokpo/mokpo-notice.client';
 import { JobCrawlerScheduler } from './scheduler/job-crawler.scheduler';
 import { JOB_SOURCE_CRAWLERS, JobSourceCrawler } from './source/job-source';
 import { JobSourceSupport } from './source/job-source.support';
+import { UlsanNoticeClient } from './ulsan/ulsan-notice.client';
+import { UlsanPhilharmonicJobCrawler } from './ulsan/ulsan-philharmonic-job.crawler';
 
 /**
  * 외부 사이트의 채용 공고를 수집해 채용으로 등록한다. 매일 23:00 KST 스케줄 + 관리자 수동 실행 API.
@@ -30,10 +32,12 @@ import { JobSourceSupport } from './source/job-source.support';
     UserRepository,
     MokpoNoticeClient,
     MokpoArtJobCrawler,
+    UlsanNoticeClient,
+    UlsanPhilharmonicJobCrawler,
     {
       provide: JOB_SOURCE_CRAWLERS,
       useFactory: (...sources: JobSourceCrawler[]) => sources,
-      inject: [MokpoArtJobCrawler],
+      inject: [MokpoArtJobCrawler, UlsanPhilharmonicJobCrawler],
     },
   ],
 })
