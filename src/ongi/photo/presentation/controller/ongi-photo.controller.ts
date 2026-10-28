@@ -159,7 +159,7 @@ export class OngiPhotoController {
 
   @RestApiPost(OngiCopiedPhotosResponse, {
     path: '/photos/copy',
-    description: '다른 가족 공간에 사진 공유(복사) — 작성자 또는 관리자, 대상 공간 구성원만; albumId 는 대상 공간 앨범',
+    description: '다른 가족 공간에 사진 공유(복사) — 원본 공간 구성원이면 누구 사진이든, 대상 공간 구성원만; albumId 는 대상 공간 앨범',
     auth: [USER_TYPE.CLIENT],
   })
   async copyPhotos(@AuthSignature() signature: UserSignature, @Body() request: OngiCopyPhotosRequest) {
