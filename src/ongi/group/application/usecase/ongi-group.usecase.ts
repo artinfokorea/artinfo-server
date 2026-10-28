@@ -4,6 +4,7 @@ import { IOngiGroupRepository, ONGI_GROUP_REPOSITORY, OngiGroupSummary } from '@
 import { IOngiMemberRepository, ONGI_MEMBER_REPOSITORY, OngiMemberView } from '@/ongi/group/domain/repository/ongi-member.repository.interface';
 import { ONGI_MEMBER_ROLE } from '@/ongi/group/domain/entity/ongi-member.entity';
 import { IOngiBlockRepository, ONGI_BLOCK_REPOSITORY } from '@/ongi/group/domain/repository/ongi-block.repository.interface';
+import { IOngiUserRepository, ONGI_USER_REPOSITORY } from '@/ongi/user/domain/repository/ongi-user.repository.interface';
 import {
   OngiCannotBlockSelf,
   OngiCannotRemoveMember,
@@ -78,9 +79,14 @@ export class OngiCreateGroupUseCase {
 
     @Inject(ONGI_MEMBER_REPOSITORY)
     private readonly memberRepository: IOngiMemberRepository,
+
+    @Inject(ONGI_USER_REPOSITORY)
+    private readonly userRepository: IOngiUserRepository,
   ) {}
 
+  /** 가족 공간 만들기 — 만든 사람이 관리자. 구성원 프로필 이미지는 사용자 프로필 이미지를 이어받는다 (공간마다 달라지지 않게) */
   async execute(userId: number, userName: string, name: string): Promise<OngiGroupSummary> {
+    const user = await this.userRepository.findOneOrThrowById(userId);
     const group = await this.groupRepository.create({
       name,
       inviteCode: generateInviteCode(),
@@ -92,7 +98,7 @@ export class OngiCreateGroupUseCase {
       userId,
       name: userName,
       role: ONGI_MEMBER_ROLE.ADMIN,
-      avatarUrl: null,
+      avatarUrl: user.iconImageUrl,
     });
 
     const [summary] = await this.groupRepository.scanSummariesByIds([group.id]);
@@ -138,8 +144,12 @@ export class OngiJoinGroupUseCase {
 
     @Inject(forwardRef(() => OngiPushService))
     private readonly pushService: OngiPushService,
+
+    @Inject(ONGI_USER_REPOSITORY)
+    private readonly userRepository: IOngiUserRepository,
   ) {}
 
+  /** 초대 코드로 참여 — 구성원 프로필 이미지는 사용자 프로필 이미지를 이어받는다 (공간마다 달라지지 않게) */
   async execute(userId: number, userName: string, inviteCode: string): Promise<OngiGroupSummary> {
     const group = await this.groupRepository.findByInviteCode(inviteCode.trim().toUpperCase());
     if (!group) throw new OngiInviteCodeNotFound();
@@ -147,12 +157,13 @@ export class OngiJoinGroupUseCase {
 
     const existing = await this.memberRepository.findByGroupIdAndUserId(group.id, userId);
     if (!existing) {
+      const user = await this.userRepository.findOneOrThrowById(userId);
       await this.memberRepository.create({
         groupId: group.id,
         userId,
         name: userName,
         role: ONGI_MEMBER_ROLE.MEMBER,
-        avatarUrl: null,
+        avatarUrl: user.iconImageUrl,
       });
 
       // 기존 가족들에게 새 구성원 참여 알림 (참여자 본인 제외)

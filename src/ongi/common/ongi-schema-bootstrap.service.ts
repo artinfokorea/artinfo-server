@@ -60,6 +60,11 @@ export class OngiSchemaBootstrapService implements OnModuleInit {
       `ALTER TABLE ongi_photos ADD COLUMN IF NOT EXISTS duration_seconds INTEGER`,
       // 초기 배포 때 create() 가 media_type 을 넘기지 않아 'photo' 로 저장된 영상 게시물 보정 (2026-09-07, 멱등)
       `UPDATE ongi_photos SET media_type = 'video' WHERE media_type = 'photo' AND (url LIKE '%.mp4' OR url LIKE '%.mov' OR url LIKE '%.m4v')`,
+      // 구성원 프로필 이미지 보정 (2026-10-28) — 프로필 이미지를 올린 뒤 만들거나 참여한 공간의 구성원은 avatar_url 이 비어 있어
+      // 공간마다 프로필 이미지가 달라 보였다. 비어 있는 구성원만 사용자 프로필 이미지로 채운다 (멱등)
+      `UPDATE ongi_members m SET avatar_url = u.icon_image_url
+         FROM ongi_users u
+        WHERE u.id = m.user_id AND u.deleted_at IS NULL AND m.deleted_at IS NULL AND m.avatar_url IS NULL AND u.icon_image_url IS NOT NULL`,
       // 가족 일정 (2026-09-06) — 양력/음력·반복·대상 지정 푸시
       `CREATE TABLE IF NOT EXISTS ongi_events (
         id                  SERIAL PRIMARY KEY,

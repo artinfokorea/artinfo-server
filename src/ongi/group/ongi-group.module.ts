@@ -10,6 +10,7 @@ import { ONGI_MEMBER_REPOSITORY } from '@/ongi/group/domain/repository/ongi-memb
 import { OngiGroupRepository } from '@/ongi/group/infrastructure/repository/ongi-group.repository';
 import { OngiMemberRepository } from '@/ongi/group/infrastructure/repository/ongi-member.repository';
 import { OngiPushModule } from '@/ongi/push/ongi-push.module';
+import { OngiUserModule } from '@/ongi/user/ongi-user.module';
 import { OngiGroupController } from '@/ongi/group/presentation/controller/ongi-group.controller';
 import { OngiMemberController } from '@/ongi/group/presentation/controller/ongi-member.controller';
 import {
@@ -26,8 +27,9 @@ import {
 } from '@/ongi/group/application/usecase/ongi-group.usecase';
 
 @Module({
-  // 푸시 모듈이 구성원 저장소를 쓰므로 순환 참조 — forwardRef 로 해소
-  imports: [TypeOrmModule.forFeature([OngiGroup, OngiMember, OngiBlock]), forwardRef(() => OngiPushModule)],
+  // 푸시 모듈이 구성원 저장소를 쓰므로 순환 참조 — forwardRef 로 해소.
+  // 사용자 모듈(새 구성원이 프로필 이미지를 이어받을 때 사용)도 푸시 모듈을 거쳐 이 모듈로 돌아오므로 같은 방식
+  imports: [TypeOrmModule.forFeature([OngiGroup, OngiMember, OngiBlock]), forwardRef(() => OngiPushModule), forwardRef(() => OngiUserModule)],
   controllers: [OngiGroupController, OngiMemberController],
   providers: [
     { provide: ONGI_GROUP_REPOSITORY, useClass: OngiGroupRepository },
