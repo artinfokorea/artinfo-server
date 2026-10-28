@@ -254,7 +254,8 @@ export class OngiCopyPhotosUseCase {
 
   /**
    * 다른 가족 공간에 사진 공유(복사) — 대상 공간에 독립 게시물을 만든다 (파일은 공유, 좋아요·댓글은 분리).
-   * 원본 사진은 작성자 본인 또는 관리자만, 대상 공간은 내가 구성원이어야 하며 앨범은 대상 공간 소속이어야 한다.
+   * 원본 사진은 그 공간의 구성원이면 누가 올렸든 공유할 수 있다 (2026-10-28 정책 변경 — 삭제·이동과 달리 원본이 다치지 않으므로).
+   * 대상 공간은 내가 구성원이어야 하며 앨범은 대상 공간 소속이어야 한다.
    */
   async execute(userId: number, photoIds: number[], targetGroupId: number, albumId: number | null): Promise<{ copiedIds: number[]; skippedIds: number[] }> {
     const target = await this.memberRepository.findByGroupIdAndUserId(targetGroupId, userId);
@@ -280,7 +281,7 @@ export class OngiCopyPhotosUseCase {
         memberByGroup.set(photo.groupId, await this.memberRepository.findByGroupIdAndUserId(photo.groupId, userId));
       }
       const me = memberByGroup.get(photo.groupId);
-      const allowed = !!me && (photo.authorMemberId === me.id || me.role === ONGI_MEMBER_ROLE.ADMIN);
+      const allowed = !!me && me.role !== ONGI_MEMBER_ROLE.PENDING;
       if (!allowed) {
         skippedIds.push(photoId);
         continue;
