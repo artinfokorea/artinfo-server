@@ -28,6 +28,25 @@ export const jobCrawlerConfig = {
       'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/4637/images/20261020/original/cLa2DrY-gIr.1792501357272.png',
     ),
   },
+  ulsan: {
+    /** 울산문화예술회관 공지사항 (시립예술단 공고가 여기 올라온다). 목록 ?mnu_code=&pageNo=N, 상세 &bod_sn=&cmd=2 */
+    pageUrl: 'https://www.ulsan.go.kr/ucac/art/page.do',
+    menuCode: 'mnu003001',
+    /** 첨부 다운로드 — 상세 페이지의 세션 쿠키가 없으면 "조회 권한이 없습니다" HTML 이 온다 */
+    downloadUrl: 'https://www.ulsan.go.kr/ucac/board_download.do',
+    /** 목록은 고정 공지 5건 + 등록일 내림차순 10건씩. 날짜가 지날 때까지 넘긴다 */
+    maxListPages: Number(env('JOB_CRAWLER_ULSAN_MAX_PAGES', '10')),
+    /** 제목 조건: '시립교향악단'(울산시립·울산광역시립 모두, 청소년교향악단은 제외) 과 '모집' 또는 '채용' */
+    titleKeywords: ['시립교향악단', ['모집', '채용']] as (string | string[])[],
+    companyName: '울산시립교향악단',
+    address: '울산 남구 번영로 200',
+    addressDetail: '울산문화예술회관 시립교향악단',
+    /** 채용 대표 이미지 (이미 S3 에 올라가 있는 울산시립교향악단 로고) */
+    imageUrl: env(
+      'JOB_CRAWLER_ULSAN_IMAGE_URL',
+      'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/4637/images/20261024/original/0T1newl6ktY.1792829663169.png',
+    ),
+  },
 };
 
 /** 한국 시간 기준 오늘 (YYYY-MM-DD) */
