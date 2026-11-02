@@ -1,4 +1,4 @@
-import { buildDailySeries, clampDays, kstDateString } from '@/admin/domain/admin-stats.calculator';
+import { buildDailySeries, clampDays, kstDateString, normalizeDay } from '@/admin/domain/admin-stats.calculator';
 
 describe('kstDateString', () => {
   it('UTC 16:30 은 한국 시간으로 다음 날이다', () => {
@@ -66,5 +66,21 @@ describe('buildDailySeries', () => {
     const dates = buildDailySeries([], 4, '2026-03-02').map(d => d.date);
 
     expect(dates).toEqual(['2026-02-27', '2026-02-28', '2026-03-01', '2026-03-02']);
+  });
+});
+
+describe('normalizeDay', () => {
+  it('YYYY-MM-DD 형식이면 그대로', () => {
+    expect(normalizeDay('2026-10-31', '2026-11-02')).toBe('2026-10-31');
+  });
+
+  it('없거나 형식이 틀리면 오늘', () => {
+    expect(normalizeDay(undefined, '2026-11-02')).toBe('2026-11-02');
+    expect(normalizeDay('2026-1-3', '2026-11-02')).toBe('2026-11-02');
+    expect(normalizeDay("2026-11-02'; DROP", '2026-11-02')).toBe('2026-11-02');
+  });
+
+  it('미래 날짜는 오늘로', () => {
+    expect(normalizeDay('2026-12-25', '2026-11-02')).toBe('2026-11-02');
   });
 });

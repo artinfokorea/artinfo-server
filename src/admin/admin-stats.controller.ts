@@ -3,7 +3,13 @@ import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiQuery } from '@nestjs/sw
 import { RestApiController } from '@/common/decorator/rest-api';
 import { ArtinfoAdminGuard } from '@/admin/guard/artinfo-admin.guard';
 import { AdminStatsService } from '@/admin/admin-stats.service';
-import { AdminBreakdownResponse, AdminDailyResponse, AdminEngagementResponse, AdminOverviewResponse } from '@/admin/dto/admin-stats.response';
+import {
+  AdminBreakdownResponse,
+  AdminDailyResponse,
+  AdminEngagementResponse,
+  AdminOverviewResponse,
+  AdminVisitorsResponse,
+} from '@/admin/dto/admin-stats.response';
 
 /** 아트인포 관리자 지표 — users.type 이 ADMIN 인 사용자만 (ArtinfoAdminGuard 가 DB 로 확인) */
 @RestApiController('/admin/stats', 'Admin')
@@ -40,5 +46,14 @@ export class AdminStatsController {
   @ApiOkResponse({ type: AdminEngagementResponse })
   engagement(@Query('days') days?: string): Promise<AdminEngagementResponse> {
     return this.adminStatsService.engagement(days === undefined ? undefined : Number(days));
+  }
+
+  @Get('/visitors')
+  @ApiOperation({ summary: '관리자 — 그날 방문자 목록 (기기·OS·브라우저·유입·첫 페이지·체류, 50명씩)' })
+  @ApiQuery({ name: 'day', required: false, type: String, description: 'YYYY-MM-DD (기본 오늘, 한국)' })
+  @ApiQuery({ name: 'offset', required: false, type: Number })
+  @ApiOkResponse({ type: AdminVisitorsResponse })
+  visitors(@Query('day') day?: string, @Query('offset') offset?: string): Promise<AdminVisitorsResponse> {
+    return this.adminStatsService.visitors(day, offset === undefined ? undefined : Number(offset));
   }
 }

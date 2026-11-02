@@ -1,7 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { AdminStatsRepository } from '@/admin/repository/admin-stats.repository';
-import { buildDailySeries, clampDays, kstDateString } from '@/admin/domain/admin-stats.calculator';
-import { AdminBreakdownResponse, AdminDailyResponse, AdminEngagementResponse, AdminOverviewResponse, maskEmail } from '@/admin/dto/admin-stats.response';
+import { buildDailySeries, clampDays, kstDateString, normalizeDay } from '@/admin/domain/admin-stats.calculator';
+import { parseUserAgent } from '@/activity/domain/user-agent';
+import {
+  AdminBreakdownResponse,
+  AdminDailyResponse,
+  AdminEngagementResponse,
+  AdminOverviewResponse,
+  AdminVisitorsResponse,
+  maskEmail,
+} from '@/admin/dto/admin-stats.response';
 import { buildEngagementSeries, buildRetentionCohorts, mondayOf } from '@/admin/domain/admin-engagement.calculator';
 
 @Injectable()
@@ -72,6 +80,22 @@ export class AdminStatsService {
       days: range,
       daily: buildEngagementSeries(daily, range, today),
       retention: buildRetentionCohorts(retention.rows, retention.sizes, cohorts, today),
+    };
+  }
+
+  /** 그날 방문자 목록 (50명씩) — User-Agent 를 기기·OS·브라우저로 풀어서 */
+  async visitors(day: string | undefined, offset: number | undefined, now = new Date()): Promise<AdminVisitorsResponse> {
+    const target = normalizeDay(day, kstDateString(now));
+    const from = Number.isFinite(offset) && (offset as number) > 0 ? Math.floor(offset as number) : 0;
+    const { total, rows } = await this.repository.visitors(target, 50, from);
+    return {
+      day: target,
+      total,
+      visitors: rows.map(r => ({
+        ...r,
+        visitorId: r.visitorId.slice(0, 8),
+        ...parseUserAgent(r.userAgent),
+      })),
     };
   }
 }

@@ -209,6 +209,12 @@ export class OngiSchemaBootstrapService implements OnModuleInit {
       )`,
       `CREATE INDEX IF NOT EXISTS idx_artinfo_visitor_daily_activity_day ON artinfo_visitor_daily_activity (day)`,
       `CREATE INDEX IF NOT EXISTS idx_artinfo_visitor_daily_activity_user ON artinfo_visitor_daily_activity (user_id, day)`,
+      // 참여 기준(10초 이상 또는 2페이지 이상)용 페이지 수 (2026-11-02) — 하트비트 upsert 가 쓰므로 배포 전에 있어야 한다
+      `ALTER TABLE artinfo_visitor_daily_activity ADD COLUMN IF NOT EXISTS page_views INTEGER NOT NULL DEFAULT 0`,
+      // 관리자 방문자 목록용 (2026-11-02) — IP 는 저장하지 않는다
+      `ALTER TABLE artinfo_visitor_daily_activity ADD COLUMN IF NOT EXISTS user_agent VARCHAR(300)`,
+      `ALTER TABLE artinfo_visitor_daily_activity ADD COLUMN IF NOT EXISTS referrer_host VARCHAR(255)`,
+      `ALTER TABLE artinfo_visitor_daily_activity ADD COLUMN IF NOT EXISTS landing_path VARCHAR(200)`,
     ];
 
     try {

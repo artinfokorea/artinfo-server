@@ -6,7 +6,11 @@ export interface ArtinfoActivityPing {
   visitorId: string;
   userId: number | null;
   seconds: number;
+  pageViews: number;
   newSession: boolean;
+  userAgent: string | null;
+  referrerHost: string | null;
+  landingPath: string | null;
 }
 
 /** now() 는 timestamptz 라 DB 세션 시간대와 상관없이 한국 날짜가 나온다 */
@@ -18,14 +22,19 @@ export class ArtinfoActivityRepository {
 
   async addPing(ping: ArtinfoActivityPing): Promise<void> {
     await this.dataSource.query(
-      `INSERT INTO artinfo_visitor_daily_activity (visitor_id, day, user_id, active_seconds, session_count)
-       VALUES ($1, ${KST_TODAY}, $2, $3, $4)
+      `INSERT INTO artinfo_visitor_daily_activity
+         (visitor_id, day, user_id, active_seconds, session_count, page_views, user_agent, referrer_host, landing_path)
+       VALUES ($1, ${KST_TODAY}, $2, $3, $4, $5, $6, $7, $8)
        ON CONFLICT (visitor_id, day) DO UPDATE SET
          last_seen_at = now(),
          user_id = COALESCE(EXCLUDED.user_id, artinfo_visitor_daily_activity.user_id),
          active_seconds = LEAST(artinfo_visitor_daily_activity.active_seconds + EXCLUDED.active_seconds, 86400),
-         session_count = artinfo_visitor_daily_activity.session_count + EXCLUDED.session_count`,
-      [ping.visitorId, ping.userId, ping.seconds, ping.newSession ? 1 : 0],
+         session_count = artinfo_visitor_daily_activity.session_count + EXCLUDED.session_count,
+         page_views = LEAST(artinfo_visitor_daily_activity.page_views + EXCLUDED.page_views, 10000),
+         user_agent = COALESCE(EXCLUDED.user_agent, artinfo_visitor_daily_activity.user_agent),
+         referrer_host = COALESCE(artinfo_visitor_daily_activity.referrer_host, EXCLUDED.referrer_host),
+         landing_path = COALESCE(artinfo_visitor_daily_activity.landing_path, EXCLUDED.landing_path)`,
+      [ping.visitorId, ping.userId, ping.seconds, ping.newSession ? 1 : 0, ping.pageViews, ping.userAgent, ping.referrerHost, ping.landingPath],
     );
   }
 }

@@ -24,3 +24,15 @@ export function isBotUserAgent(userAgent: string | undefined | null): boolean {
   if (!userAgent) return true;
   return BOT_UA.test(userAgent);
 }
+
+export function normalizePageViews(raw: unknown): number {
+  if (typeof raw !== 'number' || !Number.isFinite(raw) || raw <= 0) return 0;
+  return Math.min(Math.floor(raw), 100);
+}
+
+/** 참여한 방문으로 셀 기준 — GA4 의 참여 세션과 같다: 10초 이상 머물렀거나 2페이지 이상 */
+export const ENGAGED_MIN_SECONDS = 10;
+export const ENGAGED_MIN_PAGE_VIEWS = 2;
+
+/** 지표 쿼리에서 쓰는 조건 (artinfo_visitor_daily_activity 의 한 행 = 방문자 × 날짜) */
+export const ENGAGED_VISITOR_SQL = `(active_seconds >= ${ENGAGED_MIN_SECONDS} OR page_views >= ${ENGAGED_MIN_PAGE_VIEWS})`;

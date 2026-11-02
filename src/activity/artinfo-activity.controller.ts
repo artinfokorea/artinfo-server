@@ -5,7 +5,8 @@ import { UserSignature } from '@/common/type/type';
 import { OkResponse } from '@/common/response/ok.response';
 import { ActivityPingRequest } from '@/activity/dto/activity-ping.request';
 import { ArtinfoActivityRepository } from '@/activity/repository/artinfo-activity.repository';
-import { isBotUserAgent, isValidVisitorId, normalizeActiveSeconds } from '@/activity/domain/artinfo-activity-policy';
+import { isBotUserAgent, isValidVisitorId, normalizeActiveSeconds, normalizePageViews } from '@/activity/domain/artinfo-activity-policy';
+import { normalizeLandingPath, normalizeReferrerHost } from '@/activity/domain/user-agent';
 
 /**
  * 웹 방문 하트비트 — 비회원도 보낸다. 로그인 상태(유효한 토큰)면 회원 ID 를 함께 남긴다.
@@ -28,6 +29,10 @@ export class ArtinfoActivityController {
       visitorId: request.visitorId.toLowerCase(),
       userId: signature?.id ?? null,
       seconds: normalizeActiveSeconds(request.seconds),
+      pageViews: normalizePageViews(request.pageViews),
+      userAgent: userAgent ? userAgent.slice(0, 300) : null,
+      referrerHost: normalizeReferrerHost(request.referrer),
+      landingPath: normalizeLandingPath(request.path),
       newSession: request.newSession === true,
     });
     return new OkResponse();

@@ -13,6 +13,23 @@ export class ActivityPingRequest {
   seconds?: number;
 
   @IsOptional()
+  @IsNumber()
+  @ApiProperty({ type: Number, required: false, description: '지난 전송 이후 새로 본 페이지 수. 최대 100', example: 1 })
+  pageViews?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  @ApiProperty({ type: String, required: false, description: '현재 페이지 경로 (쿼리 제외해서 저장)', example: '/jobs/487' })
+  path?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  @ApiProperty({ type: String, required: false, description: 'document.referrer — 외부 도메인만 저장', example: 'https://search.naver.com/' })
+  referrer?: string;
+
+  @IsOptional()
   @IsBoolean()
   @ApiProperty({ type: Boolean, required: false, description: '새 방문의 첫 전송이면 true (30분 넘게 쉬었다 온 경우 포함)' })
   newSession?: boolean;
