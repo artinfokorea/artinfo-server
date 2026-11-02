@@ -1,4 +1,4 @@
-import { isValidVisitorId, normalizeActiveSeconds, ARTINFO_ACTIVITY_MAX_PING_SECONDS } from '@/activity/domain/artinfo-activity-policy';
+import { isBotUserAgent, isValidVisitorId, normalizeActiveSeconds, ARTINFO_ACTIVITY_MAX_PING_SECONDS } from '@/activity/domain/artinfo-activity-policy';
 
 describe('normalizeActiveSeconds', () => {
   it('양의 정수는 그대로', () => {
@@ -36,5 +36,40 @@ describe('isValidVisitorId', () => {
     expect(isValidVisitorId('3f2b8c1e9a4d4e6f8b2a1c3d5e7f9a0b')).toBe(false);
     expect(isValidVisitorId(undefined)).toBe(false);
     expect(isValidVisitorId(123)).toBe(false);
+  });
+});
+
+describe('isBotUserAgent', () => {
+  it('검색 로봇·크롤러·헤드리스 브라우저는 로봇', () => {
+    const bots = [
+      'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+      'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Googlebot/2.1) Chrome/130.0 Safari/537.36',
+      'Mozilla/5.0 (compatible; Yeti/1.1; +https://naver.me/spd)',
+      'Mozilla/5.0 (compatible; Daum/4.1; +http://cs.daum.net/faq/15/4118.html)',
+      'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)',
+      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/130.0 Safari/537.36',
+      'facebookexternalhit/1.1',
+      'Slackbot-LinkExpanding 1.0',
+      'python-requests/2.31.0',
+      'curl/8.4.0',
+      'Mozilla/5.0 (compatible; AhrefsBot/7.0)',
+      'Mozilla/5.0 (compatible; GPTBot/1.0)',
+    ];
+    bots.forEach(ua => expect(isBotUserAgent(ua)).toBe(true));
+  });
+
+  it('일반 브라우저는 사람', () => {
+    const humans = [
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1',
+      'Mozilla/5.0 (Linux; Android 14; SM-S921N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Mobile Safari/537.36 KAKAOTALK 10.8.0',
+      'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/130.0 Mobile Safari/537.36 NAVER(inapp; search; 2000; 12.6.0)',
+    ];
+    humans.forEach(ua => expect(isBotUserAgent(ua)).toBe(false));
+  });
+
+  it('User-Agent 가 없으면 로봇으로 본다', () => {
+    expect(isBotUserAgent(undefined)).toBe(true);
+    expect(isBotUserAgent('')).toBe(true);
   });
 });
