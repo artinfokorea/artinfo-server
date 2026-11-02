@@ -1,4 +1,13 @@
-import { isBotUserAgent, isValidVisitorId, normalizeActiveSeconds, ARTINFO_ACTIVITY_MAX_PING_SECONDS } from '@/activity/domain/artinfo-activity-policy';
+import {
+  ENGAGED_MIN_PAGE_VIEWS,
+  ENGAGED_MIN_SECONDS,
+  ENGAGED_VISITOR_SQL,
+  isBotUserAgent,
+  isValidVisitorId,
+  normalizeActiveSeconds,
+  normalizePageViews,
+  ARTINFO_ACTIVITY_MAX_PING_SECONDS,
+} from '@/activity/domain/artinfo-activity-policy';
 
 describe('normalizeActiveSeconds', () => {
   it('양의 정수는 그대로', () => {
@@ -71,5 +80,27 @@ describe('isBotUserAgent', () => {
   it('User-Agent 가 없으면 로봇으로 본다', () => {
     expect(isBotUserAgent(undefined)).toBe(true);
     expect(isBotUserAgent('')).toBe(true);
+  });
+});
+
+describe('normalizePageViews', () => {
+  it('0 이상 정수, 한 번에 최대 100', () => {
+    expect(normalizePageViews(2)).toBe(2);
+    expect(normalizePageViews(2.4)).toBe(2);
+    expect(normalizePageViews(500)).toBe(100);
+  });
+
+  it('음수·숫자가 아닌 값은 0', () => {
+    expect(normalizePageViews(-1)).toBe(0);
+    expect(normalizePageViews('3')).toBe(0);
+    expect(normalizePageViews(undefined)).toBe(0);
+  });
+});
+
+describe('ENGAGED_VISITOR_SQL', () => {
+  it('참여 기준: 10초 이상 머물렀거나 2페이지 이상 (GA4 참여 기준과 같음)', () => {
+    expect(ENGAGED_MIN_SECONDS).toBe(10);
+    expect(ENGAGED_MIN_PAGE_VIEWS).toBe(2);
+    expect(ENGAGED_VISITOR_SQL).toBe('(active_seconds >= 10 OR page_views >= 2)');
   });
 });

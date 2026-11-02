@@ -3,6 +3,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { DailyRow } from '@/admin/domain/admin-stats.calculator';
 import { EngagementRow, RetentionRow } from '@/admin/domain/admin-engagement.calculator';
+import { ENGAGED_VISITOR_SQL } from '@/activity/domain/artinfo-activity-policy';
 
 /** DB 의 timestamp 는 UTC 로 저장되므로 +9시간 해서 한국 날짜로 묶는다 */
 const KST_DATE = (column: string) => `to_char(${column} + interval '9 hours', 'YYYY-MM-DD')`;
@@ -124,7 +125,7 @@ export class AdminStatsRepository {
     return this.dataSource.query(`SELECT id, title, email, created_at AS "createdAt" FROM inquiries ORDER BY created_at DESC LIMIT $1`, [limit]);
   }
 
-  /* ---------- 방문자 활동 (artinfo_visitor_daily_activity, day 는 한국 날짜) ---------- */
+  /* ---------- 방문자 활동 (artinfo_visitor_daily_activity, day 는 한국 날짜) — 참여한 방문(10초 이상 또는 2페이지 이상)만 센다 ---------- */
 
   /** 한국 오늘 기준 1일(오늘)·7일·30일 고유 방문자/회원 수와 7일 평균 체류 초 */
   async engagementSummary(): Promise<{
@@ -147,7 +148,7 @@ export class AdminStatsRepository {
         count(DISTINCT user_id)::int AS member_mau,
         COALESCE(round(avg(active_seconds) FILTER (WHERE day > t.today - 7)), 0)::int AS avg_seconds_7d
       FROM artinfo_visitor_daily_activity, t
-      WHERE day > t.today - 30
+      WHERE day > t.today - 30 AND ${ENGAGED_VISITOR_SQL}
     `);
     return row;
   }
@@ -159,7 +160,7 @@ export class AdminStatsRepository {
               count(DISTINCT user_id)::int AS members,
               COALESCE(sum(active_seconds), 0)::int AS seconds
          FROM artinfo_visitor_daily_activity
-        WHERE day > (now() AT TIME ZONE 'Asia/Seoul')::date - $1::int
+        WHERE day > (now() AT TIME ZONE 'Asia/Seoul')::date - $1::int AND ${ENGAGED_VISITOR_SQL}
         GROUP BY day`,
       [days],
     );
@@ -170,7 +171,7 @@ export class AdminStatsRepository {
     const firstVisits = `
       WITH first AS (
         SELECT visitor_id, date_trunc('week', min(day))::date AS cohort
-          FROM artinfo_visitor_daily_activity GROUP BY visitor_id
+          FROM artinfo_visitor_daily_activity WHERE ${ENGAGED_VISITOR_SQL} GROUP BY visitor_id
       ),
       sizes AS (
         SELECT cohort, count(*)::int AS size FROM first WHERE cohort >= $1::date GROUP BY cohort
@@ -180,7 +181,7 @@ export class AdminStatsRepository {
        SELECT to_char(f.cohort, 'YYYY-MM-DD') AS cohort, s.size,
               ((date_trunc('week', a.day)::date - f.cohort) / 7)::int AS week,
               count(DISTINCT a.visitor_id)::int AS active
-         FROM artinfo_visitor_daily_activity a
+         FROM (SELECT * FROM artinfo_visitor_daily_activity WHERE ${ENGAGED_VISITOR_SQL}) a
          JOIN first f USING (visitor_id)
          JOIN sizes s ON s.cohort = f.cohort
         WHERE (date_trunc('week', a.day)::date - f.cohort) / 7 BETWEEN 1 AND 4
@@ -189,5 +190,42 @@ export class AdminStatsRepository {
     );
     const sizes = await this.dataSource.query(`${firstVisits} SELECT to_char(cohort, 'YYYY-MM-DD') AS cohort, size FROM sizes`, [since]);
     return { rows, sizes };
+  }
+
+  /** 그날(한국 날짜) 방문자 목록 — 마지막 활동 순. 회원이면 닉네임 */
+  async visitors(
+    day: string,
+    limit: number,
+    offset: number,
+  ): Promise<{
+    total: number;
+    rows: {
+      visitorId: string;
+      nickname: string | null;
+      firstSeenAt: Date;
+      lastSeenAt: Date;
+      activeSeconds: number;
+      pageViews: number;
+      sessions: number;
+      userAgent: string | null;
+      referrerHost: string | null;
+      landingPath: string | null;
+      engaged: boolean;
+    }[];
+  }> {
+    const [{ total }] = await this.dataSource.query(`SELECT count(*)::int AS total FROM artinfo_visitor_daily_activity WHERE day = $1::date`, [day]);
+    const rows = await this.dataSource.query(
+      `SELECT a.visitor_id AS "visitorId", u.nickname, a.first_seen_at AS "firstSeenAt", a.last_seen_at AS "lastSeenAt",
+              a.active_seconds AS "activeSeconds", a.page_views AS "pageViews", a.session_count AS sessions,
+              a.user_agent AS "userAgent", a.referrer_host AS "referrerHost", a.landing_path AS "landingPath",
+              ${ENGAGED_VISITOR_SQL.replace(/active_seconds|page_views/g, m => `a.${m}`)} AS engaged
+         FROM artinfo_visitor_daily_activity a
+         LEFT JOIN users u ON u.id = a.user_id
+        WHERE a.day = $1::date
+        ORDER BY a.last_seen_at DESC
+        LIMIT $2 OFFSET $3`,
+      [day, limit, offset],
+    );
+    return { total, rows };
   }
 }

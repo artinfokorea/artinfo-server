@@ -45,3 +45,9 @@ export function buildDailySeries(rows: DailyRow[], days: number, today: string):
 
   return series;
 }
+
+/** 조회 날짜 — YYYY-MM-DD 가 아니거나 미래면 오늘(한국) */
+export function normalizeDay(raw: string | undefined, today: string): string {
+  if (!raw || !/^\d{4}-\d{2}-\d{2}$/.test(raw)) return today;
+  return raw > today ? today : raw;
+}

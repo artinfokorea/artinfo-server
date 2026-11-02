@@ -105,3 +105,26 @@ export class AdminEngagementResponse {
   @ApiProperty({ type: [EngagementPointResponse] }) daily: EngagementPointResponse[];
   @ApiProperty({ type: [RetentionCohortResponse], description: '최근 8주 첫 방문 주별 리텐션' }) retention: RetentionCohortResponse[];
 }
+
+class VisitorRowResponse {
+  @ApiProperty({ type: String, description: '방문자 ID 앞 8자리' }) visitorId: string;
+  @ApiProperty({ type: String, nullable: true, description: '회원이면 닉네임' }) nickname: string | null;
+  @ApiProperty({ type: Date }) firstSeenAt: Date;
+  @ApiProperty({ type: Date }) lastSeenAt: Date;
+  @ApiProperty({ type: Number }) activeSeconds: number;
+  @ApiProperty({ type: Number }) pageViews: number;
+  @ApiProperty({ type: Number }) sessions: number;
+  @ApiProperty({ type: String, description: '모바일 | 태블릿 | 데스크톱 | 기타' }) device: string;
+  @ApiProperty({ type: String }) os: string;
+  @ApiProperty({ type: String }) browser: string;
+  @ApiProperty({ type: String, nullable: true }) userAgent: string | null;
+  @ApiProperty({ type: String, nullable: true, description: '외부 유입 도메인' }) referrerHost: string | null;
+  @ApiProperty({ type: String, nullable: true, description: '처음 본 페이지' }) landingPath: string | null;
+  @ApiProperty({ type: Boolean, description: '참여 기준(10초 이상 또는 2페이지 이상) 충족' }) engaged: boolean;
+}
+
+export class AdminVisitorsResponse {
+  @ApiProperty({ type: String, description: '한국 날짜' }) day: string;
+  @ApiProperty({ type: Number }) total: number;
+  @ApiProperty({ type: [VisitorRowResponse] }) visitors: VisitorRowResponse[];
+}
