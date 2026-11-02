@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { DailyRow } from '@/admin/domain/admin-stats.calculator';
+import { EngagementRow, RetentionRow } from '@/admin/domain/admin-engagement.calculator';
 
 /** DB 의 timestamp 는 UTC 로 저장되므로 +9시간 해서 한국 날짜로 묶는다 */
 const KST_DATE = (column: string) => `to_char(${column} + interval '9 hours', 'YYYY-MM-DD')`;
@@ -121,5 +122,72 @@ export class AdminStatsRepository {
 
   async recentInquiries(limit: number): Promise<{ id: number; title: string; email: string; createdAt: Date }[]> {
     return this.dataSource.query(`SELECT id, title, email, created_at AS "createdAt" FROM inquiries ORDER BY created_at DESC LIMIT $1`, [limit]);
+  }
+
+  /* ---------- 방문자 활동 (artinfo_visitor_daily_activity, day 는 한국 날짜) ---------- */
+
+  /** 한국 오늘 기준 1일(오늘)·7일·30일 고유 방문자/회원 수와 7일 평균 체류 초 */
+  async engagementSummary(): Promise<{
+    dau: number;
+    wau: number;
+    mau: number;
+    member_dau: number;
+    member_wau: number;
+    member_mau: number;
+    avg_seconds_7d: number;
+  }> {
+    const [row] = await this.dataSource.query(`
+      WITH t AS (SELECT (now() AT TIME ZONE 'Asia/Seoul')::date AS today)
+      SELECT
+        count(DISTINCT visitor_id) FILTER (WHERE day = t.today)::int AS dau,
+        count(DISTINCT visitor_id) FILTER (WHERE day > t.today - 7)::int AS wau,
+        count(DISTINCT visitor_id)::int AS mau,
+        count(DISTINCT user_id) FILTER (WHERE day = t.today)::int AS member_dau,
+        count(DISTINCT user_id) FILTER (WHERE day > t.today - 7)::int AS member_wau,
+        count(DISTINCT user_id)::int AS member_mau,
+        COALESCE(round(avg(active_seconds) FILTER (WHERE day > t.today - 7)), 0)::int AS avg_seconds_7d
+      FROM artinfo_visitor_daily_activity, t
+      WHERE day > t.today - 30
+    `);
+    return row;
+  }
+
+  async engagementDaily(days: number): Promise<EngagementRow[]> {
+    return this.dataSource.query(
+      `SELECT to_char(day, 'YYYY-MM-DD') AS date,
+              count(DISTINCT visitor_id)::int AS visitors,
+              count(DISTINCT user_id)::int AS members,
+              COALESCE(sum(active_seconds), 0)::int AS seconds
+         FROM artinfo_visitor_daily_activity
+        WHERE day > (now() AT TIME ZONE 'Asia/Seoul')::date - $1::int
+        GROUP BY day`,
+      [days],
+    );
+  }
+
+  /** 첫 방문 주(월요일)별 방문자 수와 1~4주차 재방문 수. since 이후 첫 방문 주만 */
+  async retention(since: string): Promise<{ rows: RetentionRow[]; sizes: { cohort: string; size: number }[] }> {
+    const firstVisits = `
+      WITH first AS (
+        SELECT visitor_id, date_trunc('week', min(day))::date AS cohort
+          FROM artinfo_visitor_daily_activity GROUP BY visitor_id
+      ),
+      sizes AS (
+        SELECT cohort, count(*)::int AS size FROM first WHERE cohort >= $1::date GROUP BY cohort
+      )`;
+    const rows = await this.dataSource.query(
+      `${firstVisits}
+       SELECT to_char(f.cohort, 'YYYY-MM-DD') AS cohort, s.size,
+              ((date_trunc('week', a.day)::date - f.cohort) / 7)::int AS week,
+              count(DISTINCT a.visitor_id)::int AS active
+         FROM artinfo_visitor_daily_activity a
+         JOIN first f USING (visitor_id)
+         JOIN sizes s ON s.cohort = f.cohort
+        WHERE (date_trunc('week', a.day)::date - f.cohort) / 7 BETWEEN 1 AND 4
+        GROUP BY f.cohort, s.size, week`,
+      [since],
+    );
+    const sizes = await this.dataSource.query(`${firstVisits} SELECT to_char(cohort, 'YYYY-MM-DD') AS cohort, size FROM sizes`, [since]);
+    return { rows, sizes };
   }
 }

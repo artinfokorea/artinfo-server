@@ -75,3 +75,33 @@ export class AdminBreakdownResponse {
   @ApiProperty({ type: [TopPost], description: '최근 30일 조회수 상위 나눔 글' }) topPosts: TopPost[];
   @ApiProperty({ type: [RecentInquiry] }) recentInquiries: RecentInquiry[];
 }
+
+class EngagementSummary {
+  @ApiProperty({ type: Number, description: '오늘 방문자 (비회원 포함)' }) dau: number;
+  @ApiProperty({ type: Number, description: '최근 7일 방문자' }) wau: number;
+  @ApiProperty({ type: Number, description: '최근 30일 방문자' }) mau: number;
+  @ApiProperty({ type: Number, description: '오늘 방문한 회원' }) memberDau: number;
+  @ApiProperty({ type: Number }) memberWau: number;
+  @ApiProperty({ type: Number }) memberMau: number;
+  @ApiProperty({ type: Number, description: '최근 7일, 방문자 1명이 하루에 머문 평균 초' }) avgSeconds7d: number;
+}
+
+class EngagementPointResponse {
+  @ApiProperty({ type: String }) date: string;
+  @ApiProperty({ type: Number }) visitors: number;
+  @ApiProperty({ type: Number }) members: number;
+  @ApiProperty({ type: Number, description: '방문자 1명당 평균 체류 초' }) avgSeconds: number;
+}
+
+class RetentionCohortResponse {
+  @ApiProperty({ type: String, description: '첫 방문 주의 월요일' }) cohort: string;
+  @ApiProperty({ type: Number, description: '그 주에 처음 온 방문자 수' }) size: number;
+  @ApiProperty({ type: [Number], description: '1~4주차 재방문 비율(%), 측정 전이면 null', nullable: true }) weeks: (number | null)[];
+}
+
+export class AdminEngagementResponse {
+  @ApiProperty({ type: EngagementSummary }) summary: EngagementSummary;
+  @ApiProperty({ type: Number }) days: number;
+  @ApiProperty({ type: [EngagementPointResponse] }) daily: EngagementPointResponse[];
+  @ApiProperty({ type: [RetentionCohortResponse], description: '최근 8주 첫 방문 주별 리텐션' }) retention: RetentionCohortResponse[];
+}

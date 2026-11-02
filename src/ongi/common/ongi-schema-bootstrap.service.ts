@@ -196,6 +196,19 @@ export class OngiSchemaBootstrapService implements OnModuleInit {
         PRIMARY KEY (user_id, day)
       )`,
       `CREATE INDEX IF NOT EXISTS idx_ongi_user_daily_activity_day ON ongi_user_daily_activity (day)`,
+      // 아트인포 방문자 일별 활동 (2026-11-02) — 하트비트 API 가 매 요청 쓰므로 배포 전에 있어야 한다. 원본 DDL: activity/artinfo-visitor-daily-activity.ddl.sql
+      `CREATE TABLE IF NOT EXISTS artinfo_visitor_daily_activity (
+        visitor_id     VARCHAR(36) NOT NULL,
+        day            DATE NOT NULL,
+        user_id        INTEGER,
+        first_seen_at  TIMESTAMP NOT NULL DEFAULT now(),
+        last_seen_at   TIMESTAMP NOT NULL DEFAULT now(),
+        active_seconds INTEGER NOT NULL DEFAULT 0,
+        session_count  INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY (visitor_id, day)
+      )`,
+      `CREATE INDEX IF NOT EXISTS idx_artinfo_visitor_daily_activity_day ON artinfo_visitor_daily_activity (day)`,
+      `CREATE INDEX IF NOT EXISTS idx_artinfo_visitor_daily_activity_user ON artinfo_visitor_daily_activity (user_id, day)`,
     ];
 
     try {
