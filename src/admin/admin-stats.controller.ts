@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiQuery } from '@nestjs/sw
 import { RestApiController } from '@/common/decorator/rest-api';
 import { ArtinfoAdminGuard } from '@/admin/guard/artinfo-admin.guard';
 import { AdminStatsService } from '@/admin/admin-stats.service';
-import { AdminBreakdownResponse, AdminDailyResponse, AdminOverviewResponse } from '@/admin/dto/admin-stats.response';
+import { AdminBreakdownResponse, AdminDailyResponse, AdminEngagementResponse, AdminOverviewResponse } from '@/admin/dto/admin-stats.response';
 
 /** 아트인포 관리자 지표 — users.type 이 ADMIN 인 사용자만 (ArtinfoAdminGuard 가 DB 로 확인) */
 @RestApiController('/admin/stats', 'Admin')
@@ -32,5 +32,13 @@ export class AdminStatsController {
   @ApiOkResponse({ type: AdminBreakdownResponse })
   breakdown(): Promise<AdminBreakdownResponse> {
     return this.adminStatsService.breakdown();
+  }
+
+  @Get('/engagement')
+  @ApiOperation({ summary: '관리자 — 방문자(비회원 포함) DAU·WAU·MAU, 일별 방문·체류시간, 첫 방문 주별 리텐션' })
+  @ApiQuery({ name: 'days', required: false, type: Number })
+  @ApiOkResponse({ type: AdminEngagementResponse })
+  engagement(@Query('days') days?: string): Promise<AdminEngagementResponse> {
+    return this.adminStatsService.engagement(days === undefined ? undefined : Number(days));
   }
 }

@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { AdminStatsRepository } from '@/admin/repository/admin-stats.repository';
 import { buildDailySeries, clampDays, kstDateString } from '@/admin/domain/admin-stats.calculator';
-import { AdminBreakdownResponse, AdminDailyResponse, AdminOverviewResponse, maskEmail } from '@/admin/dto/admin-stats.response';
+import { AdminBreakdownResponse, AdminDailyResponse, AdminEngagementResponse, AdminOverviewResponse, maskEmail } from '@/admin/dto/admin-stats.response';
+import { buildEngagementSeries, buildRetentionCohorts, mondayOf } from '@/admin/domain/admin-engagement.calculator';
 
 @Injectable()
 export class AdminStatsService {
@@ -44,6 +45,33 @@ export class AdminStatsService {
       recentUsers: recentUsers.map(u => ({ ...u, email: maskEmail(u.email) })),
       topPosts,
       recentInquiries: recentInquiries.map(i => ({ ...i, email: maskEmail(i.email) })),
+    };
+  }
+
+  /** 방문자(비회원 포함) 활동 — DAU·WAU·MAU, 일별 추이, 최근 8주 리텐션 */
+  async engagement(days: number | undefined, now = new Date()): Promise<AdminEngagementResponse> {
+    const range = clampDays(days);
+    const today = kstDateString(now);
+    const cohorts = 8;
+    const since = new Date(new Date(`${mondayOf(today)}T00:00:00Z`).getTime() - cohorts * 7 * 86400000).toISOString().slice(0, 10);
+    const [s, daily, retention] = await Promise.all([
+      this.repository.engagementSummary(),
+      this.repository.engagementDaily(range),
+      this.repository.retention(since),
+    ]);
+    return {
+      summary: {
+        dau: s.dau,
+        wau: s.wau,
+        mau: s.mau,
+        memberDau: s.member_dau,
+        memberWau: s.member_wau,
+        memberMau: s.member_mau,
+        avgSeconds7d: s.avg_seconds_7d,
+      },
+      days: range,
+      daily: buildEngagementSeries(daily, range, today),
+      retention: buildRetentionCohorts(retention.rows, retention.sizes, cohorts, today),
     };
   }
 }
