@@ -61,6 +61,7 @@ import { OnchurchStaff } from '@/onchurch/about/domain/entity/onchurch-staff.ent
 import { OngiModule } from '@/ongi/ongi.module';
 import { DocumentConverterModule } from '@/document-converter/document-converter.module';
 import { JobCrawlerModule } from '@/job-crawler/job-crawler.module';
+import { AdminModule } from '@/admin/admin.module';
 import { OngiUser } from '@/ongi/user/domain/entity/ongi-user.entity';
 import { OngiAuth } from '@/ongi/auth/domain/entity/ongi-auth.entity';
 import { OngiGroup } from '@/ongi/group/domain/entity/ongi-group.entity';
@@ -140,6 +141,7 @@ const modules = [
   OngiModule,
   DocumentConverterModule,
   JobCrawlerModule,
+  AdminModule,
 ];
 
 @Module({
