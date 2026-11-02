@@ -1,0 +1,77 @@
+import { ApiProperty } from '@nestjs/swagger';
+
+/** 관리자 화면에서도 이메일 원문은 보이지 않게: ab***@gmail.com */
+export function maskEmail(email: string | null | undefined): string {
+  if (!email) return '';
+  const [local, domain] = email.split('@');
+  if (!domain) return `${local.slice(0, 2)}***`;
+  return `${local.slice(0, 2)}***@${domain}`;
+}
+
+class CountWithRecent {
+  @ApiProperty({ type: Number, description: '전체' }) total: number;
+  @ApiProperty({ type: Number, description: '최근 7일' }) last7d: number;
+  @ApiProperty({ type: Number, description: '최근 30일' }) last30d: number;
+}
+
+export class AdminOverviewResponse {
+  @ApiProperty({ type: CountWithRecent, description: '회원 (탈퇴 제외)' }) users: CountWithRecent;
+  @ApiProperty({ type: CountWithRecent, description: '로그인한 사용자 (total 은 최근 30일)' }) activeUsers: CountWithRecent;
+  @ApiProperty({ type: CountWithRecent, description: '채용 공고' }) jobs: CountWithRecent;
+  @ApiProperty({ type: Number, description: '진행 중 채용' }) activeJobs: number;
+  @ApiProperty({ type: CountWithRecent, description: '나눔 글' }) posts: CountWithRecent;
+  @ApiProperty({ type: CountWithRecent, description: '댓글 (last30d 미집계 시 0)' }) comments: CountWithRecent;
+  @ApiProperty({ type: Number }) lessons: number;
+  @ApiProperty({ type: Number }) performances: number;
+  @ApiProperty({ type: Number, description: '종료되지 않은 공연' }) upcomingPerformances: number;
+  @ApiProperty({ type: Number }) news: number;
+  @ApiProperty({ type: CountWithRecent, description: '문의 (last7d 미집계 시 0)' }) inquiries: CountWithRecent;
+}
+
+export class AdminDailyPointResponse {
+  @ApiProperty({ type: String, description: '한국 날짜 YYYY-MM-DD' }) date: string;
+  @ApiProperty({ type: Number, description: '가입' }) signups: number;
+  @ApiProperty({ type: Number, description: '로그인한 사용자' }) activeUsers: number;
+  @ApiProperty({ type: Number, description: '새 채용 공고' }) jobs: number;
+  @ApiProperty({ type: Number, description: '새 나눔 글' }) posts: number;
+  @ApiProperty({ type: Number, description: '새 댓글' }) comments: number;
+}
+
+export class AdminDailyResponse {
+  @ApiProperty({ type: Number }) days: number;
+  @ApiProperty({ type: [AdminDailyPointResponse] }) points: AdminDailyPointResponse[];
+}
+
+class TypeCount {
+  @ApiProperty({ type: String }) type: string;
+  @ApiProperty({ type: Number }) count: number;
+}
+
+class RecentUser {
+  @ApiProperty({ type: Number }) id: number;
+  @ApiProperty({ type: String }) nickname: string;
+  @ApiProperty({ type: String, description: '마스킹된 이메일' }) email: string;
+  @ApiProperty({ type: Date }) createdAt: Date;
+}
+
+class TopPost {
+  @ApiProperty({ type: Number }) id: number;
+  @ApiProperty({ type: String }) title: string;
+  @ApiProperty({ type: Number }) viewCount: number;
+  @ApiProperty({ type: Date }) createdAt: Date;
+}
+
+class RecentInquiry {
+  @ApiProperty({ type: Number }) id: number;
+  @ApiProperty({ type: String }) title: string;
+  @ApiProperty({ type: String, description: '마스킹된 이메일' }) email: string;
+  @ApiProperty({ type: Date }) createdAt: Date;
+}
+
+export class AdminBreakdownResponse {
+  @ApiProperty({ type: [TypeCount], description: '최근 30일 로그인 방식별 사용자 수' }) loginsByType: TypeCount[];
+  @ApiProperty({ type: [TypeCount], description: '진행 중 채용 유형별 수' }) jobsByType: TypeCount[];
+  @ApiProperty({ type: [RecentUser] }) recentUsers: RecentUser[];
+  @ApiProperty({ type: [TopPost], description: '최근 30일 조회수 상위 나눔 글' }) topPosts: TopPost[];
+  @ApiProperty({ type: [RecentInquiry] }) recentInquiries: RecentInquiry[];
+}
