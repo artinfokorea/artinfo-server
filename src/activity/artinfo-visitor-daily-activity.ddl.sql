@@ -20,5 +20,7 @@ ALTER TABLE artinfo_visitor_daily_activity ADD COLUMN IF NOT EXISTS referrer_hos
 ALTER TABLE artinfo_visitor_daily_activity ADD COLUMN IF NOT EXISTS landing_path VARCHAR(200);  -- 그날 처음 본 페이지 경로 (쿼리 제외)
 -- 2026-11-03 추가: 이탈 페이지 — 그날 마지막 전송 시점에 보고 있던 페이지 경로
 ALTER TABLE artinfo_visitor_daily_activity ADD COLUMN IF NOT EXISTS exit_path VARCHAR(200);
+-- 2026-11-03 추가: 그날 거친 경로 목록 (순서대로, 최대 200개) — 관리자 방문자 목록에서 동선 확인용
+ALTER TABLE artinfo_visitor_daily_activity ADD COLUMN IF NOT EXISTS paths JSONB NOT NULL DEFAULT '[]'::jsonb;
 CREATE INDEX IF NOT EXISTS idx_artinfo_visitor_daily_activity_day ON artinfo_visitor_daily_activity (day);
 CREATE INDEX IF NOT EXISTS idx_artinfo_visitor_daily_activity_user ON artinfo_visitor_daily_activity (user_id, day);

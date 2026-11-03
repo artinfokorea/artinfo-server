@@ -5,7 +5,7 @@ import { UserSignature } from '@/common/type/type';
 import { OkResponse } from '@/common/response/ok.response';
 import { ActivityPingRequest } from '@/activity/dto/activity-ping.request';
 import { ArtinfoActivityRepository } from '@/activity/repository/artinfo-activity.repository';
-import { isBotUserAgent, isValidVisitorId, normalizeActiveSeconds, normalizePageViews } from '@/activity/domain/artinfo-activity-policy';
+import { isBotUserAgent, isValidVisitorId, normalizeActiveSeconds, normalizePageViews, normalizePaths } from '@/activity/domain/artinfo-activity-policy';
 import { normalizeLandingPath, normalizeReferrerHost } from '@/activity/domain/user-agent';
 
 /**
@@ -35,6 +35,7 @@ export class ArtinfoActivityController {
       landingPath: normalizeLandingPath(request.path),
       // currentPath 를 보내지 않는 구버전 웹은 첫 페이지를 마지막 페이지로도 본다
       exitPath: normalizeLandingPath(request.currentPath ?? request.path),
+      paths: normalizePaths(request.paths),
       newSession: request.newSession === true,
     });
     return new OkResponse();

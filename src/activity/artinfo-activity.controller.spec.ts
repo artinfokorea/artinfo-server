@@ -19,6 +19,13 @@ describe('ArtinfoActivityController.ping — 첫 페이지와 마지막 페이�
     expect(addPing).toHaveBeenCalledWith(expect.objectContaining({ landingPath: '/lessons', exitPath: '/lessons' }));
   });
 
+  it('paths 는 정리해서 넘기고, 없으면 빈 배열', async () => {
+    await controller.ping(null, ua, { visitorId, paths: ['/', '/jobs?x=1', 'bad'] });
+    expect(addPing).toHaveBeenCalledWith(expect.objectContaining({ paths: ['/', '/jobs'] }));
+    await controller.ping(null, ua, { visitorId });
+    expect(addPing).toHaveBeenLastCalledWith(expect.objectContaining({ paths: [] }));
+  });
+
   it('경로가 / 로 시작하지 않으면 null', async () => {
     await controller.ping(null, ua, { visitorId, currentPath: 'https://evil.example/x' });
     expect(addPing).toHaveBeenCalledWith(expect.objectContaining({ exitPath: null }));

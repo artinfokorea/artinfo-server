@@ -30,6 +30,23 @@ export function normalizePageViews(raw: unknown): number {
   return Math.min(Math.floor(raw), 100);
 }
 
+/** 한 번의 전송에 담을 수 있는 경로 수 — 전송이 밀려 몰려와도 이만큼만 받는다 */
+export const ARTINFO_ACTIVITY_MAX_PATHS_PER_PING = 100;
+/** 방문자 × 날짜 행에 쌓아 두는 경로 수 상한 (앞에서부터 보존) */
+export const ARTINFO_ACTIVITY_MAX_PATHS_PER_DAY = 200;
+
+/** 지난 전송 이후 본 경로 목록 — 순서를 지키고, 쿼리·해시를 떼고, / 로 시작하지 않는 것은 버린다 */
+export function normalizePaths(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  const paths: string[] = [];
+  for (const item of raw) {
+    if (typeof item !== 'string' || !item.startsWith('/')) continue;
+    paths.push(item.split('?')[0].split('#')[0].slice(0, 200));
+    if (paths.length >= ARTINFO_ACTIVITY_MAX_PATHS_PER_PING) break;
+  }
+  return paths;
+}
+
 /** 참여한 방문으로 셀 기준 — GA4 의 참여 세션과 같다: 10초 이상 머물렀거나 2페이지 이상 */
 export const ENGAGED_MIN_SECONDS = 10;
 export const ENGAGED_MIN_PAGE_VIEWS = 2;

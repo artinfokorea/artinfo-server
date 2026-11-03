@@ -49,9 +49,10 @@ describe('AdminStatsRepository — 관리자 제외 조건이 SQL 에 들어간�
     expect(allSql().split(adminVisitor).length - 1).toBe(2);
   });
 
-  it('visitors — 마지막으로 본 페이지(exit_path) 를 내려준다', async () => {
+  it('visitors — 마지막으로 본 페이지(exit_path) 와 거친 경로 목록(paths) 을 내려준다', async () => {
     await repository.visitors('2026-11-03', 50, 0);
     expect(lastSql()).toContain(`a.exit_path AS "exitPath"`);
+    expect(lastSql()).toContain(`a.paths`);
   });
 });
 
@@ -111,10 +112,19 @@ run('AdminStatsRepository — 실제 DB 에서 관리자 제외', () => {
         ('EMAIL', 3, now());
     `);
 
-    const base = { seconds: 0, pageViews: 0, newSession: false, userAgent: 'Mozilla/5.0 (iPhone)', referrerHost: null, landingPath: '/', exitPath: '/' };
+    const base = {
+      seconds: 0,
+      pageViews: 0,
+      newSession: false,
+      userAgent: 'Mozilla/5.0 (iPhone)',
+      referrerHost: null,
+      landingPath: '/',
+      exitPath: '/',
+      paths: [] as string[],
+    };
     // 회원A — 오늘 / 로 들어와 /jobs/1 에서 나감
-    await activity.addPing({ ...base, visitorId: 'v1', userId: 1, seconds: 100, pageViews: 1, newSession: true });
-    await activity.addPing({ ...base, visitorId: 'v1', userId: 1, seconds: 20, pageViews: 2, exitPath: '/jobs/1' });
+    await activity.addPing({ ...base, visitorId: 'v1', userId: 1, seconds: 100, pageViews: 1, newSession: true, paths: ['/'] });
+    await activity.addPing({ ...base, visitorId: 'v1', userId: 1, seconds: 20, pageViews: 2, exitPath: '/jobs/1', paths: ['/jobs', '/jobs/1'] });
     // 비회원 — 오늘 60초
     await activity.addPing({
       ...base,
@@ -196,6 +206,30 @@ run('AdminStatsRepository — 실제 DB 에서 관리자 제외', () => {
     expect(a.nickname).toBe('회원A');
     expect(a.landingPath).toBe('/');
     expect(a.exitPath).toBe('/jobs/1');
+    expect(a.paths).toEqual(['/', '/jobs', '/jobs/1']);
     expect(a.engaged).toBe(true);
+    const b = rows.find(r => r.visitorId === 'v2')!;
+    expect(b.paths).toEqual([]);
+  });
+
+  it('addPing — 경로는 하루 200개까지만 쌓인다 (앞에서부터 보존)', async () => {
+    const base = {
+      userId: null,
+      seconds: 0,
+      pageViews: 0,
+      newSession: false,
+      userAgent: 'Mozilla/5.0 (iPhone)',
+      referrerHost: null,
+      landingPath: '/',
+      exitPath: '/',
+    };
+    await activity.addPing({ ...base, visitorId: 'v9', seconds: 30, paths: Array.from({ length: 150 }, (_, i) => `/a/${i}`) });
+    await activity.addPing({ ...base, visitorId: 'v9', seconds: 30, paths: Array.from({ length: 100 }, (_, i) => `/b/${i}`) });
+    const [row] = await dataSource.query(`SELECT paths FROM artinfo_visitor_daily_activity WHERE visitor_id = 'v9'`);
+    expect(row.paths).toHaveLength(200);
+    expect(row.paths[0]).toBe('/a/0');
+    expect(row.paths[149]).toBe('/a/149');
+    expect(row.paths[150]).toBe('/b/0');
+    expect(row.paths[199]).toBe('/b/49');
   });
 });
