@@ -6,6 +6,8 @@ import {
   isValidVisitorId,
   normalizeActiveSeconds,
   normalizePageViews,
+  normalizePaths,
+  ARTINFO_ACTIVITY_MAX_PATHS_PER_PING,
   ARTINFO_ACTIVITY_MAX_PING_SECONDS,
 } from '@/activity/domain/artinfo-activity-policy';
 
@@ -102,5 +104,25 @@ describe('ENGAGED_VISITOR_SQL', () => {
     expect(ENGAGED_MIN_SECONDS).toBe(10);
     expect(ENGAGED_MIN_PAGE_VIEWS).toBe(2);
     expect(ENGAGED_VISITOR_SQL).toBe('(active_seconds >= 10 OR page_views >= 2)');
+  });
+});
+
+describe('normalizePaths', () => {
+  it('경로 목록은 순서를 지키고 쿼리·해시를 뗀다', () => {
+    expect(normalizePaths(['/', '/jobs?page=2', '/jobs/487#top'])).toEqual(['/', '/jobs', '/jobs/487']);
+  });
+
+  it('/ 로 시작하지 않거나 문자열이 아닌 항목은 버린다', () => {
+    expect(normalizePaths(['https://evil.example/x', 3, null, '/lessons'])).toEqual(['/lessons']);
+  });
+
+  it('배열이 아니면 빈 목록', () => {
+    expect(normalizePaths(undefined)).toEqual([]);
+    expect(normalizePaths('/jobs')).toEqual([]);
+  });
+
+  it('한 번에 100개까지만 받는다', () => {
+    expect(ARTINFO_ACTIVITY_MAX_PATHS_PER_PING).toBe(100);
+    expect(normalizePaths(Array.from({ length: 150 }, (_, i) => `/p/${i}`))).toHaveLength(100);
   });
 });

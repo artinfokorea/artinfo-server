@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsArray, IsBoolean, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class ActivityPingRequest {
   @IsString()
@@ -28,6 +28,17 @@ export class ActivityPingRequest {
   @MaxLength(2000)
   @ApiProperty({ type: String, required: false, description: '이번 전송 시점에 보고 있는 페이지 경로 — 그날 마지막 값이 이탈 페이지', example: '/jobs/487' })
   currentPath?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @ApiProperty({
+    type: [String],
+    required: false,
+    description: '지난 전송 이후 본 페이지 경로 목록 (순서대로, 최대 100개). 그날 거친 경로로 쌓인다',
+    example: ['/', '/jobs', '/jobs/487'],
+  })
+  paths?: string[];
 
   @IsOptional()
   @IsString()

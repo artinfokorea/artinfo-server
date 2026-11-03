@@ -217,6 +217,8 @@ export class OngiSchemaBootstrapService implements OnModuleInit {
       `ALTER TABLE artinfo_visitor_daily_activity ADD COLUMN IF NOT EXISTS landing_path VARCHAR(200)`,
       // 이탈 페이지 (2026-11-03) — 하트비트 upsert 가 쓰므로 배포 전에 있어야 한다
       `ALTER TABLE artinfo_visitor_daily_activity ADD COLUMN IF NOT EXISTS exit_path VARCHAR(200)`,
+      // 그날 거친 경로 목록 (2026-11-03) — 하트비트 upsert 가 쓰므로 배포 전에 있어야 한다
+      `ALTER TABLE artinfo_visitor_daily_activity ADD COLUMN IF NOT EXISTS paths JSONB NOT NULL DEFAULT '[]'::jsonb`,
     ];
 
     try {

@@ -215,6 +215,8 @@ export class AdminStatsRepository {
       landingPath: string | null;
       /** 그날 마지막으로 본 페이지 (이탈 페이지) */
       exitPath: string | null;
+      /** 그날 거친 경로 목록 (순서대로) */
+      paths: string[];
       engaged: boolean;
     }[];
   }> {
@@ -225,7 +227,7 @@ export class AdminStatsRepository {
     const rows = await this.dataSource.query(
       `SELECT a.visitor_id AS "visitorId", u.nickname, a.first_seen_at AS "firstSeenAt", a.last_seen_at AS "lastSeenAt",
               a.active_seconds AS "activeSeconds", a.page_views AS "pageViews", a.session_count AS sessions,
-              a.user_agent AS "userAgent", a.referrer_host AS "referrerHost", a.landing_path AS "landingPath", a.exit_path AS "exitPath",
+              a.user_agent AS "userAgent", a.referrer_host AS "referrerHost", a.landing_path AS "landingPath", a.exit_path AS "exitPath", a.paths,
               ${ENGAGED_VISITOR_SQL.replace(/active_seconds|page_views/g, m => `a.${m}`)} AS engaged
          FROM artinfo_visitor_daily_activity a
          LEFT JOIN users u ON u.id = a.user_id
