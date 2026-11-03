@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import { Repository } from 'typeorm';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { DocumentConverterService } from '@/document-converter/service/document-converter.service';
@@ -125,5 +126,24 @@ describe('buildContentsHtml', () => {
     expect(buildContentsHtml('가 <b>\n\n나 & 다', [{ url: 'https://x/1.webp', width: 10, height: 20 }])).toBe(
       '<p>가 &lt;b&gt;</p><p>나 &amp; 다</p><figure class="image"><img style="aspect-ratio:10/20;" src="https://x/1.webp" width="10" height="20"></figure>',
     );
+  });
+});
+
+describe('JobSourceSupport.logoUrl', () => {
+  it('로고 파일을 upload/{userId}/jobs/logo/{source}.png 로 한 번만 올리고 URL 을 돌려준다', async () => {
+    const { support, calls } = build();
+    const first = await support.logoUrl('boryeong', 'assets/job-crawler/boryeong.png');
+    const second = await support.logoUrl('boryeong', 'assets/job-crawler/boryeong.png');
+    expect(first).toBe('https://artinfo.s3.ap-northeast-2.amazonaws.com/upload/42/jobs/logo/boryeong.png');
+    expect(second).toBe(first);
+    expect(calls.uploads).toEqual([['upload/42/jobs/logo/boryeong.png', 'image/png', fs.statSync('assets/job-crawler/boryeong.png').size]]);
+    expect(calls.userLookups).toBe(1);
+  });
+
+  it('파일이 없으면 실패하고 다음 호출에서 다시 시도한다', async () => {
+    const { support, calls } = build();
+    await expect(support.logoUrl('x', 'assets/job-crawler/없음.png')).rejects.toThrow();
+    await expect(support.logoUrl('x', 'assets/job-crawler/없음.png')).rejects.toThrow();
+    expect(calls.uploads).toEqual([]);
   });
 });

@@ -7,6 +7,8 @@ import { MajorCategory } from '@/job/entity/major-category.entity';
 import { JobModule } from '@/job/module/job.module';
 import { User } from '@/user/entity/user.entity';
 import { UserRepository } from '@/user/repository/user.repository';
+import { BoryeongChoirJobCrawler } from './boryeong/boryeong-choir-job.crawler';
+import { BoryeongNoticeClient } from './boryeong/boryeong-notice.client';
 import { JobCrawlerController } from './controller/job-crawler.controller';
 import { JobCrawlerService } from './job-crawler.service';
 import { MokpoArtJobCrawler } from './mokpo/mokpo-art-job.crawler';
@@ -34,10 +36,12 @@ import { UlsanPhilharmonicJobCrawler } from './ulsan/ulsan-philharmonic-job.craw
     MokpoArtJobCrawler,
     UlsanNoticeClient,
     UlsanPhilharmonicJobCrawler,
+    BoryeongNoticeClient,
+    BoryeongChoirJobCrawler,
     {
       provide: JOB_SOURCE_CRAWLERS,
       useFactory: (...sources: JobSourceCrawler[]) => sources,
-      inject: [MokpoArtJobCrawler, UlsanPhilharmonicJobCrawler],
+      inject: [MokpoArtJobCrawler, UlsanPhilharmonicJobCrawler, BoryeongChoirJobCrawler],
     },
   ],
 })

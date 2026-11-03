@@ -47,6 +47,23 @@ export const jobCrawlerConfig = {
       'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/4637/images/20261024/original/0T1newl6ktY.1792829663169.png',
     ),
   },
+  boryeong: {
+    /** 보령문화예술회관 공지사항 (전자정부 게시판, 시립합창단 모집이 여기 올라온다). 목록 ?bbsId=&pageIndex=N, 상세 selectBoardArticle.do?bbsId=&nttId= */
+    listUrl: 'https://www.brcn.go.kr/cop/bbs/BBSMSTR_000000000983/selectBoardList.do',
+    bbsId: 'BBSMSTR_000000000983',
+    /** 첨부 다운로드 /cmm/fms/FileDown.do?atchFileId=&fileSn= — 쿠키·Referer 없이 받을 수 있다 */
+    downloadUrl: 'https://www.brcn.go.kr/cmm/fms/FileDown.do',
+    /** 목록은 고정 공지 5건 + 등록일 내림차순 10건씩. 날짜가 지날 때까지 넘긴다 */
+    maxListPages: Number(env('JOB_CRAWLER_BORYEONG_MAX_PAGES', '10')),
+    /** 제목 조건: '보령시립합창단' 과 '모집' 또는 '채용' (소년소녀합창단 정기연주회·합격자 알림은 제외) */
+    titleKeywords: ['보령시립합창단', ['모집', '채용']] as (string | string[])[],
+    companyName: '보령시립합창단',
+    address: '충남 보령시 성주산로 101',
+    addressDetail: '보령문화예술회관',
+    /** 채용 대표 이미지 URL. 비어 있으면 imageFile(보령시 로고)을 기동 후 첫 등록 때 S3 에 올려 쓴다 */
+    imageUrl: env('JOB_CRAWLER_BORYEONG_IMAGE_URL', ''),
+    imageFile: 'assets/job-crawler/boryeong.png',
+  },
 };
 
 /** 한국 시간 기준 오늘 (YYYY-MM-DD) */
