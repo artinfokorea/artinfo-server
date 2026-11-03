@@ -120,6 +120,7 @@ class VisitorRowResponse {
   @ApiProperty({ type: String, nullable: true }) userAgent: string | null;
   @ApiProperty({ type: String, nullable: true, description: '외부 유입 도메인' }) referrerHost: string | null;
   @ApiProperty({ type: String, nullable: true, description: '처음 본 페이지' }) landingPath: string | null;
+  @ApiProperty({ type: String, nullable: true, description: '마지막으로 본 페이지 (이탈 페이지)' }) exitPath: string | null;
   @ApiProperty({ type: Boolean, description: '참여 기준(10초 이상 또는 2페이지 이상) 충족' }) engaged: boolean;
 }
 

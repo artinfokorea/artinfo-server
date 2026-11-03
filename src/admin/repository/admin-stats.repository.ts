@@ -4,6 +4,9 @@ import { DataSource } from 'typeorm';
 import { DailyRow } from '@/admin/domain/admin-stats.calculator';
 import { EngagementRow, RetentionRow } from '@/admin/domain/admin-engagement.calculator';
 import { ENGAGED_VISITOR_SQL } from '@/activity/domain/artinfo-activity-policy';
+import { USER_ID_NOT_ADMIN_SQL, USER_NOT_ADMIN_SQL, VISITOR_NOT_ADMIN_SQL } from '@/admin/domain/artinfo-admin-policy';
+
+/** 모든 지표에서 관리자(users.type = ADMIN) 계정은 뺀다 — 운영자가 보는 숫자가 운영자 자신의 활동으로 부풀지 않게 */
 
 /** DB 의 timestamp 는 UTC 로 저장되므로 +9시간 해서 한국 날짜로 묶는다 */
 const KST_DATE = (column: string) => `to_char(${column} + interval '9 hours', 'YYYY-MM-DD')`;
@@ -43,11 +46,11 @@ export class AdminStatsRepository {
   async overview(): Promise<OverviewRow> {
     const [row] = await this.dataSource.query(`
       SELECT
-        (SELECT count(*) FROM users WHERE deleted_at IS NULL)::int AS users,
-        (SELECT count(*) FROM users WHERE deleted_at IS NULL AND created_at >= now() - interval '7 days')::int AS users_7d,
-        (SELECT count(*) FROM users WHERE deleted_at IS NULL AND created_at >= now() - interval '30 days')::int AS users_30d,
-        (SELECT count(DISTINCT user_id) FROM auths WHERE created_at >= now() - interval '7 days')::int AS active_users_7d,
-        (SELECT count(DISTINCT user_id) FROM auths WHERE created_at >= now() - interval '30 days')::int AS active_users_30d,
+        (SELECT count(*) FROM users WHERE deleted_at IS NULL AND ${USER_NOT_ADMIN_SQL})::int AS users,
+        (SELECT count(*) FROM users WHERE deleted_at IS NULL AND ${USER_NOT_ADMIN_SQL} AND created_at >= now() - interval '7 days')::int AS users_7d,
+        (SELECT count(*) FROM users WHERE deleted_at IS NULL AND ${USER_NOT_ADMIN_SQL} AND created_at >= now() - interval '30 days')::int AS users_30d,
+        (SELECT count(DISTINCT user_id) FROM auths WHERE ${USER_ID_NOT_ADMIN_SQL} AND created_at >= now() - interval '7 days')::int AS active_users_7d,
+        (SELECT count(DISTINCT user_id) FROM auths WHERE ${USER_ID_NOT_ADMIN_SQL} AND created_at >= now() - interval '30 days')::int AS active_users_30d,
         (SELECT count(*) FROM jobs)::int AS jobs,
         (SELECT count(*) FROM jobs WHERE is_active = true)::int AS active_jobs,
         (SELECT count(*) FROM jobs WHERE created_at >= now() - interval '7 days')::int AS jobs_7d,
@@ -73,10 +76,10 @@ export class AdminStatsRepository {
     return this.dataSource.query(
       `
       SELECT ${KST_DATE('created_at')} AS date, 'signups' AS metric, count(*)::int AS count
-        FROM users WHERE created_at >= ${since} GROUP BY 1
+        FROM users WHERE ${USER_NOT_ADMIN_SQL} AND created_at >= ${since} GROUP BY 1
       UNION ALL
       SELECT ${KST_DATE('created_at')}, 'activeUsers', count(DISTINCT user_id)::int
-        FROM auths WHERE created_at >= ${since} GROUP BY 1
+        FROM auths WHERE ${USER_ID_NOT_ADMIN_SQL} AND created_at >= ${since} GROUP BY 1
       UNION ALL
       SELECT ${KST_DATE('created_at')}, 'jobs', count(*)::int
         FROM jobs WHERE created_at >= ${since} GROUP BY 1
@@ -94,7 +97,7 @@ export class AdminStatsRepository {
   async loginsByType(): Promise<{ type: string; count: number }[]> {
     return this.dataSource.query(`
       SELECT type, count(DISTINCT user_id)::int AS count
-        FROM auths WHERE created_at >= now() - interval '30 days'
+        FROM auths WHERE ${USER_ID_NOT_ADMIN_SQL} AND created_at >= now() - interval '30 days'
        GROUP BY type ORDER BY count DESC
     `);
   }
@@ -107,7 +110,7 @@ export class AdminStatsRepository {
 
   async recentUsers(limit: number): Promise<{ id: number; nickname: string; email: string; createdAt: Date }[]> {
     return this.dataSource.query(
-      `SELECT id, nickname, email, created_at AS "createdAt" FROM users WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT $1`,
+      `SELECT id, nickname, email, created_at AS "createdAt" FROM users WHERE deleted_at IS NULL AND ${USER_NOT_ADMIN_SQL} ORDER BY created_at DESC LIMIT $1`,
       [limit],
     );
   }
@@ -148,7 +151,7 @@ export class AdminStatsRepository {
         count(DISTINCT user_id)::int AS member_mau,
         COALESCE(round(avg(active_seconds) FILTER (WHERE day > t.today - 7)), 0)::int AS avg_seconds_7d
       FROM artinfo_visitor_daily_activity, t
-      WHERE day > t.today - 30 AND ${ENGAGED_VISITOR_SQL}
+      WHERE day > t.today - 30 AND ${ENGAGED_VISITOR_SQL} AND ${VISITOR_NOT_ADMIN_SQL}
     `);
     return row;
   }
@@ -160,7 +163,7 @@ export class AdminStatsRepository {
               count(DISTINCT user_id)::int AS members,
               COALESCE(sum(active_seconds), 0)::int AS seconds
          FROM artinfo_visitor_daily_activity
-        WHERE day > (now() AT TIME ZONE 'Asia/Seoul')::date - $1::int AND ${ENGAGED_VISITOR_SQL}
+        WHERE day > (now() AT TIME ZONE 'Asia/Seoul')::date - $1::int AND ${ENGAGED_VISITOR_SQL} AND ${VISITOR_NOT_ADMIN_SQL}
         GROUP BY day`,
       [days],
     );
@@ -171,7 +174,7 @@ export class AdminStatsRepository {
     const firstVisits = `
       WITH first AS (
         SELECT visitor_id, date_trunc('week', min(day))::date AS cohort
-          FROM artinfo_visitor_daily_activity WHERE ${ENGAGED_VISITOR_SQL} GROUP BY visitor_id
+          FROM artinfo_visitor_daily_activity WHERE ${ENGAGED_VISITOR_SQL} AND ${VISITOR_NOT_ADMIN_SQL} GROUP BY visitor_id
       ),
       sizes AS (
         SELECT cohort, count(*)::int AS size FROM first WHERE cohort >= $1::date GROUP BY cohort
@@ -181,7 +184,7 @@ export class AdminStatsRepository {
        SELECT to_char(f.cohort, 'YYYY-MM-DD') AS cohort, s.size,
               ((date_trunc('week', a.day)::date - f.cohort) / 7)::int AS week,
               count(DISTINCT a.visitor_id)::int AS active
-         FROM (SELECT * FROM artinfo_visitor_daily_activity WHERE ${ENGAGED_VISITOR_SQL}) a
+         FROM (SELECT * FROM artinfo_visitor_daily_activity WHERE ${ENGAGED_VISITOR_SQL} AND ${VISITOR_NOT_ADMIN_SQL}) a
          JOIN first f USING (visitor_id)
          JOIN sizes s ON s.cohort = f.cohort
         WHERE (date_trunc('week', a.day)::date - f.cohort) / 7 BETWEEN 1 AND 4
@@ -192,7 +195,7 @@ export class AdminStatsRepository {
     return { rows, sizes };
   }
 
-  /** 그날(한국 날짜) 방문자 목록 — 마지막 활동 순. 회원이면 닉네임 */
+  /** 그날(한국 날짜) 방문자 목록 — 마지막 활동 순. 회원이면 닉네임. 관리자 브라우저는 뺀다 */
   async visitors(
     day: string,
     limit: number,
@@ -210,18 +213,23 @@ export class AdminStatsRepository {
       userAgent: string | null;
       referrerHost: string | null;
       landingPath: string | null;
+      /** 그날 마지막으로 본 페이지 (이탈 페이지) */
+      exitPath: string | null;
       engaged: boolean;
     }[];
   }> {
-    const [{ total }] = await this.dataSource.query(`SELECT count(*)::int AS total FROM artinfo_visitor_daily_activity WHERE day = $1::date`, [day]);
+    const [{ total }] = await this.dataSource.query(
+      `SELECT count(*)::int AS total FROM artinfo_visitor_daily_activity WHERE day = $1::date AND ${VISITOR_NOT_ADMIN_SQL}`,
+      [day],
+    );
     const rows = await this.dataSource.query(
       `SELECT a.visitor_id AS "visitorId", u.nickname, a.first_seen_at AS "firstSeenAt", a.last_seen_at AS "lastSeenAt",
               a.active_seconds AS "activeSeconds", a.page_views AS "pageViews", a.session_count AS sessions,
-              a.user_agent AS "userAgent", a.referrer_host AS "referrerHost", a.landing_path AS "landingPath",
+              a.user_agent AS "userAgent", a.referrer_host AS "referrerHost", a.landing_path AS "landingPath", a.exit_path AS "exitPath",
               ${ENGAGED_VISITOR_SQL.replace(/active_seconds|page_views/g, m => `a.${m}`)} AS engaged
          FROM artinfo_visitor_daily_activity a
          LEFT JOIN users u ON u.id = a.user_id
-        WHERE a.day = $1::date
+        WHERE a.day = $1::date AND a.${VISITOR_NOT_ADMIN_SQL}
         ORDER BY a.last_seen_at DESC
         LIMIT $2 OFFSET $3`,
       [day, limit, offset],
