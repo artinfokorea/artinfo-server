@@ -215,6 +215,8 @@ export class OngiSchemaBootstrapService implements OnModuleInit {
       `ALTER TABLE artinfo_visitor_daily_activity ADD COLUMN IF NOT EXISTS user_agent VARCHAR(300)`,
       `ALTER TABLE artinfo_visitor_daily_activity ADD COLUMN IF NOT EXISTS referrer_host VARCHAR(255)`,
       `ALTER TABLE artinfo_visitor_daily_activity ADD COLUMN IF NOT EXISTS landing_path VARCHAR(200)`,
+      // 이탈 페이지 (2026-11-03) — 하트비트 upsert 가 쓰므로 배포 전에 있어야 한다
+      `ALTER TABLE artinfo_visitor_daily_activity ADD COLUMN IF NOT EXISTS exit_path VARCHAR(200)`,
     ];
 
     try {

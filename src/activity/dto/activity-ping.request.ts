@@ -26,6 +26,12 @@ export class ActivityPingRequest {
   @IsOptional()
   @IsString()
   @MaxLength(2000)
+  @ApiProperty({ type: String, required: false, description: '이번 전송 시점에 보고 있는 페이지 경로 — 그날 마지막 값이 이탈 페이지', example: '/jobs/487' })
+  currentPath?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
   @ApiProperty({ type: String, required: false, description: 'document.referrer — 외부 도메인만 저장', example: 'https://search.naver.com/' })
   referrer?: string;
 

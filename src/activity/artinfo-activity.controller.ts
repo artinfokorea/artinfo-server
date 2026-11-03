@@ -33,6 +33,8 @@ export class ArtinfoActivityController {
       userAgent: userAgent ? userAgent.slice(0, 300) : null,
       referrerHost: normalizeReferrerHost(request.referrer),
       landingPath: normalizeLandingPath(request.path),
+      // currentPath 를 보내지 않는 구버전 웹은 첫 페이지를 마지막 페이지로도 본다
+      exitPath: normalizeLandingPath(request.currentPath ?? request.path),
       newSession: request.newSession === true,
     });
     return new OkResponse();
