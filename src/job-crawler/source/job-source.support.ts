@@ -1,3 +1,5 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
@@ -39,6 +41,8 @@ export interface NoticeRegistration {
 export class JobSourceSupport {
   private readonly logger = new Logger(JobSourceSupport.name);
   private posterId?: Promise<number>;
+  /** 소스별 로고 업로드 결과 (프로세스당 한 번만 올린다) */
+  private readonly logos = new Map<string, Promise<string>>();
 
   constructor(
     private readonly documentConverter: DocumentConverterService,
@@ -93,6 +97,25 @@ export class JobSourceSupport {
     );
     this.logger.log(`[${input.source}] 채용 등록: job ${jobId} "${input.title}" (${converted.pageCount}p, 전공 ${majors.join(',') || '없음'})`);
     return { jobId, title: input.title, url: input.url, attachment: input.file.name, pageCount: converted.pageCount, majors };
+  }
+
+  /**
+   * 저장소에 든 소스 로고 파일을 S3(upload/{userId}/jobs/logo/{source}.{ext}) 에 올리고 URL 을 돌려준다.
+   * 키가 고정이라 다시 올려도 같은 URL 이고, 프로세스 안에서는 한 번만 올린다. 실패하면 다음 호출에서 다시 시도한다.
+   */
+  logoUrl(source: string, filePath: string): Promise<string> {
+    let pending = this.logos.get(source);
+    if (!pending) {
+      pending = (async () => {
+        const [userId, buffer] = await Promise.all([this.posterUserId(), fs.promises.readFile(path.resolve(filePath))]);
+        const ext = path.extname(filePath).slice(1).toLowerCase();
+        const mimeType = ext === 'png' ? 'image/png' : ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 'application/octet-stream';
+        return this.upload(buffer, mimeType, `upload/${userId}/jobs/logo/${source}.${ext}`);
+      })();
+      pending.catch(() => this.logos.delete(source));
+      this.logos.set(source, pending);
+    }
+    return pending;
   }
 
   private posterUserId(): Promise<number> {

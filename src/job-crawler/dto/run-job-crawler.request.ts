@@ -10,6 +10,11 @@ export class RunJobCrawlerQuery {
 
   @IsOptional()
   @ToArray()
-  @ApiProperty({ type: [String], required: false, description: '돌릴 소스 키 (생략하면 전부). 예: mokpo, ulsan', example: ['mokpo', 'ulsan'] })
+  @ApiProperty({
+    type: [String],
+    required: false,
+    description: '돌릴 소스 키 (생략하면 전부). 예: mokpo, ulsan, boryeong',
+    example: ['mokpo', 'ulsan', 'boryeong'],
+  })
   source?: string[];
 }
