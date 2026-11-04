@@ -4,11 +4,13 @@ import { parseSeosanNoticeDetail, parseSeosanNoticeList, pickSeosanNoticeAttachm
 
 /**
  * 스펙 (실제 페이지 픽스처, 서산시 채용공고 — eminwon iframe):
- * 1) 목록 1페이지 10행: 번호 · 고시공고번호 · 제목 · 담당부서 · 등록일 · 조회수, 행마다 searchDetail('관리번호'). 고정 공지는 없다
+ * 1) 목록(공고/고시 + 채용공고) 1페이지 10행: 번호 · 고시공고번호 · 제목 · 담당부서 · 등록일 · 조회수, 행마다 searchDetail('관리번호'). 고정 공지는 없다
+ *    - 2026-11-04 에 올라온 '서산시 시립합창단 단원 모집 공고'(65950) 가 일반 공고 구분으로 들어 있다
  * 2) 2페이지도 10행, 등록일 내림차순이 이어진다
  * 3) '시립합창단' 검색 결과 페이지: 9행, 단원 모집 공고(60500) 의 제목·부서·등록일
  * 4) 상세: 제목 · 고시공고번호 · 등록일 · 담당부서 · 본문(&nbsp; 는 공백, <br> 은 줄바꿈) · 첨부 7개(hwp 1 · pdf 3 · jpg 3) 의 이름·확장자·다운로드 URL(encodeURIComponent)
- * 5) 공고문 고르기: HWP/HWPX 우선 → 없으면 '악보' 가 아닌 PDF → 이미지는 고르지 않는다
+ * 5) 2026-11-04 상세(65950): 첨부는 hwpx 공고문 + 지정곡 악보 pdf, 공고문은 hwpx
+ * 6) 공고문 고르기: HWP/HWPX 우선 → 없으면 '악보' 가 아닌 PDF → 이미지는 고르지 않는다
  */
 const fixture = (name: string) => fs.readFileSync(path.join(__dirname, '__fixtures__', name), 'utf8');
 const detailUrl = (no: string) =>
@@ -25,33 +27,41 @@ describe('parseSeosanNoticeList', () => {
     const rows = parseSeosanNoticeList(fixture('list-2026-11-04-p1.html'));
     expect(rows).toHaveLength(10);
     expect(rows[0]).toEqual({
-      mgtNo: '65949',
-      noticeNo: '서산시 해미면 공고 제2026-35호',
-      title: '2026년 해미면 공중화장실 관리인 추가 채용 공고',
-      department: '해미면',
+      mgtNo: '65939',
+      noticeNo: '서산시 고시 제2026-433호',
+      title: '제5호 어린이공원 조성계획 결정(경미한변경) 및 지형도면 고시',
+      department: '산림공원과',
       registeredAt: '2026-11-04',
-      url: detailUrl('65949'),
+      url: detailUrl('65939'),
     });
-    expect(rows.map(r => r.mgtNo)).toEqual(['65949', '65937', '65926', '65879', '65870', '65798', '65829', '65827', '65790', '65782']);
+    expect(rows[1]).toEqual({
+      mgtNo: '65950',
+      noticeNo: '서산시 공고 제2026-2646호',
+      title: '서산시 시립합창단 단원 모집 공고',
+      department: '문화예술과',
+      registeredAt: '2026-11-04',
+      url: detailUrl('65950'),
+    });
+    expect(rows.map(r => r.mgtNo)).toEqual(['65939', '65950', '65945', '65952', '65954', '65949', '65955', '65941', '65903', '65937']);
     expect(rows.map(r => r.registeredAt)).toEqual([
       '2026-11-04',
+      '2026-11-04',
+      '2026-11-04',
+      '2026-11-04',
+      '2026-11-04',
+      '2026-11-04',
+      '2026-11-04',
       '2026-11-03',
-      '2026-11-02',
-      '2026-10-29',
-      '2026-10-28',
-      '2026-10-26',
-      '2026-10-23',
-      '2026-10-23',
-      '2026-10-22',
-      '2026-10-21',
+      '2026-11-03',
+      '2026-11-03',
     ]);
   });
 
   it('2페이지도 10행이고 등록일이 이어서 내려간다', () => {
     const rows = parseSeosanNoticeList(fixture('list-2026-11-04-p2.html'));
     expect(rows).toHaveLength(10);
-    expect(rows[0]).toMatchObject({ mgtNo: '65764', title: '2026년 서산시 보건소 시니어 의사 채용 재공고', registeredAt: '2026-10-20' });
-    expect(rows[9]).toMatchObject({ mgtNo: '65643', registeredAt: '2026-10-06' });
+    expect(rows[0]).toMatchObject({ mgtNo: '65930', title: '지방세 납세고지서 반송분 공시송달 공고', registeredAt: '2026-11-03' });
+    expect(rows[9]).toMatchObject({ mgtNo: '65938', registeredAt: '2026-11-03' });
   });
 
   it('시립합창단 검색 결과: 단원 모집 공고 행', () => {
@@ -102,6 +112,27 @@ describe('parseSeosanNoticeDetail', () => {
     });
     expect(detail.attachments.map(a => a.ext)).toEqual(['hwp', 'pdf', 'pdf', 'pdf', 'jpg', 'jpg', 'jpg']);
     expect(detail.attachments[4].name).toBe('2차 지정곡 악보(베이스).jpg');
+  });
+});
+
+describe('parseSeosanNoticeDetail — 2026-11-04 단원 모집 공고 (65950)', () => {
+  const detail = parseSeosanNoticeDetail(fixture('detail-65950.html'));
+
+  it('제목·고시공고번호·등록일·담당부서·본문', () => {
+    expect(detail.title).toBe('서산시 시립합창단 단원 모집 공고');
+    expect(detail.noticeNo).toBe('서산시 공고 제2026-2646호');
+    expect(detail.registeredAt).toBe('2026-11-04');
+    expect(detail.department).toBe('문화예술과');
+    expect(detail.bodyText.startsWith('서산시 시립합창단 서산시 시립합창단 신규 단원 모집 계획을 다음과 같이 공고합니다.')).toBe(true);
+    expect(detail.bodyText.endsWith('※ 기타 자세한 사항은 붙임 공고문을 확인하시기 바랍니다.')).toBe(true);
+  });
+
+  it('첨부는 hwpx 공고문 + 악보 pdf 이고, 공고문으로 hwpx 를 고른다', () => {
+    expect(detail.attachments.map(a => [a.name, a.ext])).toEqual([
+      ['서산시 시립합창단 단원 모집 공고.hwpx', 'hwpx'],
+      ['실기 지정곡 악보.pdf', 'pdf'],
+    ]);
+    expect(pickSeosanNoticeAttachment(detail.attachments)?.name).toBe('서산시 시립합창단 단원 모집 공고.hwpx');
   });
 });
 

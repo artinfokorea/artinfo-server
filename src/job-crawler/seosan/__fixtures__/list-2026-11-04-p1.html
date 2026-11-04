@@ -44,7 +44,7 @@
 //-------------------------------------------------------------------
 	function init() {
 		var f = document.form1;
-		var ck = 'gov.mogaha.ntis.cmm.util.Page@65b2e443';
+		var ck = 'gov.mogaha.ntis.cmm.util.Page@307c6561';
 		if(ck=="null"){
 			srchList();
 		}
@@ -112,7 +112,7 @@
     </head>  
     <body id="contents" leftmargin="0" topmargin="0"> 
         <form name="form1" method="get" onsubmit="return false;"> 
-            <input type="hidden" name="pageIndex" value="" /> 
+            <input type="hidden" name="pageIndex" value="1" /> 
             <input type="hidden" name="jndinm" value="OfrNotAncmtEJB" /> 
             <input type="hidden" name="context" value="NTIS" /> 
             <input type="hidden" name="method" value="" /> 
@@ -122,7 +122,7 @@
             <!-- 시군구 페이지에 맞게 커스터마이징 된 JSP페이지 여부(Y/N) 설정 반드시 해줘야 함. --> 
             <input type="hidden" name="subCheck" value="Y" /> 
             <input type="hidden" name="ofr_pageSize" value="10" /> 
-            <input type="hidden" name="not_ancmt_se_code" value="05" /> 
+            <input type="hidden" name="not_ancmt_se_code" value="01,04,05,06" /> 
             <input type="hidden" name="title" value="고시공고" /> 
             <input type="hidden" name="cha_dep_code_nm" value="" /> 
             <input type="hidden" name="initValue" value="Y" /> 
@@ -148,7 +148,7 @@
                 <div class="bbs_left bbs_count"> 
                     <span>
                         총 게시물 
-                        <strong>1143</strong>
+                        <strong>35143</strong>
                          개
                     </span> 
                     <span class="division_line">
@@ -182,7 +182,67 @@
                 </thead> 
                 <tbody> 
                     <tr> 
-                        <td class="first num text_right" onclick="javaScript:searchDetail('65949')">1143</td> 
+                        <td class="first num text_right" onclick="javaScript:searchDetail('65939')">35143</td> 
+                        <td>
+                            <a href="#n" onclick="javaScript:searchDetail('65939')">서산시 고시 제2026-433호</a>
+                        </td> 
+                        <td class="text_left">
+                            <a href="#n" onclick="javaScript:searchDetail('65939')">제5호 어린이공원 조성계획 결정(경미한변경) 및 지형도면 고시</a>
+                        </td> 
+                        <td onclick="javaScript:searchDetail('65939')">산림공원과</td> 
+                        <td onclick="javaScript:searchDetail('65939')">2026-11-04</td> 
+                        <td class="last" onclick="javaScript:searchDetail('65939')">39</td> 
+                    </tr> 
+                    <tr> 
+                        <td class="first num text_right" onclick="javaScript:searchDetail('65950')">35142</td> 
+                        <td>
+                            <a href="#n" onclick="javaScript:searchDetail('65950')">서산시 공고 제2026-2646호</a>
+                        </td> 
+                        <td class="text_left">
+                            <a href="#n" onclick="javaScript:searchDetail('65950')">서산시 시립합창단 단원 모집 공고</a>
+                        </td> 
+                        <td onclick="javaScript:searchDetail('65950')">문화예술과</td> 
+                        <td onclick="javaScript:searchDetail('65950')">2026-11-04</td> 
+                        <td class="last" onclick="javaScript:searchDetail('65950')">60</td> 
+                    </tr> 
+                    <tr> 
+                        <td class="first num text_right" onclick="javaScript:searchDetail('65945')">35141</td> 
+                        <td>
+                            <a href="#n" onclick="javaScript:searchDetail('65945')">서산시 공고 제2026-2642호</a>
+                        </td> 
+                        <td class="text_left">
+                            <a href="#n" onclick="javaScript:searchDetail('65945')">2026년 수산식품 포장재 지원 사업(2차) 사업대상자 모집 공고</a>
+                        </td> 
+                        <td onclick="javaScript:searchDetail('65945')">해양수산과</td> 
+                        <td onclick="javaScript:searchDetail('65945')">2026-11-04</td> 
+                        <td class="last" onclick="javaScript:searchDetail('65945')">16</td> 
+                    </tr> 
+                    <tr> 
+                        <td class="first num text_right" onclick="javaScript:searchDetail('65952')">35140</td> 
+                        <td>
+                            <a href="#n" onclick="javaScript:searchDetail('65952')">서산시 농업기술센터 공고 제2026-77호</a>
+                        </td> 
+                        <td class="text_left">
+                            <a href="#n" onclick="javaScript:searchDetail('65952')">가축(가금) 등에 대한 일시 이동중지 명령</a>
+                        </td> 
+                        <td onclick="javaScript:searchDetail('65952')">축산과</td> 
+                        <td onclick="javaScript:searchDetail('65952')">2026-11-04</td> 
+                        <td class="last" onclick="javaScript:searchDetail('65952')">9</td> 
+                    </tr> 
+                    <tr> 
+                        <td class="first num text_right" onclick="javaScript:searchDetail('65954')">35139</td> 
+                        <td>
+                            <a href="#n" onclick="javaScript:searchDetail('65954')">서산시 해미면 공고 제2026-36호</a>
+                        </td> 
+                        <td class="text_left">
+                            <a href="#n" onclick="javaScript:searchDetail('65954')">2026년도 해미면 주민총회 개최 결과 공고</a>
+                        </td> 
+                        <td onclick="javaScript:searchDetail('65954')">해미면</td> 
+                        <td onclick="javaScript:searchDetail('65954')">2026-11-04</td> 
+                        <td class="last" onclick="javaScript:searchDetail('65954')">11</td> 
+                    </tr> 
+                    <tr> 
+                        <td class="first num text_right" onclick="javaScript:searchDetail('65949')">35138</td> 
                         <td>
                             <a href="#n" onclick="javaScript:searchDetail('65949')">서산시 해미면 공고 제2026-35호</a>
                         </td> 
@@ -194,7 +254,43 @@
                         <td class="last" onclick="javaScript:searchDetail('65949')">25</td> 
                     </tr> 
                     <tr> 
-                        <td class="first num text_right" onclick="javaScript:searchDetail('65937')">1142</td> 
+                        <td class="first num text_right" onclick="javaScript:searchDetail('65955')">35137</td> 
+                        <td>
+                            <a href="#n" onclick="javaScript:searchDetail('65955')">서산시 음암면 공고 제2026-31호</a>
+                        </td> 
+                        <td class="text_left">
+                            <a href="#n" onclick="javaScript:searchDetail('65955')">주민등록 무단전출 직권조치 결과 공고</a>
+                        </td> 
+                        <td onclick="javaScript:searchDetail('65955')">음암면</td> 
+                        <td onclick="javaScript:searchDetail('65955')">2026-11-04</td> 
+                        <td class="last" onclick="javaScript:searchDetail('65955')">8</td> 
+                    </tr> 
+                    <tr> 
+                        <td class="first num text_right" onclick="javaScript:searchDetail('65941')">35136</td> 
+                        <td>
+                            <a href="#n" onclick="javaScript:searchDetail('65941')">서산시 고시 제2026-434호</a>
+                        </td> 
+                        <td class="text_left">
+                            <a href="#n" onclick="javaScript:searchDetail('65941')">결혼중개업체 현황(2026. 10. 31.)</a>
+                        </td> 
+                        <td onclick="javaScript:searchDetail('65941')">가족지원과</td> 
+                        <td onclick="javaScript:searchDetail('65941')">2026-11-03</td> 
+                        <td class="last" onclick="javaScript:searchDetail('65941')">26</td> 
+                    </tr> 
+                    <tr> 
+                        <td class="first num text_right" onclick="javaScript:searchDetail('65903')">35135</td> 
+                        <td>
+                            <a href="#n" onclick="javaScript:searchDetail('65903')">서산시 고시 제2026-429호</a>
+                        </td> 
+                        <td class="text_left">
+                            <a href="#n" onclick="javaScript:searchDetail('65903')">산성천 정비사업(2구간)시행(변경)계획 공고문</a>
+                        </td> 
+                        <td onclick="javaScript:searchDetail('65903')">건설과</td> 
+                        <td onclick="javaScript:searchDetail('65903')">2026-11-03</td> 
+                        <td class="last" onclick="javaScript:searchDetail('65903')">34</td> 
+                    </tr> 
+                    <tr> 
+                        <td class="first num text_right" onclick="javaScript:searchDetail('65937')">35134</td> 
                         <td>
                             <a href="#n" onclick="javaScript:searchDetail('65937')">서산시 공고 제2026-2638호</a>
                         </td> 
@@ -203,103 +299,7 @@
                         </td> 
                         <td onclick="javaScript:searchDetail('65937')">자치행정과</td> 
                         <td onclick="javaScript:searchDetail('65937')">2026-11-03</td> 
-                        <td class="last" onclick="javaScript:searchDetail('65937')">216</td> 
-                    </tr> 
-                    <tr> 
-                        <td class="first num text_right" onclick="javaScript:searchDetail('65926')">1141</td> 
-                        <td>
-                            <a href="#n" onclick="javaScript:searchDetail('65926')">서산시 공고 제2026-2632호</a>
-                        </td> 
-                        <td class="text_left">
-                            <a href="#n" onclick="javaScript:searchDetail('65926')">2027년 기간제근로자(아동복지교사) 채용 공고</a>
-                        </td> 
-                        <td onclick="javaScript:searchDetail('65926')">가족지원과</td> 
-                        <td onclick="javaScript:searchDetail('65926')">2026-11-02</td> 
-                        <td class="last" onclick="javaScript:searchDetail('65926')">153</td> 
-                    </tr> 
-                    <tr> 
-                        <td class="first num text_right" onclick="javaScript:searchDetail('65879')">1140</td> 
-                        <td>
-                            <a href="#n" onclick="javaScript:searchDetail('65879')">서산시 공고 제2026-2600호</a>
-                        </td> 
-                        <td class="text_left">
-                            <a href="#n" onclick="javaScript:searchDetail('65879')">2026년도 제3회 서산시 지방임기제공무원 서류전형 합격자 및 면접시험 ...</a>
-                        </td> 
-                        <td onclick="javaScript:searchDetail('65879')">자치행정과</td> 
-                        <td onclick="javaScript:searchDetail('65879')">2026-10-29</td> 
-                        <td class="last" onclick="javaScript:searchDetail('65879')">319</td> 
-                    </tr> 
-                    <tr> 
-                        <td class="first num text_right" onclick="javaScript:searchDetail('65870')">1139</td> 
-                        <td>
-                            <a href="#n" onclick="javaScript:searchDetail('65870')">서산시 공고 제2026-2592호</a>
-                        </td> 
-                        <td class="text_left">
-                            <a href="#n" onclick="javaScript:searchDetail('65870')">2026년 정신보건위생과 기간제근로자(동료지원인) 채용 공고</a>
-                        </td> 
-                        <td onclick="javaScript:searchDetail('65870')">정신보건위생과</td> 
-                        <td onclick="javaScript:searchDetail('65870')">2026-10-28</td> 
-                        <td class="last" onclick="javaScript:searchDetail('65870')">242</td> 
-                    </tr> 
-                    <tr> 
-                        <td class="first num text_right" onclick="javaScript:searchDetail('65798')">1138</td> 
-                        <td>
-                            <a href="#n" onclick="javaScript:searchDetail('65798')">서산시 공고 제2026-2543호</a>
-                        </td> 
-                        <td class="text_left">
-                            <a href="#n" onclick="javaScript:searchDetail('65798')">2026년 제2회 서산시 공무직근로자 채용시험 공고</a>
-                        </td> 
-                        <td onclick="javaScript:searchDetail('65798')">자치행정과</td> 
-                        <td onclick="javaScript:searchDetail('65798')">2026-10-26</td> 
-                        <td class="last" onclick="javaScript:searchDetail('65798')">949</td> 
-                    </tr> 
-                    <tr> 
-                        <td class="first num text_right" onclick="javaScript:searchDetail('65829')">1137</td> 
-                        <td>
-                            <a href="#n" onclick="javaScript:searchDetail('65829')">서산시 공고 제2026-2568호</a>
-                        </td> 
-                        <td class="text_left">
-                            <a href="#n" onclick="javaScript:searchDetail('65829')">2026년 계량기 정기검사 일용직근로자 채용 최종합격자 공고</a>
-                        </td> 
-                        <td onclick="javaScript:searchDetail('65829')">일자리경제과</td> 
-                        <td onclick="javaScript:searchDetail('65829')">2026-10-23</td> 
-                        <td class="last" onclick="javaScript:searchDetail('65829')">134</td> 
-                    </tr> 
-                    <tr> 
-                        <td class="first num text_right" onclick="javaScript:searchDetail('65827')">1136</td> 
-                        <td>
-                            <a href="#n" onclick="javaScript:searchDetail('65827')">서산시 공고 제2026-2566호</a>
-                        </td> 
-                        <td class="text_left">
-                            <a href="#n" onclick="javaScript:searchDetail('65827')">2026년 서산시 보건소 기간제근로자(육아휴직 대체인력) 채용 변경 공고</a>
-                        </td> 
-                        <td onclick="javaScript:searchDetail('65827')">보건정책과</td> 
-                        <td onclick="javaScript:searchDetail('65827')">2026-10-23</td> 
-                        <td class="last" onclick="javaScript:searchDetail('65827')">350</td> 
-                    </tr> 
-                    <tr> 
-                        <td class="first num text_right" onclick="javaScript:searchDetail('65790')">1135</td> 
-                        <td>
-                            <a href="#n" onclick="javaScript:searchDetail('65790')">서산시 농업기술센터 기술보급과 공고 제2026-19호</a>
-                        </td> 
-                        <td class="text_left">
-                            <a href="#n" onclick="javaScript:searchDetail('65790')">2026년 농업기술센터 기술보급과(농업환경분석팀) 기간제근로자 채용 최종...</a>
-                        </td> 
-                        <td onclick="javaScript:searchDetail('65790')">기술보급과</td> 
-                        <td onclick="javaScript:searchDetail('65790')">2026-10-22</td> 
-                        <td class="last" onclick="javaScript:searchDetail('65790')">230</td> 
-                    </tr> 
-                    <tr> 
-                        <td class="first num text_right" onclick="javaScript:searchDetail('65782')">1134</td> 
-                        <td>
-                            <a href="#n" onclick="javaScript:searchDetail('65782')">서산시 해미면 공고 제2026-34호</a>
-                        </td> 
-                        <td class="text_left">
-                            <a href="#n" onclick="javaScript:searchDetail('65782')">2026년 해미면 가을철 산불기동진화대 추가 모집 공고</a>
-                        </td> 
-                        <td onclick="javaScript:searchDetail('65782')">해미면</td> 
-                        <td onclick="javaScript:searchDetail('65782')">2026-10-21</td> 
-                        <td class="last" onclick="javaScript:searchDetail('65782')">110</td> 
+                        <td class="last" onclick="javaScript:searchDetail('65937')">218</td> 
                     </tr> 
                 </tbody> 
             </table> 
@@ -390,7 +390,6 @@
                     </tr> 
                 </tbody>
             </table> 
-            <input type="hidden" name="yyyy" value="2024" />
         </form>   
     </body>
 </html><script type="text/javascript">function fn_preview(file_url, fileNm) {var apiKey = 'DQALY7UK0QUYXXLMV27KGQ';var cc = 'ssg';window.open('https://viewstory.net/previewAjax.do?apikey=' + apiKey + '&cc=' + cc + '&url=' + encodeURIComponent(file_url) + '&fileName=' + encodeURIComponent(fileNm), "a", "width=1200, height=1000, left=100, top=50");}function fn_previewDownload(user_file_nm, sys_file_nm, file_path) {var fileUrl = 'http://eminwon.seosan.go.kr/emwp/jsp/ofr/FileDown.jsp?user_file_nm=' + user_file_nm + '&sys_file_nm=' + sys_file_nm + '&file_path=' + file_path;fn_preview(fileUrl, user_file_nm);}</script>
