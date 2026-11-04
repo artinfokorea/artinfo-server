@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { IOngiNotificationRepository, ONGI_NOTIFICATION_REPOSITORY } from '@/ongi/notification/domain/repository/ongi-notification.repository.interface';
 import { notificationRetentionCutoff } from '@/ongi/notification/domain/service/ongi-notification';
+import { SCHEDULER_LOCK_TTL_MS, SchedulerLockService } from '@/common/scheduler/scheduler-lock.service';
 
 /** 30일 지난 알림을 매일 새벽에 지운다 — 목록 조회는 어차피 30일 안쪽만 보므로 테이블 크기만 관리 */
 @Injectable()
@@ -11,11 +12,17 @@ export class OngiNotificationCleanupService {
   constructor(
     @Inject(ONGI_NOTIFICATION_REPOSITORY)
     private readonly notificationRepository: IOngiNotificationRepository,
+
+    private readonly schedulerLock: SchedulerLockService,
   ) {}
 
   // name 필수 — 없으면 @nestjs/schedule 이 crypto.randomUUID() 를 불러 Node 18 런타임에서 부팅이 죽는다
   @Cron(CronExpression.EVERY_DAY_AT_4AM, { name: 'ongi-notification-cleanup' })
   async cleanup(): Promise<void> {
+    await this.schedulerLock.runExclusive('ongi-notification-cleanup', SCHEDULER_LOCK_TTL_MS.DAILY, () => this.cleanupOnce());
+  }
+
+  private async cleanupOnce(): Promise<void> {
     try {
       const deleted = await this.notificationRepository.deleteOlderThan(notificationRetentionCutoff(new Date()));
       if (deleted > 0) this.logger.log(`ongi notifications cleanup: ${deleted} deleted`);

@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { TovRepository } from '@/tov/repository/tov.repository';
 import { ExamGradingService } from '@/tov/service/exam-grading.service';
+import { SCHEDULER_LOCK_TTL_MS, SchedulerLockService } from '@/common/scheduler/scheduler-lock.service';
 
 const EXAM_EXPIRED_MINUTES = 20;
 
@@ -12,10 +13,15 @@ export class ExamAutoGradingScheduler {
   constructor(
     private readonly tovRepository: TovRepository,
     private readonly examGradingService: ExamGradingService,
+    private readonly schedulerLock: SchedulerLockService,
   ) {}
 
   @Cron('* * * * *', { name: 'examAutoGrading', timeZone: 'Asia/Seoul' })
   async gradeExpiredExams(): Promise<void> {
+    await this.schedulerLock.runExclusive('examAutoGrading', SCHEDULER_LOCK_TTL_MS.EVERY_MINUTE, () => this.gradeExpiredExamsOnce());
+  }
+
+  private async gradeExpiredExamsOnce(): Promise<void> {
     const expiredExams = await this.tovRepository.findExpiredInProgressExams(EXAM_EXPIRED_MINUTES);
 
     this.logger.log(`## Found ${expiredExams.length} expired exams to grade`);

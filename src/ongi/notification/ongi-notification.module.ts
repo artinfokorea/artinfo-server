@@ -11,10 +11,11 @@ import {
   OngiScanMyNotificationsUseCase,
 } from '@/ongi/notification/application/usecase/ongi-notification.usecase';
 import { OngiNotificationCleanupService } from '@/ongi/notification/application/service/ongi-notification-cleanup.service';
+import { SchedulerLockModule } from '@/common/scheduler/scheduler-lock.module';
 
 /** 앱 내 알림 목록 — 푸시 모듈이 발송 시 여기 저장소에 남기고, 앱은 목록·안 본 개수·본 것 처리 API 를 쓴다 */
 @Module({
-  imports: [TypeOrmModule.forFeature([OngiNotification, OngiNotificationSeen])],
+  imports: [TypeOrmModule.forFeature([OngiNotification, OngiNotificationSeen]), SchedulerLockModule],
   controllers: [OngiNotificationController],
   providers: [
     { provide: ONGI_NOTIFICATION_REPOSITORY, useClass: OngiNotificationRepository },

@@ -1,18 +1,26 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { PerformanceService } from '@/performance/performance.service';
+import { SCHEDULER_LOCK_TTL_MS, SchedulerLockService } from '@/common/scheduler/scheduler-lock.service';
 
 @Injectable()
 export class ArtinfoScheduler {
   private readonly logger = new Logger(ArtinfoScheduler.name);
 
-  constructor(private readonly performanceService: PerformanceService) {}
+  constructor(
+    private readonly performanceService: PerformanceService,
+    private readonly schedulerLock: SchedulerLockService,
+  ) {}
 
   @Cron('0 0 3 * * *', {
     name: 'dailyScrap',
     timeZone: 'Asia/Seoul',
   })
   async handleDailyScrap() {
+    await this.schedulerLock.runExclusive('dailyScrap', SCHEDULER_LOCK_TTL_MS.DAILY, () => this.scrapOnce());
+  }
+
+  private async scrapOnce(): Promise<void> {
     const startTime = Date.now();
     this.logger.log('스케줄 시작: scrapPerformances 호출 (03:00 KST 기준)');
 

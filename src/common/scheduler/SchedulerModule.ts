@@ -8,8 +8,9 @@ import { UserRepository } from '@/user/repository/user.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PerformanceArea } from '@/performance/performance-area.entity';
 import { User } from '@/user/entity/user.entity';
+import { SchedulerLockModule } from '@/common/scheduler/scheduler-lock.module';
 @Module({
-  imports: [ScheduleModule.forRoot(), TypeOrmModule.forFeature([PerformanceArea, User])],
+  imports: [ScheduleModule.forRoot(), TypeOrmModule.forFeature([PerformanceArea, User]), SchedulerLockModule],
   providers: [ArtinfoScheduler, PerformanceService, PerformanceRepository, PerformanceAreaRepository, UserRepository],
   exports: [],
 })

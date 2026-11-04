@@ -1,17 +1,25 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { OnchurchAutoUnpublishExpiredUseCase } from '@/onchurch/church/application/usecase/onchurch-auto-unpublish-expired.usecase';
+import { SCHEDULER_LOCK_TTL_MS, SchedulerLockService } from '@/common/scheduler/scheduler-lock.service';
 
 @Injectable()
 export class OnchurchSubscriptionScheduler {
   private readonly logger = new Logger(OnchurchSubscriptionScheduler.name);
 
-  constructor(private readonly autoUnpublishUseCase: OnchurchAutoUnpublishExpiredUseCase) {}
+  constructor(
+    private readonly autoUnpublishUseCase: OnchurchAutoUnpublishExpiredUseCase,
+    private readonly schedulerLock: SchedulerLockService,
+  ) {}
 
   // 매시 정각(KST). 무료체험 대상자(결제 이력 없음 + free_trial 만료)인 published 교회 사이트만 OFF.
   // 결제 이력이 있는 교회는 결제가 만료돼도 이 배치로 자동 OFF하지 않는다.
   @Cron('0 0 * * * *', { name: 'onchurchAutoUnpublishExpired', timeZone: 'Asia/Seoul' })
   async runAutoUnpublishExpired(): Promise<void> {
+    await this.schedulerLock.runExclusive('onchurchAutoUnpublishExpired', SCHEDULER_LOCK_TTL_MS.HOURLY, () => this.runOnce());
+  }
+
+  private async runOnce(): Promise<void> {
     const startTime = Date.now();
     try {
       const result = await this.autoUnpublishUseCase.execute();
@@ -19,9 +27,7 @@ export class OnchurchSubscriptionScheduler {
       if (result.expiredCount === 0) {
         this.logger.log(`자동 OFF 스케줄: 만료 published 없음 (${ms}ms)`);
       } else {
-        this.logger.log(
-          `자동 OFF 스케줄: ${result.unpublishedCount}/${result.expiredCount}개 OFF 처리 (${ms}ms) slugs=${result.slugs.join(',')}`,
-        );
+        this.logger.log(`자동 OFF 스케줄: ${result.unpublishedCount}/${result.expiredCount}개 OFF 처리 (${ms}ms) slugs=${result.slugs.join(',')}`);
       }
     } catch (err) {
       const ms = Date.now() - startTime;
