@@ -50,6 +50,10 @@ export class OnchurchChurch extends BaseEntity {
   @Column({ type: 'varchar', name: 'naver_verification', nullable: true })
   naverVerification: string | null;
 
+  // 구글 서치콘솔 HTML 태그 인증 코드(content 값). 교회 페이지 <head> 에 google-site-verification 메타로 나간다.
+  @Column({ type: 'varchar', name: 'google_verification', nullable: true })
+  googleVerification: string | null;
+
   // 교회가 직접 보유한 도메인(대표 호스트). 예: 'www.eunseok.kr' 또는 'eunseok.kr'.
   // 값이 있으면 그 주소로 이 교회 홈페이지가 서빙되고, {slug}.everychurch.co.kr 은 이 주소로 308 리다이렉트된다.
   // 마스터만 설정하며, DB 등록만으로는 동작하지 않는다 — Vercel 프로젝트 Domains 등록 + 교회 DNS 변경이 함께 끝나야 한다.
