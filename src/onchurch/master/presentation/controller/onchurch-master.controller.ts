@@ -22,6 +22,7 @@ import {
 import { OnchurchListChurchesUseCase } from '@/onchurch/master/application/usecase/onchurch-list-churches.usecase';
 import { OnchurchUpdateChurchPaidUntilUseCase } from '@/onchurch/master/application/usecase/onchurch-update-church-paid-until.usecase';
 import { OnchurchUpdateChurchNaverVerificationUseCase } from '@/onchurch/master/application/usecase/onchurch-update-church-naver-verification.usecase';
+import { OnchurchUpdateChurchGoogleVerificationUseCase } from '@/onchurch/master/application/usecase/onchurch-update-church-google-verification.usecase';
 import { OnchurchUpdateChurchSiteTemplateUseCase } from '@/onchurch/master/application/usecase/onchurch-update-church-site-template.usecase';
 import { OnchurchUpdateChurchCustomDomainUseCase } from '@/onchurch/master/application/usecase/onchurch-update-church-custom-domain.usecase';
 import { OnchurchUpdateChurchPublishedUseCase } from '@/onchurch/master/application/usecase/onchurch-update-church-published.usecase';
@@ -30,6 +31,7 @@ import { OnchurchSearchUsersUseCase } from '@/onchurch/master/application/usecas
 import { OnchurchListChurchesRequest } from '@/onchurch/master/presentation/dto/request/onchurch-list-churches.request';
 import { OnchurchUpdateChurchPaidUntilRequest } from '@/onchurch/master/presentation/dto/request/onchurch-update-church-paid-until.request';
 import { OnchurchUpdateChurchNaverVerificationRequest } from '@/onchurch/master/presentation/dto/request/onchurch-update-church-naver-verification.request';
+import { OnchurchUpdateChurchGoogleVerificationRequest } from '@/onchurch/master/presentation/dto/request/onchurch-update-church-google-verification.request';
 import { OnchurchUpdateChurchSiteTemplateRequest } from '@/onchurch/master/presentation/dto/request/onchurch-update-church-site-template.request';
 import { OnchurchUpdateChurchCustomDomainRequest } from '@/onchurch/master/presentation/dto/request/onchurch-update-church-custom-domain.request';
 import { OnchurchUpdateChurchPublishedRequest } from '@/onchurch/master/presentation/dto/request/onchurch-update-church-published.request';
@@ -38,6 +40,7 @@ import { OnchurchSearchUsersRequest } from '@/onchurch/master/presentation/dto/r
 import { OnchurchChurchOverviewListResponse } from '@/onchurch/master/presentation/dto/response/onchurch-church-overview.response';
 import { OnchurchChurchPaidUntilResponse } from '@/onchurch/master/presentation/dto/response/onchurch-church-paid-until.response';
 import { OnchurchChurchNaverVerificationResponse } from '@/onchurch/master/presentation/dto/response/onchurch-church-naver-verification.response';
+import { OnchurchChurchGoogleVerificationResponse } from '@/onchurch/master/presentation/dto/response/onchurch-church-google-verification.response';
 import { OnchurchChurchSiteTemplateResponse } from '@/onchurch/master/presentation/dto/response/onchurch-church-site-template.response';
 import { OnchurchChurchCustomDomainResponse } from '@/onchurch/master/presentation/dto/response/onchurch-church-custom-domain.response';
 import { OnchurchChurchPublishedResponse } from '@/onchurch/master/presentation/dto/response/onchurch-church-published.response';
@@ -93,6 +96,7 @@ export class OnchurchMasterController {
     private readonly listChurchesUseCase: OnchurchListChurchesUseCase,
     private readonly updateChurchPaidUntilUseCase: OnchurchUpdateChurchPaidUntilUseCase,
     private readonly updateChurchNaverVerificationUseCase: OnchurchUpdateChurchNaverVerificationUseCase,
+    private readonly updateChurchGoogleVerificationUseCase: OnchurchUpdateChurchGoogleVerificationUseCase,
     private readonly updateChurchSiteTemplateUseCase: OnchurchUpdateChurchSiteTemplateUseCase,
     private readonly updateChurchCustomDomainUseCase: OnchurchUpdateChurchCustomDomainUseCase,
     private readonly updateChurchPublishedUseCase: OnchurchUpdateChurchPublishedUseCase,
@@ -232,6 +236,16 @@ export class OnchurchMasterController {
   ) {
     const result = await this.updateChurchNaverVerificationUseCase.execute(signature.id, id, request.naverVerification);
     return new OnchurchChurchNaverVerificationResponse(result.naverVerification);
+  }
+
+  @RestApiPut(OnchurchChurchGoogleVerificationResponse, { path: '/churches/:id/google-verification', description: '교회 구글 서치콘솔 인증 코드 변경', auth: [USER_TYPE.CLIENT] })
+  async updateChurchGoogleVerification(
+    @AuthSignature() signature: UserSignature,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() request: OnchurchUpdateChurchGoogleVerificationRequest,
+  ) {
+    const result = await this.updateChurchGoogleVerificationUseCase.execute(signature.id, id, request.googleVerification);
+    return new OnchurchChurchGoogleVerificationResponse(result.googleVerification);
   }
 
   @RestApiPut(OnchurchChurchSiteTemplateResponse, { path: '/churches/:id/site-template', description: '교회 공개 홈페이지 템플릿 변경', auth: [USER_TYPE.CLIENT] })
