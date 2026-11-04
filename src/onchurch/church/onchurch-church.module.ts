@@ -8,7 +8,11 @@ import { OnchurchChurchRepository } from '@/onchurch/church/infrastructure/repos
 import { OnchurchChurchController } from '@/onchurch/church/presentation/controller/onchurch-church.controller';
 import { OnchurchPublicChurchController } from '@/onchurch/church/presentation/controller/onchurch-public-church.controller';
 import { OnchurchChurchMemberController } from '@/onchurch/church/presentation/controller/onchurch-church-member.controller';
-import { OnchurchListChurchMembersUseCase, OnchurchRemoveChurchMemberUseCase, OnchurchChangeChurchMemberRoleUseCase } from '@/onchurch/church/application/usecase/onchurch-church-member.usecase';
+import {
+  OnchurchListChurchMembersUseCase,
+  OnchurchRemoveChurchMemberUseCase,
+  OnchurchChangeChurchMemberRoleUseCase,
+} from '@/onchurch/church/application/usecase/onchurch-church-member.usecase';
 import { OnchurchChurchManagerResolver } from '@/onchurch/church/application/service/onchurch-church-manager.resolver';
 import { OnchurchScanMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-scan-my-church.usecase';
 import { OnchurchUpsertMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-upsert-my-church.usecase';
@@ -26,9 +30,10 @@ import { OnchurchChurchRequiredService } from '@/onchurch/church/application/ser
 import { OnchurchSubscriptionScheduler } from '@/onchurch/church/scheduler/onchurch-subscription.scheduler';
 import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
 import { AwsSesService } from '@/aws/ses/aws-ses.service';
+import { SchedulerLockModule } from '@/common/scheduler/scheduler-lock.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OnchurchChurch, OnchurchPastor, OnchurchWorshipService]), OnchurchUserModule],
+  imports: [TypeOrmModule.forFeature([OnchurchChurch, OnchurchPastor, OnchurchWorshipService]), OnchurchUserModule, SchedulerLockModule],
   controllers: [OnchurchChurchController, OnchurchPublicChurchController, OnchurchChurchMemberController],
   providers: [
     { provide: ONCHURCH_CHURCH_REPOSITORY, useClass: OnchurchChurchRepository },

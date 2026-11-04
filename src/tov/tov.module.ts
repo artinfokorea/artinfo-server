@@ -17,6 +17,7 @@ import { VlWordMeaning } from '@/tov/entity/vl-word-meaning.entity';
 import { VlWordSynonym } from '@/tov/entity/vl-word-synonym.entity';
 import { VlWordAntonym } from '@/tov/entity/vl-word-antonym.entity';
 import { VlWordExampleSentence } from '@/tov/entity/vl-word-example-sentence.entity';
+import { SchedulerLockModule } from '@/common/scheduler/scheduler-lock.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { VlWordExampleSentence } from '@/tov/entity/vl-word-example-sentence.ent
       VlWordAntonym,
       VlWordExampleSentence,
     ]),
+    SchedulerLockModule,
   ],
   controllers: [TovController],
   providers: [TovService, TovRepository, ExamQuestionGenerator, ExamGradingService, ExamAutoGradingScheduler, RedisRepository],

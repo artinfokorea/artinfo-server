@@ -2,16 +2,24 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { todayInKst } from '../job-crawler.config';
 import { JobCrawlerService } from '../job-crawler.service';
+import { SCHEDULER_LOCK_TTL_MS, SchedulerLockService } from '@/common/scheduler/scheduler-lock.service';
 
 /** 매일 밤 11시(한국 시간) 그날 올라온 채용 공고를 모든 소스에서 동시에 수집한다 */
 @Injectable()
 export class JobCrawlerScheduler {
   private readonly logger = new Logger(JobCrawlerScheduler.name);
 
-  constructor(private readonly jobCrawlerService: JobCrawlerService) {}
+  constructor(
+    private readonly jobCrawlerService: JobCrawlerService,
+    private readonly schedulerLock: SchedulerLockService,
+  ) {}
 
   @Cron('0 0 23 * * *', { name: 'dailyJobCrawl', timeZone: 'Asia/Seoul' })
   async handleDailyJobCrawl(): Promise<void> {
+    await this.schedulerLock.runExclusive('dailyJobCrawl', SCHEDULER_LOCK_TTL_MS.DAILY, () => this.crawlOnce());
+  }
+
+  private async crawlOnce(): Promise<void> {
     const date = todayInKst();
     this.logger.log(`스케줄 시작: 채용 공고 크롤링 (${date}, 23:00 KST, 소스 ${this.jobCrawlerService.sourceKeys.join(', ')})`);
     try {

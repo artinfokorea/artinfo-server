@@ -3,10 +3,11 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { IOngiEventRepository, ONGI_EVENT_REPOSITORY } from '@/ongi/event/domain/repository/ongi-event.repository.interface';
 import { formatTimeKo, nextOccurrenceOnOrAfter, remindTimesFor, todayKst } from '@/ongi/event/domain/service/ongi-event-occurrence';
 import { OngiPushService } from '@/ongi/push/application/service/ongi-push.service';
+import { SCHEDULER_LOCK_TTL_MS, SchedulerLockService } from '@/common/scheduler/scheduler-lock.service';
 
 /**
  * 일정 리마인더 — 10분마다 ① 지난 반복 일정을 다음 발생일로 굴리고 ② 발송 시각이 된 리마인드를 보낸다.
- * 발송 점유는 UPDATE ... RETURNING 이라 서버 2대에서도 중복 발송되지 않는다.
+ * 발송 점유는 UPDATE ... RETURNING 이라 서버 2대에서도 중복 발송되지 않고, 틱 자체도 Redis 락으로 한 대만 돈다.
  */
 @Injectable()
 export class OngiEventReminderService {
@@ -17,11 +18,17 @@ export class OngiEventReminderService {
     private readonly eventRepository: IOngiEventRepository,
 
     private readonly pushService: OngiPushService,
+
+    private readonly schedulerLock: SchedulerLockService,
   ) {}
 
   // name 필수 — 이름이 없으면 @nestjs/schedule 이 crypto.randomUUID() 를 호출하는데 Node 18 런타임엔 전역 crypto 가 없어 부팅에서 죽는다
   @Cron(CronExpression.EVERY_10_MINUTES, { name: 'ongi-event-reminder' })
   async tick(): Promise<void> {
+    await this.schedulerLock.runExclusive('ongi-event-reminder', SCHEDULER_LOCK_TTL_MS.EVERY_10_MINUTES, () => this.tickOnce());
+  }
+
+  private async tickOnce(): Promise<void> {
     try {
       await this.rollOccurrences();
       await this.sendDueReminders();

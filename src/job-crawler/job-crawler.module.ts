@@ -18,13 +18,14 @@ import { JOB_SOURCE_CRAWLERS, JobSourceCrawler } from './source/job-source';
 import { JobSourceSupport } from './source/job-source.support';
 import { UlsanNoticeClient } from './ulsan/ulsan-notice.client';
 import { UlsanPhilharmonicJobCrawler } from './ulsan/ulsan-philharmonic-job.crawler';
+import { SchedulerLockModule } from '@/common/scheduler/scheduler-lock.module';
 
 /**
  * 외부 사이트의 채용 공고를 수집해 채용으로 등록한다. 매일 23:00 KST 스케줄 + 관리자 수동 실행 API.
  * 새 기관을 붙이려면: JobSourceCrawler 구현 → providers 에 추가 → 아래 JOB_SOURCE_CRAWLERS 목록에 넣는다.
  */
 @Module({
-  imports: [TypeOrmModule.forFeature([Job, MajorCategory, User]), JobModule, DocumentConverterModule],
+  imports: [TypeOrmModule.forFeature([Job, MajorCategory, User]), JobModule, DocumentConverterModule, SchedulerLockModule],
   controllers: [JobCrawlerController],
   providers: [
     JobCrawlerService,

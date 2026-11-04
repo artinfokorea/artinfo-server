@@ -15,9 +15,10 @@ import {
 import { OngiEventReminderService } from '@/ongi/event/application/service/ongi-event-reminder.service';
 import { OngiGroupModule } from '@/ongi/group/ongi-group.module';
 import { OngiPushModule } from '@/ongi/push/ongi-push.module';
+import { SchedulerLockModule } from '@/common/scheduler/scheduler-lock.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OngiEvent]), OngiGroupModule, OngiPushModule],
+  imports: [TypeOrmModule.forFeature([OngiEvent]), OngiGroupModule, OngiPushModule, SchedulerLockModule],
   controllers: [OngiEventController, OngiEventItemController, OngiHolidayController],
   providers: [
     { provide: ONGI_EVENT_REPOSITORY, useClass: OngiEventRepository },
