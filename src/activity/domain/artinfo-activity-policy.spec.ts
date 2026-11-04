@@ -9,6 +9,10 @@ import {
   normalizePaths,
   ARTINFO_ACTIVITY_MAX_PATHS_PER_PING,
   ARTINFO_ACTIVITY_MAX_PING_SECONDS,
+  ARTINFO_ACTIVITY_MAX_NEW_VISITORS_PER_IP,
+  ARTINFO_ACTIVITY_NEW_VISITOR_WINDOW_SECONDS,
+  clientIp,
+  newVisitorLimitKey,
 } from '@/activity/domain/artinfo-activity-policy';
 
 describe('normalizeActiveSeconds', () => {
@@ -124,5 +128,38 @@ describe('normalizePaths', () => {
   it('한 번에 100개까지만 받는다', () => {
     expect(ARTINFO_ACTIVITY_MAX_PATHS_PER_PING).toBe(100);
     expect(normalizePaths(Array.from({ length: 150 }, (_, i) => `/p/${i}`))).toHaveLength(100);
+  });
+});
+
+describe('clientIp', () => {
+  it('X-Forwarded-For 의 첫 주소(실제 사용자)를 쓴다', () => {
+    expect(clientIp('203.0.113.7, 10.0.0.2')).toBe('203.0.113.7');
+    expect(clientIp(' 203.0.113.7 ')).toBe('203.0.113.7');
+    expect(clientIp(['198.51.100.9', '10.0.0.2'])).toBe('198.51.100.9');
+  });
+
+  it('헤더가 없거나 비어 있으면 null — 프록시가 안 넘겨주면 상한을 걸지 않는다', () => {
+    expect(clientIp(undefined)).toBeNull();
+    expect(clientIp('')).toBeNull();
+    expect(clientIp(' , 10.0.0.2')).toBeNull();
+    expect(clientIp([])).toBeNull();
+  });
+
+  it('비정상적으로 긴 값은 64자까지만', () => {
+    expect(clientIp('a'.repeat(100))).toBe('a'.repeat(64));
+  });
+});
+
+describe('newVisitorLimitKey', () => {
+  it('IP 와 한 시간 단위 버킷으로 키를 만든다', () => {
+    const t = Date.UTC(2026, 10, 4, 9, 31, 0); // 09:31 UTC
+    expect(newVisitorLimitKey('203.0.113.7', t)).toBe(`ACTIVITY:NEWVIS:203.0.113.7:${Math.floor(t / 3_600_000)}`);
+    expect(newVisitorLimitKey('203.0.113.7', t + 28 * 60_000)).toBe(newVisitorLimitKey('203.0.113.7', t));
+    expect(newVisitorLimitKey('203.0.113.7', t + 29 * 60_000)).not.toBe(newVisitorLimitKey('203.0.113.7', t));
+  });
+
+  it('한 IP 가 한 시간에 만들 수 있는 새 방문자는 10명', () => {
+    expect(ARTINFO_ACTIVITY_MAX_NEW_VISITORS_PER_IP).toBe(10);
+    expect(ARTINFO_ACTIVITY_NEW_VISITOR_WINDOW_SECONDS).toBe(3600);
   });
 });
