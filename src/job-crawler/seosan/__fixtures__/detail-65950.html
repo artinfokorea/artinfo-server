@@ -1,0 +1,158 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html>
+    <head> 
+        <title>고시공고 - 서산시청</title> 
+        <link rel="stylesheet" href="//eminwon.seosan.go.kr/emwp/css/ofr/PlnOfrStyle.css" type="text/css" /> 
+        <script type="text/javascript" src="//eminwon.seosan.go.kr/emwp/js/cmm/jsp/calendar.js"></script> 
+        <script type="text/javascript" src="//eminwon.seosan.go.kr/emwp/js/cmm/jsp/common.js"></script> 
+        <link rel="stylesheet" href="https://www.seosan.go.kr/common/css/default.css" /> 
+        <link rel="stylesheet" href="https://www.seosan.go.kr/common/css/font.css" /> 
+        <link rel="stylesheet" href="https://www.seosan.go.kr/common/css/common.css" /> 
+        <link rel="stylesheet" href="https://www.seosan.go.kr/common/css/program.css" /> 
+        <link rel="stylesheet" href="https://www.seosan.go.kr/common/css/common_template.css" /> 
+        <link rel="stylesheet" href="https://www.seosan.go.kr/site/www/css/template.css" /> 
+        <!--[if lt IE 9]><script src="https://www.seosan.go.kr/common/js/html5.js"></script><![endif]--> 
+        <script src="https://www.seosan.go.kr/common/js/jquery-1.11.1.min.js"></script> 
+        <script src="https://www.seosan.go.kr/common/js/default.js"></script> 
+        <script src="https://www.seosan.go.kr/common/js/board.js"></script> 
+        <script src="https://www.seosan.go.kr/common/js/calendar.js"></script> 
+        <script language="JavaScript">
+//-------------------------------------------------------------------
+// 설명   : 고시공고 목록 조회
+//-------------------------------------------------------------------
+	function goPage(){
+		var f = document.form1;
+
+		f.target = "_self";
+		f.action = "/common/program/eminwonView.jsp";
+		f.method.value   = 'selectListOfrNotAncmt'; //Action
+		f.methodnm.value = 'selectListOfrNotAncmtHomepage';
+		f.submit();
+	}
+//-------------------------------------------------------------------
+// 설명   : 고시공고 첨부파일 다운로드
+//-------------------------------------------------------------------
+	function goDownLoad(de_user_file_nm, de_sys_file_nm, de_file_path){
+		var enc_de_user_file_nm = encodeURI(de_user_file_nm);
+		var enc_de_sys_file_nm = encodeURI(de_sys_file_nm);
+		var enc_de_file_path = encodeURI(de_file_path);
+
+		location.href="//eminwon.seosan.go.kr/emwp/jsp/ofr/FileDown.jsp?user_file_nm="+enc_de_user_file_nm+"&sys_file_nm="+enc_de_sys_file_nm+"&file_path="+enc_de_file_path;
+	}
+
+
+        </script> 
+    </head> 
+    <body id="contents" leftmargin="0" topmargin="0"> 
+        <form name="form1" method="get"> 
+            <input type="hidden" name="jndinm" value="OfrNotAncmtEJB" /> 
+            <input type="hidden" name="context" value="NTIS" /> 
+            <input type="hidden" name="method" value="selectOfrNotAncmt" /> 
+            <input type="hidden" name="methodnm" value="selectOfrNotAncmtRegst" /> 
+            <input type="hidden" name="not_ancmt_sj" value="" /> 
+            <input type="hidden" name="pageIndex" value="" /> 
+            <input type="hidden" name="ofr_pageSize" value="10" /> 
+            <input type="hidden" name="homepage_pbs_yn" value="Y" /> 
+            <!-- 시군구 페이지에 맞게 커스터마이징 된 JSP페이지 여부(Y/N) 설정 반드시 해줘야 함. --> 
+            <input type="hidden" name="subCheck" value="Y" /> 
+            <input type="hidden" name="not_ancmt_se_code" value="05" /> 
+            <input type="hidden" name="cha_dep_code_nm" value="" /> 
+            <input type="hidden" name="countYn" value="Y" /> 
+            <input type="hidden" name="list_gubun" value="" /> 
+            <input type="hidden" name="mobile_code" value="00" />  
+            <table class="bbs_default view"> 
+                <caption>
+                    고시공고 상세보기 - 고시공고구분, 게재제호, 고시공고번호, 등록일, 제목, 담당부서, 내용, 첨부파일의 정보 제공
+                </caption> 
+                <colgroup> 
+                    <col width="20%" /> 
+                    <col width="80%" /> 
+                </colgroup> 
+                <tbody> 
+                    <tr class="subject"> 
+                        <th scope="row">제목</th> 
+                        <td> 
+                            <span class="subject_text">서산시 시립합창단 단원 모집 공고</span> 
+                        </td> 
+                    </tr> 
+                    <tr> 
+                        <th scope="row">고시공고구분</th> 
+                        <td>공고(일반공고)</td> 
+                    </tr> 
+                    <tr> 
+                        <th scope="row">게재제호</th> 
+                        <td></td> 
+                    </tr> 
+                    <tr> 
+                        <th scope="row">고시공고번호</th> 
+                        <td>서산시 공고 제2026-2646호</td> 
+                    </tr> 
+                    <tr> 
+                        <th scope="row">등록일</th> 
+                        <td>2026-11-04</td> 
+                    </tr> 
+                    <tr> 
+                        <th scope="row">담당부서</th> 
+                        <td>문화예술과</td> 
+                    </tr> 
+                    <tr> 
+                        <td colspan="2" title="내용" class="bbs_content">
+                            서산시&nbsp;시립합창단&nbsp;서산시&nbsp;시립합창단&nbsp;신규&nbsp;단원&nbsp;모집&nbsp;계획을&nbsp;다음과&nbsp;같이&nbsp;공고합니다.
+                            <br />
+                            <br />
+                            1.&nbsp;모집부문&nbsp;:&nbsp;단원(소프라노,&nbsp;알토,&nbsp;테너,&nbsp;베이스)
+                            <br />
+                            2.&nbsp;인원:&nbsp;4명(부문별&nbsp;각&nbsp;1명)
+                            <br />
+                            3.&nbsp;접수기간:&nbsp;2026.&nbsp;11.&nbsp;16.(월)&nbsp;~&nbsp;11.&nbsp;23.(월)&nbsp;18:00
+                            <br />
+                            4.&nbsp;접수방법:&nbsp;이메일&nbsp;접수(kimjuok0429@korea.kr)
+                            <br />
+                            <br />
+                            ※&nbsp;기타&nbsp;자세한&nbsp;사항은&nbsp;붙임&nbsp;공고문을&nbsp;확인하시기&nbsp;바랍니다.
+                        </td> 
+                    </tr> 
+                    <tr> 
+                        <th scope="row">
+                            <span>첨부파일</span>
+                        </th> 
+                        <td> 
+                            <a href="javascript:goDownLoad('서산시 시립합창단 단원 모집 공고.hwpx','서산시 시립합창단 단원 모집 공고_ofr_ofr_EsitqjKyoIdK0wHK_20261103172943507_1.hwpx','/ntishome/file/upload/ofr/ofr/20261103')">서산시 시립합창단 단원 모집 공고.hwpx</a><a href="#" onclick="fn_previewDownload('서산시 시립합창단 단원 모집 공고.hwpx','서산시 시립합창단 단원 모집 공고_ofr_ofr_EsitqjKyoIdK0wHK_20261103172943507_1.hwpx','/ntishome/file/upload/ofr/ofr/20261103');return false;" class="margin_l_10" title="새창으로 이동"><img src="/common/images/board/btn_view.jpg" alt="바로보기" style="vertical-align:middle;"></a>
+                            <br /> 
+                            <a href="javascript:goDownLoad('실기 지정곡 악보.pdf','실기 지정곡 악보_ofr_ofr_EsitqjKyoIdK0wHK_20261103172943507_2.pdf','/ntishome/file/upload/ofr/ofr/20261103')">실기 지정곡 악보.pdf</a><a href="#" onclick="fn_previewDownload('실기 지정곡 악보.pdf','실기 지정곡 악보_ofr_ofr_EsitqjKyoIdK0wHK_20261103172943507_2.pdf','/ntishome/file/upload/ofr/ofr/20261103');return false;" class="margin_l_10" title="새창으로 이동"><img src="/common/images/board/btn_view.jpg" alt="바로보기" style="vertical-align:middle;"></a>
+                            <br /> 
+                        </td> 
+                    </tr> 
+                </tbody> 
+            </table> 
+            <div class="bbs_btn_wrap clearfix"> 
+                <div class="bbs_right"> 
+                    <a href="#n" class="bbs_btn list" onclick="javascript:goPage()">
+                        <i class="icon"></i>
+                        <span>목록</span>
+                    </a> 
+                </div> 
+            </div> 
+        </form>  
+    </body>
+</html><script type="text/javascript">function fn_preview(file_url, fileNm) {var apiKey = 'DQALY7UK0QUYXXLMV27KGQ';var cc = 'ssg';window.open('https://viewstory.net/previewAjax.do?apikey=' + apiKey + '&cc=' + cc + '&url=' + encodeURIComponent(file_url) + '&fileName=' + encodeURIComponent(fileNm), "a", "width=1200, height=1000, left=100, top=50");}function fn_previewDownload(user_file_nm, sys_file_nm, file_path) {var fileUrl = 'http://eminwon.seosan.go.kr/emwp/jsp/ofr/FileDown.jsp?user_file_nm=' + user_file_nm + '&sys_file_nm=' + sys_file_nm + '&file_path=' + file_path;fn_preview(fileUrl, user_file_nm);}</script>

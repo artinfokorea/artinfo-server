@@ -10,7 +10,8 @@ import { JobSourceSupport, NoticeRegistration } from '../source/job-source.suppo
  *    → 상세(60500) → 공고문 hwp 다운로드 → 등록 요청 (단체명 서산시립합창단 · 주소 '충남 서산시 부춘공원2로 11' · 상세 '서산시립합창단' · 로고 업로드 URL · 본문)
  *    - 1페이지에 그날보다 오래된 행이 있으므로 2페이지는 읽지 않는다
  * 2) 같은 URL 이 이미 있으면 skipped (다운로드·등록 안 함)
- * 3) 실제 2026-11-04 목록(해미면 공중화장실 관리인 채용 1건)은 scanned 1 · matched 0 — 시립합창단이 아니면 대상이 아니다
+ * 3) 실제 2026-11-04 목록(공고/고시 + 채용공고 1페이지, 그날 7건)에서 일반 공고로 올라온 '서산시 시립합창단 단원 모집 공고'(65950) 1건만 대상
+ *    → 상세(65950) 의 hwpx 공고문을 내려받아 등록한다. 1페이지에 전날 행이 있으므로 2페이지는 읽지 않는다
  * 4) 다운로드 실패는 failed 로 모이고 나머지 흐름은 계속된다
  * 5) 검색 결과 9행이 모두 같은 날이면 합격자 공고 5건은 빼고 모집 4건(단원·예술감독·신규단원·반주자)만 대상이고, 다음 페이지가 비면 멈춘다
  * 6) 대표 이미지는 환경 변수 URL 이 있으면 그것, 없으면 JobSourceSupport.logoUrl 이 올린 URL
@@ -29,7 +30,7 @@ function build(opts: { existing?: number; downloadError?: string; pages?: Record
     },
     fetchDetail: async mgtNo => {
       calls.detail.push(mgtNo);
-      return fixture('detail-60500.html');
+      return fixture(mgtNo === '65950' ? 'detail-65950.html' : 'detail-60500.html');
     },
     downloadAttachment: async att => {
       calls.download.push(att.name);
@@ -95,13 +96,22 @@ describe('SeosanChoirJobCrawler', () => {
     expect(calls.registrations).toEqual([]);
   });
 
-  it('실제 2026-11-04 목록의 해미면 채용 공고는 시립합창단이 아니라 대상이 아니다', async () => {
+  it('실제 2026-11-04 목록: 일반 공고로 올라온 시립합창단 단원 모집 공고 1건을 hwpx 로 등록한다', async () => {
     const { crawler, calls } = build({ pages: { 1: todayPage } });
     const summary = await crawler.crawl('2026-11-04');
-    expect(summary.scanned).toBe(1);
-    expect(summary.matched).toBe(0);
+    expect(summary.scanned).toBe(7);
+    expect(summary.matched).toBe(1);
     expect(calls.list).toEqual([1]);
-    expect(calls.detail).toEqual([]);
+    expect(calls.detail).toEqual(['65950']);
+    expect(calls.download).toEqual(['서산시 시립합창단 단원 모집 공고.hwpx']);
+    expect(summary.created).toHaveLength(1);
+    expect(calls.registrations[0]).toMatchObject({
+      title: '서산시 시립합창단 단원 모집 공고',
+      url: NOTICE_URL.replace('60500', '65950'),
+      companyName: '서산시립합창단',
+      date: '2026-11-04',
+    });
+    expect(calls.registrations[0].bodyText).toContain('신규 단원 모집 계획을 다음과 같이 공고합니다.');
   });
 
   it('다른 날짜면 아무것도 하지 않는다', async () => {

@@ -66,7 +66,7 @@ export const jobCrawlerConfig = {
   },
   seosan: {
     /**
-     * 서산시 채용공고 (https://www.seosan.go.kr/www/contents.do?key=5309). 그 페이지는 eminwon 목록을 iframe 으로 끼우므로
+     * 서산시 공고/고시(contents.do?key=1258) + 채용공고(key=5309). 그 페이지들은 eminwon 목록을 iframe 으로 끼우므로
      * iframe 주소를 바로 읽는다: eminwonView.jsp + listParams + pageIndex=N. 상세는 not_ancmt_mgt_no=, 첨부는 eminwon.seosan.go.kr FileDown.jsp GET
      */
     viewUrl: 'https://www.seosan.go.kr/common/program/eminwonView.jsp',
@@ -78,8 +78,11 @@ export const jobCrawlerConfig = {
       homepage_pbs_yn: 'Y',
       subCheck: 'Y',
       ofr_pageSize: '10',
-      /** 05 = 채용공고 구분 */
-      not_ancmt_se_code: '05',
+      /**
+       * 고시공고 구분: 01·04·06 = 누리집 '공고/고시'(contents.do?key=1258), 05 = '채용공고'(key=5309).
+       * 시립합창단 단원 모집은 채용공고가 아니라 일반 공고(key=1258)로 올라오기도 하므로 둘 다 읽는다
+       */
+      not_ancmt_se_code: '01,04,05,06',
       countYn: 'Y',
       list_gubun: 'A',
       mobile_code: '00',
