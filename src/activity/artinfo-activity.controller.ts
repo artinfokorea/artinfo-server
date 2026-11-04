@@ -7,6 +7,8 @@ import { ActivityPingRequest } from '@/activity/dto/activity-ping.request';
 import { ArtinfoActivityRepository } from '@/activity/repository/artinfo-activity.repository';
 import { isBotUserAgent, isValidVisitorId, normalizeActiveSeconds, normalizePageViews, normalizePaths } from '@/activity/domain/artinfo-activity-policy';
 import { normalizeLandingPath, normalizeReferrerHost } from '@/activity/domain/user-agent';
+import { clientIp } from '@/activity/domain/artinfo-activity-policy';
+import { ArtinfoNewVisitorLimiter } from '@/activity/domain/artinfo-new-visitor-limiter';
 
 /**
  * 웹 방문 하트비트 — 비회원도 보낸다. 로그인 상태(유효한 토큰)면 회원 ID 를 함께 남긴다.
@@ -14,19 +16,26 @@ import { normalizeLandingPath, normalizeReferrerHost } from '@/activity/domain/u
  */
 @RestApiController('/activity', 'Activity')
 export class ArtinfoActivityController {
-  constructor(private readonly activityRepository: ArtinfoActivityRepository) {}
+  constructor(
+    private readonly activityRepository: ArtinfoActivityRepository,
+    private readonly newVisitorLimiter: ArtinfoNewVisitorLimiter,
+  ) {}
 
   @RestApiPost(OkResponse, { path: '/ping', description: '방문 하트비트 (방문자 ID, 체류 초, 새 방문 여부)' })
   async ping(
     @Signature() signature: UserSignature | null,
     @Headers('user-agent') userAgent: string | undefined,
+    @Headers('x-forwarded-for') forwardedFor: string | undefined,
     @Body() request: ActivityPingRequest,
   ): Promise<OkResponse> {
     // 형식이 틀린 ID·로봇은 조용히 무시한다 (집계를 오염시키지 않되 클라이언트 오류로 만들지 않는다)
     if (!isValidVisitorId(request.visitorId) || isBotUserAgent(userAgent)) return new OkResponse();
+    const visitorId = request.visitorId.toLowerCase();
+    // 같은 IP 에서 한 시간에 새 방문자가 너무 많이 생기면(매번 새 프로필로 도는 크롤러) 그 뒤는 무시한다
+    if (!(await this.newVisitorLimiter.allow(clientIp(forwardedFor), visitorId))) return new OkResponse();
 
     await this.activityRepository.addPing({
-      visitorId: request.visitorId.toLowerCase(),
+      visitorId,
       userId: signature?.id ?? null,
       seconds: normalizeActiveSeconds(request.seconds),
       pageViews: normalizePageViews(request.pageViews),

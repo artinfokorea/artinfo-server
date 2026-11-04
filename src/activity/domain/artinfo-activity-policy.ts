@@ -53,3 +53,24 @@ export const ENGAGED_MIN_PAGE_VIEWS = 2;
 
 /** 지표 쿼리에서 쓰는 조건 (artinfo_visitor_daily_activity 의 한 행 = 방문자 × 날짜) */
 export const ENGAGED_VISITOR_SQL = `(active_seconds >= ${ENGAGED_MIN_SECONDS} OR page_views >= ${ENGAGED_MIN_PAGE_VIEWS})`;
+
+/**
+ * 한 IP 가 한 시간 안에 새로 만들 수 있는 방문자 수.
+ * localStorage 가 매번 비어 있는 자동화 브라우저는 요청마다 새 방문자 ID 를 만들어 DAU 를 부풀린다 —
+ * 같은 IP 에서 이 수를 넘는 새 방문자는 집계하지 않는다. (학교·사무실 NAT 는 한 시간에 10명을 잘 넘지 않는다)
+ */
+export const ARTINFO_ACTIVITY_MAX_NEW_VISITORS_PER_IP = 10;
+export const ARTINFO_ACTIVITY_NEW_VISITOR_WINDOW_SECONDS = 60 * 60;
+
+/** 프록시가 넘겨준 X-Forwarded-For 의 첫 주소(실제 사용자). 없으면 null — IP 를 모르면 상한을 걸지 않는다 */
+export function clientIp(forwardedFor: string | string[] | undefined | null): string | null {
+  const raw = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor;
+  if (typeof raw !== 'string') return null;
+  const first = raw.split(',')[0].trim();
+  return first ? first.slice(0, 64) : null;
+}
+
+/** IP × 한 시간 버킷 키 — Redis SET 에 그 시간에 허용한 방문자 ID 를 담는다 */
+export function newVisitorLimitKey(ip: string, nowMs: number): string {
+  return `ACTIVITY:NEWVIS:${ip}:${Math.floor(nowMs / (ARTINFO_ACTIVITY_NEW_VISITOR_WINDOW_SECONDS * 1000))}`;
+}
