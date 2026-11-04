@@ -21,6 +21,7 @@ export class OnchurchChurchOverviewResponse {
   @ApiProperty({ type: Boolean, description: '유료 결제 유효 여부' }) isPaidActive: boolean;
   @ApiProperty({ type: String, nullable: true, description: '네이버 사이트 인증 코드' }) naverVerification: string | null;
   @ApiProperty({ type: String, nullable: true, description: '구글 서치콘솔 사이트 인증 코드' }) googleVerification: string | null;
+  @ApiProperty({ type: String, nullable: true, description: '마스터 전용 메모' }) masterMemo: string | null;
   @ApiProperty({ type: String, nullable: true, description: '교회 자체 도메인 대표 호스트 (미연결이면 null)' }) customDomain: string | null;
   @ApiProperty({ type: String, description: "공개 홈페이지 템플릿 ID (미지정 시 'default')" }) siteTemplate: string;
   @ApiProperty({ type: Boolean, description: '소유자가 테스트 계정인지 여부' }) isTest: boolean;
@@ -46,6 +47,7 @@ export class OnchurchChurchOverviewResponse {
     this.isPaidActive = !!row.paidUntil && row.paidUntil.getTime() > now.getTime();
     this.naverVerification = row.naverVerification;
     this.googleVerification = row.googleVerification;
+    this.masterMemo = row.masterMemo;
     this.customDomain = row.customDomain;
     this.siteTemplate = row.siteTemplate;
     this.referralCode = row.referralCode;
