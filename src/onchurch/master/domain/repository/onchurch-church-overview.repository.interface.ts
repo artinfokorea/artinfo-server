@@ -18,6 +18,8 @@ export type OnchurchChurchOverviewRow = {
   paidUntil: Date | null;
   naverVerification: string | null;
   googleVerification: string | null;
+  // 마스터 전용 메모. 없으면 null.
+  masterMemo: string | null;
   // 교회 자체 도메인 대표 호스트. 미연결이면 null.
   customDomain: string | null;
   // 공개 홈페이지 템플릿 ID. 미지정 시 'default'.
@@ -48,6 +50,8 @@ export interface IOnchurchChurchOverviewRepository {
   updateNaverVerification(churchId: number, naverVerification: string | null): Promise<boolean>;
   // 교회의 구글 서치콘솔 인증 코드를 갱신한다. 대상 교회가 없으면 false.
   updateGoogleVerification(churchId: number, googleVerification: string | null): Promise<boolean>;
+  // 교회의 마스터 메모를 갱신한다. 대상 교회가 없으면 false.
+  updateMasterMemo(churchId: number, masterMemo: string | null): Promise<boolean>;
   // 교회의 공개 홈페이지 템플릿을 갱신한다. 대상 교회가 없으면 false.
   updateSiteTemplate(churchId: number, siteTemplate: string): Promise<boolean>;
   // 교회의 자체 도메인을 갱신한다(null 이면 연결 해제). 대상 교회가 없으면 false.
