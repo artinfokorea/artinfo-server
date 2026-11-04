@@ -1,0 +1,396 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html>
+    <head> 
+        <title>고시공고 - 서산시청</title> 
+        <link href="https://www.seosan.go.kr/css/total_style.css" rel="stylesheet" type="text/css" media="all" /> 
+        <link rel="stylesheet" href="//eminwon.seosan.go.kr/emwp/css/ofr/PlnOfrStyle.css" type="text/css" /> 
+        <script type="text/javascript" src="//eminwon.seosan.go.kr/emwp/js/cmm/jsp/calendar.js"></script> 
+        <script type="text/javascript" src="//eminwon.seosan.go.kr/emwp/js/cmm/jsp/common.js"></script> 
+        <script type="text/javascript" src="//eminwon.seosan.go.kr/emwp/js/common.js"></script> 
+        <link rel="stylesheet" href="https://www.seosan.go.kr/common/css/default.css" /> 
+        <link rel="stylesheet" href="https://www.seosan.go.kr/common/css/font.css" /> 
+        <link rel="stylesheet" href="https://www.seosan.go.kr/common/css/common.css" /> 
+        <link rel="stylesheet" href="https://www.seosan.go.kr/common/css/program.css" /> 
+        <link rel="stylesheet" href="https://www.seosan.go.kr/common/css/common_template.css" /> 
+        <link rel="stylesheet" href="https://www.seosan.go.kr/site/www/css/template.css" /> 
+        <!--[if lt IE 9]><script src="https://www.seosan.go.kr/common/js/html5.js"></script><![endif]--> 
+        <script src="https://www.seosan.go.kr/common/js/jquery-1.11.1.min.js"></script> 
+        <script src="https://www.seosan.go.kr/common/js/default.js"></script> 
+        <script src="https://www.seosan.go.kr/common/js/board.js"></script> 
+        <script src="https://www.seosan.go.kr/common/js/calendar.js"></script> 
+        <script language="javascript">	
+//-------------------------------------------------------------------
+// 설명   : 초기화
+//-------------------------------------------------------------------
+	function init() {
+		var f = document.form1;
+		var ck = 'gov.mogaha.ntis.cmm.util.Page@65b2e443';
+		if(ck=="null"){
+			srchList();
+		}
+		
+	}
+//-------------------------------------------------------------------
+// 설명   : 고시공고 목록 조회
+//-------------------------------------------------------------------	
+	function search(){
+		var f = document.form1;
+		var key = f.Key.value;
+		
+		if( key == 'B_Subject'){
+			f.not_ancmt_sj.value = f.temp.value; 
+		}else if( key == 'B_Content'){
+			f.not_ancmt_cn.value = f.temp.value;   
+		}else if( key == 'B_Dept'){
+			f.dept_nm.value = f.temp.value;
+		}
+
+ 
+		f.target = "_self";
+		f.action = "/common/program/eminwonView.jsp";	
+		f.method.value   = 'selectListOfrNotAncmt'; //Action
+		f.methodnm.value = 'selectListOfrNotAncmtHomepage';
+		f.submit();	
+	}			
+//-------------------------------------------------------------------
+// 설명   : 검색버튼 클릭시 페이지정보 초기화 하고 조회
+//-------------------------------------------------------------------
+	function srchList(){
+		 document.form1.pageIndex.value="";    //페이지 인덱스 초기화
+		 search();
+	}
+//-------------------------------------------------------------------
+// 설명   : 페이지 이동시 조회
+//-------------------------------------------------------------------
+	function goPage() {
+		search();
+	}
+//-------------------------------------------------------------------
+// 설명   : 고시공고 상세내용 조회
+//-------------------------------------------------------------------		
+	function searchDetail(not_ancmt_mgt_no) {
+		var f = document.form1;
+		f.not_ancmt_mgt_no.value = not_ancmt_mgt_no ;
+		f.target = "_self";
+		f.action = "/common/program/eminwonView.jsp";	
+		f.method.value   = 'selectOfrNotAncmt'; //Action
+		f.methodnm.value = 'selectOfrNotAncmtRegst';
+		f.submit();		    
+		
+	}
+//-------------------------------------------------------------------
+// 설명   : 엔터 눌렀을 때, 검색버튼 클릭시와 같은 기능 
+//-------------------------------------------------------------------
+	function enterKey(){
+		var key = event.keyCode; 
+		if( key == 13 ){ 
+			srchList();
+		}
+	}  
+
+        </script>
+    </head>  
+    <body id="contents" leftmargin="0" topmargin="0"> 
+        <form name="form1" method="get" onsubmit="return false;"> 
+            <input type="hidden" name="pageIndex" value="" /> 
+            <input type="hidden" name="jndinm" value="OfrNotAncmtEJB" /> 
+            <input type="hidden" name="context" value="NTIS" /> 
+            <input type="hidden" name="method" value="" /> 
+            <input type="hidden" name="methodnm" value="" /> 
+            <input type="hidden" name="not_ancmt_mgt_no" value="" /> 
+            <input type="hidden" name="homepage_pbs_yn" value="Y" /> 
+            <!-- 시군구 페이지에 맞게 커스터마이징 된 JSP페이지 여부(Y/N) 설정 반드시 해줘야 함. --> 
+            <input type="hidden" name="subCheck" value="Y" /> 
+            <input type="hidden" name="ofr_pageSize" value="10" /> 
+            <input type="hidden" name="not_ancmt_se_code" value="05" /> 
+            <input type="hidden" name="title" value="고시공고" /> 
+            <input type="hidden" name="cha_dep_code_nm" value="" /> 
+            <input type="hidden" name="initValue" value="Y" /> 
+            <input type="hidden" name="countYn" value="Y" /> 
+            <input type="hidden" name="list_gubun" value="A" /> 
+            <input type="hidden" name="not_ancmt_sj" value="" /> 
+            <input type="hidden" name="not_ancmt_cn" value="" /> 
+            <input type="hidden" name="dept_nm" value="" /> 
+            <input type="hidden" name="mobile_code" value="00" />  
+            <div class="search"> 
+                <legend>게시물 검색</legend> 
+                <select name="Key" title="검색 영역 선택"> 
+                    <option value="B_Subject" selected="">제 목</option> 
+                    <option value="B_Content">내 용</option> 
+                    <option value="B_Dept">담당부서</option> 
+                </select> 
+                <span> 
+                    <input type="text" name="temp" value="" onkeyPress="javascript:enterKey()" size="22" class="input_text" title="검색어 입력" placeholder="검색어 입력" /> 
+                    <input value="검색" onclick="javascript:srchList();" type="submit" class="submit" /> 
+                </span> 
+            </div> 
+            <div class="bbs_info clearfix"> 
+                <div class="bbs_left bbs_count"> 
+                    <span>
+                        총 게시물 
+                        <strong>1143</strong>
+                         개
+                    </span> 
+                    <span class="division_line">
+                        페이지 
+                        <strong>1</strong>
+                         / 10
+                    </span> 
+                </div> 
+            </div> 
+            <table class="bbs_default list" data-rwdb="yes"> 
+                <caption>
+                    타이틀입력 목록 - 번호, 고시공고번호, 제목, 담당부서, 등록일, 조회수 정보 제공
+                </caption> 
+                <colgroup> 
+                    <col width="65px" /> 
+                    <col width="200px" /> 
+                    <col /> 
+                    <col width="130px" /> 
+                    <col width="120px" /> 
+                    <col width="100px" /> 
+                </colgroup> 
+                <thead> 
+                    <tr> 
+                        <th scope="col" class="first">번호</th> 
+                        <th scope="col">고시공고번호</th> 
+                        <th scope="col">제목</th> 
+                        <th scope="col">담당부서</th> 
+                        <th scope="col">등록일</th> 
+                        <th scope="col" class="last">조회수</th> 
+                    </tr> 
+                </thead> 
+                <tbody> 
+                    <tr> 
+                        <td class="first num text_right" onclick="javaScript:searchDetail('65949')">1143</td> 
+                        <td>
+                            <a href="#n" onclick="javaScript:searchDetail('65949')">서산시 해미면 공고 제2026-35호</a>
+                        </td> 
+                        <td class="text_left">
+                            <a href="#n" onclick="javaScript:searchDetail('65949')">2026년 해미면 공중화장실 관리인 추가 채용 공고</a>
+                        </td> 
+                        <td onclick="javaScript:searchDetail('65949')">해미면</td> 
+                        <td onclick="javaScript:searchDetail('65949')">2026-11-04</td> 
+                        <td class="last" onclick="javaScript:searchDetail('65949')">25</td> 
+                    </tr> 
+                    <tr> 
+                        <td class="first num text_right" onclick="javaScript:searchDetail('65937')">1142</td> 
+                        <td>
+                            <a href="#n" onclick="javaScript:searchDetail('65937')">서산시 공고 제2026-2638호</a>
+                        </td> 
+                        <td class="text_left">
+                            <a href="#n" onclick="javaScript:searchDetail('65937')">2026년도 서산시 제4회 지방임기제공무원 임용시험 시행계획</a>
+                        </td> 
+                        <td onclick="javaScript:searchDetail('65937')">자치행정과</td> 
+                        <td onclick="javaScript:searchDetail('65937')">2026-11-03</td> 
+                        <td class="last" onclick="javaScript:searchDetail('65937')">216</td> 
+                    </tr> 
+                    <tr> 
+                        <td class="first num text_right" onclick="javaScript:searchDetail('65926')">1141</td> 
+                        <td>
+                            <a href="#n" onclick="javaScript:searchDetail('65926')">서산시 공고 제2026-2632호</a>
+                        </td> 
+                        <td class="text_left">
+                            <a href="#n" onclick="javaScript:searchDetail('65926')">2027년 기간제근로자(아동복지교사) 채용 공고</a>
+                        </td> 
+                        <td onclick="javaScript:searchDetail('65926')">가족지원과</td> 
+                        <td onclick="javaScript:searchDetail('65926')">2026-11-02</td> 
+                        <td class="last" onclick="javaScript:searchDetail('65926')">153</td> 
+                    </tr> 
+                    <tr> 
+                        <td class="first num text_right" onclick="javaScript:searchDetail('65879')">1140</td> 
+                        <td>
+                            <a href="#n" onclick="javaScript:searchDetail('65879')">서산시 공고 제2026-2600호</a>
+                        </td> 
+                        <td class="text_left">
+                            <a href="#n" onclick="javaScript:searchDetail('65879')">2026년도 제3회 서산시 지방임기제공무원 서류전형 합격자 및 면접시험 ...</a>
+                        </td> 
+                        <td onclick="javaScript:searchDetail('65879')">자치행정과</td> 
+                        <td onclick="javaScript:searchDetail('65879')">2026-10-29</td> 
+                        <td class="last" onclick="javaScript:searchDetail('65879')">319</td> 
+                    </tr> 
+                    <tr> 
+                        <td class="first num text_right" onclick="javaScript:searchDetail('65870')">1139</td> 
+                        <td>
+                            <a href="#n" onclick="javaScript:searchDetail('65870')">서산시 공고 제2026-2592호</a>
+                        </td> 
+                        <td class="text_left">
+                            <a href="#n" onclick="javaScript:searchDetail('65870')">2026년 정신보건위생과 기간제근로자(동료지원인) 채용 공고</a>
+                        </td> 
+                        <td onclick="javaScript:searchDetail('65870')">정신보건위생과</td> 
+                        <td onclick="javaScript:searchDetail('65870')">2026-10-28</td> 
+                        <td class="last" onclick="javaScript:searchDetail('65870')">242</td> 
+                    </tr> 
+                    <tr> 
+                        <td class="first num text_right" onclick="javaScript:searchDetail('65798')">1138</td> 
+                        <td>
+                            <a href="#n" onclick="javaScript:searchDetail('65798')">서산시 공고 제2026-2543호</a>
+                        </td> 
+                        <td class="text_left">
+                            <a href="#n" onclick="javaScript:searchDetail('65798')">2026년 제2회 서산시 공무직근로자 채용시험 공고</a>
+                        </td> 
+                        <td onclick="javaScript:searchDetail('65798')">자치행정과</td> 
+                        <td onclick="javaScript:searchDetail('65798')">2026-10-26</td> 
+                        <td class="last" onclick="javaScript:searchDetail('65798')">949</td> 
+                    </tr> 
+                    <tr> 
+                        <td class="first num text_right" onclick="javaScript:searchDetail('65829')">1137</td> 
+                        <td>
+                            <a href="#n" onclick="javaScript:searchDetail('65829')">서산시 공고 제2026-2568호</a>
+                        </td> 
+                        <td class="text_left">
+                            <a href="#n" onclick="javaScript:searchDetail('65829')">2026년 계량기 정기검사 일용직근로자 채용 최종합격자 공고</a>
+                        </td> 
+                        <td onclick="javaScript:searchDetail('65829')">일자리경제과</td> 
+                        <td onclick="javaScript:searchDetail('65829')">2026-10-23</td> 
+                        <td class="last" onclick="javaScript:searchDetail('65829')">134</td> 
+                    </tr> 
+                    <tr> 
+                        <td class="first num text_right" onclick="javaScript:searchDetail('65827')">1136</td> 
+                        <td>
+                            <a href="#n" onclick="javaScript:searchDetail('65827')">서산시 공고 제2026-2566호</a>
+                        </td> 
+                        <td class="text_left">
+                            <a href="#n" onclick="javaScript:searchDetail('65827')">2026년 서산시 보건소 기간제근로자(육아휴직 대체인력) 채용 변경 공고</a>
+                        </td> 
+                        <td onclick="javaScript:searchDetail('65827')">보건정책과</td> 
+                        <td onclick="javaScript:searchDetail('65827')">2026-10-23</td> 
+                        <td class="last" onclick="javaScript:searchDetail('65827')">350</td> 
+                    </tr> 
+                    <tr> 
+                        <td class="first num text_right" onclick="javaScript:searchDetail('65790')">1135</td> 
+                        <td>
+                            <a href="#n" onclick="javaScript:searchDetail('65790')">서산시 농업기술센터 기술보급과 공고 제2026-19호</a>
+                        </td> 
+                        <td class="text_left">
+                            <a href="#n" onclick="javaScript:searchDetail('65790')">2026년 농업기술센터 기술보급과(농업환경분석팀) 기간제근로자 채용 최종...</a>
+                        </td> 
+                        <td onclick="javaScript:searchDetail('65790')">기술보급과</td> 
+                        <td onclick="javaScript:searchDetail('65790')">2026-10-22</td> 
+                        <td class="last" onclick="javaScript:searchDetail('65790')">230</td> 
+                    </tr> 
+                    <tr> 
+                        <td class="first num text_right" onclick="javaScript:searchDetail('65782')">1134</td> 
+                        <td>
+                            <a href="#n" onclick="javaScript:searchDetail('65782')">서산시 해미면 공고 제2026-34호</a>
+                        </td> 
+                        <td class="text_left">
+                            <a href="#n" onclick="javaScript:searchDetail('65782')">2026년 해미면 가을철 산불기동진화대 추가 모집 공고</a>
+                        </td> 
+                        <td onclick="javaScript:searchDetail('65782')">해미면</td> 
+                        <td onclick="javaScript:searchDetail('65782')">2026-10-21</td> 
+                        <td class="last" onclick="javaScript:searchDetail('65782')">110</td> 
+                    </tr> 
+                </tbody> 
+            </table> 
+            <table width="98%" border="0" cellspacing="0" cellpadding="0"> 
+                <tbody>
+                    <tr> 
+                        <td align="center">
+                            <!-- page ---> 
+                            <table width="98%" border="0" cellspacing="0" cellpadding="0" align="center"> 
+                                <tbody>
+                                    <tr> 
+                                        <td align="center"> 
+                                            <table border="0" cellspacing="0" cellpadding="0"> 
+                                                <tbody>
+                                                    <tr> 
+                                                        <td>
+                                                            <img src="//eminwon.seosan.go.kr/emwp/img/icon/icon_prevend.gif" width="13" height="13" border="0" alt="첫 페이지로 이동" />
+                                                        </td> 
+                                                        <td width="3"></td> 
+                                                        <td width="28">
+                                                            <img src="//eminwon.seosan.go.kr/emwp/img/icon/icon_prev.gif" border="0" alt="이전 페이지로 이동" />
+                                                        </td> 
+                                                        <td> 
+                                                            <span class="page_no">
+                                                                <font>
+                                                                    <b>1</b>
+                                                                </font>
+                                                            </span> 
+                                                            <span class="page_sep">|</span> 
+                                                            <span class="page_no">
+                                                                <a href="#" onclick="javascript:document.form1.pageIndex.value=2;goPage()">2</a>
+                                                            </span> 
+                                                            <span class="page_sep">|</span> 
+                                                            <span class="page_no">
+                                                                <a href="#" onclick="javascript:document.form1.pageIndex.value=3;goPage()">3</a>
+                                                            </span> 
+                                                            <span class="page_sep">|</span> 
+                                                            <span class="page_no">
+                                                                <a href="#" onclick="javascript:document.form1.pageIndex.value=4;goPage()">4</a>
+                                                            </span> 
+                                                            <span class="page_sep">|</span> 
+                                                            <span class="page_no">
+                                                                <a href="#" onclick="javascript:document.form1.pageIndex.value=5;goPage()">5</a>
+                                                            </span> 
+                                                            <span class="page_sep">|</span> 
+                                                            <span class="page_no">
+                                                                <a href="#" onclick="javascript:document.form1.pageIndex.value=6;goPage()">6</a>
+                                                            </span> 
+                                                            <span class="page_sep">|</span> 
+                                                            <span class="page_no">
+                                                                <a href="#" onclick="javascript:document.form1.pageIndex.value=7;goPage()">7</a>
+                                                            </span> 
+                                                            <span class="page_sep">|</span> 
+                                                            <span class="page_no">
+                                                                <a href="#" onclick="javascript:document.form1.pageIndex.value=8;goPage()">8</a>
+                                                            </span> 
+                                                            <span class="page_sep">|</span> 
+                                                            <span class="page_no">
+                                                                <a href="#" onclick="javascript:document.form1.pageIndex.value=9;goPage()">9</a>
+                                                            </span> 
+                                                            <span class="page_sep">|</span> 
+                                                            <span class="page_no">
+                                                                <a href="#" onclick="javascript:document.form1.pageIndex.value=10;goPage()">10</a>
+                                                            </span> 
+                                                        </td> 
+                                                        <td width="28" align="right">
+                                                            <a href="#" onclick="javascript:document.form1.pageIndex.value=2;goPage()">
+                                                                <img src="//eminwon.seosan.go.kr/emwp/img/icon/icon_next.gif" border="0" alt="다음 페이지로 이동" />
+                                                            </a>
+                                                        </td> 
+                                                        <td width="3"></td> 
+                                                        <td width="20">
+                                                            <a href="#" onclick="javascript:document.form1.pageIndex.value=11;goPage()">
+                                                                <img src="//eminwon.seosan.go.kr/emwp/img/icon/icon_nextend.gif" width="13" height="13" border="0" alt="마지막 페이지로 이동" />
+                                                            </a>
+                                                        </td> 
+                                                    </tr> 
+                                                </tbody>
+                                            </table> 
+                                        </td> 
+                                    </tr> 
+                                </tbody>
+                            </table> 
+                        </td> 
+                    </tr> 
+                    <tr height="20"> 
+                        <td align="center"> </td> 
+                    </tr> 
+                </tbody>
+            </table> 
+            <input type="hidden" name="yyyy" value="2024" />
+        </form>   
+    </body>
+</html><script type="text/javascript">function fn_preview(file_url, fileNm) {var apiKey = 'DQALY7UK0QUYXXLMV27KGQ';var cc = 'ssg';window.open('https://viewstory.net/previewAjax.do?apikey=' + apiKey + '&cc=' + cc + '&url=' + encodeURIComponent(file_url) + '&fileName=' + encodeURIComponent(fileNm), "a", "width=1200, height=1000, left=100, top=50");}function fn_previewDownload(user_file_nm, sys_file_nm, file_path) {var fileUrl = 'http://eminwon.seosan.go.kr/emwp/jsp/ofr/FileDown.jsp?user_file_nm=' + user_file_nm + '&sys_file_nm=' + sys_file_nm + '&file_path=' + file_path;fn_preview(fileUrl, user_file_nm);}</script>

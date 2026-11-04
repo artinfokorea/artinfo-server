@@ -64,6 +64,38 @@ export const jobCrawlerConfig = {
     imageUrl: env('JOB_CRAWLER_BORYEONG_IMAGE_URL', ''),
     imageFile: 'assets/job-crawler/boryeong.png',
   },
+  seosan: {
+    /**
+     * 서산시 채용공고 (https://www.seosan.go.kr/www/contents.do?key=5309). 그 페이지는 eminwon 목록을 iframe 으로 끼우므로
+     * iframe 주소를 바로 읽는다: eminwonView.jsp + listParams + pageIndex=N. 상세는 not_ancmt_mgt_no=, 첨부는 eminwon.seosan.go.kr FileDown.jsp GET
+     */
+    viewUrl: 'https://www.seosan.go.kr/common/program/eminwonView.jsp',
+    listParams: {
+      jndinm: 'OfrNotAncmtEJB',
+      context: 'NTIS',
+      method: 'selectListOfrNotAncmt',
+      methodnm: 'selectListOfrNotAncmtHomepage',
+      homepage_pbs_yn: 'Y',
+      subCheck: 'Y',
+      ofr_pageSize: '10',
+      /** 05 = 채용공고 구분 */
+      not_ancmt_se_code: '05',
+      countYn: 'Y',
+      list_gubun: 'A',
+      mobile_code: '00',
+      Key: 'B_Subject',
+    },
+    /** 목록은 등록일 내림차순 10건씩. 날짜가 지날 때까지 넘긴다 */
+    maxListPages: Number(env('JOB_CRAWLER_SEOSAN_MAX_PAGES', '10')),
+    /** 제목 조건: '시립합창단'('서산시 시립합창단'·'서산시립합창단' 모두) 과 '모집' 또는 '채용' (합격자 공고는 전역 제외) */
+    titleKeywords: ['시립합창단', ['모집', '채용']] as (string | string[])[],
+    companyName: '서산시립합창단',
+    address: '충남 서산시 부춘공원2로 11',
+    addressDetail: '서산시립합창단',
+    /** 채용 대표 이미지 URL. 비어 있으면 imageFile(서산시 로고)을 기동 후 첫 등록 때 S3 에 올려 쓴다 */
+    imageUrl: env('JOB_CRAWLER_SEOSAN_IMAGE_URL', ''),
+    imageFile: 'assets/job-crawler/seosan.png',
+  },
 };
 
 /** 한국 시간 기준 오늘 (YYYY-MM-DD) */
