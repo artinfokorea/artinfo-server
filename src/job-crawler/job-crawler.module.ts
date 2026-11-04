@@ -13,6 +13,8 @@ import { JobCrawlerController } from './controller/job-crawler.controller';
 import { JobCrawlerService } from './job-crawler.service';
 import { MokpoArtJobCrawler } from './mokpo/mokpo-art-job.crawler';
 import { MokpoNoticeClient } from './mokpo/mokpo-notice.client';
+import { SeosanChoirJobCrawler } from './seosan/seosan-choir-job.crawler';
+import { SeosanNoticeClient } from './seosan/seosan-notice.client';
 import { JobCrawlerScheduler } from './scheduler/job-crawler.scheduler';
 import { JOB_SOURCE_CRAWLERS, JobSourceCrawler } from './source/job-source';
 import { JobSourceSupport } from './source/job-source.support';
@@ -38,10 +40,12 @@ import { UlsanPhilharmonicJobCrawler } from './ulsan/ulsan-philharmonic-job.craw
     UlsanPhilharmonicJobCrawler,
     BoryeongNoticeClient,
     BoryeongChoirJobCrawler,
+    SeosanNoticeClient,
+    SeosanChoirJobCrawler,
     {
       provide: JOB_SOURCE_CRAWLERS,
       useFactory: (...sources: JobSourceCrawler[]) => sources,
-      inject: [MokpoArtJobCrawler, UlsanPhilharmonicJobCrawler, BoryeongChoirJobCrawler],
+      inject: [MokpoArtJobCrawler, UlsanPhilharmonicJobCrawler, BoryeongChoirJobCrawler, SeosanChoirJobCrawler],
     },
   ],
 })
