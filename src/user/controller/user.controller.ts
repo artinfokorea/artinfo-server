@@ -1,4 +1,4 @@
-import { RestApiController, RestApiGet, RestApiPost, RestApiPut } from '@/common/decorator/rest-api';
+import { RestApiController, RestApiDelete, RestApiGet, RestApiPost, RestApiPut } from '@/common/decorator/rest-api';
 import { UserService } from '@/user/service/user.service';
 import { USER_TYPE } from '@/user/entity/user.entity';
 import { AuthSignature } from '@/common/decorator/AuthSignature';
@@ -40,6 +40,13 @@ export class UserController {
   @RestApiPut(OkResponse, { path: '/me', description: '내 정보 수정', auth: [USER_TYPE.CLIENT] })
   async editMe(@AuthSignature() signature: UserSignature, @Body() request: EditUserRequest) {
     await this.userService.editUser(request.toEditUserCommand(signature.id));
+
+    return new OkResponse();
+  }
+
+  @RestApiDelete(OkResponse, { path: '/me', description: '회원탈퇴 — 개인정보 익명화 후 탈퇴 처리, 같은 이메일로 재가입 가능', auth: [USER_TYPE.CLIENT] })
+  async withdraw(@AuthSignature() signature: UserSignature) {
+    await this.userService.withdraw(signature.id);
 
     return new OkResponse();
   }
