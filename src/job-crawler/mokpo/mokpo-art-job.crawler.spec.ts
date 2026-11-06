@@ -45,7 +45,7 @@ function build(opts: { existing?: number; downloadError?: string; pages?: Record
     findRegisteredJobId: async () => opts.existing ?? null,
     register: async (input: NoticeRegistration) => {
       calls.registrations.push(input);
-      return { jobId: 777, title: input.title, url: input.url, attachment: input.file.name, pageCount: 6, majors: ['TRUMPET', 'SOPRANO'] };
+      return { jobId: 777, title: input.title, url: input.url, attachment: input.file?.name, pageCount: 6, majors: ['TRUMPET', 'SOPRANO'] };
     },
   } as unknown as JobSourceSupport;
   const crawler = new MokpoArtJobCrawler({} as MokpoNoticeClient, support, gateway);
@@ -83,8 +83,8 @@ describe('MokpoArtJobCrawler', () => {
       imageUrl: 'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/4637/images/20261020/original/cLa2DrY-gIr.1792501357272.png',
       date: '2026-10-20',
     });
-    expect(reg.file.name).toBe('(공고문) 2026 시립예술단 단원 채용 모집 공고.hwpx');
-    expect(reg.file.buffer.toString()).toBe('hwpx');
+    expect(reg.file?.name).toBe('(공고문) 2026 시립예술단 단원 채용 모집 공고.hwpx');
+    expect(reg.file?.buffer.toString()).toBe('hwpx');
     expect(reg.bodyText.startsWith('목포시립예술단의 안정적인 운영과')).toBe(true);
   });
 

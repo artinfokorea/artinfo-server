@@ -46,7 +46,7 @@ function build(opts: { existing?: number; downloadError?: string; pages?: Record
     },
     register: async (input: NoticeRegistration) => {
       calls.registrations.push(input);
-      return { jobId: 999, title: input.title, url: input.url, attachment: input.file.name, pageCount: 2, majors: ['SOPRANO', 'BASS'] };
+      return { jobId: 999, title: input.title, url: input.url, attachment: input.file?.name, pageCount: 2, majors: ['SOPRANO', 'BASS'] };
     },
   } as unknown as JobSourceSupport;
   const crawler = new SeosanChoirJobCrawler({} as SeosanNoticeClient, support, gateway);
@@ -81,8 +81,8 @@ describe('SeosanChoirJobCrawler', () => {
       imageUrl: LOGO,
       date: '2025-09-05',
     });
-    expect(reg.file.name).toBe(NOTICE_FILE);
-    expect(reg.file.buffer.toString()).toBe('hwp');
+    expect(reg.file?.name).toBe(NOTICE_FILE);
+    expect(reg.file?.buffer.toString()).toBe('hwp');
     expect(reg.bodyText.startsWith('서산시에서는 시민의 정서 함양과')).toBe(true);
     expect(reg.bodyText).toContain('3. 접수기간: 2025. 9. 8.(월) ~ 9. 22.(월), 14일간');
   });

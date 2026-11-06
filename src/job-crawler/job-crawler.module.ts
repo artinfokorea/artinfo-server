@@ -9,6 +9,8 @@ import { User } from '@/user/entity/user.entity';
 import { UserRepository } from '@/user/repository/user.repository';
 import { BoryeongChoirJobCrawler } from './boryeong/boryeong-choir-job.crawler';
 import { BoryeongNoticeClient } from './boryeong/boryeong-notice.client';
+import { BucheonChoirJobCrawler } from './bucheon/bucheon-choir-job.crawler';
+import { BucheonNoticeClient } from './bucheon/bucheon-notice.client';
 import { JobCrawlerController } from './controller/job-crawler.controller';
 import { JobCrawlerService } from './job-crawler.service';
 import { MokpoArtJobCrawler } from './mokpo/mokpo-art-job.crawler';
@@ -43,10 +45,12 @@ import { SchedulerLockModule } from '@/common/scheduler/scheduler-lock.module';
     BoryeongChoirJobCrawler,
     SeosanNoticeClient,
     SeosanChoirJobCrawler,
+    BucheonNoticeClient,
+    BucheonChoirJobCrawler,
     {
       provide: JOB_SOURCE_CRAWLERS,
       useFactory: (...sources: JobSourceCrawler[]) => sources,
-      inject: [MokpoArtJobCrawler, UlsanPhilharmonicJobCrawler, BoryeongChoirJobCrawler, SeosanChoirJobCrawler],
+      inject: [MokpoArtJobCrawler, UlsanPhilharmonicJobCrawler, BoryeongChoirJobCrawler, SeosanChoirJobCrawler, BucheonChoirJobCrawler],
     },
   ],
 })

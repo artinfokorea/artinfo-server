@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as Sharp from 'sharp';
 import { In, Repository } from 'typeorm';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { Util } from '@/common/util/util';
@@ -15,6 +16,11 @@ import { jobCrawlerConfig } from '../job-crawler.config';
 import { extractMajors } from '../major/major-keyword';
 import { CrawledJob } from './job-source';
 
+export interface NoticeFile {
+  name: string;
+  buffer: Buffer;
+}
+
 export interface NoticeRegistration {
   /** 소스 키 — 로고 S3 경로에 쓴다 */
   source: string;
@@ -22,8 +28,10 @@ export interface NoticeRegistration {
   /** 원문 URL — recruitSiteUrl 이자 중복 판정 키 */
   url: string;
   bodyText: string;
-  /** 공고문 파일 (HWP/HWPX/PDF) */
-  file: { name: string; buffer: Buffer };
+  /** 공고문 파일 (HWP/HWPX/PDF). 없으면 images 가 공고문이다 */
+  file?: NoticeFile;
+  /** 공고문을 그림으로 올린 글의 본문 이미지 (PNG/JPG 등). 파일 페이지 뒤에 그대로 WebP 로 바꿔 붙인다 */
+  images?: NoticeFile[];
   companyName: string;
   address: string;
   addressDetail: string | null;
@@ -34,8 +42,9 @@ export interface NoticeRegistration {
 }
 
 /**
- * 소스마다 공통인 등록 절차: 중복 확인 → 공고문 WebP 변환 → S3 업로드 → 전공 추출 → 채용 생성.
+ * 소스마다 공통인 등록 절차: 중복 확인 → 공고문 WebP 변환(문서 페이지 · 본문 이미지) → S3 업로드 → 전공 추출 → 채용 생성.
  * 소스 크롤러는 사이트에서 공고를 찾아 파일을 내려받는 일만 하고, 등록은 여기로 넘긴다.
+ * 전공은 선택이다 — 제목·본문에서 찾히면 달고, 못 찾으면(공고문이 이미지뿐인 경우 등) 전공 없이 등록한다.
  */
 @Injectable()
 export class JobSourceSupport {
@@ -60,16 +69,14 @@ export class JobSourceSupport {
   }
 
   async register(input: NoticeRegistration): Promise<CrawledJob> {
+    if (!input.file && !input.images?.length) throw new Error(`공고문 파일도 본문 이미지도 없음: ${input.title}`);
     const userId = await this.posterUserId();
-    const converted = await this.documentConverter.convertToWebp(input.file.buffer, input.file.name, {
-      scale: jobCrawlerConfig.imageScale,
-      quality: jobCrawlerConfig.imageQuality,
-    });
+    const pages = await this.toWebpPages(input);
 
     const images: { url: string; width: number; height: number }[] = [];
     const util = new Util();
     const dateKey = input.date.replace(/-/g, '');
-    for (const p of converted.pages) {
+    for (const p of pages) {
       const key = ['upload', userId, 'jobs', dateKey, 'original', `${util.generateRandomString(11)}.${Date.now()}.webp`].join('/');
       images.push({ url: await this.upload(p.data, 'image/webp', key), width: p.width, height: p.height });
     }
@@ -95,8 +102,24 @@ export class JobSourceSupport {
         endAt: null,
       }),
     );
-    this.logger.log(`[${input.source}] 채용 등록: job ${jobId} "${input.title}" (${converted.pageCount}p, 전공 ${majors.join(',') || '없음'})`);
-    return { jobId, title: input.title, url: input.url, attachment: input.file.name, pageCount: converted.pageCount, majors };
+    const attachment = input.file?.name ?? `본문 이미지 ${input.images?.length ?? 0}장`;
+    this.logger.log(`[${input.source}] 채용 등록: job ${jobId} "${input.title}" (${attachment}, ${pages.length}p, 전공 ${majors.join(',') || '없음'})`);
+    return { jobId, title: input.title, url: input.url, attachment, pageCount: pages.length, majors };
+  }
+
+  /** 공고문 파일은 DocumentConverter 로 페이지마다, 본문 이미지는 sharp 로 한 장씩 WebP 로 바꾼다 (파일 페이지 → 이미지 순) */
+  private async toWebpPages(input: NoticeRegistration): Promise<{ data: Buffer; width: number; height: number }[]> {
+    const { imageScale: scale, imageQuality: quality } = jobCrawlerConfig;
+    const pages: { data: Buffer; width: number; height: number }[] = [];
+    if (input.file) {
+      const converted = await this.documentConverter.convertToWebp(input.file.buffer, input.file.name, { scale, quality });
+      pages.push(...converted.pages.map(p => ({ data: p.data, width: p.width, height: p.height })));
+    }
+    for (const image of input.images ?? []) {
+      const { data, info } = await Sharp(image.buffer).webp({ quality }).toBuffer({ resolveWithObject: true });
+      pages.push({ data, width: info.width, height: info.height });
+    }
+    return pages;
   }
 
   /**

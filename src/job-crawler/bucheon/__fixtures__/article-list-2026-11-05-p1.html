@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<meta name="keywords" content="부천시립예술단" />
+	<meta name="description" content="부천시립예술단 홈페이지입니다." />
+	<meta property="og:title" content="부천시립예술단" />
+	<meta property="og:description" content="부천시립예술단 홈페이지입니다." />
+	<meta property="og:type" content="website" />
+	<meta property="og:image" content="/resource/images/common/img_logo_b.png" />
+	<meta property="og:url" content="" />
+	<meta name="author" content="" />
+	<meta name="generator" content="Hard Coding" />
+	<title>공지사항</title>
+	<link rel="shortcut icon" type="image/x-icon" href="/resource/images/common/bcag.ico" />
+	<link rel="apple-touch-icon-precomposed" href="/resource/images/common/bcag.png" />
+	<link rel="stylesheet" type="text/css" href="/resource/css/jquery-ui.min.css">
+	<link rel="stylesheet" type="text/css" href="/resource/css/base.css" />
+	<link rel="stylesheet" type="text/css" href="/resource/css/slick.css" />
+	<link rel="stylesheet" type="text/css" href="/resource/css/common.css" />
+	<link rel="stylesheet" type="text/css" href="/resource/css/sub.css?ver=20250731" />
+	<link rel="stylesheet" type="text/css" href="/resourceCms/css/daterangepicker.css" />
+	<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+	<script src="/resource/js/jquery-ui.min.js"></script>
+	<script src="/resource/js/jquery.ui.monthpicker.js"></script>
+	<script src="/resource/js/jquery.dotdotdot.min.js"></script>
+	<script src="/resourceCms/js/libs/moment.min.js"></script>
+	<script src="/resourceCms/js/daterangepicker.js"></script>
+	<script src="/resource/js/slick.min.js"></script> 
+	<script src="/resource/js/common.js"></script>
+	<script src="/resource/js/sub.js"></script>
+	<!--[if lt IE 9]>
+	    <script src="/resource/js/html5shiv-printshiv.min.js"></script>
+	<![endif]-->
+	<!--[if lte IE 8]>
+	    <script src="/resource/js/ie8.js"></script>
+	<![endif]-->
+	
+
+</head>
+<body>
+	<script>
+	/*
+	 * 통합회원가입 버튼
+	 */
+	function fJoin2(){
+		
+		var appid = "bc_phil_new";
+		var retUrl	    = "https://www.bucheonphil.or.kr:443"+"/front/M0000000/index.do";  // 로그인 처리후 이동할 URL (ex 홈페이지 메인 페이지 )
+		var failUrl	    = "https://www.bucheonphil.or.kr:443"+"/front/M0000037/login.do"; // 로그인 실패 리턴 URL( ex 로그인 폼 페이지 또는 index 페이지 )
+	
+		if( appid=="" || retUrl=="" || failUrl =="" ){
+			alert("요청 파라미터가 올바르지 않습니다.");
+			return;
+		}
+		
+		actionUrl = "https://sso.bucheon.go.kr:443/idp_service"+"/jsp/user/customize/bc/im/joinuser_agreement.jsp"; // 통합회원가입 URL
+		document.sublayForm.appid2.value   = appid;
+	    document.sublayForm.retUrl2.value  = retUrl;
+	    document.sublayForm.failUrl2.value = failUrl;
+	    
+ 		document.sublayForm.action        = actionUrl;
+		document.sublayForm.submit();	
+		
+		
+	}// End of fJoin() 
+	/*
+	 * 통합회원수정 버튼
+	 */
+	function fModify2(){
+		
+		var appid = "bc_phil_new";
+		var retUrl	    = "https://www.bucheonphil.or.kr:443"+"/front/M0000000/index.do";  // 로그인 처리후 이동할 URL (ex 홈페이지 메인 페이지 )
+		var failUrl	    = "https://www.bucheonphil.or.kr:443"+"/front/M0000037/login.do"; // 로그인 실패 리턴 URL( ex 로그인 폼 페이지 또는 index 페이지 )
+	
+		if( appid=="" || retUrl=="" || failUrl =="" ){
+			alert("요청 파라미터가 올바르지 않습니다.");
+			return;
+		}
+		
+		actionUrl = "https://sso.bucheon.go.kr:443/idp_service"+"/jsp/user/customize/bc/im/modifyuser_login.jsp"; // 통합회원가입 URL
+		document.sublayForm.appid2.value   = appid;
+	    document.sublayForm.retUrl2.value  = retUrl;
+	    document.sublayForm.failUrl2.value = failUrl;
+	    
+ 		document.sublayForm.action        = actionUrl;
+		document.sublayForm.submit();	
+		
+		
+	}// End of fJoin() 
+
+	/*
+ * 	 * 통합회원탈퇴 버튼
+ * 	 	 */
+	function fDelete(){
+		
+		var appid = "bc_phil_new";
+		var retUrl	    = "https://www.bucheonphil.or.kr:443"+"/front/M0000000/index.do";  // 로그인 처리후 이동할 URL (ex 홈페이지 메인 페이지 )
+		var failUrl	    = "https://www.bucheonphil.or.kr:443"+"/front/M0000037/login.do"; // 로그인 실패 리턴 URL( ex 로그인 폼 페이지 또는 index 페이지 )
+	
+		if( appid=="" || retUrl=="" || failUrl =="" ){
+			alert("요청 파라미터가 올바르지 않습니다.");
+			return;
+		}
+		
+		actionUrl = "https://sso.bucheon.go.kr:443/idp_service"+"/jsp/user/customize/bc/im/imUser.do?pname=imUserDeleteConfirmForm&menuGubun=drop"; // 통합회원가입 URL
+		document.sublayForm.appid2.value   = appid;
+	    document.sublayForm.retUrl2.value  = retUrl;
+	    document.sublayForm.failUrl2.value = failUrl;
+	    
+ 		document.sublayForm.action        = actionUrl;
+		document.sublayForm.submit();	
+		
+	}// End of fJoin() 
+
+	function fnLogin() {		
+		$('form[name=loginForm]').attr('action', '/SSOService.do').submit();
+	}
+	function fnLoginAfterSelfPage( link_type ) {
+		
+		$('#pname').val( 'spLoginAfterSelfPage' );
+		$('#link_type').val( link_type );
+		$('form[name=selfPageForm]').attr("target", "_sso");
+		$('form[name=selfPageForm]').attr('action', '/SSOService.do').submit();
+	}
+	
+	function fnLoginBeforeSelfPage( link_type ) {
+		$('#pname').val( 'spLoginBeforeSelfPage' );
+		$('#link_type').val( link_type );
+		$('form[name=selfPageForm]').attr('action', '/SSOService.do').submit();
+	}
+	
+	function fnSSOCust(trg_agt_id) {
+		$('#trg_agt_id').val(trg_agt_id);
+		$('form[name=ssoCustForm]').attr('action', 'https://sso.bucheon.go.kr/sso/usr/cust/in/link').submit();
+	}
+	</script>
+	<form id="sublayForm" name="sublayForm" method="post" action="">
+		<input type="hidden" id="appid2"     name="appid" />
+		<input type="hidden" id="retUrl2"    name="retUrl" />
+		<input type="hidden" id="failUrl2"   name="failUrl" />
+	</form>
+	<form name="loginForm" id="loginForm" method="post" action="">
+		<input type="hidden" name="retUrl" value=""/>
+		<input type="hidden" name="failUrl" value=""/>
+		<input type="hidden" name="param1" value="" />	<!-- 추가 파라미터가 있을 경우 -->
+		<input type="hidden" name="param2" value="" />	<!-- 추가 파라미터가 있을 경우 -->
+	</form>
+	<form name="ssoForm" id="ssoForm" target="_blank" method="post" action="">
+		<input type="hidden" name="pni_token" value="" />	<!-- 토큰 -->
+	</form>
+	
+	<form name="ssoCustForm" id="ssoCustForm" target="_blank" method="post" action="">
+		<input type="hidden" name="agt_id" value="bucheon-phil-new" />
+		<input type="hidden" id="trg_agt_id" name="trg_agt_id" value="" />
+		<input type="hidden" name="agt_data" value="" />	<!-- 토큰 -->
+		<input type="hidden" name="param1" value="" />	<!-- 추가 파라미터가 있을 경우 -->
+		<input type="hidden" name="param2" value="" />	<!-- 추가 파라미터가 있을 경우 -->
+	</form>
+	
+	<form name="selfPageForm" id="selfPageForm" method="post" action="">
+		<input type="hidden" name="retUrl" value=""/>
+		<input type="hidden" name="failUrl" value=""/>
+		<input type="hidden" name="pname" id="pname" />
+		<input type="hidden" name="link_type" id="link_type" />
+	</form>
+    <div class="skipNav">
+        <p><a href="#content">본문 바로가기</a></p>
+    </div>
+    <div id="wrap">
+        <header id="header">
+        	<div class="headWrap">
+        		<h1 class="logo">
+        			<a href="/">
+        				<img src="/resource/images/common/img_logo.png" alt="Bucheon City Arts Group">
+        			</a>
+        		</h1>
+	        	<div class="btnMoGnb"><button type="button"><span>전체메뉴보기</span></button></div>
+	        	<div class="gnbWrap">
+	        		<nav class="gnb">
+	        			<h2 class="blind">전체메뉴</h2>
+	        			<div class="moMem">
+							<ul>
+								<li><a href="/eng">ENG</a></li>
+									<li><a href="javascript:;" onclick="fnLogin();">로그인</a></li>
+									<li><a href="javascript:;" onclick="fnLoginBeforeSelfPage('userRegist');">회원가입</a></li>
+								</ul>
+						</div>
+						<ul class="gnbList">
+							<li><a href="/front/M0000012/event/list.do">공연예매</a>
+									<div>
+										<ul>
+											<li><a href="/front/M0000012/event/list.do">공연 일정</a></li>
+													<li><a href="/front/M0000013/eventPkg/list.do">패키지 공연</a></li>
+													<li><a href="/front/M0000040/content/view.do">예매 안내</a></li>
+													<li><a href="/front/M0000017/content/view.do">찾아가는 음악회</a></li>
+													<li><a href="/front/M0000132/content/view.do">좌석배치도</a></li>
+													</ul>
+									</div>
+								</li>
+								<li><a href="/front/M0000045/content/view.do">부천시립예술단</a>
+									<div>
+										<ul>
+											<li><a href="/front/M0000045/content/view.do">부천필하모닉오케스트라</a></li>
+													<li><a href="/front/M0000049/content/view.do">부천시립합창단</a></li>
+													<li><a href="/front/M0000069/content/view.do">사무국</a></li>
+													<li><a href="/front/M0000020/content/view.do">BI소개</a></li>
+													<li><a href="/front/M0000061/recruit/list.do">단원채용</a></li>
+													<li><a href="/front/M0000021/content/view.do">오시는 길</a></li>
+													</ul>
+									</div>
+								</li>
+								<li><a href="/front/M0000022/article/list.do">An die Musik</a>
+									<div>
+										<ul>
+											<li><a href="/front/M0000022/article/list.do">클래식+</a></li>
+													<li><a href="/front/M0000023/article/list.do">공연칼럼</a></li>
+													<li><a href="/front/M0000067/article/list.do">음반</a></li>
+													</ul>
+									</div>
+								</li>
+								<li><a href="/front/M0000025/article/list.do">커뮤니티</a>
+									<div>
+										<ul>
+											<li><a href="/front/M0000025/article/list.do">공지사항</a></li>
+													<li><a href="/front/M0000026/article/list.do">뉴스레터</a></li>
+													<li><a href="/front/M0000028/article/list.do">관람후기</a></li>
+													<li><a href="/front/M0000133/article/list.do">프로그램 노트</a></li>
+													</ul>
+									</div>
+								</li>
+								<li><a href="/front/M0000030/event/list.do">아카이브</a>
+									<div>
+										<ul>
+											<li><a href="/front/M0000030/event/list.do">공연모음</a></li>
+													<li><a href="/front/M0000031/article/list.do">기사모음</a></li>
+													<li><a href="/front/M0000052/article/list.do">사진모음</a></li>
+													</ul>
+									</div>
+								</li>
+								</ul>
+	        		</nav>
+	        		<div class="moUtil">
+                        <div class="familySite">
+                            <p>사이트 링크</p>
+                            <div class="siteBtn"><a href="#">관련사이트</a>
+                                <div class="siteList" style="">
+                                    <ul>
+                                        <li><a href="http://bucheon.go.kr" target="_blank">부천시청</a></li>
+                                        <li><a href="http://bcf.or.kr" target="_blank">부천문화재단</a></li>
+                                        <li><a href="http://www.bifan.kr/" target="_blank">부천국제판타스틱영화제</a></li>
+                                        <li><a href="http://www.komacon.kr/komacon/" target="_blank">한국만화영상진흥원</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sns">
+                            <p>부천필하모닉오케스트라 SNS</p>
+                            <ul>
+                                <li><a href="http://www.facebook.com/bucheonphilharmonic" target="_blank"><img src="/resource/images/common/icon_facebook.png" alt="페이스북"></a></li>
+                                <li><a href="http://www.twitter.com/bucheonphil" target="_blank"><img src="/resource/images/common/icon_twitter.png" alt="트위터"></a></li>
+                                <li><a href="http://blog.naver.com/bucheonphil" target="_blank"><img src="/resource/images/common/icon_blog.png" alt="네이버 블로그"></a></li>
+                                <li><a href="https://www.instagram.com/bucheonphil" target="_blank"><img src="/resource/images/common/icon_insta.png" alt="인스타그램"></a></li>
+                                <li><a href="http://pf.kakao.com/_PXgbxb" target="_blank"><img src="/resource/images/common/icon_kakaoch.png" alt="카카오 채널"></a></li>
+                                <li><a href="https://www.youtube.com/channel/UCdBnr0-s2O4oKbjd8NONSFQ?view_as=subscriber" target="_blank"><img src="/resource/images/common/icon_youtube.png" alt="유튜브"></a></li>
+                            </ul>
+                            <p>부천시립합창단 SNS</p>
+                            <ul>
+                                <li><a href="http://www.facebook.com/bucheonchorale" target="_blank"><img src="/resource/images/common/icon_facebook.png" alt="페이스북"></a></li>
+                                <li><a href="http://www.twitter.com/bucheonchorale" target="_blank"><img src="/resource/images/common/icon_twitter.png" alt="트위터"></a></li>
+                                <li><a href="http://blog.naver.com/bucheonmusic" target="_blank"><img src="/resource/images/common/icon_blog.png" alt="네이버 블로그"></a></li>
+                                <li><a href="https://www.instagram.com/bucheonchorale" target="_blank"><img src="/resource/images/common/icon_insta.png" alt="인스타그램"></a></li>
+                                <li><a href="http://pf.kakao.com/_xnigbxb" target="_blank"><img src="/resource/images/common/icon_kakaoch.png" alt="카카오 채널"></a></li>
+                                <li><a href="https://www.youtube.com/channel/UCijJwKndIwDGlBGZliAdgyA?view_as=subscriber" target="_blank"><img src="/resource/images/common/icon_youtube.png" alt="유튜브"></a></li>
+                            </ul>
+                        </div>
+                    </div>
+	        		<p class="moGnbClose"><button type="button"><span>닫기</span></button></p>
+	        	</div>
+				<div class="headUtil">
+					<ul>
+						<li class="btnMem">
+								<span><a href="/eng">ENG</a></span>
+								<span><a href="javascript:;" onclick="fnLogin();">로그인</a></span>
+								<span><a href="javascript:;" onclick="fnLoginBeforeSelfPage('userRegist');">회원가입</a></span>
+							</li>
+						<li class="btnSiteMap"><a href="/front/M0000039/sitemap/sitemap.do"><span>사이트맵</span></a></li>
+					</ul>
+				</div>
+        	</div>
+        </header>
+        
+		<aside class="sideNav">
+			<div>
+				<ul class="quickMenu">
+					<li class="quick01"><a href="/front/M0000012/event/list.do"><span>공연일정</span></a></li>
+					<li class="quick02"><a href="/front/M0000040/content/view.do"><span>예매안내</span></a></li>
+					<!-- li class="quick03"><a href="javascript:;" onclick="fnypage()"><span>예매확인/<br />취소</span></a></li -->
+					<li class="quick04"><a href="/front/M0000021/content/view.do"><span>오시는길</span></a></li>
+					<li class="quick05"><a href="/front/M0000132/content/view.do"><span>좌석배치도</span></a></li>
+				</ul>
+				<div class="btnTop"><button type="button"><span>TOP</span></button></div>
+			</div>
+		</aside>
+		
+		<main>
+			<div class="subTop">
+                <div class="subVisual visual04">
+                    <h2>커뮤니티</h2>
+                </div>
+                <div id="location">
+                	<div class="locWrap">
+                		<div class="home"><a href="/">HOME</a></div>
+                		<ul class="locList">
+                			<li class="lkList death1">
+	                						<h2><button type="button"><span>커뮤니티</span></button></h2>
+	                						<div>
+	                							<ul>
+	                								<li><a href="/front/M0000012/event/list.do">공연예매</a></li>
+	                									<li><a href="/front/M0000045/content/view.do">부천시립예술단</a></li>
+	                									<li><a href="/front/M0000022/article/list.do">An die Musik</a></li>
+	                									<li><a href="/front/M0000025/article/list.do">커뮤니티</a></li>
+	                									<li><a href="/front/M0000030/event/list.do">아카이브</a></li>
+	                									</ul>
+	                						</div>
+	                					</li>
+	                				<li class="lkList death2">
+	                						<h2><button type="button"><span>공지사항</span></button></h2>
+	                						<div>
+	                							<ul>
+	                								<li><a href="/front/M0000025/article/list.do">공지사항</a></li>
+	                									<li><a href="/front/M0000026/article/list.do">뉴스레터</a></li>
+	                									<li><a href="/front/M0000028/article/list.do">관람후기</a></li>
+	                									<li><a href="/front/M0000133/article/list.do">프로그램 노트</a></li>
+	                									</ul>
+	                						</div>
+	                					</li>
+	                				</ul>
+                		<div class="locFunc">
+                			<dl>
+                				<dt class="blind">글자크기</dt>
+                				<dd class="txt"><a href="javascript:;" class="zoomReset">기본크기</a></dd>
+                				<dd class="icon in"><a href="javascript:;" class="zoomIn">확대</a></dd>
+                				<dd class="icon out"><a href="javascript:;" class="zoomOut">축소</a></dd>
+                			</dl>
+                			<div class="print"><button type="button" onclick="window.print();return false;">인쇄</button></div>
+                		</div>
+                	</div>
+                </div>
+            </div>
+            
+	        <div id="container">
+				<div id="content">
+					
+<h3 class="conTit">공지사항</h3>
+				    <div class="defaultCon">
+				    	<!-- 콘텐츠 들어갈 곳 -->
+				    	<div class="boardList">
+				    		<form id="searchForm" name="searchForm" method="post" action="list.do">
+				    			<input type="hidden" id="page" name="pageIndex" value=""/>
+	                            <div class="boardSearch">
+	                                <div class="inputSearch">
+	                                    <input type="text" id="pageKeyword" name="pageKeyword" title="검색어" placeholder="검색어를 입력하세요." value=""/>
+	                                    <button type="button" onclick="fn_search()">검색</button>
+	                                </div>
+	                                <p class="btnReset"><button type="button" onclick="location.href='list.do'"><span>초기화</span></button></p>
+	                            </div>
+							</form>
+							<table>
+								<caption>공지사항
+									<p>다음 표는 번호, 제목, 작성자, 작성일, 조회로 구성된 게시판 목록입니다.</p>
+								</caption>
+								<thead>
+									<tr>
+										<th scope="col" class="num">번호</th><th scope="col" class="subject">제목</th>
+										<th scope="col" class="date">작성일</th><th scope="col" class="hits">조회</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+											<td class="num">809</td><td class="subject"><a href="view.do?atcId=AT026088&pageIndex=&pageKeyword=">
+												[안내] 11월 5일 &lt;부천시립합창단 해설음악회&gt; 앵콜곡 안내<i class="new">새글</i></a>
+											</td>
+											<td class="date">2026-11-05</td><td class="hits">28</td>
+										</tr>
+									<tr>
+											<td class="num">808</td><td class="subject"><a href="view.do?atcId=AT026086&pageIndex=&pageKeyword=">
+												[공고] 부천시립합창단 상임단원 채용 공고<i class="new">새글</i></a>
+											</td>
+											<td class="date">2026-11-04</td><td class="hits">1393</td>
+										</tr>
+									<tr>
+											<td class="num">807</td><td class="subject"><a href="view.do?atcId=AT026083&pageIndex=&pageKeyword=">
+												[안내] 10월 30일 &lt;부천필하모닉오케스트라 제340회 정기연주회&gt; 앵콜곡 안내</a>
+											</td>
+											<td class="date">2026-10-30</td><td class="hits">74</td>
+										</tr>
+									<tr>
+											<td class="num">806</td><td class="subject"><a href="view.do?atcId=AT026076&pageIndex=&pageKeyword=">
+												[안내] 10월 15일 &lt;부천시립예술단 1234콘서트 Ⅲ&gt; 앵콜곡 안내</a>
+											</td>
+											<td class="date">2026-10-15</td><td class="hits">119</td>
+										</tr>
+									<tr>
+											<td class="num">805</td><td class="subject"><a href="view.do?atcId=AT026051&pageIndex=&pageKeyword=">
+												[취소공지] 10월 17일 부천시립합창단 야외콘서트 취소 안내</a>
+											</td>
+											<td class="date">2026-08-10</td><td class="hits">504</td>
+										</tr>
+									<tr>
+											<td class="num">804</td><td class="subject"><a href="view.do?atcId=AT026025&pageIndex=&pageKeyword=">
+												[안내] 7월 23일 &lt;부천시립합창단 기획연주회 - YOU사연Ⅱ&gt; 앵콜곡 안내</a>
+											</td>
+											<td class="date">2026-07-23</td><td class="hits">303</td>
+										</tr>
+									<tr>
+											<td class="num">803</td><td class="subject"><a href="view.do?atcId=AT026023&pageIndex=&pageKeyword=">
+												[안내] 7월 17일 &lt;부천필하모닉오케스트라 제338회 정기연주회&gt; 앵콜곡 안내</a>
+											</td>
+											<td class="date">2026-07-17</td><td class="hits">352</td>
+										</tr>
+									<tr>
+											<td class="num">802</td><td class="subject"><a href="view.do?atcId=AT026019&pageIndex=&pageKeyword=">
+												[공고] 부천시립합창단 상임단원 채용 최종합격자 공고</a>
+											</td>
+											<td class="date">2026-07-09</td><td class="hits">643</td>
+										</tr>
+									<tr>
+											<td class="num">801</td><td class="subject"><a href="view.do?atcId=AT026006&pageIndex=&pageKeyword=">
+												[예매오픈] 8/14 &lt;부천필하모닉오케스트라 - 바그너 &#039;니벨룽의 반지&#039; 하이라이트&gt; 티켓 오픈!</a>
+											</td>
+											<td class="date">2026-06-26</td><td class="hits">683</td>
+										</tr>
+									<tr>
+											<td class="num">800</td><td class="subject"><a href="view.do?atcId=AT026005&pageIndex=&pageKeyword=">
+												[공고] 부천시립합창단 상임 단원 채용 - 2차 심사 합격자 발표 및 3차 심사 계획 공고</a>
+											</td>
+											<td class="date">2026-06-25</td><td class="hits">886</td>
+										</tr>
+									</tbody>
+							</table>
+							<div class="boardBtn">
+								<!-- <p><button type="button" class="btnModify"><span>수정</span></button></p> -->
+								<!-- p><button type="submit" class="btnWrite"><span>등록</span></button></p -->
+								<!-- <p><button type="button" class="btnCancle"><span>취소</span></button></p>
+								<p><button type="button" class="btnDelete"><span>삭제</span></button></p> -->
+								<!-- <p><a href="list.do" class="btnList"><span>목록</span></a></p> -->
+							</div>
+							<div class="pageNav">
+								<ul>
+									<li class="first"><a href="?pageIndex=1" onclick="fn_linkPage(1); return false;" class="page_prevend">first</a></li><li class="prev"><a href="?pageIndex=1" onclick="fn_linkPage(1); return false;" class="page_prev">prev</a></li><li><strong>1</strong></li><li><a href="?pageIndex=2" onclick="fn_linkPage(2); return false;">2</a></li><li><a href="?pageIndex=3" onclick="fn_linkPage(3); return false;">3</a></li><li><a href="?pageIndex=4" onclick="fn_linkPage(4); return false;">4</a></li><li><a href="?pageIndex=5" onclick="fn_linkPage(5); return false;">5</a></li><li class="next"><a href="?pageIndex=6" onclick="fn_linkPage(6); return false;" class="page_next">next</a><li><li class="last"><a href="?pageIndex=80" onclick="fn_linkPage(80); return false;" class="page_nextend">last</a><li>
+</ul>
+							</div>
+						</div>
+				    	<!-- /////////////콘텐츠 들어갈 곳 -->
+                    </div>
+<script>
+function fn_linkPage(page) {
+	$('#page').val(page);
+	$('#searchForm').submit();
+}
+function fn_search() {
+	$('#page').val('1');
+	$('#searchForm').submit();
+}
+</script>
+<p class="conCopyright"></p>
+				</div>
+	
+				<!-- <div id="contentLayerPop" tabindex="-1" role="dialog" aria-labelledby="viewDialog">
+					<div class="popContainer">
+						<div class="popCon"></div>
+						<button type="button" class="contentLayerClose" onclick="hideDialog(null, 'contentLayerPop');"><span>닫기</span></button>
+					</div>
+				</div>
+				<div class="contentLayerPopBg"></div> -->
+				<!--//layerpopup-->
+	
+			</div>
+		</main>
+		<footer id="footer">
+			<div class="footerWrap">
+				<div class="logo">
+					<img src="/resource/images/common/img_foot_logo.png" alt="Bucheon City Arts Group">
+				</div>
+				<div class="footMid">
+					<ul class="linkList">
+						<li><a href="/front/M0000039/sitemap/sitemap.do" target="_blank">사이트맵</a></li>
+						<li class="last"><a href="/front/M0000038/content/view.do" target="_blank">개인정보처리방침</a></li>
+					</ul>
+					<address>
+						<span><a href="http://kko.to/ipyUoc4Y" target="_blank">[14547] 경기도 부천시 원미구 소향로 165 부천시립예술단 사무국 </a></span>
+						<ul>
+							<!-- li>이메일 :  <a href="mailto:webmaster@ggac.or.kr">bucheonphil@naver.com</a></li -->
+							<li>전화 : <a href="tel:032-327-7523">032-327-7523</a></li>
+							<li class="last">팩스 : 032-612-7525</li>
+						</ul>
+					</address>
+					<p class="copyright">Copyright Bucheon City Arts Group 2020 All Rights Reserved.</p>
+				</div>
+				<div class="familySite">
+					<div class="siteBtn"><a href="#">관련사이트</a>
+						<div class="siteList">
+							<ul>
+								<li><a href="http://bucheon.go.kr" target="_blank">부천시청</a></li>
+								<li><a href="https://www.bac.or.kr/Home/ko/Main" target="_blank">부천아트센터</a></li>
+								<li><a href="http://bcf.or.kr" target="_blank">부천문화재단</a></li>
+								<li><a href="http://www.bifan.kr/" target="_blank">부천국제판타스틱영화제</a></li>
+								<li><a href="http://www.komacon.kr/komacon/" target="_blank">한국만화영상진흥원</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</footer>
+	</div>
+
+	<!-- 로딩img -->
+	<div id="lblAreaLoding" style="display:none;"></div>
+	<!-- //로딩img -->
+
+	<script type="text/javascript">
+	//<![CDATA[
+	$(document).ready(function(){
+		var messageAlert = "";
+		if(messageAlert.trim() != ""){
+			alert(messageAlert);
+		}
+		$("input:password").on("keypress", function(e){
+			var keyCode = 0;
+			var shiftKey = false;
+			keyCode = e.keyCode;
+			shiftKey = e.shiftKey;
+			if (((keyCode >= 65 && keyCode <= 90) && !shiftKey) || ((keyCode >= 97 && keyCode <= 122) && shiftKey)) {
+				$("#lblCapslockStatus").show().text("<Caps Lock>이 켜져 있습니다.");
+				setTimeout(function(){
+					$("#lblCapslockStatus").fadeOut();
+				}, 3500);
+			} else {
+				//$("#lblCapslockStatus").text("");
+			}
+		});
+
+		// ckeditor image width/height clear
+		$("#content .viewContent").find("img").each(function(){
+			$(this).removeAttr('width').removeAttr('height').removeAttr('style');
+		});
+	});
+	$.datepicker._gotoToday = function(id) {
+		var target = $(id);
+		var inst = this._getInst(target[0]);
+		var date = new Date();
+		this._setDate(inst,date);
+		this._hideDatepicker();
+	}
+	$.datepicker.unlimited_datepicker = function(id) {
+		//console.log("하이");
+		//this._hideDatepicker();
+	}
+	function unlimited_datepicker(input){
+		setTimeout( function() {
+			var btn = $('<button class="ui-datepicker-close ui-state-default ui-priority-primary ui-corner-all" type="button">Unlimit</button>');
+			btn.unbind("click").bind("click" , function(){
+				$(input).val("9999-12-31");
+				$(input).datepicker("hide");
+			});
+			btn.appendTo( $(input).datepicker("widget").find(".ui-datepicker-buttonpane"));
+		}, 1);
+	}
+
+	$(".datetimepicker").datepicker({
+		dateFormat: "yy-mm-dd",
+		showButtonPanel: true,
+		beforeShow: unlimited_datepicker,
+		yearRange: "2000:c+1"
+	});
+	$(".monthpicker").monthpicker({
+		dateFormat: "yy-mm",
+		yearRange: 'c-50:c+2',
+		monthNamesShort:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월']
+	});
+	$(document).on("change", ".datetimepicker", function(){
+
+		var curDay = moment(new Date()).format('YYYY-MM-DD');
+		var maxDay = "9999-12-31";
+
+		var data = $(this).val();
+		if(data.length < 10){
+			$(this).val(curDay);
+		} else if(data.length > 10){
+			$(this).val(maxDay);
+		}
+	});
+	function fn_layerPop(url, dataParam){
+		$("#contentLayerPop .popCon").empty().text("화면을 준비중입니다...");
+		popupLayorOpen();
+
+		$.ajax({
+			type:'post',
+			url:url,
+			data:dataParam,
+			dataType:'html',
+			success:function(html){
+				$("#contentLayerPop .popCon").empty().html(html);
+				popupCenter();
+			}
+		});
+	}
+
+	//예매버튼 클릭
+	var bid = 'bcag';
+	function fnypage() {
+		$.ajax({
+			url : '/front/M0000012/cryptAES.do',
+			type : 'post',
+			async : false,
+			success : function(data) {
+				wMypage(data);
+			}, 
+			error : function() {
+				alert('로그인 후 예매가 가능합니다\n로그인 페이지로 이동합니다.');	
+				location.href="/front/M0000037/login.do";
+			}
+		});
+	}
+	//예매확인
+	function wMypage(q) {
+		window.open("http://bcag.moonhwain.net/?loc=mypage&goUrl=/rsvc/mypage.html&q="+q,"mypage","status=no,resizeable=no, scrollbars=yes, width=1100, height=1280");
+	}
+	//]]>
+	</script>
+	</body>
+</html>
