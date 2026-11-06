@@ -99,6 +99,24 @@ export const jobCrawlerConfig = {
     imageUrl: env('JOB_CRAWLER_SEOSAN_IMAGE_URL', ''),
     imageFile: 'assets/job-crawler/seosan.png',
   },
+  bucheon: {
+    /**
+     * 부천시립예술단 누리집. 공지사항(/front/M0000025/article) 과 단원채용(/front/M0000061/recruit) 두 게시판을 모두 읽는다
+     * (게시판 경로는 bucheon-notice.parser 의 BUCHEON_BOARDS). 목록·상세는 GET, 첨부 /file/download.do 는 상세 URL 을 Referer 로 보내야 받는다.
+     * 공고문은 ZIP 으로 묶여 올라오거나 본문에 이미지로 들어 있어, 크롤러가 ZIP 안 공고문 → 본문 이미지 순으로 고른다
+     */
+    origin: 'https://www.bucheonphil.or.kr',
+    /** 두 게시판 모두 등록일 내림차순 10건씩. 날짜가 지날 때까지 넘긴다 */
+    maxListPages: Number(env('JOB_CRAWLER_BUCHEON_MAX_PAGES', '10')),
+    /** 제목 조건: '부천시립합창단' 과 '모집' 또는 '채용' (앵콜곡 안내 · 작품 공모 · 합격자 공고는 제외) */
+    titleKeywords: ['부천시립합창단', ['모집', '채용']] as (string | string[])[],
+    companyName: '부천시립합창단',
+    address: '경기 부천시 원미구 소향로 165',
+    addressDetail: '부천시립예술단',
+    /** 채용 대표 이미지 URL. 비어 있으면 imageFile(부천시립합창단 로고)을 기동 후 첫 등록 때 S3 에 올려 쓴다 */
+    imageUrl: env('JOB_CRAWLER_BUCHEON_IMAGE_URL', ''),
+    imageFile: 'assets/job-crawler/bucheon.png',
+  },
 };
 
 /** 한국 시간 기준 오늘 (YYYY-MM-DD) */

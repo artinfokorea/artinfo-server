@@ -51,7 +51,7 @@ function build(opts: { existing?: number; downloadError?: string; pages?: Record
         jobId: 888,
         title: input.title,
         url: input.url,
-        attachment: input.file.name,
+        attachment: input.file?.name,
         pageCount: 4,
         majors: ['TRUMPET', 'TROMBONE', 'BASSOON', 'CLARINET'],
       };
@@ -95,8 +95,8 @@ describe('UlsanPhilharmonicJobCrawler', () => {
       imageUrl: 'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/4637/images/20261024/original/0T1newl6ktY.1792829663169.png',
       date: '2026-10-06',
     });
-    expect(reg.file.name).toBe(NOTICE_FILE);
-    expect(reg.file.buffer.toString()).toBe('hwp');
+    expect(reg.file?.name).toBe(NOTICE_FILE);
+    expect(reg.file?.buffer.toString()).toBe('hwp');
     expect(reg.bodyText.startsWith('울산시립교향악단 수·차석단원 모집을 다음과 같이 변경 공고합니다.')).toBe(true);
   });
 

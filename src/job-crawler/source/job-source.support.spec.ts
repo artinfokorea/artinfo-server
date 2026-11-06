@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as Sharp from 'sharp';
 import { Repository } from 'typeorm';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { DocumentConverterService } from '@/document-converter/service/document-converter.service';
@@ -16,6 +17,9 @@ import { JobSourceSupport, NoticeRegistration, buildContentsHtml } from './job-s
  *    - imageUrl 은 소스가 준 URL 그대로 (null 이면 null)
  * 2) 두 번 등록해도 등록 계정은 한 번만 조회
  * 3) findRegisteredJobId 는 같은 URL 의 채용 id
+ * 4) 전공은 선택 — 제목·본문에 전공 낱말이 없으면 majorIds [] 로 그대로 등록한다 (전공 조회도 하지 않는다)
+ * 5) 공고문 파일 없이 본문 이미지(PNG)만 있으면 sharp 로 WebP 로 바꿔 올리고 등록한다 (attachment '본문 이미지 N장', 실제 크기)
+ *    파일 + 이미지가 모두 있으면 파일 페이지 뒤에 이미지가 붙고, 둘 다 없으면 실패
  */
 const LOGO = 'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/4637/images/20261020/original/cLa2DrY-gIr.1792501357272.png';
 
@@ -113,6 +117,60 @@ describe('JobSourceSupport', () => {
     const { support, calls } = build();
     await support.register(input({ imageUrl: null }));
     expect(calls.commands[0].imageUrl).toBeNull();
+  });
+
+  it('전공 낱말이 없으면 전공 없이 등록한다', async () => {
+    const { support, calls } = build();
+    const result = await support.register(
+      input({
+        source: 'bucheon',
+        title: '[공고] 부천시립합창단 상임단원 채용 공고',
+        bodyText: '',
+        url: 'https://www.bucheonphil.or.kr/front/M0000025/article/view.do?atcId=AT026086',
+      }),
+    );
+    expect(result.majors).toEqual([]);
+    expect(result.jobId).toBe(701);
+    expect(calls.commands).toHaveLength(1);
+    expect(calls.commands[0].majorIds).toEqual([]);
+    expect(calls.commands[0].title).toBe('[공고] 부천시립합창단 상임단원 채용 공고');
+  });
+
+  it('공고문 파일 없이 본문 이미지만 있으면 WebP 로 바꿔 올린다', async () => {
+    const png = await Sharp({ create: { width: 4, height: 6, channels: 3, background: { r: 200, g: 30, b: 30 } } })
+      .png()
+      .toBuffer();
+    const { support, calls } = build();
+    const result = await support.register(
+      input({
+        file: undefined,
+        images: [
+          { name: 'a.png', buffer: png },
+          { name: 'b.png', buffer: png },
+        ],
+      }),
+    );
+
+    expect(result).toMatchObject({ attachment: '본문 이미지 2장', pageCount: 2 });
+    expect(calls.uploads.map(([key, mime]) => [key.replace(/\/[^/]+\.webp$/, '/*.webp'), mime])).toEqual([
+      ['upload/42/jobs/20261020/original/*.webp', 'image/webp'],
+      ['upload/42/jobs/20261020/original/*.webp', 'image/webp'],
+    ]);
+    expect(calls.commands[0].contents).toContain('<figure class="image"><img style="aspect-ratio:4/6;"');
+    expect(calls.commands[0].contents.match(/<figure/g)).toHaveLength(2);
+    expect(calls.commands[0].contents).toContain('width="4" height="6"');
+  });
+
+  it('파일과 이미지가 모두 있으면 파일 페이지 뒤에 이미지가 붙고, 둘 다 없으면 실패', async () => {
+    const png = await Sharp({ create: { width: 3, height: 5, channels: 3, background: '#fff' } })
+      .png()
+      .toBuffer();
+    const { support, calls } = build();
+    const result = await support.register(input({ images: [{ name: 'a.png', buffer: png }] }));
+    expect(result).toMatchObject({ attachment: '공고문.hwpx', pageCount: 3 });
+    expect(calls.commands[0].contents.match(/aspect-ratio:(\d+\/\d+)/g)).toEqual(['aspect-ratio:1587/2245', 'aspect-ratio:1587/2245', 'aspect-ratio:3/5']);
+
+    await expect(build().support.register(input({ file: undefined, images: [] }))).rejects.toThrow('공고문 파일도 본문 이미지도 없음');
   });
 
   it('findRegisteredJobId 는 같은 URL 의 채용 id', async () => {

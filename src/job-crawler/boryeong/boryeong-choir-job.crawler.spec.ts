@@ -46,7 +46,7 @@ function build(opts: { existing?: number; downloadError?: string; pages?: Record
     },
     register: async (input: NoticeRegistration) => {
       calls.registrations.push(input);
-      return { jobId: 999, title: input.title, url: input.url, attachment: input.file.name, pageCount: 3, majors: ['ALTO', 'TENOR'] };
+      return { jobId: 999, title: input.title, url: input.url, attachment: input.file?.name, pageCount: 3, majors: ['ALTO', 'TENOR'] };
     },
   } as unknown as JobSourceSupport;
   const crawler = new BoryeongChoirJobCrawler({} as BoryeongNoticeClient, support, gateway);
@@ -80,8 +80,8 @@ describe('BoryeongChoirJobCrawler', () => {
       imageUrl: LOGO,
       date: '2026-10-27',
     });
-    expect(reg.file.name).toBe(NOTICE_FILE);
-    expect(reg.file.buffer.toString()).toBe('hwpx');
+    expect(reg.file?.name).toBe(NOTICE_FILE);
+    expect(reg.file?.buffer.toString()).toBe('hwpx');
     expect(reg.bodyText.startsWith('음악을 사랑하고 지역문화 발전에 기여할')).toBe(true);
     expect(reg.bodyText).toContain('1. 모집인원: 21명');
   });
