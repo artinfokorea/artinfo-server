@@ -10,4 +10,12 @@ export class SnsLoginRequest {
   @Enum(SNS_TYPE)
   @ApiProperty({ enum: SNS_TYPE, enumName: 'AUTH_TYPE', required: true, description: 'SNS 로그인 타입', example: SNS_TYPE.KAKAO })
   type: SNS_TYPE;
+
+  @ApiProperty({
+    type: String,
+    required: false,
+    description: '이름 — Apple 로그인은 최초 1회만 앱에 이름을 주므로 그때 함께 보낸다 (가입 시에만 사용)',
+    example: '홍길동',
+  })
+  name: string | null = null;
 }

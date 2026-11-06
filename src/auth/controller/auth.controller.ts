@@ -33,7 +33,7 @@ export class AuthController {
 
   @RestApiPost(AuthTokensResponse, { path: '/login/sns', description: '소셜 로그인' })
   async loginBySnS(@Body() request: SnsLoginRequest) {
-    const auth = await this.authService.loginBySns(request.token, request.type);
+    const auth = await this.authService.loginBySns(request.token, request.type, request.name);
 
     return new AuthTokensResponse(auth);
   }

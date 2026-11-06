@@ -108,6 +108,18 @@ export class NaverAccessTokenIsNotValid extends HttpException {
   }
 }
 
+export class AppleIdentityTokenIsNotValid extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'AUTH-012',
+        message: 'Apple 로그인 토큰 정보가 올바르지 않습니다.',
+      },
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+}
+
 export class FailedToRenewToken extends HttpException {
   constructor() {
     super(

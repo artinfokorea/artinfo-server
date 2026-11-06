@@ -8,6 +8,7 @@ import {
   InvalidLoginInfo,
   KakaoAccessTokenIsNotValid,
   NaverAccessTokenIsNotValid,
+  AppleIdentityTokenIsNotValid,
   PasswordNotFound,
 } from '@/auth/exception/auth.exception';
 import * as bcrypt from 'bcrypt';
@@ -20,6 +21,7 @@ import axios from 'axios';
 import { RefreshAccessTokenCommand } from '@/auth/dto/command/refresh-access-token.command';
 import { AuthRepository } from '@/auth/repository/auth.repository';
 import { UserCreator } from '@/user/repository/opertaion/user.creator';
+import { AppleIdentityTokenVerifier } from '@/auth/service/apple-identity-token.verifier';
 
 @Injectable()
 export class AuthService {
@@ -28,6 +30,7 @@ export class AuthService {
     private readonly authRepository: AuthRepository,
     private readonly redisRepository: RedisRepository,
     private readonly jwtService: JwtService,
+    private readonly appleIdentityTokenVerifier: AppleIdentityTokenVerifier,
   ) {}
 
   async signup(command: SignUpCommand): Promise<void> {
@@ -61,7 +64,7 @@ export class AuthService {
     return await this.authRepository.create({ type: AUTH_TYPE.EMAIL, user: user });
   }
 
-  async loginBySns(token: string, type: SNS_TYPE): Promise<Auth> {
+  async loginBySns(token: string, type: SNS_TYPE, name: string | null = null): Promise<Auth> {
     let user: User | null = null;
     let authType: AUTH_TYPE | null = null;
 
@@ -74,6 +77,9 @@ export class AuthService {
     } else if (type === SNS_TYPE.KAKAO) {
       user = await this.getUserByKakao(token);
       authType = AUTH_TYPE.KAKAO;
+    } else if (type === SNS_TYPE.APPLE) {
+      user = await this.getUserByApple(token, name);
+      authType = AUTH_TYPE.APPLE;
     } else {
       throw new InvalidLoginInfo();
     }
@@ -115,6 +121,35 @@ export class AuthService {
     } else {
       return refetchAuth as Auth;
     }
+  }
+
+  /**
+   * Apple 로그인 — identity token 을 검증해 email 로 회원을 찾고, 없으면 가입시킨다.
+   * 이름은 Apple 이 최초 1회만 앱에 주므로 요청 name 을 쓰고, 없으면 이메일 앞부분을 쓴다 (구글과 같음).
+   */
+  private async getUserByApple(identityToken: string, name: string | null): Promise<User> {
+    const identity = await this.appleIdentityTokenVerifier.verify(identityToken);
+    if (!identity.email) {
+      throw new AppleIdentityTokenIsNotValid();
+    }
+
+    let user = await this.userRepository.findByEmail(identity.email);
+    if (!user) {
+      const fallbackName = identity.email.split('@')[0];
+      const displayName = name?.trim() || fallbackName;
+      const userCreator = new UserCreator({
+        name: displayName,
+        nickname: displayName,
+        email: identity.email,
+        password: null,
+        iconImageUrl: null,
+      });
+
+      const userId = await this.userRepository.create(userCreator);
+      user = await this.userRepository.findOneOrThrowById(userId);
+    }
+
+    return user;
   }
 
   private async getUserByKakao(accessToken: string): Promise<User> {

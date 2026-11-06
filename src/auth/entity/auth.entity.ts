@@ -6,12 +6,14 @@ export enum AUTH_TYPE {
   KAKAO = 'KAKAO',
   NAVER = 'NAVER',
   GOOGLE = 'GOOGLE',
+  APPLE = 'APPLE',
 }
 
 export enum SNS_TYPE {
   KAKAO = 'KAKAO',
   NAVER = 'NAVER',
   GOOGLE = 'GOOGLE',
+  APPLE = 'APPLE',
 }
 
 export interface AuthCreator {

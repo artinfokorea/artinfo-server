@@ -19,6 +19,8 @@ import { AwsSesService } from '@/aws/ses/aws-ses.service';
 import { Province } from '@/lesson/entity/province.entity';
 import { ProvinceRepository } from '@/province/province.repository';
 import { AuthRepository } from '@/auth/repository/auth.repository';
+import { AppleIdentityTokenVerifier } from '@/auth/service/apple-identity-token.verifier';
+import { AuthSchemaBootstrapService } from '@/auth/service/auth-schema-bootstrap.service';
 
 @Module({
   imports: [JwtModule.register({}), TypeOrmModule.forFeature([Auth, User, UserMajorCategory, ImageEntity, Province])],
@@ -28,6 +30,8 @@ import { AuthRepository } from '@/auth/repository/auth.repository';
     JwtStrategy,
     AuthService,
     AuthRepository,
+    AppleIdentityTokenVerifier,
+    AuthSchemaBootstrapService,
     UserRepository,
     VerificationService,
     SystemService,
