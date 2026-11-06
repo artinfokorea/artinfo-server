@@ -50,6 +50,17 @@ export class UserService {
     });
   }
 
+  /** 회원탈퇴 (앱 심사 지침 5.1.1(v)) — 익명화 + soft delete, 토큰·학력·refresh 캐시 정리 */
+  async withdraw(userId: number): Promise<void> {
+    await this.dataSource.transaction(async transactionManager => {
+      await this.userRepository.withdrawOrThrow(userId, transactionManager);
+      await this.schoolRepository.deleteByUserId(userId, transactionManager);
+      await transactionManager.delete(Auth, { userId });
+    });
+
+    await this.redisService.delete(`USER:REFRESH=${userId}`);
+  }
+
   async editUser(command: EditUserCommand): Promise<void> {
     await this.dataSource.transaction(async transactionManager => {
       await this.userRepository.editOrThrow(command.toUserEditor(), transactionManager);

@@ -65,6 +65,30 @@ export class UserRepository {
     return this.userRepository.findOneBy({ email });
   }
 
+  /**
+   * 회원탈퇴 — 개인정보를 익명화한 뒤 soft delete 한다.
+   * 이메일은 unique 라 바꿔 두어야 같은 이메일로 다시 가입할 수 있다. 글·댓글은 "탈퇴회원" 으로 남는다.
+   */
+  async withdrawOrThrow(userId: number, transactionManager: EntityManager): Promise<void> {
+    const user = await transactionManager.findOne(User, { where: { id: userId } });
+    if (!user) throw new UserNotFound();
+
+    await transactionManager.update(
+      User,
+      { id: userId },
+      {
+        name: '탈퇴회원',
+        nickname: '탈퇴회원',
+        email: `withdrawn-${userId}-${Date.now()}@withdrawn.artinfokorea.com`,
+        phone: null,
+        birth: null,
+        password: null,
+        iconImageUrl: null,
+      },
+    );
+    await transactionManager.softDelete(User, { id: userId });
+  }
+
   async editPasswordOrThrowByEmail(email: string, password: string, transactionManager: EntityManager): Promise<void> {
     const user = await transactionManager.findOne(User, { where: { email: email } });
     if (!user) throw new UserNotFound();
