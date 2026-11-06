@@ -63,6 +63,7 @@ import { DocumentConverterModule } from '@/document-converter/document-converter
 import { JobCrawlerModule } from '@/job-crawler/job-crawler.module';
 import { AdminModule } from '@/admin/admin.module';
 import { ArtinfoActivityModule } from '@/activity/artinfo-activity.module';
+import { ArtinfoModerationModule } from '@/moderation/artinfo-moderation.module';
 import { OngiUser } from '@/ongi/user/domain/entity/ongi-user.entity';
 import { OngiAuth } from '@/ongi/auth/domain/entity/ongi-auth.entity';
 import { OngiGroup } from '@/ongi/group/domain/entity/ongi-group.entity';
@@ -144,6 +145,7 @@ const modules = [
   JobCrawlerModule,
   AdminModule,
   ArtinfoActivityModule,
+  ArtinfoModerationModule,
 ];
 
 @Module({
