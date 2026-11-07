@@ -1,0 +1,40 @@
+import { Body } from '@nestjs/common';
+import { RestApiController, RestApiDelete, RestApiGet, RestApiPost, RestApiPut } from '@/common/decorator/rest-api';
+import { AuthSignature } from '@/common/decorator/AuthSignature';
+import { UserSignature } from '@/common/type/type';
+import { OkResponse } from '@/common/response/ok.response';
+import { USER_TYPE } from '@/user/entity/user.entity';
+import { ArtinfoPushRepository, DEFAULT_PUSH_PREFERENCES } from '@/push/artinfo-push.repository';
+import { RegisterPushTokenRequest, UnregisterPushTokenRequest, UpdatePushPreferencesRequest } from '@/push/dto/push.request';
+import { PushPreferencesResponse } from '@/push/dto/push-preferences.response';
+
+/** 아트인포 앱 푸시 — 기기 토큰 등록·해제, 종류별 수신 설정 */
+@RestApiController('/push', 'Push')
+export class ArtinfoPushController {
+  constructor(private readonly repository: ArtinfoPushRepository) {}
+
+  @RestApiPost(OkResponse, { path: '/tokens', description: '이 기기의 푸시 토큰 등록 (로그인 후)', auth: [USER_TYPE.CLIENT] })
+  async register(@AuthSignature() signature: UserSignature, @Body() request: RegisterPushTokenRequest): Promise<OkResponse> {
+    await this.repository.upsertToken(signature.id, request.token.trim(), request.platform ?? 'ios');
+    return new OkResponse();
+  }
+
+  @RestApiDelete(OkResponse, { path: '/tokens', description: '이 기기의 푸시 토큰 해제 (로그아웃)', auth: [USER_TYPE.CLIENT] })
+  async unregister(@AuthSignature() _signature: UserSignature, @Body() request: UnregisterPushTokenRequest): Promise<OkResponse> {
+    await this.repository.deleteToken(request.token.trim());
+    return new OkResponse();
+  }
+
+  @RestApiGet(PushPreferencesResponse, { path: '/preferences', description: '내 푸시 수신 설정 (저장 전엔 전부 켜짐)', auth: [USER_TYPE.CLIENT] })
+  async getPreferences(@AuthSignature() signature: UserSignature): Promise<PushPreferencesResponse> {
+    return new PushPreferencesResponse((await this.repository.findPreferences(signature.id)) ?? DEFAULT_PUSH_PREFERENCES);
+  }
+
+  @RestApiPut(PushPreferencesResponse, { path: '/preferences', description: '푸시 수신 설정 변경 — 보낸 항목만 바뀐다', auth: [USER_TYPE.CLIENT] })
+  async updatePreferences(@AuthSignature() signature: UserSignature, @Body() request: UpdatePushPreferencesRequest): Promise<PushPreferencesResponse> {
+    const current = (await this.repository.findPreferences(signature.id)) ?? DEFAULT_PUSH_PREFERENCES;
+    const merged = { ...current, ...(typeof request.job === 'boolean' ? { job: request.job } : {}) };
+    await this.repository.savePreferences(signature.id, merged);
+    return new PushPreferencesResponse(merged);
+  }
+}
