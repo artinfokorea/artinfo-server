@@ -21,13 +21,11 @@ import { AwsSesService } from '@/aws/ses/aws-ses.service';
 import { ImageEntity } from '@/system/entity/image.entity';
 import { ImageRepository } from '@/system/repository/image.repository';
 import { FileConverterModule } from '@/file-converter/file-converter.module';
-import { ArtinfoPushModule } from '@/push/artinfo-push.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Job, JobMajorCategory, JobUser, JobProvince, MajorCategory, Province, User, JobSchedule, ImageEntity]),
     FileConverterModule,
-    ArtinfoPushModule,
   ],
   controllers: [JobController],
   providers: [

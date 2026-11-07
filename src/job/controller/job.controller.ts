@@ -23,14 +23,10 @@ import { JobApplicantsResponse } from '@/job/dto/response/job-applicants.respons
 import { GetMyApplyJobsRequest } from '@/job/dto/request/get-my-apply-jobs.request';
 import { MyApplyJobsResponse } from '@/job/dto/response/my-apply-jobs.response';
 import { EditJobStatusRequest } from '@/job/dto/request/edit-job-status.request';
-import { ArtinfoPushService } from '@/push/artinfo-push.service';
 
 @RestApiController('/jobs', 'Job')
 export class JobController {
-  constructor(
-    private readonly jobService: JobService,
-    private readonly pushService: ArtinfoPushService,
-  ) {}
+  constructor(private readonly jobService: JobService) {}
 
   @RestApiGet(JobsResponse, { path: '/', description: '채용 목록 조회' })
   async getJobs(@Query() request: GetJobsRequest) {
@@ -75,8 +71,6 @@ export class JobController {
   async createPartTimeJob(@AuthSignature() signature: UserSignature, @Body() request: CreatePartTimeJobRequest): Promise<CreateResponse> {
     const command = request.toCommand(signature.id);
     const jobId = await this.jobService.createPartTimeJob(command);
-    this.pushService.notifyNewJob({ jobId, title: command.title, companyName: command.companyName, authorUserId: signature.id });
-
     return new CreateResponse(jobId);
   }
 
@@ -84,8 +78,6 @@ export class JobController {
   async createFullTimeJob(@AuthSignature() signature: UserSignature, @Body() request: CreateFullTimeJobRequest): Promise<CreateResponse> {
     const command = request.toCommand(signature.id);
     const jobId = await this.jobService.createJob(command);
-    // 회원이 올린 공고만 푸시 — 크롤러가 모은 공고는 JobService 를 직접 쓰므로 여기 안 걸린다
-    this.pushService.notifyNewJob({ jobId, title: command.title, companyName: command.companyName, authorUserId: signature.id });
     return new CreateResponse(jobId);
   }
 
@@ -93,8 +85,6 @@ export class JobController {
   async createJob(@AuthSignature() signature: UserSignature, @Body() request: CreateFullTimeJobRequest): Promise<CreateResponse> {
     const command = request.toCommand(signature.id);
     const jobId = await this.jobService.createJob(command);
-    // 회원이 올린 공고만 푸시 — 크롤러가 모은 공고는 JobService 를 직접 쓰므로 여기 안 걸린다
-    this.pushService.notifyNewJob({ jobId, title: command.title, companyName: command.companyName, authorUserId: signature.id });
     return new CreateResponse(jobId);
   }
 

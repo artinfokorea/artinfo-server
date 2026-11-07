@@ -80,16 +80,38 @@ export class ArtinfoPushRepository implements OnModuleInit {
     );
   }
 
-  /** 채용 공고 푸시 대상 토큰 — 탈퇴하지 않은 회원, 채용 알림을 끄지 않은 회원(저장 안 했으면 켜짐), 등록자 본인 제외 */
-  async scanTokensForJobPush(authorUserId: number): Promise<string[]> {
+  /** 채용 알림 대상 토큰 — 탈퇴하지 않은 회원 중 채용 알림을 끄지 않은 회원(저장 안 했으면 켜짐) */
+  async scanJobPushTokens(): Promise<string[]> {
     const rows: { token: string }[] = await this.dataSource.query(
       `SELECT t.token
        FROM artinfo_push_tokens t
        JOIN users u ON u.id = t.user_id AND u.deleted_at IS NULL
        LEFT JOIN artinfo_push_preferences p ON p.user_id = t.user_id
-       WHERE COALESCE(p.job, TRUE) = TRUE AND t.user_id <> $1`,
-      [authorUserId],
+       WHERE COALESCE(p.job, TRUE) = TRUE`,
     );
     return rows.map(row => row.token);
+  }
+
+  /** 테스트 발송 대상 — 전체(탈퇴 제외) 또는 관리자 계정의 기기만 */
+  async scanTokens(target: 'ADMIN' | 'ALL'): Promise<string[]> {
+    const rows: { token: string }[] = await this.dataSource.query(
+      `SELECT t.token
+       FROM artinfo_push_tokens t
+       JOIN users u ON u.id = t.user_id AND u.deleted_at IS NULL
+       ${target === 'ADMIN' ? "WHERE u.type = 'ADMIN'" : ''}`,
+    );
+    return rows.map(row => row.token);
+  }
+
+  /**
+   * 최근 N시간 안에 등록된(활성) 채용 공고 수 — 매일 12시 요약 푸시용.
+   * 시각 비교는 DB 의 now() 기준으로 해서 서버·DB 타임존 차이에 흔들리지 않게 한다.
+   */
+  async countJobsCreatedWithinHours(hours: number): Promise<number> {
+    const rows: { count: number | string }[] = await this.dataSource.query(
+      `SELECT COUNT(*)::int AS count FROM jobs WHERE is_active = TRUE AND created_at >= now() - ($1 || ' hours')::interval`,
+      [String(hours)],
+    );
+    return Number(rows[0]?.count ?? 0);
   }
 }
