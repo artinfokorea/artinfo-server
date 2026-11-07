@@ -34,18 +34,18 @@ describe('ArtinfoPushController', () => {
 
   it('getPreferences — 저장 전엔 기본값(켜짐)', async () => {
     repository.findPreferences.mockResolvedValue(null);
-    await expect(controller.getPreferences(me)).resolves.toEqual({ code: 'OK', message: null, item: { job: true } });
+    await expect(controller.getPreferences(me)).resolves.toEqual({ job: true });
     repository.findPreferences.mockResolvedValue({ job: false });
-    await expect(controller.getPreferences(me)).resolves.toEqual({ code: 'OK', message: null, item: { job: false } });
+    await expect(controller.getPreferences(me)).resolves.toEqual({ job: false });
   });
 
   it('updatePreferences — 보낸 항목만 바꾸고 저장한 뒤 전체를 돌려준다', async () => {
     repository.findPreferences.mockResolvedValue(null);
-    await expect(controller.updatePreferences(me, { job: false })).resolves.toEqual({ code: 'OK', message: null, item: { job: false } });
+    await expect(controller.updatePreferences(me, { job: false })).resolves.toEqual({ job: false });
     expect(repository.savePreferences).toHaveBeenCalledWith(7, { job: false });
 
     repository.findPreferences.mockResolvedValue({ job: false });
-    await expect(controller.updatePreferences(me, {})).resolves.toEqual({ code: 'OK', message: null, item: { job: false } });
+    await expect(controller.updatePreferences(me, {})).resolves.toEqual({ job: false });
     expect(repository.savePreferences).toHaveBeenLastCalledWith(7, { job: false });
   });
 });
