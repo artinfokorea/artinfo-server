@@ -29,6 +29,6 @@ describe('ArtinfoModerationController', () => {
     expect(repository.block).toHaveBeenCalledWith(7, 9);
     await controller.unblock(me, 9);
     expect(repository.unblock).toHaveBeenCalledWith(7, 9);
-    await expect(controller.blockedUsers(me)).resolves.toEqual({ code: 'OK', message: null, item: { userIds: [9] } });
+    await expect(controller.blockedUsers(me)).resolves.toEqual({ userIds: [9] });
   });
 });
