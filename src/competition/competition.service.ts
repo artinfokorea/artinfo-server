@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CompetitionNotAllowed, CompetitionNotFound, CompetitionNotPublished } from './competition.exception';
 import { CompetitionRepository } from './competition.repository';
+import { dedupeKey } from './competition-dedupe';
 import { CompetitionListFilter, CompetitionRow, CompetitionWrite } from './competition.types';
 
 /**
@@ -12,6 +13,10 @@ export class CompetitionService {
   private readonly logger = new Logger(CompetitionService.name);
 
   constructor(private readonly repository: CompetitionRepository) {}
+
+  isAdmin(userId: number) {
+    return this.repository.isAdmin(userId);
+  }
 
   findPage(filter: CompetitionListFilter) {
     return this.repository.findPage(filter);
@@ -34,12 +39,14 @@ export class CompetitionService {
     const status = (await this.repository.isAdmin(userId)) ? 'PUBLISHED' : 'REVIEW';
     const id = await this.repository.create(input, { userId, status, source: 'OWNER' });
     this.logger.log(`콩쿠르 등록 ${id} (${status}) — 회원 ${userId}`);
+    await this.absorbCrawledDuplicates(id, input);
     return { id, status };
   }
 
   async update(id: number, userId: number, input: CompetitionWrite): Promise<void> {
     await this.assertOwnerOrAdmin(id, userId);
     await this.repository.update(id, input);
+    await this.absorbCrawledDuplicates(id, input);
   }
 
   async remove(id: number, userId: number): Promise<void> {
@@ -52,6 +59,20 @@ export class CompetitionService {
     if (!(await this.repository.isAdmin(adminId))) throw new CompetitionNotAllowed();
     if (!(await this.repository.findById(id))) throw new CompetitionNotFound();
     await this.repository.updateStatus(id, 'PUBLISHED');
+  }
+
+  /**
+   * 직접 등록본이 들어오면 같은 대회의 수집본(제목·주최 키 같고 마감 ±3일)을 숨기고, 원문 URL·포스터를 등록본에 붙인다.
+   * 대표는 항상 직접 등록본. 숨긴 수집본은 다음 수집 때 URL 이 같으면 갱신만 되고 다시 보이지 않는다
+   */
+  private async absorbCrawledDuplicates(ownerId: number, input: CompetitionWrite): Promise<void> {
+    const duplicates = await this.repository.findDuplicates(dedupeKey(input.title, input.host), input.closeAt, ownerId);
+    for (const dup of duplicates) {
+      if (dup.source !== 'CRAWL') continue;
+      await this.repository.updateStatus(dup.id, 'HIDDEN');
+      if (dup.source_url) await this.repository.attachSource(ownerId, dup.source_url, dup.poster_url);
+      this.logger.log(`콩쿠르 ${ownerId} 에 수집본 ${dup.id} 를 합침`);
+    }
   }
 
   private async assertOwnerOrAdmin(id: number, userId: number): Promise<CompetitionRow> {

@@ -2,7 +2,8 @@ import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { CompetitionController } from './competition.controller';
 import { CompetitionService } from './competition.service';
-import { CompetitionWriteRequest, GetCompetitionsRequest } from './dto/competition.request';
+import { ContestCompetitionCrawler } from './crawler/contest-competition.crawler';
+import { CompetitionWriteRequest, CrawlCompetitionsRequest, GetCompetitionsRequest } from './dto/competition.request';
 import { CompetitionRow } from './competition.types';
 
 /**
@@ -15,8 +16,9 @@ import { CompetitionRow } from './competition.types';
  * 4) PUT/DELETE/publish 는 회원 ID 와 id 를 서비스로 넘기고 OkResponse
  */
 describe('CompetitionController', () => {
-  const service = { findPage: jest.fn(), findOne: jest.fn(), create: jest.fn(), update: jest.fn(), remove: jest.fn(), publish: jest.fn() };
-  const controller = new CompetitionController(service as unknown as CompetitionService);
+  const service = { findPage: jest.fn(), findOne: jest.fn(), create: jest.fn(), update: jest.fn(), remove: jest.fn(), publish: jest.fn(), isAdmin: jest.fn() };
+  const crawler = { crawl: jest.fn() };
+  const controller = new CompetitionController(service as unknown as CompetitionService, crawler as unknown as ContestCompetitionCrawler);
   const me = { id: 7, name: '나', email: 'me@example.com' };
   const row: CompetitionRow = {
     id: 1,
@@ -160,5 +162,65 @@ describe('CompetitionController', () => {
     expect(service.remove).toHaveBeenCalledWith(5, 7);
     await expect(controller.publish(me, 5)).resolves.toMatchObject({ code: 'OK' });
     expect(service.publish).toHaveBeenCalledWith(5, 7);
+  });
+
+  it('crawl — 관리자만 수집을 돌리고 요약을 돌려준다', async () => {
+    service.isAdmin.mockResolvedValueOnce(false);
+    await expect(controller.crawl(me, plainToInstance(CrawlCompetitionsRequest, {}))).rejects.toMatchObject({ status: 403 });
+    service.isAdmin.mockResolvedValueOnce(true);
+    crawler.crawl.mockResolvedValueOnce({
+      source: 'contest',
+      scanned: 50,
+      matched: 30,
+      created: [{ id: 1, title: 't', url: 'u' }],
+      updated: [],
+      merged: [],
+      skipped: [],
+      failed: [],
+      elapsedMs: 10,
+    });
+    await expect(controller.crawl(me, plainToInstance(CrawlCompetitionsRequest, { limit: '10' }))).resolves.toMatchObject({
+      source: 'contest',
+      scanned: 50,
+      matched: 30,
+      createdCount: 1,
+      updatedCount: 0,
+      mergedCount: 0,
+    });
+  });
+
+  it('create — 접수 방법에 따라 링크·이메일 형식을 검사한다 (웹·앱 폼과 같은 규칙)', async () => {
+    const base = { title: 'T', host: 'H', area: '서울', divisions: ['성악'], openAt: '2026-11-20', closeAt: '2026-12-19' };
+    const noLink = plainToInstance(CompetitionWriteRequest, { ...base, applyMethod: 'LINK', applyLink: '' });
+    expect((await validate(noLink)).map(e => e.property)).toEqual(['applyLink']);
+    const badLink = plainToInstance(CompetitionWriteRequest, { ...base, applyMethod: 'LINK', applyLink: 'forms.gle/x' });
+    expect((await validate(badLink)).map(e => Object.values(e.constraints ?? {})[0])).toEqual(['접수 링크는 https:// 로 시작하는 주소여야 합니다.']);
+    const badEmail = plainToInstance(CompetitionWriteRequest, { ...base, applyMethod: 'EMAIL', email: 'not-an-email' });
+    expect((await validate(badEmail)).map(e => e.property)).toEqual(['email']);
+    const postNoLink = plainToInstance(CompetitionWriteRequest, { ...base, applyMethod: 'POST', applyLink: '', email: '' });
+    expect(await validate(postNoLink)).toHaveLength(0);
+    const optionalBadEmail = plainToInstance(CompetitionWriteRequest, { ...base, applyMethod: 'LINK', applyLink: 'https://x', email: 'nope' });
+    expect((await validate(optionalBadEmail)).map(e => e.property)).toEqual(['email']);
+  });
+
+  it('crawl — limit 은 1~50 정수만, 비우면 전체', async () => {
+    expect(await validate(plainToInstance(CrawlCompetitionsRequest, { limit: '10' }))).toHaveLength(0);
+    expect(await validate(plainToInstance(CrawlCompetitionsRequest, {}))).toHaveLength(0);
+    expect((await validate(plainToInstance(CrawlCompetitionsRequest, { limit: '0' }))).map(e => e.property)).toEqual(['limit']);
+    expect((await validate(plainToInstance(CrawlCompetitionsRequest, { limit: '99' }))).map(e => e.property)).toEqual(['limit']);
+    service.isAdmin.mockResolvedValueOnce(true);
+    crawler.crawl.mockResolvedValueOnce({
+      source: 'contest',
+      scanned: 10,
+      matched: 8,
+      created: [],
+      updated: [],
+      merged: [],
+      skipped: [],
+      failed: [],
+      elapsedMs: 5,
+    });
+    await controller.crawl(me, plainToInstance(CrawlCompetitionsRequest, { limit: '10' }));
+    expect(crawler.crawl).toHaveBeenLastCalledWith({ limit: 10 });
   });
 });

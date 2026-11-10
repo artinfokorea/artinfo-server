@@ -6,14 +6,20 @@ import { AuthSignature } from '@/common/decorator/AuthSignature';
 import { OkResponse } from '@/common/response/ok.response';
 import { UserSignature } from '@/common/type/type';
 import { USER_TYPE } from '@/user/entity/user.entity';
+import { CompetitionNotAllowed } from './competition.exception';
 import { CompetitionService } from './competition.service';
-import { CompetitionWriteRequest, GetCompetitionsRequest } from './dto/competition.request';
+import { ContestCompetitionCrawler } from './crawler/contest-competition.crawler';
+import { CompetitionCrawlResponse } from './dto/competition.response';
+import { CompetitionWriteRequest, CrawlCompetitionsRequest, GetCompetitionsRequest } from './dto/competition.request';
 import { CompetitionResponse, CompetitionsResponse, CreateCompetitionResponse } from './dto/competition.response';
 
 /** 콩쿠르 공고 — 목록·상세는 공개, 등록·수정·삭제는 회원(본인 또는 관리자), 승인은 관리자 */
 @RestApiController('/competitions', 'Competition')
 export class CompetitionController {
-  constructor(private readonly service: CompetitionService) {}
+  constructor(
+    private readonly service: CompetitionService,
+    private readonly crawler: ContestCompetitionCrawler,
+  ) {}
 
   @RestApiGet(CompetitionsResponse, { path: '/', description: '콩쿠르 목록 — 게시된 공고만, 마감임박순. phases 비우면 종료 제외' })
   async list(@Query() request: GetCompetitionsRequest): Promise<CompetitionsResponse> {
@@ -22,6 +28,16 @@ export class CompetitionController {
   }
 
   @UseGuards(OptionalJwtAuthGuard)
+  @RestApiPost(CompetitionCrawlResponse, {
+    path: '/crawl',
+    description: '[관리자] contest.co.kr 콩쿠르 수집을 지금 실행 — ?limit=N 이면 목록 앞 N건만 (스케줄은 전체 50건)',
+    auth: [USER_TYPE.ADMIN],
+  })
+  async crawl(@AuthSignature() signature: UserSignature, @Query() request: CrawlCompetitionsRequest): Promise<CompetitionCrawlResponse> {
+    if (!(await this.service.isAdmin(signature.id))) throw new CompetitionNotAllowed();
+    return new CompetitionCrawlResponse(await this.crawler.crawl({ limit: request.limit }));
+  }
+
   @RestApiGet(CompetitionResponse, { path: '/:id', description: '콩쿠르 상세 — 검토 중 공고는 등록자·관리자만 (Bearer 토큰이 있으면 본인 확인)' })
   async detail(@Param('id', ParseIntPipe) id: number, @Req() req: Request & { user?: UserSignature | null }): Promise<CompetitionResponse> {
     return new CompetitionResponse(await this.service.findOne(id, req.user?.id ?? null));
