@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { ArrayMinSize, IsArray, IsIn, IsOptional, IsString, Matches, MaxLength } from 'class-validator';
+import { ArrayMinSize, IsArray, IsEmail, IsIn, IsOptional, IsString, Matches, MaxLength, ValidateIf } from 'class-validator';
 import { NotBlank } from '@/common/decorator/validator';
 import { List } from '@/common/type/type';
 import { APPLY_METHODS, ApplyMethod, COMPETITION_PHASES, CompetitionListFilter, CompetitionPhase, CompetitionWrite } from '../competition.types';
@@ -71,7 +71,7 @@ export class CompetitionWriteRequest {
 
   @Transform(toArray)
   @IsArray()
-  @ArrayMinSize(1)
+  @ArrayMinSize(1, { message: '부문을 하나 이상 선택해 주세요.' })
   @IsString({ each: true })
   @ApiProperty({ type: [String], required: true, description: '부문', example: ['피아노', '성악'] })
   divisions: string[];
@@ -82,11 +82,11 @@ export class CompetitionWriteRequest {
   @ApiProperty({ type: [String], required: false, description: '참가 대상', example: ['중등', '고등'] })
   ages: string[] = [];
 
-  @Matches(DATE)
+  @Matches(DATE, { message: '접수 시작일은 YYYY-MM-DD 형식이어야 합니다.' })
   @ApiProperty({ type: String, required: true, description: '접수 시작 YYYY-MM-DD' })
   openAt: string;
 
-  @Matches(DATE)
+  @Matches(DATE, { message: '접수 마감일은 YYYY-MM-DD 형식이어야 합니다.' })
   @ApiProperty({ type: String, required: true, description: '접수 마감 YYYY-MM-DD (그날 23:59 까지)' })
   closeAt: string;
 
@@ -108,14 +108,14 @@ export class CompetitionWriteRequest {
   @ApiProperty({ type: String, required: false, description: '참가비', example: '부문당 60,000원' })
   fee?: string | null;
 
-  @IsIn(APPLY_METHODS)
+  @IsIn(APPLY_METHODS, { message: '접수 방법은 LINK·EMAIL·POST 중 하나여야 합니다.' })
   @ApiProperty({ type: String, required: true, description: '접수 방법 LINK(홈페이지·폼) / EMAIL / POST(우편·방문)', example: 'LINK' })
   applyMethod: ApplyMethod;
 
-  @IsOptional()
   @Transform(emptyToNull)
-  @IsString()
-  @ApiProperty({ type: String, required: false, description: '접수 링크 (LINK 일 때)' })
+  @ValidateIf(o => o.applyMethod === 'LINK' || (o.applyLink !== null && o.applyLink !== undefined))
+  @Matches(/^https?:\/\/.+/, { message: '접수 링크는 https:// 로 시작하는 주소여야 합니다.' })
+  @ApiProperty({ type: String, required: false, description: '접수 링크 — applyMethod 가 LINK 면 필수, https:// 로 시작' })
   applyLink?: string | null;
 
   @IsOptional()
@@ -124,10 +124,10 @@ export class CompetitionWriteRequest {
   @ApiProperty({ type: String, required: false })
   tel?: string | null;
 
-  @IsOptional()
   @Transform(emptyToNull)
-  @IsString()
-  @ApiProperty({ type: String, required: false, description: '문의·접수 이메일' })
+  @ValidateIf(o => o.applyMethod === 'EMAIL' || (o.email !== null && o.email !== undefined))
+  @IsEmail({}, { message: '이메일 형식이 올바르지 않습니다.' })
+  @ApiProperty({ type: String, required: false, description: '문의·접수 이메일 — applyMethod 가 EMAIL 이면 필수' })
   email?: string | null;
 
   @IsOptional()

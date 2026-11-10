@@ -188,4 +188,18 @@ describe('CompetitionController', () => {
       mergedCount: 0,
     });
   });
+
+  it('create — 접수 방법에 따라 링크·이메일 형식을 검사한다 (웹·앱 폼과 같은 규칙)', async () => {
+    const base = { title: 'T', host: 'H', area: '서울', divisions: ['성악'], openAt: '2026-11-20', closeAt: '2026-12-19' };
+    const noLink = plainToInstance(CompetitionWriteRequest, { ...base, applyMethod: 'LINK', applyLink: '' });
+    expect((await validate(noLink)).map(e => e.property)).toEqual(['applyLink']);
+    const badLink = plainToInstance(CompetitionWriteRequest, { ...base, applyMethod: 'LINK', applyLink: 'forms.gle/x' });
+    expect((await validate(badLink)).map(e => Object.values(e.constraints ?? {})[0])).toEqual(['접수 링크는 https:// 로 시작하는 주소여야 합니다.']);
+    const badEmail = plainToInstance(CompetitionWriteRequest, { ...base, applyMethod: 'EMAIL', email: 'not-an-email' });
+    expect((await validate(badEmail)).map(e => e.property)).toEqual(['email']);
+    const postNoLink = plainToInstance(CompetitionWriteRequest, { ...base, applyMethod: 'POST', applyLink: '', email: '' });
+    expect(await validate(postNoLink)).toHaveLength(0);
+    const optionalBadEmail = plainToInstance(CompetitionWriteRequest, { ...base, applyMethod: 'LINK', applyLink: 'https://x', email: 'nope' });
+    expect((await validate(optionalBadEmail)).map(e => e.property)).toEqual(['email']);
+  });
 });
