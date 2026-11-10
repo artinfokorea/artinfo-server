@@ -174,10 +174,18 @@ describe('CompetitionController', () => {
       matched: 30,
       created: [{ id: 1, title: 't', url: 'u' }],
       updated: [],
+      merged: [],
       skipped: [],
       failed: [],
       elapsedMs: 10,
     });
-    await expect(controller.crawl(me)).resolves.toMatchObject({ source: 'contest', scanned: 50, matched: 30, createdCount: 1, updatedCount: 0 });
+    await expect(controller.crawl(me)).resolves.toMatchObject({
+      source: 'contest',
+      scanned: 50,
+      matched: 30,
+      createdCount: 1,
+      updatedCount: 0,
+      mergedCount: 0,
+    });
   });
 });
