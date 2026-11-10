@@ -104,13 +104,17 @@ export class ArtinfoPushRepository implements OnModuleInit {
   }
 
   /**
-   * 최근 N시간 안에 등록된(활성) 채용 공고 수 — 매일 12시 요약 푸시용.
-   * 시각 비교는 DB 의 now() 기준으로 해서 서버·DB 타임존 차이에 흔들리지 않게 한다.
+   * 어제(한국 날짜) 하루 동안 등록된 활성 채용 공고 수 — 매일 12시 요약 푸시용.
+   * 날짜 경계는 DB 의 now() 를 Asia/Seoul 로 바꿔 잡고, created_at 비교는 다른 통계 쿼리(now() - interval)와 같은 세션 시간대 규칙을 따른다.
    */
-  async countJobsCreatedWithinHours(hours: number): Promise<number> {
+  async countJobsCreatedYesterday(): Promise<number> {
     const rows: { count: number | string }[] = await this.dataSource.query(
-      `SELECT COUNT(*)::int AS count FROM jobs WHERE is_active = TRUE AND created_at >= now() - ($1 || ' hours')::interval`,
-      [String(hours)],
+      `WITH d AS (SELECT (now() AT TIME ZONE 'Asia/Seoul')::date - 1 AS yesterday)
+       SELECT COUNT(*)::int AS count
+       FROM jobs, d
+       WHERE is_active = TRUE
+         AND created_at >= (d.yesterday::timestamp AT TIME ZONE 'Asia/Seoul')
+         AND created_at <  ((d.yesterday + 1)::timestamp AT TIME ZONE 'Asia/Seoul')`,
     );
     return Number(rows[0]?.count ?? 0);
   }

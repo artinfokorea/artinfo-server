@@ -74,16 +74,17 @@ describe('ArtinfoPushRepository', () => {
     expect(sql).not.toContain('artinfo_push_preferences');
   });
 
-  it('countJobsCreatedWithinHours — 활성 공고를 DB now() 기준 최근 N시간으로 센다', async () => {
+  it('countJobsCreatedYesterday — 활성 공고를 한국 날짜 기준 어제 하루 범위로 센다', async () => {
     query.mockResolvedValueOnce([{ count: 5 }]);
-    await expect(repository.countJobsCreatedWithinHours(24)).resolves.toBe(5);
-    const [sql, params] = lastCall();
+    await expect(repository.countJobsCreatedYesterday()).resolves.toBe(5);
+    const [sql] = lastCall();
     expect(sql).toContain('FROM jobs');
     expect(sql).toContain('is_active = TRUE');
-    expect(sql).toContain("now() - ($1 || ' hours')::interval");
-    expect(params).toEqual(['24']);
+    expect(sql).toContain("(now() AT TIME ZONE 'Asia/Seoul')::date - 1 AS yesterday");
+    expect(sql).toContain("created_at >= (d.yesterday::timestamp AT TIME ZONE 'Asia/Seoul')");
+    expect(sql).toContain("created_at <  ((d.yesterday + 1)::timestamp AT TIME ZONE 'Asia/Seoul')");
 
     query.mockResolvedValueOnce([]);
-    await expect(repository.countJobsCreatedWithinHours(24)).resolves.toBe(0);
+    await expect(repository.countJobsCreatedYesterday()).resolves.toBe(0);
   });
 });
