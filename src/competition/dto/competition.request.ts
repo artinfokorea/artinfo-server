@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { ArrayMinSize, IsArray, IsEmail, IsIn, IsOptional, IsString, Matches, MaxLength, ValidateIf } from 'class-validator';
+import { ArrayMinSize, IsArray, IsEmail, IsIn, IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min, ValidateIf } from 'class-validator';
 import { NotBlank } from '@/common/decorator/validator';
 import { List } from '@/common/type/type';
 import { APPLY_METHODS, ApplyMethod, COMPETITION_PHASES, CompetitionListFilter, CompetitionPhase, CompetitionWrite } from '../competition.types';
@@ -178,4 +178,15 @@ export class CompetitionWriteRequest {
       documentUrl: this.documentUrl ?? null,
     };
   }
+}
+
+/** 관리자 수동 수집 — limit 을 주면 목록 앞에서 그 개수만 (1~50). 비우면 스케줄과 같이 전체 */
+export class CrawlCompetitionsRequest {
+  @IsOptional()
+  @Transform(({ value }) => (value === undefined || value === null || value === '' ? undefined : Number(value)))
+  @IsInt()
+  @Min(1)
+  @Max(50)
+  @ApiProperty({ type: Number, required: false, description: '목록 앞에서부터 볼 개수 (1~50). 비우면 전체', example: 10 })
+  limit?: number;
 }

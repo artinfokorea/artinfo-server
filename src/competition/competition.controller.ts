@@ -10,7 +10,7 @@ import { CompetitionNotAllowed } from './competition.exception';
 import { CompetitionService } from './competition.service';
 import { ContestCompetitionCrawler } from './crawler/contest-competition.crawler';
 import { CompetitionCrawlResponse } from './dto/competition.response';
-import { CompetitionWriteRequest, GetCompetitionsRequest } from './dto/competition.request';
+import { CompetitionWriteRequest, CrawlCompetitionsRequest, GetCompetitionsRequest } from './dto/competition.request';
 import { CompetitionResponse, CompetitionsResponse, CreateCompetitionResponse } from './dto/competition.response';
 
 /** 콩쿠르 공고 — 목록·상세는 공개, 등록·수정·삭제는 회원(본인 또는 관리자), 승인은 관리자 */
@@ -30,12 +30,12 @@ export class CompetitionController {
   @UseGuards(OptionalJwtAuthGuard)
   @RestApiPost(CompetitionCrawlResponse, {
     path: '/crawl',
-    description: '[관리자] contest.co.kr 콩쿠르 수집을 지금 실행 (매일 23:10 KST 스케줄과 같은 동작)',
+    description: '[관리자] contest.co.kr 콩쿠르 수집을 지금 실행 — ?limit=N 이면 목록 앞 N건만 (스케줄은 전체 50건)',
     auth: [USER_TYPE.ADMIN],
   })
-  async crawl(@AuthSignature() signature: UserSignature): Promise<CompetitionCrawlResponse> {
+  async crawl(@AuthSignature() signature: UserSignature, @Query() request: CrawlCompetitionsRequest): Promise<CompetitionCrawlResponse> {
     if (!(await this.service.isAdmin(signature.id))) throw new CompetitionNotAllowed();
-    return new CompetitionCrawlResponse(await this.crawler.crawl());
+    return new CompetitionCrawlResponse(await this.crawler.crawl({ limit: request.limit }));
   }
 
   @RestApiGet(CompetitionResponse, { path: '/:id', description: '콩쿠르 상세 — 검토 중 공고는 등록자·관리자만 (Bearer 토큰이 있으면 본인 확인)' })

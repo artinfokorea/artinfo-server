@@ -123,4 +123,13 @@ describe('ContestCompetitionCrawler', () => {
     expect(summary.skipped[0]).toMatchObject({ reason: '같은 대회가 이미 있음 (id 9, https://other/1)' });
     expect(calls.upserts).toEqual([]);
   });
+
+  it('limit — 목록 앞에서 그 개수만 본다 (스케줄은 limit 없이 전체)', async () => {
+    const { crawler, calls } = build();
+    const summary = await crawler.crawl({ limit: 5 });
+    expect(summary.scanned).toBe(5);
+    expect(summary.matched).toBeLessThanOrEqual(5);
+    expect(calls.detail.length).toBe(summary.matched);
+    expect(calls.detail[0]).toBe('22917');
+  });
 });

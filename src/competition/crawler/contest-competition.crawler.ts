@@ -40,9 +40,11 @@ export class ContestCompetitionCrawler {
     this.gateway = gateway ?? client;
   }
 
-  async crawl(): Promise<CompetitionCrawlSummary> {
+  /** limit 을 주면 목록 앞에서부터 그 개수만 본다 (관리자 수동 실행용). 스케줄은 목록 전체(50건) */
+  async crawl(options: { limit?: number } = {}): Promise<CompetitionCrawlSummary> {
     const startedAt = Date.now();
-    const rows = parseContestList(await this.gateway.fetchList());
+    const allRows = parseContestList(await this.gateway.fetchList());
+    const rows = options.limit && options.limit > 0 ? allRows.slice(0, options.limit) : allRows;
     const matched = rows.filter(row => isCompetitionTitle(row.title));
     const summary: CompetitionCrawlSummary = {
       source: 'contest',

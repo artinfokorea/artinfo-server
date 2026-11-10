@@ -3,7 +3,7 @@ import { validate } from 'class-validator';
 import { CompetitionController } from './competition.controller';
 import { CompetitionService } from './competition.service';
 import { ContestCompetitionCrawler } from './crawler/contest-competition.crawler';
-import { CompetitionWriteRequest, GetCompetitionsRequest } from './dto/competition.request';
+import { CompetitionWriteRequest, CrawlCompetitionsRequest, GetCompetitionsRequest } from './dto/competition.request';
 import { CompetitionRow } from './competition.types';
 
 /**
@@ -166,7 +166,7 @@ describe('CompetitionController', () => {
 
   it('crawl — 관리자만 수집을 돌리고 요약을 돌려준다', async () => {
     service.isAdmin.mockResolvedValueOnce(false);
-    await expect(controller.crawl(me)).rejects.toMatchObject({ status: 403 });
+    await expect(controller.crawl(me, plainToInstance(CrawlCompetitionsRequest, {}))).rejects.toMatchObject({ status: 403 });
     service.isAdmin.mockResolvedValueOnce(true);
     crawler.crawl.mockResolvedValueOnce({
       source: 'contest',
@@ -179,7 +179,7 @@ describe('CompetitionController', () => {
       failed: [],
       elapsedMs: 10,
     });
-    await expect(controller.crawl(me)).resolves.toMatchObject({
+    await expect(controller.crawl(me, plainToInstance(CrawlCompetitionsRequest, { limit: '10' }))).resolves.toMatchObject({
       source: 'contest',
       scanned: 50,
       matched: 30,
@@ -201,5 +201,26 @@ describe('CompetitionController', () => {
     expect(await validate(postNoLink)).toHaveLength(0);
     const optionalBadEmail = plainToInstance(CompetitionWriteRequest, { ...base, applyMethod: 'LINK', applyLink: 'https://x', email: 'nope' });
     expect((await validate(optionalBadEmail)).map(e => e.property)).toEqual(['email']);
+  });
+
+  it('crawl — limit 은 1~50 정수만, 비우면 전체', async () => {
+    expect(await validate(plainToInstance(CrawlCompetitionsRequest, { limit: '10' }))).toHaveLength(0);
+    expect(await validate(plainToInstance(CrawlCompetitionsRequest, {}))).toHaveLength(0);
+    expect((await validate(plainToInstance(CrawlCompetitionsRequest, { limit: '0' }))).map(e => e.property)).toEqual(['limit']);
+    expect((await validate(plainToInstance(CrawlCompetitionsRequest, { limit: '99' }))).map(e => e.property)).toEqual(['limit']);
+    service.isAdmin.mockResolvedValueOnce(true);
+    crawler.crawl.mockResolvedValueOnce({
+      source: 'contest',
+      scanned: 10,
+      matched: 8,
+      created: [],
+      updated: [],
+      merged: [],
+      skipped: [],
+      failed: [],
+      elapsedMs: 5,
+    });
+    await controller.crawl(me, plainToInstance(CrawlCompetitionsRequest, { limit: '10' }));
+    expect(crawler.crawl).toHaveBeenLastCalledWith({ limit: 10 });
   });
 });
