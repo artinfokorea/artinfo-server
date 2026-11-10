@@ -6,6 +6,7 @@ import { isRecruitmentTitle } from './title-filter';
  * 2) '합격' 이 들어가면 필수 낱말이 다 있어도 제외 (합격자 발표 · 최종합격 · 합 격)
  * 3) 필수 낱말이 하나라도 빠지면 제외
  * 4) 배열 항목은 그중 하나만 있으면 된다 — ['시립교향악단', ['모집', '채용']] 은 '공개모집' 도 '채용' 도 대상, 둘 다 없으면 제외
+ * 5) 소스별 제외 낱말(excluded)이 들어가면 제외 — 인천의 '1차'·'2차'(전형 단계 안내)
  */
 const required = ['목포시립예술단', '채용'];
 
@@ -33,5 +34,14 @@ describe('isRecruitmentTitle', () => {
     expect(isRecruitmentTitle('울산시립교향악단 제252회 정기연주회', ulsan)).toBe(false);
     expect(isRecruitmentTitle('2026년도 하반기 울산광역시립청소년교향악단 신규단원 모집 공고', ulsan)).toBe(false);
     expect(isRecruitmentTitle('울산광역시립교향악단 수·차석단원 공개모집 면접전형 합격자 공고(비올라, 타악기)', ulsan)).toBe(false);
+  });
+
+  it('소스별 제외 낱말이 들어가면 제외', () => {
+    const incheon = ['인천시립교향악단', ['모집', '채용']];
+    const excluded = ['1차', '2차', '3차', '결과'];
+    expect(isRecruitmentTitle('2027 인천시립교향악단 및 청소년교향악단 신규단원 공개모집 공고', incheon, excluded)).toBe(true);
+    expect(isRecruitmentTitle('2026 인천시립교향악단 기간제 비상임단원 공개모집 1차 실기전형 공고', incheon, excluded)).toBe(false);
+    expect(isRecruitmentTitle('2026 인천시립교향악단 신규단원 공개모집 1차 결과 및 2차 안내 공고', incheon, excluded)).toBe(false);
+    expect(isRecruitmentTitle('2026 인천시립교향악단 기간제 비상임단원 공개모집 1차 실기전형 공고', incheon)).toBe(true);
   });
 });

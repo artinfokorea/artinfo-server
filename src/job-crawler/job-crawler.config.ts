@@ -117,6 +117,27 @@ export const jobCrawlerConfig = {
     imageUrl: env('JOB_CRAWLER_BUCHEON_IMAGE_URL', ''),
     imageFile: 'assets/job-crawler/bucheon.png',
   },
+  incheon: {
+    /**
+     * 인천문화예술회관 누리집 채용/공모 게시판 (시립예술단 단원 모집이 여기 올라온다).
+     * 목록 /art/ART040102?curPage=N (고정 공지는 1페이지에만 + 작성일 내림차순 10건), 상세 /art/ART040102/{id},
+     * 첨부 /comm/getFile?srvcId=&upperNo=&fileTy=ATTACH&fileNo= GET — 쿠키·Referer 없이 받을 수 있다
+     */
+    origin: 'https://www.incheon.go.kr',
+    boardPath: '/art/ART040102',
+    /** 목록은 작성일 내림차순 10건씩. 날짜가 지날 때까지 넘긴다 */
+    maxListPages: Number(env('JOB_CRAWLER_INCHEON_MAX_PAGES', '10')),
+    /** 제목 조건: '인천시립교향악단' 과 '모집' 또는 '채용' (청소년교향악단·합창단·무용단 단독 공고, 공무직·안내원 채용은 제외) */
+    titleKeywords: ['인천시립교향악단', ['모집', '채용']] as (string | string[])[],
+    /** 같은 모집의 전형 단계 안내('… 공개모집 1차 실기전형 공고', '1차 결과 및 2차 안내')는 새 채용이 아니다 (합격자 공고는 전역 제외) */
+    excludedTitleKeywords: ['1차', '2차', '3차', '결과'],
+    companyName: '인천시립교향악단',
+    address: '인천 남동구 예술로 149',
+    addressDetail: '인천시립교향악단',
+    /** 채용 대표 이미지 URL. 비어 있으면 imageFile(인천시립교향악단 로고)을 기동 후 첫 등록 때 S3 에 올려 쓴다 */
+    imageUrl: env('JOB_CRAWLER_INCHEON_IMAGE_URL', ''),
+    imageFile: 'assets/job-crawler/incheon.png',
+  },
 };
 
 /** 한국 시간 기준 오늘 (YYYY-MM-DD) */

@@ -9,9 +9,10 @@ export type TitleKeyword = string | string[];
  * 모든 소스에 공통인 제목 판정. 공백을 지운 뒤 비교한다.
  * - required: 소스가 정한 항목이 모두 맞아야 한다 (예: 목포시립예술단 · 채용, 시립교향악단 · (모집|채용))
  * - 전역 제외 낱말(jobCrawlerConfig.excludedTitleKeywords, 예: 합격)이 하나라도 들어 있으면 제외 — 합격자 발표 등 채용 공고가 아닌 글
+ * - excluded: 소스별 제외 낱말 (예: 인천의 '1차'·'2차' — 전형 단계 안내 공고)
  */
-export function isRecruitmentTitle(title: string, required: TitleKeyword[]): boolean {
+export function isRecruitmentTitle(title: string, required: TitleKeyword[], excluded: string[] = []): boolean {
   const compact = title.replace(/\s+/g, '');
-  if (jobCrawlerConfig.excludedTitleKeywords.some(keyword => compact.includes(keyword))) return false;
+  if ([...jobCrawlerConfig.excludedTitleKeywords, ...excluded].some(keyword => compact.includes(keyword))) return false;
   return required.every(keyword => (Array.isArray(keyword) ? keyword.some(k => compact.includes(k)) : compact.includes(keyword)));
 }
