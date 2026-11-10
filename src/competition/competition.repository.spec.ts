@@ -9,6 +9,7 @@ import { CompetitionRepository } from './competition.repository';
  * 3) findById: 삭제 안 된 행 하나 (status 는 가리지 않음), 없으면 null
  * 4) create: 24개 컬럼 INSERT … RETURNING id, 상태·출처·회원은 meta 로
  * 5) softDelete 는 deleted_at 만 찍고, isAdmin 은 users.type = 'ADMIN' 으로 판단
+ * 6) upsertCrawled: source_url 충돌이면 일정·장소·포스터만 갱신(삭제된 공고는 제외), RETURNING 의 xmax=0 으로 생성 여부
  */
 describe('CompetitionRepository', () => {
   const query = jest.fn();
@@ -119,5 +120,42 @@ describe('CompetitionRepository', () => {
     await expect(repository.isAdmin(2)).resolves.toBe(false);
     query.mockResolvedValueOnce([]);
     await expect(repository.isAdmin(3)).resolves.toBe(false);
+  });
+
+  it('upsertCrawled — source_url 로 upsert, 삭제된 공고는 되살리지 않는다', async () => {
+    const input = {
+      title: 'T',
+      host: 'H',
+      organizer: null,
+      area: '서울',
+      venue: null,
+      divisions: ['종합'],
+      ages: [],
+      openAt: '2026-11-01',
+      closeAt: '2026-11-25',
+      heldAt: null,
+      resultAt: null,
+      fee: null,
+      applyMethod: 'LINK' as const,
+      applyLink: 'https://contest.co.kr/contest/view1/1',
+      tel: null,
+      email: null,
+      prize: null,
+      description: null,
+      posterUrl: null,
+      documentUrl: null,
+    };
+    query.mockResolvedValueOnce([{ id: 5, created: true }]);
+    await expect(repository.upsertCrawled(input, 'https://contest.co.kr/contest/view1/1')).resolves.toEqual({ id: 5, created: true });
+    const [sql, params] = lastCall();
+    expect(sql).toContain("'CRAWL', $21, 'PUBLISHED', NULL");
+    expect(sql).toContain('ON CONFLICT (source_url) WHERE source_url IS NOT NULL DO UPDATE SET');
+    expect(sql).toContain('WHERE competitions.deleted_at IS NULL');
+    expect(sql).toContain('RETURNING id, (xmax = 0) AS created');
+    expect(params).toHaveLength(21);
+    expect(params[20]).toBe('https://contest.co.kr/contest/view1/1');
+
+    query.mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 9 }]);
+    await expect(repository.upsertCrawled(input, 'https://contest.co.kr/contest/view1/1')).resolves.toEqual({ id: 9, created: false });
   });
 });
