@@ -12,6 +12,8 @@ import { BoryeongNoticeClient } from './boryeong/boryeong-notice.client';
 import { BucheonChoirJobCrawler } from './bucheon/bucheon-choir-job.crawler';
 import { BucheonNoticeClient } from './bucheon/bucheon-notice.client';
 import { JobCrawlerController } from './controller/job-crawler.controller';
+import { IncheonNoticeClient } from './incheon/incheon-notice.client';
+import { IncheonPhilharmonicJobCrawler } from './incheon/incheon-philharmonic-job.crawler';
 import { JobCrawlerService } from './job-crawler.service';
 import { MokpoArtJobCrawler } from './mokpo/mokpo-art-job.crawler';
 import { MokpoNoticeClient } from './mokpo/mokpo-notice.client';
@@ -47,10 +49,19 @@ import { SchedulerLockModule } from '@/common/scheduler/scheduler-lock.module';
     SeosanChoirJobCrawler,
     BucheonNoticeClient,
     BucheonChoirJobCrawler,
+    IncheonNoticeClient,
+    IncheonPhilharmonicJobCrawler,
     {
       provide: JOB_SOURCE_CRAWLERS,
       useFactory: (...sources: JobSourceCrawler[]) => sources,
-      inject: [MokpoArtJobCrawler, UlsanPhilharmonicJobCrawler, BoryeongChoirJobCrawler, SeosanChoirJobCrawler, BucheonChoirJobCrawler],
+      inject: [
+        MokpoArtJobCrawler,
+        UlsanPhilharmonicJobCrawler,
+        BoryeongChoirJobCrawler,
+        SeosanChoirJobCrawler,
+        BucheonChoirJobCrawler,
+        IncheonPhilharmonicJobCrawler,
+      ],
     },
   ],
 })
