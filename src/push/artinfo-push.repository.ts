@@ -92,13 +92,13 @@ export class ArtinfoPushRepository implements OnModuleInit {
     return rows.map(row => row.token);
   }
 
-  /** 테스트 발송 대상 — 전체(탈퇴 제외) 또는 관리자 계정의 기기만 */
-  async scanTokens(target: 'ADMIN' | 'ALL'): Promise<string[]> {
+  /** 테스트 발송 대상 — 관리자 계정의 기기만 (수신 설정과 무관) */
+  async scanAdminTokens(): Promise<string[]> {
     const rows: { token: string }[] = await this.dataSource.query(
       `SELECT t.token
        FROM artinfo_push_tokens t
        JOIN users u ON u.id = t.user_id AND u.deleted_at IS NULL
-       ${target === 'ADMIN' ? "WHERE u.type = 'ADMIN'" : ''}`,
+       WHERE u.type = 'ADMIN'`,
     );
     return rows.map(row => row.token);
   }

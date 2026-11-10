@@ -8,8 +8,7 @@ import { ArtinfoPushService } from '@/push/artinfo-push.service';
  * - DELETE /push-tokens: 로그아웃 — 이 기기 토큰만 지운다.
  * - GET /push-preferences: 저장한 적 없으면 { job: true }.
  * - PUT /push-preferences: 보낸 항목만 바꾸고 전체를 돌려준다.
- * - POST /push/test (관리자): target 과 제목·본문(기본값 있음)으로 테스트 발송, 기기 수를 돌려준다.
- * - POST /push/digest (관리자): 채용 요약 푸시를 지금 보낸다.
+ * - POST /push/test (관리자): target(ADMIN/ALL)으로 채용 요약 푸시를 지금 보내고 공고 수·기기 수를 돌려준다.
  */
 describe('ArtinfoPushController', () => {
   const repository = {
@@ -18,10 +17,7 @@ describe('ArtinfoPushController', () => {
     findPreferences: jest.fn(),
     savePreferences: jest.fn().mockResolvedValue(undefined),
   };
-  const pushService = {
-    sendTest: jest.fn().mockResolvedValue({ sent: 2 }),
-    sendJobDigest: jest.fn().mockResolvedValue({ jobCount: 3, sent: 10 }),
-  };
+  const pushService = { sendJobDigestTest: jest.fn().mockResolvedValue({ jobCount: 3, sent: 2 }) };
   const controller = new ArtinfoPushController(repository as unknown as ArtinfoPushRepository, pushService as unknown as ArtinfoPushService);
   const me = { id: 7, name: '나', email: 'me@example.com' };
 
@@ -56,15 +52,10 @@ describe('ArtinfoPushController', () => {
     expect(repository.savePreferences).toHaveBeenLastCalledWith(7, { job: false });
   });
 
-  it('sendTest — 대상·제목·본문을 넘기고, 비어 있으면 기본 문구를 쓴다', async () => {
-    await expect(controller.sendTest(me, { target: 'ADMIN' })).resolves.toEqual({ sent: 2 });
-    expect(pushService.sendTest).toHaveBeenCalledWith('ADMIN', '아트인포 테스트 푸시', '푸시 테스트 메시지입니다.');
-
-    await controller.sendTest(me, { target: 'ALL', title: ' 점검 안내 ', body: ' 오늘 밤 점검이 있어요 ' });
-    expect(pushService.sendTest).toHaveBeenLastCalledWith('ALL', '점검 안내', '오늘 밤 점검이 있어요');
-  });
-
-  it('sendDigestNow — 요약 발송 결과(공고 수·기기 수)를 돌려준다', async () => {
-    await expect(controller.sendDigestNow(me)).resolves.toEqual({ jobCount: 3, sent: 10 });
+  it('sendTest — 대상을 넘겨 채용 요약 푸시를 보내고 공고 수·기기 수를 돌려준다', async () => {
+    await expect(controller.sendTest(me, { target: 'ADMIN' })).resolves.toEqual({ jobCount: 3, sent: 2 });
+    expect(pushService.sendJobDigestTest).toHaveBeenCalledWith('ADMIN');
+    await controller.sendTest(me, { target: 'ALL' });
+    expect(pushService.sendJobDigestTest).toHaveBeenLastCalledWith('ALL');
   });
 });
