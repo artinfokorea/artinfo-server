@@ -3,7 +3,7 @@ import { Cron } from '@nestjs/schedule';
 import { SCHEDULER_LOCK_TTL_MS, SchedulerLockService } from '@/common/scheduler/scheduler-lock.service';
 import { ArtinfoPushService } from '@/push/artinfo-push.service';
 
-/** 매일 12:00 KST 에 새 채용 공고 요약 푸시 — 인스턴스 2대 중 Redis 락을 잡은 한 대만 보낸다 */
+/** 매일 12:00 KST 에 어제 등록된 채용 공고 요약 푸시 — 인스턴스 2대 중 Redis 락을 잡은 한 대만 보낸다 */
 @Injectable()
 export class ArtinfoPushScheduler {
   private readonly logger = new Logger(ArtinfoPushScheduler.name);

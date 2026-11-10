@@ -48,7 +48,7 @@ export class ArtinfoPushController {
   @RestApiPost(PushSendResultResponse, {
     path: '/test',
     description:
-      '[관리자] 채용 요약 푸시 테스트 — 스케줄(매일 12:00 KST)과 같은 문구를 지금 보낸다. target ADMIN(관리자 기기만) / ALL(채용 알림 켠 회원 전원). 새 공고 0건이어도 보낸다',
+      '[관리자] 채용 요약 푸시 테스트 — 스케줄(매일 12:00 KST, 어제 등록분 집계)과 같은 문구를 지금 보낸다. target ADMIN(관리자 기기만) / ALL(채용 알림 켠 회원 전원). 새 공고 0건이어도 보낸다',
     auth: [USER_TYPE.ADMIN],
   })
   async sendTest(@AuthSignature() signature: UserSignature, @Body() request: SendTestPushRequest): Promise<PushSendResultResponse> {
