@@ -19,7 +19,7 @@ export class CompetitionCrawlerScheduler {
       try {
         const s = await this.crawler.crawl();
         this.logger.log(
-          `콩쿠르 수집: ${s.scanned}건 중 대상 ${s.matched} · 신규 ${s.created.length} · 갱신 ${s.updated.length} · 건너뜀 ${s.skipped.length} · 실패 ${s.failed.length} (${s.elapsedMs}ms)`,
+          `콩쿠르 수집: ${s.scanned}건 중 대상 ${s.matched} · 신규 ${s.created.length} · 갱신 ${s.updated.length} · 합침 ${s.merged.length} · 건너뜀 ${s.skipped.length} · 실패 ${s.failed.length} (${s.elapsedMs}ms)`,
         );
       } catch (error) {
         this.logger.error(`콩쿠르 수집 실패: ${error instanceof Error ? error.message : String(error)}`);

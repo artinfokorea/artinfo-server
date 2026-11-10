@@ -103,8 +103,8 @@ describe('CompetitionRepository', () => {
     const [sql, params] = lastCall();
     expect(sql).toContain('INSERT INTO competitions');
     expect(sql).toContain('RETURNING id');
-    expect(params).toHaveLength(24);
-    expect(params.slice(20)).toEqual(['OWNER', null, 'REVIEW', 7]);
+    expect(params).toHaveLength(25);
+    expect(params.slice(20)).toEqual(['OWNER', null, 'REVIEW', 7, 't|h']);
     expect(params[0]).toBe('T');
     expect(params[5]).toEqual(['성악']);
   });
@@ -152,10 +152,30 @@ describe('CompetitionRepository', () => {
     expect(sql).toContain('ON CONFLICT (source_url) WHERE source_url IS NOT NULL DO UPDATE SET');
     expect(sql).toContain('WHERE competitions.deleted_at IS NULL');
     expect(sql).toContain('RETURNING id, (xmax = 0) AS created');
-    expect(params).toHaveLength(21);
+    expect(params).toHaveLength(22);
+    expect(params[21]).toBe('t|h');
+    expect(sql).toContain("WHERE competitions.deleted_at IS NULL AND competitions.source = 'CRAWL'");
     expect(params[20]).toBe('https://contest.co.kr/contest/view1/1');
 
     query.mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 9 }]);
     await expect(repository.upsertCrawled(input, 'https://contest.co.kr/contest/view1/1')).resolves.toEqual({ id: 9, created: false });
+  });
+
+  it('findBySourceUrl / findDuplicates / attachSource', async () => {
+    query.mockResolvedValueOnce([{ id: 3, source: 'CRAWL', deleted: true }]);
+    await expect(repository.findBySourceUrl('https://x/1')).resolves.toEqual({ id: 3, source: 'CRAWL', deleted: true });
+    expect(lastCall()[0]).toContain('(deleted_at IS NOT NULL) AS deleted FROM competitions WHERE source_url = $1');
+
+    query.mockResolvedValueOnce([]);
+    await repository.findDuplicates('k|h', '2026-11-25', 9);
+    const [sql, params] = lastCall();
+    expect(sql).toContain('WHERE dedupe_key = $1 AND deleted_at IS NULL AND ABS(close_at - $2::date) <= $3');
+    expect(sql).toContain("ORDER BY CASE source WHEN 'OWNER' THEN 0 ELSE 1 END");
+    expect(params).toEqual(['k|h', '2026-11-25', 3, 9]);
+
+    query.mockResolvedValueOnce([]);
+    await repository.attachSource(9, 'https://x/1', null);
+    expect(lastCall()[0]).toContain('SET source_url = COALESCE(source_url, $2), poster_url = COALESCE(poster_url, $3)');
+    expect(lastCall()[1]).toEqual([9, 'https://x/1', null]);
   });
 });

@@ -100,9 +100,11 @@ export class CompetitionCrawlResponse {
   @ApiProperty({ type: Number }) matched: number;
   @ApiProperty({ type: Number }) createdCount: number;
   @ApiProperty({ type: Number }) updatedCount: number;
+  @ApiProperty({ type: Number, description: '직접 등록본에 붙인(새로 만들지 않은) 수' }) mergedCount: number;
   @ApiProperty({ type: Number }) elapsedMs: number;
   @ApiProperty({ type: Object, isArray: true }) created: { id: number; title: string; url: string }[];
   @ApiProperty({ type: Object, isArray: true }) updated: { id: number; title: string; url: string }[];
+  @ApiProperty({ type: Object, isArray: true }) merged: { id: number; title: string; url: string }[];
   @ApiProperty({ type: Object, isArray: true }) skipped: { title: string; url: string; reason: string }[];
   @ApiProperty({ type: Object, isArray: true }) failed: { title: string; url: string; reason: string }[];
 
@@ -112,9 +114,11 @@ export class CompetitionCrawlResponse {
     this.matched = summary.matched;
     this.createdCount = summary.created.length;
     this.updatedCount = summary.updated.length;
+    this.mergedCount = summary.merged.length;
     this.elapsedMs = summary.elapsedMs;
     this.created = summary.created;
     this.updated = summary.updated;
+    this.merged = summary.merged;
     this.skipped = summary.skipped;
     this.failed = summary.failed;
   }

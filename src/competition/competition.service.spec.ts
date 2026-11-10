@@ -19,10 +19,12 @@ describe('CompetitionService', () => {
     update: jest.fn().mockResolvedValue(undefined),
     softDelete: jest.fn().mockResolvedValue(undefined),
     updateStatus: jest.fn().mockResolvedValue(undefined),
+    findDuplicates: jest.fn().mockResolvedValue([]),
+    attachSource: jest.fn().mockResolvedValue(undefined),
   };
   const service = new CompetitionService(repository as unknown as CompetitionRepository);
   const row = (over: Partial<CompetitionRow> = {}) => ({ id: 1, status: 'PUBLISHED', user_id: 7, ...over }) as CompetitionRow;
-  const input = { title: 'T' } as never;
+  const input = { title: '제13회 수원시전국음악콩쿠르', host: '(사)한국음악협회 수원시지부', closeAt: '2026-11-25' } as never;
 
   beforeEach(() => jest.clearAllMocks());
 
@@ -78,5 +80,19 @@ describe('CompetitionService', () => {
     repository.findById.mockResolvedValueOnce(row({ status: 'REVIEW' }));
     await service.publish(1, 1);
     expect(repository.updateStatus).toHaveBeenCalledWith(1, 'PUBLISHED');
+  });
+
+  it('create — 같은 대회의 수집본을 숨기고 원문·포스터를 붙인다 (직접 등록본끼리는 건드리지 않음)', async () => {
+    repository.isAdmin.mockResolvedValueOnce(false);
+    repository.create.mockResolvedValueOnce(20);
+    repository.findDuplicates.mockResolvedValueOnce([
+      { id: 5, source: 'CRAWL', status: 'PUBLISHED', source_url: 'https://contest.co.kr/contest/view1/23151', poster_url: 'https://img/p.jpg' },
+      { id: 6, source: 'OWNER', status: 'PUBLISHED', source_url: null, poster_url: null },
+    ]);
+    await service.create(7, input);
+    expect(repository.findDuplicates).toHaveBeenCalledWith('수원시전국음악콩쿠르|한국음악협회수원시지부', '2026-11-25', 20);
+    expect(repository.updateStatus).toHaveBeenCalledWith(5, 'HIDDEN');
+    expect(repository.updateStatus).not.toHaveBeenCalledWith(6, 'HIDDEN');
+    expect(repository.attachSource).toHaveBeenCalledWith(20, 'https://contest.co.kr/contest/view1/23151', 'https://img/p.jpg');
   });
 });

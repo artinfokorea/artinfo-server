@@ -1,4 +1,5 @@
 import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
+import { dedupeKey } from '../competition-dedupe';
 import { CompetitionRepository } from '../competition.repository';
 import { CompetitionWrite } from '../competition.types';
 import { ContestNoticeClient, ContestNoticeGateway } from './contest-notice.client';
@@ -14,6 +15,8 @@ export interface CompetitionCrawlSummary {
   matched: number;
   created: { id: number; title: string; url: string }[];
   updated: { id: number; title: string; url: string }[];
+  /** 직접 등록본(또는 다른 수집본)과 같은 대회라 새로 만들지 않고 붙인 것 */
+  merged: { id: number; title: string; url: string }[];
   skipped: { title: string; url: string; reason: string }[];
   failed: { title: string; url: string; reason: string }[];
   elapsedMs: number;
@@ -47,6 +50,7 @@ export class ContestCompetitionCrawler {
       matched: matched.length,
       created: [],
       updated: [],
+      merged: [],
       skipped: [],
       failed: [],
       elapsedMs: 0,
@@ -57,7 +61,12 @@ export class ContestCompetitionCrawler {
       try {
         const outcome = await this.save(row);
         if (outcome.kind === 'skipped') summary.skipped.push({ title: row.title, url: row.url, reason: outcome.reason });
-        else (outcome.kind === 'created' ? summary.created : summary.updated).push({ id: outcome.id, title: row.title, url: row.url });
+        else
+          (outcome.kind === 'created' ? summary.created : outcome.kind === 'merged' ? summary.merged : summary.updated).push({
+            id: outcome.id,
+            title: row.title,
+            url: row.url,
+          });
       } catch (e) {
         const reason = e instanceof Error ? e.message : String(e);
         this.logger.error(`콩쿠르 저장 실패: ${row.title} (${row.url}) — ${reason}`);
@@ -68,7 +77,7 @@ export class ContestCompetitionCrawler {
     return summary;
   }
 
-  private async save(row: ContestListRow): Promise<{ kind: 'created' | 'updated'; id: number } | { kind: 'skipped'; reason: string }> {
+  private async save(row: ContestListRow): Promise<{ kind: 'created' | 'updated' | 'merged'; id: number } | { kind: 'skipped'; reason: string }> {
     const detail = parseContestDetail(await this.gateway.fetchDetail(row.id));
     if (!detail.openAt || !detail.closeAt) return { kind: 'skipped', reason: '접수기간을 읽지 못함' };
 
@@ -94,6 +103,28 @@ export class ContestCompetitionCrawler {
       posterUrl: detail.posterUrl,
       documentUrl: null,
     };
+    // 1단계: 원문 URL. 이미 들어온 공고면 갱신(삭제됐으면 건너뜀, 직접 등록본에 붙은 URL 이면 합친 것으로)
+
+    const known = await this.repository.findBySourceUrl(row.url);
+
+    if (known?.deleted) return { kind: 'skipped', reason: `관리자가 삭제한 공고 (id ${known.id})` };
+
+    if (known?.source === 'OWNER') return { kind: 'merged', id: known.id };
+
+    if (!known) {
+      // 2단계: 제목·주최 키 + 마감 ±3일. 직접 등록본이 있으면 거기에 붙이고, 다른 수집본이 있으면 새로 만들지 않는다
+
+      const [dup] = await this.repository.findDuplicates(dedupeKey(input.title, input.host), input.closeAt);
+
+      if (dup?.source === 'OWNER') {
+        await this.repository.attachSource(dup.id, row.url, input.posterUrl);
+
+        return { kind: 'merged', id: dup.id };
+      }
+
+      if (dup) return { kind: 'skipped', reason: `같은 대회가 이미 있음 (id ${dup.id}, ${dup.source_url ?? '원문 없음'})` };
+    }
+
     const result = await this.repository.upsertCrawled(input, row.url);
     return { kind: result.created ? 'created' : 'updated', id: result.id };
   }
