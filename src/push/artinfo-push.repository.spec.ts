@@ -65,15 +65,13 @@ describe('ArtinfoPushRepository', () => {
     expect(sql).toContain('COALESCE(p.job, TRUE)');
   });
 
-  it('scanTokens — ALL 은 탈퇴 제외 전체, ADMIN 은 관리자 계정 기기만', async () => {
+  it('scanAdminTokens — 탈퇴하지 않은 관리자 계정의 기기만 (수신 설정 무관)', async () => {
     query.mockResolvedValueOnce([{ token: 'ExponentPushToken[a]' }]);
-    await expect(repository.scanTokens('ALL')).resolves.toEqual(['ExponentPushToken[a]']);
-    expect(lastCall()[0]).toContain('deleted_at IS NULL');
-    expect(lastCall()[0]).not.toContain("u.type = 'ADMIN'");
-
-    query.mockResolvedValueOnce([]);
-    await repository.scanTokens('ADMIN');
-    expect(lastCall()[0]).toContain("u.type = 'ADMIN'");
+    await expect(repository.scanAdminTokens()).resolves.toEqual(['ExponentPushToken[a]']);
+    const [sql] = lastCall();
+    expect(sql).toContain('deleted_at IS NULL');
+    expect(sql).toContain("u.type = 'ADMIN'");
+    expect(sql).not.toContain('artinfo_push_preferences');
   });
 
   it('countJobsCreatedWithinHours — 활성 공고를 DB now() 기준 최근 N시간으로 센다', async () => {

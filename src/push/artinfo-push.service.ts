@@ -3,14 +3,11 @@ import { ArtinfoPushRepository } from '@/push/artinfo-push.repository';
 
 export type PushTarget = 'ADMIN' | 'ALL';
 
-export interface PushSendResult {
+export interface JobDigestResult {
+  /** 집계된 새 채용 공고 수 — 스케줄 발송은 0 이면 보내지 않는다 */
+  jobCount: number;
   /** 발송 요청한 기기 수 (중복·형식 오류 제외) */
   sent: number;
-}
-
-export interface JobDigestResult extends PushSendResult {
-  /** 집계된 새 채용 공고 수 — 0 이면 보내지 않는다 */
-  jobCount: number;
 }
 
 interface PushMessage {
@@ -28,7 +25,7 @@ export const JOB_DIGEST_WINDOW_HOURS = 24;
 /**
  * Expo Push API 로 발송 (온기와 같은 방식). APNs 키는 EAS 프로젝트에 등록돼 있어 서버는 Expo 서비스만 호출한다.
  * - 채용 요약: 매일 12:00 KST 스케줄러가 호출. 새 공고가 없으면 보내지 않는다.
- * - 테스트: 관리자 API 에서 관리자 기기 또는 전체에 보낸다.
+ * - 테스트: 관리자 API 가 같은 채용 요약 메시지를 관리자 기기 또는 전체에 보낸다 (0건이어도 전달 확인용으로 보낸다).
  */
 @Injectable()
 export class ArtinfoPushService {
@@ -44,21 +41,31 @@ export class ArtinfoPushService {
       return { jobCount, sent: 0 };
     }
     const tokens = await this.repository.scanJobPushTokens();
-    const sent = await this.send(tokens, {
-      title: '오늘의 채용 공고',
-      body: `오늘 새로 등록된 채용 공고 ${jobCount}건을 확인해 보세요.`,
-      data: { type: 'jobs' },
-    });
+    const sent = await this.send(tokens, this.buildJobDigestMessage(jobCount));
     this.logger.log(`채용 요약 푸시: 공고 ${jobCount}건, 기기 ${sent}대`);
     return { jobCount, sent };
   }
 
-  /** 관리자 테스트 발송 — ADMIN: 관리자 계정 기기만, ALL: 등록된 전체 기기 */
-  async sendTest(target: PushTarget, title: string, body: string): Promise<PushSendResult> {
-    const tokens = await this.repository.scanTokens(target);
-    const sent = await this.send(tokens, { title, body, data: { type: 'test' } });
-    this.logger.log(`테스트 푸시(${target}): 기기 ${sent}대`);
-    return { sent };
+  /**
+   * 관리자 테스트 — 스케줄과 똑같은 채용 요약 메시지를 지금 보낸다.
+   * ADMIN: 관리자 계정 기기만(수신 설정 무시), ALL: 실제 발송 대상과 같은 채용 알림 켜 둔 회원 전원.
+   * 전달 자체를 확인하는 용도라 새 공고 0건이어도 보낸다.
+   */
+  async sendJobDigestTest(target: PushTarget): Promise<JobDigestResult> {
+    const jobCount = await this.repository.countJobsCreatedWithinHours(JOB_DIGEST_WINDOW_HOURS);
+    const tokens = target === 'ADMIN' ? await this.repository.scanAdminTokens() : await this.repository.scanJobPushTokens();
+    const sent = await this.send(tokens, this.buildJobDigestMessage(jobCount));
+    this.logger.log(`채용 요약 푸시 테스트(${target}): 공고 ${jobCount}건, 기기 ${sent}대`);
+    return { jobCount, sent };
+  }
+
+  /** 스케줄·테스트가 같은 문구를 쓴다 — 앱은 data.type 'jobs' 로 채용 탭을 연다 */
+  private buildJobDigestMessage(jobCount: number): PushMessage {
+    return {
+      title: '오늘의 채용 공고',
+      body: jobCount > 0 ? `오늘 새로 등록된 채용 공고 ${jobCount}건을 확인해 보세요.` : '오늘 새로 등록된 채용 공고가 없어요.',
+      data: { type: 'jobs' },
+    };
   }
 
   /** 발송 요청한 기기 수를 돌려준다 */

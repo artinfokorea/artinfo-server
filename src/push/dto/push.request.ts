@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsIn, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsIn, IsOptional } from 'class-validator';
 import { NotBlank } from '@/common/decorator/validator';
 
 export class RegisterPushTokenRequest {
@@ -27,19 +27,9 @@ export class UpdatePushPreferencesRequest {
   job?: boolean;
 }
 
-/** 관리자 테스트 발송 */
+/** 관리자 테스트 발송 — 채용 요약 푸시를 지금 보낸다 (문구는 스케줄과 동일) */
 export class SendTestPushRequest {
   @IsIn(['ADMIN', 'ALL'])
-  @ApiProperty({ type: String, required: true, description: '대상 — ADMIN: 관리자 계정 기기만, ALL: 등록된 전체 기기', example: 'ADMIN' })
+  @ApiProperty({ type: String, required: true, description: '대상 — ADMIN: 관리자 계정 기기만, ALL: 채용 알림 켜 둔 회원 전원', example: 'ADMIN' })
   target: 'ADMIN' | 'ALL';
-
-  @IsOptional()
-  @IsString()
-  @ApiProperty({ type: String, required: false, description: '제목 (기본: 아트인포 테스트 푸시)' })
-  title?: string;
-
-  @IsOptional()
-  @IsString()
-  @ApiProperty({ type: String, required: false, description: '본문 (기본: 푸시 테스트 메시지입니다.)' })
-  body?: string;
 }
