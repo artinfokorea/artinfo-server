@@ -156,6 +156,52 @@ export class CompetitionRepository implements OnModuleInit {
     return rows[0].id;
   }
 
+  /**
+   * 수집 공고 upsert — 원문 URL 이 같으면 일정·장소·포스터·연락처만 갱신하고(제목·부문은 처음 값 유지) 없으면 게시 상태로 새로 만든다.
+   * 삭제된(deleted_at) 공고는 되살리지 않는다 (관리자가 지운 건 다시 올라오지 않게)
+   */
+  async upsertCrawled(input: CompetitionWrite, sourceUrl: string): Promise<{ id: number; created: boolean }> {
+    const rows: { id: number; created: boolean }[] = await this.dataSource.query(
+      `INSERT INTO competitions (title, host, organizer, area, venue, divisions, ages, open_at, close_at, held_at, result_at, fee, apply_method, apply_link, tel, email,
+         prize, description, poster_url, document_url, source, source_url, status, user_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, 'CRAWL', $21, 'PUBLISHED', NULL)
+       ON CONFLICT (source_url) WHERE source_url IS NOT NULL DO UPDATE SET
+         open_at = EXCLUDED.open_at, close_at = EXCLUDED.close_at, held_at = COALESCE(EXCLUDED.held_at, competitions.held_at),
+         venue = COALESCE(EXCLUDED.venue, competitions.venue), tel = COALESCE(EXCLUDED.tel, competitions.tel), email = COALESCE(EXCLUDED.email, competitions.email),
+         poster_url = COALESCE(EXCLUDED.poster_url, competitions.poster_url), description = COALESCE(EXCLUDED.description, competitions.description), updated_at = now()
+       WHERE competitions.deleted_at IS NULL
+       RETURNING id, (xmax = 0) AS created`,
+      [
+        input.title,
+        input.host,
+        input.organizer,
+        input.area,
+        input.venue,
+        input.divisions,
+        input.ages,
+        input.openAt,
+        input.closeAt,
+        input.heldAt,
+        input.resultAt,
+        input.fee,
+        input.applyMethod,
+        input.applyLink,
+        input.tel,
+        input.email,
+        input.prize,
+        input.description,
+        input.posterUrl,
+        input.documentUrl,
+        sourceUrl,
+      ],
+    );
+    if (!rows[0]) {
+      const existing: { id: number }[] = await this.dataSource.query(`SELECT id FROM competitions WHERE source_url = $1`, [sourceUrl]);
+      return { id: existing[0]?.id ?? 0, created: false };
+    }
+    return { id: rows[0].id, created: Boolean(rows[0].created) };
+  }
+
   async update(id: number, input: CompetitionWrite): Promise<void> {
     await this.dataSource.query(
       `UPDATE competitions SET title = $2, host = $3, organizer = $4, area = $5, venue = $6, divisions = $7, ages = $8, open_at = $9, close_at = $10,

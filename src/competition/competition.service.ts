@@ -13,6 +13,10 @@ export class CompetitionService {
 
   constructor(private readonly repository: CompetitionRepository) {}
 
+  isAdmin(userId: number) {
+    return this.repository.isAdmin(userId);
+  }
+
   findPage(filter: CompetitionListFilter) {
     return this.repository.findPage(filter);
   }

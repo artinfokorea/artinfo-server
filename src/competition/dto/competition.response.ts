@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { CompetitionRow } from '../competition.types';
+import { CompetitionCrawlSummary } from '../crawler/contest-competition.crawler';
 
 const dateString = (value: Date | string | null): string | null =>
   value === null ? null : value instanceof Date ? value.toISOString().slice(0, 10) : String(value).slice(0, 10);
@@ -90,5 +91,31 @@ export class CreateCompetitionResponse {
   constructor(result: { id: number; status: string }) {
     this.id = result.id;
     this.status = result.status;
+  }
+}
+
+export class CompetitionCrawlResponse {
+  @ApiProperty({ type: String }) source: string;
+  @ApiProperty({ type: Number }) scanned: number;
+  @ApiProperty({ type: Number }) matched: number;
+  @ApiProperty({ type: Number }) createdCount: number;
+  @ApiProperty({ type: Number }) updatedCount: number;
+  @ApiProperty({ type: Number }) elapsedMs: number;
+  @ApiProperty({ type: Object, isArray: true }) created: { id: number; title: string; url: string }[];
+  @ApiProperty({ type: Object, isArray: true }) updated: { id: number; title: string; url: string }[];
+  @ApiProperty({ type: Object, isArray: true }) skipped: { title: string; url: string; reason: string }[];
+  @ApiProperty({ type: Object, isArray: true }) failed: { title: string; url: string; reason: string }[];
+
+  constructor(summary: CompetitionCrawlSummary) {
+    this.source = summary.source;
+    this.scanned = summary.scanned;
+    this.matched = summary.matched;
+    this.createdCount = summary.created.length;
+    this.updatedCount = summary.updated.length;
+    this.elapsedMs = summary.elapsedMs;
+    this.created = summary.created;
+    this.updated = summary.updated;
+    this.skipped = summary.skipped;
+    this.failed = summary.failed;
   }
 }

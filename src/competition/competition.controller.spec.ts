@@ -2,6 +2,7 @@ import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { CompetitionController } from './competition.controller';
 import { CompetitionService } from './competition.service';
+import { ContestCompetitionCrawler } from './crawler/contest-competition.crawler';
 import { CompetitionWriteRequest, GetCompetitionsRequest } from './dto/competition.request';
 import { CompetitionRow } from './competition.types';
 
@@ -15,8 +16,9 @@ import { CompetitionRow } from './competition.types';
  * 4) PUT/DELETE/publish 는 회원 ID 와 id 를 서비스로 넘기고 OkResponse
  */
 describe('CompetitionController', () => {
-  const service = { findPage: jest.fn(), findOne: jest.fn(), create: jest.fn(), update: jest.fn(), remove: jest.fn(), publish: jest.fn() };
-  const controller = new CompetitionController(service as unknown as CompetitionService);
+  const service = { findPage: jest.fn(), findOne: jest.fn(), create: jest.fn(), update: jest.fn(), remove: jest.fn(), publish: jest.fn(), isAdmin: jest.fn() };
+  const crawler = { crawl: jest.fn() };
+  const controller = new CompetitionController(service as unknown as CompetitionService, crawler as unknown as ContestCompetitionCrawler);
   const me = { id: 7, name: '나', email: 'me@example.com' };
   const row: CompetitionRow = {
     id: 1,
@@ -160,5 +162,22 @@ describe('CompetitionController', () => {
     expect(service.remove).toHaveBeenCalledWith(5, 7);
     await expect(controller.publish(me, 5)).resolves.toMatchObject({ code: 'OK' });
     expect(service.publish).toHaveBeenCalledWith(5, 7);
+  });
+
+  it('crawl — 관리자만 수집을 돌리고 요약을 돌려준다', async () => {
+    service.isAdmin.mockResolvedValueOnce(false);
+    await expect(controller.crawl(me)).rejects.toMatchObject({ status: 403 });
+    service.isAdmin.mockResolvedValueOnce(true);
+    crawler.crawl.mockResolvedValueOnce({
+      source: 'contest',
+      scanned: 50,
+      matched: 30,
+      created: [{ id: 1, title: 't', url: 'u' }],
+      updated: [],
+      skipped: [],
+      failed: [],
+      elapsedMs: 10,
+    });
+    await expect(controller.crawl(me)).resolves.toMatchObject({ source: 'contest', scanned: 50, matched: 30, createdCount: 1, updatedCount: 0 });
   });
 });
