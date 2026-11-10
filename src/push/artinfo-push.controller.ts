@@ -47,23 +47,12 @@ export class ArtinfoPushController {
 
   @RestApiPost(PushSendResultResponse, {
     path: '/test',
-    description: '[관리자] 테스트 푸시 발송 — target ADMIN(관리자 기기만) / ALL(전체)',
+    description:
+      '[관리자] 채용 요약 푸시 테스트 — 스케줄(매일 12:00 KST)과 같은 문구를 지금 보낸다. target ADMIN(관리자 기기만) / ALL(채용 알림 켠 회원 전원). 새 공고 0건이어도 보낸다',
     auth: [USER_TYPE.ADMIN],
   })
   async sendTest(@AuthSignature() signature: UserSignature, @Body() request: SendTestPushRequest): Promise<PushSendResultResponse> {
-    this.logger.log(`테스트 푸시(${request.target}) — 관리자 ${signature.id}`);
-    const title = request.title?.trim() || '아트인포 테스트 푸시';
-    const body = request.body?.trim() || '푸시 테스트 메시지입니다.';
-    return new PushSendResultResponse(await this.pushService.sendTest(request.target, title, body));
-  }
-
-  @RestApiPost(PushSendResultResponse, {
-    path: '/digest',
-    description: '[관리자] 채용 요약 푸시를 지금 보낸다 (매일 12:00 KST 스케줄과 같은 내용, 새 공고 0건이면 보내지 않음)',
-    auth: [USER_TYPE.ADMIN],
-  })
-  async sendDigestNow(@AuthSignature() signature: UserSignature): Promise<PushSendResultResponse> {
-    this.logger.log(`채용 요약 푸시 수동 발송 — 관리자 ${signature.id}`);
-    return new PushSendResultResponse(await this.pushService.sendJobDigest());
+    this.logger.log(`채용 요약 푸시 테스트(${request.target}) — 관리자 ${signature.id}`);
+    return new PushSendResultResponse(await this.pushService.sendJobDigestTest(request.target));
   }
 }
