@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { USER_TYPE } from '@/user/entity/user.entity';
 import { PostRepository } from '@/post/repository/PostRepository';
 import { CreatePostServiceDto } from '@/post/service/dto/CreatePostServiceDto';
 import { PostEntity } from '@/post/PostEntity';
@@ -24,9 +25,13 @@ export class PostService {
     return post.id;
   }
 
+  /** 글 삭제 — 작성자 본인, 또는 관리자(ADMIN)는 누구의 글이든 (커뮤니티 운영) */
   async removePost(userId: number, postId: number) {
-    await this.userRepository.findOneOrThrowById(userId);
-    const post = await this.postRepository.findOneByIdAndUserIdOrThrow(postId, userId);
+    const user = await this.userRepository.findOneOrThrowById(userId);
+    const post =
+      user.type === USER_TYPE.ADMIN
+        ? await this.postRepository.findOneByIdOrThrow(postId)
+        : await this.postRepository.findOneByIdAndUserIdOrThrow(postId, userId);
     await this.postRepository.softRemove(post);
   }
 
