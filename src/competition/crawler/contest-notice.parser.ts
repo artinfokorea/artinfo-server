@@ -28,6 +28,14 @@ export interface ContestDetail {
   posterUrl: string | null;
   /** '관리자 알림' — 접수 방법 안내 */
   notice: string | null;
+  /** '홈페이지' 링크 — 주최 사이트 (있으면 접수 링크로 쓴다) */
+  homepage: string | null;
+  /** '유의사항' */
+  caution: string | null;
+  /** 본문(.contents_view1) 텍스트 — 줄바꿈 유지 */
+  bodyText: string;
+  /** 본문 이미지 — 공고문·요강를 그림으로 올린 경우 여러 장 */
+  bodyImages: string[];
 }
 
 export const CONTEST_ORIGIN = 'https://contest.co.kr';
@@ -83,6 +91,34 @@ export function parseContestDetail(html: string): ContestDetail {
   const period = field('접수기간');
   const [openText, closeText] = (period ?? '').split('~');
   const posterSrc = $('.listimg img').first().attr('src') ?? null;
+  const absolute = (url: string) => (url.startsWith('http') ? url : `${CONTEST_ORIGIN}${url.startsWith('/') ? '' : '/'}${url}`);
+  const homepageHref = $('.Competition_right dl')
+    .filter((_, dl) => clean($(dl).find('dt').text()) === '홈페이지')
+    .first()
+    .find('a[href]')
+    .attr('href');
+
+  const body = $('.contents_view1').first();
+  body.find('script, style').remove();
+  const bodyImages = body
+    .find('img[src]')
+    .map((_, img) => absolute($(img).attr('src') as string))
+    .get()
+    .filter(src => !/n_icon\d*\.gif$/.test(src));
+  body.find('img').remove();
+  body.find('br').replaceWith('\n');
+  body.find('p, div, li, tr, h1, h2, h3, h4').each((_, el) => {
+    $(el).append('\n');
+  });
+  const bodyText = body
+    .text()
+    .replace(/\u00a0/g, ' ')
+    .split('\n')
+    .map(line => line.replace(/\s+/g, ' ').trim())
+    .filter((line, i, arr) => line.length > 0 || (i > 0 && arr[i - 1].length > 0))
+    .join('\n')
+    .trim();
+
   return {
     title: clean($('.sub2_top_title').first().text()),
     heldAt: toIsoDate(field('대회기간')),
@@ -95,6 +131,10 @@ export function parseContestDetail(html: string): ContestDetail {
     email: field('이메일'),
     posterUrl: posterSrc ? (posterSrc.startsWith('http') ? posterSrc : `${CONTEST_ORIGIN}${posterSrc}`) : null,
     notice: field('관리자 알림'),
+    homepage: homepageHref && /^https?:\/\//.test(homepageHref) ? homepageHref : null,
+    caution: field('유의사항'),
+    bodyText,
+    bodyImages,
   };
 }
 

@@ -98,13 +98,15 @@ describe('CompetitionRepository', () => {
       description: null,
       posterUrl: null,
       documentUrl: null,
+      contentImages: ['https://img/1.jpg'],
     };
     await expect(repository.create(input, { userId: 7, status: 'REVIEW', source: 'OWNER' })).resolves.toBe(42);
     const [sql, params] = lastCall();
     expect(sql).toContain('INSERT INTO competitions');
     expect(sql).toContain('RETURNING id');
-    expect(params).toHaveLength(25);
-    expect(params.slice(20)).toEqual(['OWNER', null, 'REVIEW', 7, 't|h']);
+    expect(params).toHaveLength(26);
+    expect(params[20]).toEqual(['https://img/1.jpg']);
+    expect(params.slice(21)).toEqual(['OWNER', null, 'REVIEW', 7, 't|h']);
     expect(params[0]).toBe('T');
     expect(params[5]).toEqual(['성악']);
   });
@@ -144,18 +146,20 @@ describe('CompetitionRepository', () => {
       description: null,
       posterUrl: null,
       documentUrl: null,
+      contentImages: [],
     };
     query.mockResolvedValueOnce([{ id: 5, created: true }]);
     await expect(repository.upsertCrawled(input, 'https://contest.co.kr/contest/view1/1')).resolves.toEqual({ id: 5, created: true });
     const [sql, params] = lastCall();
-    expect(sql).toContain("'CRAWL', $21, 'PUBLISHED', NULL");
+    expect(sql).toContain("'CRAWL', $22, 'PUBLISHED', NULL");
     expect(sql).toContain('ON CONFLICT (source_url) WHERE source_url IS NOT NULL DO UPDATE SET');
     expect(sql).toContain('WHERE competitions.deleted_at IS NULL');
     expect(sql).toContain('RETURNING id, (xmax = 0) AS created');
-    expect(params).toHaveLength(22);
-    expect(params[21]).toBe('t|h');
+    expect(params).toHaveLength(23);
+    expect(params[20]).toEqual([]);
+    expect(params[22]).toBe('t|h');
     expect(sql).toContain("WHERE competitions.deleted_at IS NULL AND competitions.source = 'CRAWL'");
-    expect(params[20]).toBe('https://contest.co.kr/contest/view1/1');
+    expect(params[21]).toBe('https://contest.co.kr/contest/view1/1');
 
     query.mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 9 }]);
     await expect(repository.upsertCrawled(input, 'https://contest.co.kr/contest/view1/1')).resolves.toEqual({ id: 9, created: false });

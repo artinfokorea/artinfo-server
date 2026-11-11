@@ -120,13 +120,16 @@ export class ContestCompetitionCrawler {
       resultAt: null,
       fee: null,
       applyMethod: 'LINK',
-      applyLink: row.url,
+      // 주최 홈페이지가 적혀 있으면 그곳으로, 없으면 원문 페이지로
+      applyLink: detail.homepage ?? row.url,
       tel: detail.tel,
       email: detail.email,
       prize: null,
-      description: detail.notice,
+      // 유의사항 → 관리자 알림 → 본문 순으로 한 글로
+      description: [detail.caution, detail.notice, detail.bodyText].filter(Boolean).join('\n\n') || null,
       posterUrl: detail.posterUrl,
       documentUrl: null,
+      contentImages: detail.bodyImages,
     };
     // 1단계: 원문 URL. 이미 들어온 공고면 갱신(삭제됐으면 건너뜀, 직접 등록본에 붙은 URL 이면 합친 것으로)
 

@@ -17,7 +17,7 @@ const ORDER_SQL = `ORDER BY CASE phase WHEN 'SOON' THEN 0 WHEN 'OPEN' THEN 1 WHE
   CASE WHEN phase = 'UPCOMING' THEN open_at ELSE close_at END ASC, id DESC`;
 
 const WRITE_COLUMNS = `title, host, organizer, area, venue, divisions, ages, open_at, close_at, held_at, result_at, fee, apply_method, apply_link, tel, email,
-         prize, description, poster_url, document_url`;
+         prize, description, poster_url, document_url, content_images`;
 const writeValues = (input: CompetitionWrite): unknown[] => [
   input.title,
   input.host,
@@ -39,6 +39,7 @@ const writeValues = (input: CompetitionWrite): unknown[] => [
   input.description,
   input.posterUrl,
   input.documentUrl,
+  input.contentImages ?? [],
 ];
 
 export interface DuplicateCandidate {
@@ -106,6 +107,8 @@ export class CompetitionRepository implements OnModuleInit {
     // 2단계 중복 판정 키(제목·주최 정규화) — 나중에 추가된 컬럼이라 멱등으로 붙인다
     await this.dataSource.query(`ALTER TABLE competitions ADD COLUMN IF NOT EXISTS dedupe_key VARCHAR`);
     await this.dataSource.query(`CREATE INDEX IF NOT EXISTS idx_competitions_dedupe_key ON competitions (dedupe_key)`);
+    // 본문 이미지 여러 장 (포스터와 별개) — 나중에 추가된 컬럼
+    await this.dataSource.query(`ALTER TABLE competitions ADD COLUMN IF NOT EXISTS content_images TEXT[] NOT NULL DEFAULT '{}'`);
   }
 
   /** 게시된 공고 목록. phases 가 비어 있으면 종료된 대회는 뺀다 */
@@ -160,7 +163,7 @@ export class CompetitionRepository implements OnModuleInit {
   ): Promise<number> {
     const rows: { id: number }[] = await this.dataSource.query(
       `INSERT INTO competitions (${WRITE_COLUMNS}, source, source_url, status, user_id, dedupe_key)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26)
        RETURNING id`,
       [...writeValues(input), meta.source, meta.sourceUrl ?? null, meta.status, meta.userId, dedupeKey(input.title, input.host)],
     );
@@ -171,7 +174,7 @@ export class CompetitionRepository implements OnModuleInit {
     await this.dataSource.query(
       `UPDATE competitions SET title = $2, host = $3, organizer = $4, area = $5, venue = $6, divisions = $7, ages = $8, open_at = $9, close_at = $10,
          held_at = $11, result_at = $12, fee = $13, apply_method = $14, apply_link = $15, tel = $16, email = $17, prize = $18, description = $19,
-         poster_url = $20, document_url = $21, dedupe_key = $22, updated_at = now()
+         poster_url = $20, document_url = $21, content_images = $22, dedupe_key = $23, updated_at = now()
        WHERE id = $1 AND deleted_at IS NULL`,
       [id, ...writeValues(input), dedupeKey(input.title, input.host)],
     );
@@ -215,11 +218,12 @@ export class CompetitionRepository implements OnModuleInit {
   async upsertCrawled(input: CompetitionWrite, sourceUrl: string): Promise<{ id: number; created: boolean }> {
     const rows: { id: number; created: boolean }[] = await this.dataSource.query(
       `INSERT INTO competitions (${WRITE_COLUMNS}, source, source_url, status, user_id, dedupe_key)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, 'CRAWL', $21, 'PUBLISHED', NULL, $22)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, 'CRAWL', $22, 'PUBLISHED', NULL, $23)
        ON CONFLICT (source_url) WHERE source_url IS NOT NULL DO UPDATE SET
          open_at = EXCLUDED.open_at, close_at = EXCLUDED.close_at, held_at = COALESCE(EXCLUDED.held_at, competitions.held_at),
          venue = COALESCE(EXCLUDED.venue, competitions.venue), tel = COALESCE(EXCLUDED.tel, competitions.tel), email = COALESCE(EXCLUDED.email, competitions.email),
-         poster_url = COALESCE(EXCLUDED.poster_url, competitions.poster_url), description = COALESCE(EXCLUDED.description, competitions.description), updated_at = now()
+         poster_url = COALESCE(EXCLUDED.poster_url, competitions.poster_url), description = COALESCE(EXCLUDED.description, competitions.description),
+         content_images = CASE WHEN cardinality(EXCLUDED.content_images) > 0 THEN EXCLUDED.content_images ELSE competitions.content_images END, updated_at = now()
        WHERE competitions.deleted_at IS NULL AND competitions.source = 'CRAWL'
        RETURNING id, (xmax = 0) AS created`,
       [...writeValues(input), sourceUrl, dedupeKey(input.title, input.host)],

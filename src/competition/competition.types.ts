@@ -31,6 +31,8 @@ export interface CompetitionRow {
   description: string | null;
   poster_url: string | null;
   document_url: string | null;
+  /** 본문 이미지(공고문·요강 그림) — 포스터와 별개로 여러 장 */
+  content_images: string[];
   source: CompetitionSource;
   source_url: string | null;
   status: CompetitionStatus;
@@ -68,6 +70,7 @@ export interface CompetitionWrite {
   description: string | null;
   posterUrl: string | null;
   documentUrl: string | null;
+  contentImages: string[];
 }
 
 export interface CompetitionListFilter {

@@ -86,6 +86,7 @@ describe('ContestCompetitionCrawler', () => {
       email: 'nartec@naver.com',
       posterUrl: 'https://contest.co.kr/data/media/image/contest/202611/imgm_20261107122317400.jpg',
       description: '본 대회는 주최측 홈페이지에서 접수가 가능합니다.',
+      contentImages: ['https://contest.co.kr/data/undefined/20261107121929782.jpg'],
     });
     const vocal = calls.upserts.find(u => u.url.endsWith('/23142'))!;
     expect(vocal.input.divisions).toEqual(['성악']);

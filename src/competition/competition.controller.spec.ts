@@ -42,6 +42,7 @@ describe('CompetitionController', () => {
     description: null,
     poster_url: null,
     document_url: null,
+    content_images: ['https://img/a.jpg'],
     source: 'CRAWL',
     source_url: 'https://contest.co.kr/contest/view1/23151',
     status: 'PUBLISHED',
@@ -74,6 +75,7 @@ describe('CompetitionController', () => {
       heldAt: '2026-11-28',
       resultAt: null,
       applyMethod: 'LINK',
+      contentImages: ['https://img/a.jpg'],
       source: 'CRAWL',
       authorId: 3,
       phase: 'OPEN',
@@ -123,6 +125,7 @@ describe('CompetitionController', () => {
       applyLink: 'https://forms.gle/x',
       fee: '',
       prize: '대상 300만원',
+      contentImages: ['https://img/1.jpg', ' '],
     });
     expect(await validate(good)).toHaveLength(0);
     service.create.mockResolvedValue({ id: 10, status: 'REVIEW' });
@@ -140,6 +143,7 @@ describe('CompetitionController', () => {
         fee: null,
         applyLink: 'https://forms.gle/x',
         prize: '대상 300만원',
+        contentImages: ['https://img/1.jpg'],
         posterUrl: null,
       }),
     );
