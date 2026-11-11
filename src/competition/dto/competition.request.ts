@@ -180,13 +180,13 @@ export class CompetitionWriteRequest {
   }
 }
 
-/** 관리자 수동 수집 — limit 을 주면 목록 앞에서 그 개수만 (1~50). 비우면 스케줄과 같이 전체 */
+/** 관리자 수동 수집 — limit 을 주면 목록 앞에서 그 개수만 (1~200, 50건 넘으면 다음 페이지를 이어 읽음). 비우면 스케줄과 같이 1페이지 50건 */
 export class CrawlCompetitionsRequest {
   @IsOptional()
   @Transform(({ value }) => (value === undefined || value === null || value === '' ? undefined : Number(value)))
   @IsInt()
   @Min(1)
-  @Max(50)
-  @ApiProperty({ type: Number, required: false, description: '목록 앞에서부터 볼 개수 (1~50). 비우면 전체', example: 10 })
+  @Max(200)
+  @ApiProperty({ type: Number, required: false, description: '목록 앞에서부터 볼 개수 (1~200). 비우면 50', example: 100 })
   limit?: number;
 }

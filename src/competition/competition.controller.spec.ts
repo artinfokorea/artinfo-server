@@ -203,11 +203,12 @@ describe('CompetitionController', () => {
     expect((await validate(optionalBadEmail)).map(e => e.property)).toEqual(['email']);
   });
 
-  it('crawl — limit 은 1~50 정수만, 비우면 전체', async () => {
+  it('crawl — limit 은 1~200 정수만, 비우면 50', async () => {
     expect(await validate(plainToInstance(CrawlCompetitionsRequest, { limit: '10' }))).toHaveLength(0);
     expect(await validate(plainToInstance(CrawlCompetitionsRequest, {}))).toHaveLength(0);
     expect((await validate(plainToInstance(CrawlCompetitionsRequest, { limit: '0' }))).map(e => e.property)).toEqual(['limit']);
-    expect((await validate(plainToInstance(CrawlCompetitionsRequest, { limit: '99' }))).map(e => e.property)).toEqual(['limit']);
+    expect(await validate(plainToInstance(CrawlCompetitionsRequest, { limit: '200' }))).toHaveLength(0);
+    expect((await validate(plainToInstance(CrawlCompetitionsRequest, { limit: '201' }))).map(e => e.property)).toEqual(['limit']);
     service.isAdmin.mockResolvedValueOnce(true);
     crawler.crawl.mockResolvedValueOnce({
       source: 'contest',

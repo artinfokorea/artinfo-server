@@ -30,7 +30,7 @@ export class CompetitionController {
   @UseGuards(OptionalJwtAuthGuard)
   @RestApiPost(CompetitionCrawlResponse, {
     path: '/crawl',
-    description: '[관리자] contest.co.kr 콩쿠르 수집을 지금 실행 — ?limit=N 이면 목록 앞 N건만 (스케줄은 전체 50건)',
+    description: '[관리자] contest.co.kr 콩쿠르 수집을 지금 실행 — ?limit=N(1~200) 이면 목록 앞 N건만, 비우면 50건 (스케줄과 같음)',
     auth: [USER_TYPE.ADMIN],
   })
   async crawl(@AuthSignature() signature: UserSignature, @Query() request: CrawlCompetitionsRequest): Promise<CompetitionCrawlResponse> {
