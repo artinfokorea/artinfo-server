@@ -1,7 +1,7 @@
 import { RestApiController, RestApiPost } from '@/common/decorator/rest-api';
 import { CreateResponse } from '@/common/response/createResponse';
 import { InquiryService } from '@/system/service/inquiry.service';
-import { Body } from '@nestjs/common';
+import { Body, Ip } from '@nestjs/common';
 import { CreateInquiryRequest } from '@/system/dto/request/create-inquiry.request';
 import { CreatePerformanceInquiryRequest } from '@/system/dto/request/create-performace-inquiry.request';
 import { ProvinceRepository } from '@/province/province.repository';
@@ -14,8 +14,8 @@ export class InquiryController {
   ) {}
 
   @RestApiPost(CreateResponse, { path: '/', description: '문의 생성' })
-  createInquiry(@Body() request: CreateInquiryRequest) {
-    return this.inquiryService.createInquiry(request.toCommand());
+  async createInquiry(@Body() request: CreateInquiryRequest, @Ip() ip: string) {
+    return new CreateResponse(await this.inquiryService.createInquiry(request.toCommand(), { ip, website: request.website, startedAt: request.startedAt }));
   }
 
   @RestApiPost(CreateResponse, { path: '/performance', description: '기획 문의 생성' })
