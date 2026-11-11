@@ -23,13 +23,16 @@ export class PostRepository extends Repository<PostEntity> {
     endDate.setDate(0);
     endDate.setHours(23, 59, 59, 999);
 
+    // withDeleted: 탈퇴(soft delete)한 회원의 글도 작성자('탈퇴회원')가 조인되게. 글·좋아요의 삭제 여부는 아래에서 직접 거른다
     const result = await this.createQueryBuilder('post')
+      .withDeleted()
       .leftJoinAndSelect('post.user', 'user')
-      .leftJoin('post.likes', 'likes')
+      .leftJoin('post.likes', 'likes', 'likes.deletedAt IS NULL')
       .leftJoin('post.comments', 'comments', 'comments.type = :type', { type: COMMENT_TYPE.POST })
       .addSelect('COUNT(likes.id)', 'likesCount')
       .addSelect('COUNT(comments.id)', 'commentsCount')
-      .where('post.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .where('post.deletedAt IS NULL')
+      .andWhere('post.createdAt BETWEEN :startDate AND :endDate', { startDate, endDate })
       .groupBy('post.id')
       .addGroupBy('user.id')
       .orderBy('COUNT(likes.id) + COUNT(comments.id)', 'DESC')
@@ -73,13 +76,16 @@ export class PostRepository extends Repository<PostEntity> {
   }
 
   async findManyPaging(fetcher: PostPagingFetcher): Promise<PagingItems<PostEntity>> {
+    // withDeleted: 탈퇴한 회원의 글도 작성자('탈퇴회원')가 조인되게. 글·좋아요의 삭제 여부는 직접 거른다
     const queryBuilder = this.createQueryBuilder('post')
+      .withDeleted()
       .leftJoinAndSelect('post.comments', 'comments', 'comments.type = :type', { type: COMMENT_TYPE.POST })
-      .leftJoinAndSelect('post.likes', 'likes')
-      .leftJoinAndSelect('post.user', 'user');
+      .leftJoinAndSelect('post.likes', 'likes', 'likes.deletedAt IS NULL')
+      .leftJoinAndSelect('post.user', 'user')
+      .where('post.deletedAt IS NULL');
 
     if (fetcher.category) {
-      queryBuilder.where('post.category = :category', { category: fetcher.category });
+      queryBuilder.andWhere('post.category = :category', { category: fetcher.category });
     }
 
     if (fetcher.keyword) {
@@ -121,10 +127,12 @@ export class PostRepository extends Repository<PostEntity> {
 
   async findOneByIdWithUserOrThrow(postId: number) {
     const post = await this.createQueryBuilder('post')
+      .withDeleted()
       .leftJoinAndSelect('post.user', 'user')
       .leftJoinAndSelect('post.comments', 'comments', "comments.type = 'POST'")
-      .leftJoinAndSelect('post.likes', 'likes', "likes.type = 'POST'")
+      .leftJoinAndSelect('post.likes', 'likes', "likes.type = 'POST' AND likes.deletedAt IS NULL")
       .where('post.id = :id', { id: postId })
+      .andWhere('post.deletedAt IS NULL')
       .getOne();
 
     if (!post) throw new PostNotFound();

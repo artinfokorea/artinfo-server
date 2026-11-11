@@ -26,9 +26,9 @@ export class CommentResponse {
   constructor(comment: CommentEntity) {
     this.id = comment.id;
     this.contents = comment.contents;
-    this.userId = comment.user.id;
-    this.userNickname = comment.user.nickname;
-    this.userIconImageUrl = comment.user.iconImageUrl;
+    this.userId = comment.user?.id ?? 0; // 작성자가 비어 있으면(탈퇴) 누구와도 일치하지 않는 0
+    this.userNickname = comment.user?.nickname ?? '탈퇴회원';
+    this.userIconImageUrl = comment.user?.iconImageUrl ?? null;
     this.childrenCount = comment.childrenCount;
     this.createdAt = comment.createdAt;
   }

@@ -81,6 +81,7 @@ export class CommentRepository {
   async find(fetcher: CommentFetcher): Promise<CommentEntity[]> {
     const qb = this.commentRepository
       .createQueryBuilder('comment')
+      .withDeleted() // 탈퇴 회원의 댓글도 작성자('탈퇴회원')가 조인되게 (댓글 자체는 soft delete 가 없다)
       .addSelect(subQuery => {
         return subQuery.select('COUNT(*)', 'childrenCount').from(CommentEntity, 'child').where('child.parentId = comment.id');
       }, 'children_count')

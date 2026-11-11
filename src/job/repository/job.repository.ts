@@ -176,6 +176,7 @@ export class JobRepository {
 
       const queryBuilder = this.jobRepository
         .createQueryBuilder('job')
+        .withDeleted() // 탈퇴 회원의 공고도 작성자('탈퇴회원')가 조인되게
         .leftJoinAndSelect('job.user', 'user')
         .leftJoinAndSelect('job.jobMajorCategories', 'jobMajorCategories')
         .leftJoinAndSelect('job.jobProvinces', 'jobProvinces')
@@ -266,6 +267,7 @@ export class JobRepository {
 
       const queryBuilder = this.jobRepository
         .createQueryBuilder('job')
+        .withDeleted() // 탈퇴 회원의 공고도 작성자('탈퇴회원')가 조인되게
         .leftJoinAndSelect('job.user', 'user')
         .leftJoinAndSelect('job.jobMajorCategories', 'jobMajorCategories')
         .leftJoinAndSelect('job.jobProvinces', 'jobProvinces')

@@ -89,6 +89,7 @@ export class LessonRepository {
     } else {
       const queryBuilder = this.lessonRepository
         .createQueryBuilder('lesson')
+        .withDeleted() // 탈퇴 회원의 레슨도 작성자가 조인되게
         .leftJoinAndSelect('lesson.user', 'user')
         .leftJoinAndSelect('user.schools', 'schools')
         .leftJoinAndSelect('user.userMajorCategories', 'userMajorCategories')
@@ -145,6 +146,7 @@ export class LessonRepository {
     } else {
       const queryBuilder = this.lessonRepository
         .createQueryBuilder('lesson')
+        .withDeleted() // 탈퇴 회원의 레슨도 작성자가 조인되게
         .leftJoinAndSelect('lesson.user', 'user')
         .leftJoinAndSelect('user.schools', 'schools')
         .leftJoinAndSelect('user.userMajorCategories', 'userMajorCategories')

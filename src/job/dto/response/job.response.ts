@@ -64,7 +64,7 @@ export class JobResponse {
 
   constructor(job: Job) {
     this.id = job.id;
-    this.authorId = job.user.id;
+    this.authorId = job.user?.id ?? 0; // 작성자가 비어 있으면(탈퇴) 누구와도 일치하지 않는 0
     this.title = job.title;
     this.contents = job.contents;
     this.companyName = job.companyName;
