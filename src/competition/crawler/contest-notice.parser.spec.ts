@@ -4,7 +4,7 @@ import { inferAges, inferDivisions, isCompetitionTitle, parseContestDetail, pars
 
 /**
  * 스펙 (실제 페이지 픽스처, 2026-11-11 contest.co.kr 음악경연 전체 목록·상세 23151)
- * 1) 목록 1페이지 50행(2페이지는 12행): id·원문 URL·제목·주최·지역 배지·분류 배지(추천/인기 제외)·상태(접수중/접수예정/심사대기/심사중)
+ * 1) 목록(추천 탭, 50건/페이지): id·원문 URL·제목·주최·지역 배지·분류 배지(추천/인기 제외)·상태(접수중/접수예정/심사대기/심사중/대회종료)·closed
  * 2) 상세: 제목, 대회기간 → 대회일, 접수기간 "2026.11.01 ~ 2026.11.25 23시59분" → 시작·마감, 지역 [경기] → 경기, 장소·주관·전화·이메일·포스터·관리자 알림,
  *    홈페이지 링크·유의사항, 본문(.contents_view1)의 텍스트(줄바꿈 유지)와 이미지 목록(아이콘 gif 제외)
  * 3) 제목 판정: 콩쿠르·콩쿨·경연·Competition·콘테스트·예술제는 대상, 평가회·마스터클래스·모의평가·신청서는 제외
@@ -13,29 +13,46 @@ import { inferAges, inferDivisions, isCompetitionTitle, parseContestDetail, pars
 const fixture = (name: string) => fs.readFileSync(path.join(__dirname, '__fixtures__', name), 'utf8');
 
 describe('parseContestList', () => {
-  const rows = parseContestList(fixture('list-2026-11-11.html'));
+  const page = (n: number) => parseContestList(fixture(`list-2026-11-11-p${n}.html`));
 
-  it('1페이지 50행, 2페이지 12행을 읽는다', () => {
-    expect(rows).toHaveLength(50);
-    expect(parseContestList(fixture('list-2026-11-11-p2.html'))).toHaveLength(12);
+  it('1페이지는 상단 추천 3건을 더해 53행, 모두 진행 중', () => {
+    const rows = page(1);
+    expect(rows).toHaveLength(53);
+    expect(rows.filter(r => r.closed)).toHaveLength(0);
     expect(rows[0]).toEqual({
-      id: '22917',
-      url: 'https://contest.co.kr/contest/view1/22917',
-      title: '제30회 세종오케스트라국제음악콩쿠르',
-      host: '재단법인) 세종국제예술문화재단',
+      id: '23052',
+      url: 'https://contest.co.kr/contest/view1/23052',
+      title: '2027학년도 전기 세종대학교 융합예술대학원 음악학과 신입생 모집(석사, 연주디플로마)',
+      host: '세종대학교 융합예술대학원 음악학과',
       area: '서울',
       categories: ['클래식/실용'],
       state: '접수중',
+      closed: false,
     });
   });
 
   it('상태·지역·분류 배지를 구분한다', () => {
-    const byId = Object.fromEntries(rows.map(r => [r.id, r]));
-    expect(byId['22791']).toMatchObject({ title: '2026 Asia Young Musicians Competition', state: '심사대기', area: '서울' });
-    expect(byId['23085']).toMatchObject({ state: '접수예정', area: '제주' });
-    expect(byId['22690']).toMatchObject({ state: '심사중' });
+    const byId = Object.fromEntries([...page(1), ...page(2)].map(r => [r.id, r]));
+    expect(byId['22791']).toMatchObject({ title: '2026 Asia Young Musicians Competition', host: 'Classic Korea', state: '심사대기', area: '서울' });
+    expect(byId['23085']).toMatchObject({ title: '제4회 JICMF 아마추어 콩쿠르', state: '접수예정', area: '제주' });
+    expect(byId['22690']).toMatchObject({ state: '심사중', host: '주식회사 예술세계' });
     expect(byId['23142']).toMatchObject({ area: '서울', categories: ['성악'] });
     expect(byId['23153']).toMatchObject({ area: '전국', host: '한경국립대학교 / 실용음악학전공' });
+  });
+
+  it('2·3페이지는 50행씩, 4페이지는 50행 중 33건이 종료, 5페이지는 전부 종료', () => {
+    expect(page(2)).toHaveLength(50);
+    expect(page(2)[0]).toMatchObject({ id: '23133', closed: false });
+    expect(page(3).filter(r => r.closed)).toHaveLength(0);
+    const p4 = page(4);
+    expect(p4).toHaveLength(50);
+    expect(p4.filter(r => r.closed)).toHaveLength(33);
+    expect(p4.find(r => r.closed)).toMatchObject({ id: '2520', title: '제46회 틴에이저 피아노 콩쿠르', state: '대회종료', closed: true });
+    expect(page(5).every(r => r.closed)).toBe(true);
+  });
+
+  it('표가 없으면 빈 배열', () => {
+    expect(parseContestList('<html><body>점검 중</body></html>')).toEqual([]);
   });
 });
 

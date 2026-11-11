@@ -10,8 +10,10 @@ export interface ContestListRow {
   area: string;
   /** 분류 배지 (클래식/실용 · 음악경연대회 · 성악 …) */
   categories: string[];
-  /** 접수중 · 접수예정 · 심사대기 · 심사중 · 마감 */
+  /** 접수중 · 접수예정 · 심사대기 · 심사중 · 대회종료 */
   state: string;
+  /** 종료된 대회(목록 뒤쪽) — 수집하지 않는다 */
+  closed: boolean;
 }
 
 export interface ContestDetail {
@@ -39,9 +41,12 @@ export interface ContestDetail {
 }
 
 export const CONTEST_ORIGIN = 'https://contest.co.kr';
-/** 음악경연 전체 목록 — 50건/페이지 (접수예정·접수중·심사대기·심사중), 페이지는 pg=N */
+/**
+ * 음악경연 '추천' 목록(limit_=1) — 50건/페이지(pg=N, 1페이지는 상단 추천 3건이 더 붙어 53건), 접수중·접수예정·심사 순이고 뒤로 갈수록 종료된 대회.
+ * 사용자가 지정한 목록이며, 다른 탭(limit_= 전체)은 62건만 보여 이 목록이 훨씬 많다 (2026-11-11 기준 활성 약 170건)
+ */
 export const CONTEST_LIST_PAGE_SIZE = 50;
-export const contestListUrl = (page = 1) => `${CONTEST_ORIGIN}/contest/list_n/1?t=2&limit_=&pg=${page}`;
+export const contestListUrl = (page = 1) => `${CONTEST_ORIGIN}/contest/list_n/1?s_area=&t=2&list_state=&limit_=1&ncount=50&pg=${page}`;
 export const contestDetailUrl = (id: string) => `${CONTEST_ORIGIN}/contest/view1/${id}`;
 
 const clean = (text: string) => text.replace(/ /g, ' ').replace(/\s+/g, ' ').trim();
@@ -65,6 +70,8 @@ export function parseContestList(html: string): ContestListRow[] {
       .get()
       .filter(Boolean);
     const area = badges.find(b => !$(tr).find(`td.subject p.category span.bigcate:contains("${b}")`).length) ?? '';
+    // 상태 배지(접수중·심사대기 …)가 있으면 그것, 없으면 셀의 첫 낱말(종료된 대회는 '대회종료' 글자만 있다)
+    const state = clean($(tr).find('td.stat .state1 span, td.stat span span').first().text()) || clean($(tr).find('td.stat').text().split(/\s/)[0]);
     rows.push({
       id,
       url: contestDetailUrl(id),
@@ -72,7 +79,8 @@ export function parseContestList(html: string): ContestListRow[] {
       host: clean($(tr).find('td.boardinfo').text()),
       area,
       categories: badges.filter(b => b !== area && b !== '추천' && b !== '인기'),
-      state: clean($(tr).find('td.stat .state1 span, td.stat span span').first().text()) || clean($(tr).find('td.stat').text().split(/\s/)[0]),
+      state,
+      closed: /종료|마감/.test(state),
     });
   });
   return rows;
