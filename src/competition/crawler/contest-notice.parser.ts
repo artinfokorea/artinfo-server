@@ -31,8 +31,9 @@ export interface ContestDetail {
 }
 
 export const CONTEST_ORIGIN = 'https://contest.co.kr';
-/** 음악경연 전체 목록 — 한 페이지에 현재 진행 중인 대회 50건까지 (접수예정·접수중·심사대기·심사중) */
-export const CONTEST_LIST_URL = `${CONTEST_ORIGIN}/contest/list_n/1?t=2&limit_=`;
+/** 음악경연 전체 목록 — 50건/페이지 (접수예정·접수중·심사대기·심사중), 페이지는 pg=N */
+export const CONTEST_LIST_PAGE_SIZE = 50;
+export const contestListUrl = (page = 1) => `${CONTEST_ORIGIN}/contest/list_n/1?t=2&limit_=&pg=${page}`;
 export const contestDetailUrl = (id: string) => `${CONTEST_ORIGIN}/contest/view1/${id}`;
 
 const clean = (text: string) => text.replace(/ /g, ' ').replace(/\s+/g, ' ').trim();

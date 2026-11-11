@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
-import { CONTEST_LIST_URL, contestDetailUrl } from './contest-notice.parser';
+import { contestDetailUrl, contestListUrl } from './contest-notice.parser';
 
 /** 테스트에서 가짜로 바꾸기 위한 contest.co.kr 접근 경계 */
 export interface ContestNoticeGateway {
-  fetchList(): Promise<string>;
+  /** 목록 페이지 (1부터) */
+  fetchList(page: number): Promise<string>;
   fetchDetail(id: string): Promise<string>;
 }
 
@@ -20,8 +21,8 @@ export class ContestNoticeClient implements ContestNoticeGateway {
     });
   }
 
-  async fetchList(): Promise<string> {
-    const res = await this.http.get<string>(CONTEST_LIST_URL, { responseType: 'text' });
+  async fetchList(page: number): Promise<string> {
+    const res = await this.http.get<string>(contestListUrl(page), { responseType: 'text' });
     return res.data;
   }
 

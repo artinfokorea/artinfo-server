@@ -3,9 +3,19 @@ import { dedupeKey } from '../competition-dedupe';
 import { CompetitionRepository } from '../competition.repository';
 import { CompetitionWrite } from '../competition.types';
 import { ContestNoticeClient, ContestNoticeGateway } from './contest-notice.client';
-import { ContestListRow, inferAges, inferDivisions, isCompetitionTitle, parseContestDetail, parseContestList } from './contest-notice.parser';
+import {
+  CONTEST_LIST_PAGE_SIZE,
+  ContestListRow,
+  inferAges,
+  inferDivisions,
+  isCompetitionTitle,
+  parseContestDetail,
+  parseContestList,
+} from './contest-notice.parser';
 
 export const CONTEST_NOTICE_GATEWAY = 'CONTEST_NOTICE_GATEWAY';
+/** 수동 수집에서 볼 수 있는 최대 건수 (4페이지) */
+export const CRAWL_MAX_LIMIT = 200;
 
 export interface CompetitionCrawlSummary {
   source: 'contest';
@@ -40,11 +50,13 @@ export class ContestCompetitionCrawler {
     this.gateway = gateway ?? client;
   }
 
-  /** limit 을 주면 목록 앞에서부터 그 개수만 본다 (관리자 수동 실행용). 스케줄은 목록 전체(50건) */
+  /**
+   * limit 을 주면 목록 앞에서부터 그 개수만 본다 (관리자 수동 실행용, 최대 200 = 4페이지). 스케줄은 limit 없이 1페이지(50건).
+   * 사이트가 50건/페이지(pg=N)라 limit 이 50을 넘으면 다음 페이지를 이어 읽고, 페이지가 50건 미만이면 끝으로 본다
+   */
   async crawl(options: { limit?: number } = {}): Promise<CompetitionCrawlSummary> {
     const startedAt = Date.now();
-    const allRows = parseContestList(await this.gateway.fetchList());
-    const rows = options.limit && options.limit > 0 ? allRows.slice(0, options.limit) : allRows;
+    const rows = await this.collectRows(Math.min(options.limit && options.limit > 0 ? options.limit : CONTEST_LIST_PAGE_SIZE, CRAWL_MAX_LIMIT));
     const matched = rows.filter(row => isCompetitionTitle(row.title));
     const summary: CompetitionCrawlSummary = {
       source: 'contest',
@@ -77,6 +89,17 @@ export class ContestCompetitionCrawler {
     }
     summary.elapsedMs = Date.now() - startedAt;
     return summary;
+  }
+
+  private async collectRows(limit: number): Promise<ContestListRow[]> {
+    const rows: ContestListRow[] = [];
+    const seen = new Set<string>();
+    for (let page = 1; rows.length < limit; page++) {
+      const pageRows = parseContestList(await this.gateway.fetchList(page));
+      pageRows.forEach(row => seen.has(row.id) || (seen.add(row.id), rows.push(row)));
+      if (pageRows.length < CONTEST_LIST_PAGE_SIZE) break;
+    }
+    return rows.slice(0, limit);
   }
 
   private async save(row: ContestListRow): Promise<{ kind: 'created' | 'updated' | 'merged'; id: number } | { kind: 'skipped'; reason: string }> {

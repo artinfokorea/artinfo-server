@@ -21,9 +21,12 @@ function build(
     duplicateOf?: { id: number; source: 'OWNER' | 'CRAWL'; status: string; source_url: string | null; poster_url: string | null };
   } = {},
 ) {
-  const calls = { detail: [] as string[], upserts: [] as { input: any; url: string }[], attached: [] as { id: number; url: string }[] };
+  const calls = { detail: [] as string[], upserts: [] as { input: any; url: string }[], attached: [] as { id: number; url: string }[], pages: [] as number[] };
   const gateway: ContestNoticeGateway = {
-    fetchList: async () => fixture('list-2026-11-11.html'),
+    fetchList: async page => {
+      calls.pages.push(page);
+      return page === 1 ? fixture('list-2026-11-11.html') : page === 2 ? fixture('list-2026-11-11-p2.html') : '<html></html>';
+    },
     fetchDetail: async id => {
       calls.detail.push(id);
       if (id === opts.failId) throw new Error('timeout');
@@ -124,12 +127,26 @@ describe('ContestCompetitionCrawler', () => {
     expect(calls.upserts).toEqual([]);
   });
 
-  it('limit — 목록 앞에서 그 개수만 본다 (스케줄은 limit 없이 전체)', async () => {
+  it('limit — 목록 앞에서 그 개수만 본다 (스케줄은 limit 없이 1페이지 50건)', async () => {
     const { crawler, calls } = build();
     const summary = await crawler.crawl({ limit: 5 });
     expect(summary.scanned).toBe(5);
-    expect(summary.matched).toBeLessThanOrEqual(5);
-    expect(calls.detail.length).toBe(summary.matched);
+    expect(calls.pages).toEqual([1]);
     expect(calls.detail[0]).toBe('22917');
+
+    const { crawler: all, calls: allCalls } = build();
+    expect((await all.crawl()).scanned).toBe(50);
+    expect(allCalls.pages).toEqual([1]);
+  });
+
+  it('limit 이 50을 넘으면 다음 페이지를 이어 읽고, 50건 미만인 페이지에서 멈춘다', async () => {
+    const { crawler, calls } = build();
+    const summary = await crawler.crawl({ limit: 60 });
+    expect(summary.scanned).toBe(60);
+    expect(calls.pages).toEqual([1, 2]);
+
+    const { crawler: big, calls: bigCalls } = build();
+    expect((await big.crawl({ limit: 200 })).scanned).toBe(62); // 2페이지가 12건이라 거기서 끝
+    expect(bigCalls.pages).toEqual([1, 2]);
   });
 });

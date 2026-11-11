@@ -4,7 +4,7 @@ import { inferAges, inferDivisions, isCompetitionTitle, parseContestDetail, pars
 
 /**
  * 스펙 (실제 페이지 픽스처, 2026-11-11 contest.co.kr 음악경연 전체 목록·상세 23151)
- * 1) 목록 50행: id·원문 URL·제목·주최·지역 배지·분류 배지(추천/인기 제외)·상태(접수중/접수예정/심사대기/심사중)
+ * 1) 목록 1페이지 50행(2페이지는 12행): id·원문 URL·제목·주최·지역 배지·분류 배지(추천/인기 제외)·상태(접수중/접수예정/심사대기/심사중)
  * 2) 상세: 제목, 대회기간 → 대회일, 접수기간 "2026.11.01 ~ 2026.11.25 23시59분" → 시작·마감, 지역 [경기] → 경기, 장소·주관·전화·이메일·포스터·관리자 알림
  * 3) 제목 판정: 콩쿠르·콩쿨·경연·Competition·콘테스트·예술제는 대상, 평가회·마스터클래스·모의평가·신청서는 제외
  * 4) 부문·대상 추출: 제목(+분류)에서 피아노·성악·현악·관악·작곡·실용음악, 없으면 종합. 청소년/영재는 초·중·고
@@ -14,8 +14,9 @@ const fixture = (name: string) => fs.readFileSync(path.join(__dirname, '__fixtur
 describe('parseContestList', () => {
   const rows = parseContestList(fixture('list-2026-11-11.html'));
 
-  it('50행을 읽는다', () => {
+  it('1페이지 50행, 2페이지 12행을 읽는다', () => {
     expect(rows).toHaveLength(50);
+    expect(parseContestList(fixture('list-2026-11-11-p2.html'))).toHaveLength(12);
     expect(rows[0]).toEqual({
       id: '22917',
       url: 'https://contest.co.kr/contest/view1/22917',
