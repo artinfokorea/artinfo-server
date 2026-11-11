@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { dedupeKey } from '../competition-dedupe';
 import { CompetitionRepository } from '../competition.repository';
 import { CompetitionWrite } from '../competition.types';
+import { CompetitionImageStore } from './competition-image.store';
 import { ContestNoticeClient, ContestNoticeGateway } from './contest-notice.client';
 import {
   CONTEST_LIST_PAGE_SIZE,
@@ -16,6 +17,8 @@ import {
 export const CONTEST_NOTICE_GATEWAY = 'CONTEST_NOTICE_GATEWAY';
 /** 수동 수집에서 볼 수 있는 최대 건수 (4페이지) */
 export const CRAWL_MAX_LIMIT = 200;
+/** 수집 공고를 등록하는 운영 계정 (채용 크롤러와 같은 계정) — 이 계정으로 로그인하면 수정·삭제가 보인다 */
+export const CRAWL_POSTER_EMAIL = process.env.COMPETITION_CRAWLER_POSTER_EMAIL ?? 'artinfokorea2022@gmail.com';
 
 export interface CompetitionCrawlSummary {
   source: 'contest';
@@ -45,6 +48,7 @@ export class ContestCompetitionCrawler {
   constructor(
     client: ContestNoticeClient,
     private readonly repository: CompetitionRepository,
+    private readonly images: CompetitionImageStore,
     @Optional() @Inject(CONTEST_NOTICE_GATEWAY) gateway?: ContestNoticeGateway,
   ) {
     this.gateway = gateway ?? client;
@@ -56,6 +60,8 @@ export class ContestCompetitionCrawler {
    */
   async crawl(options: { limit?: number } = {}): Promise<CompetitionCrawlSummary> {
     const startedAt = Date.now();
+    const posterId = await this.repository.findUserIdByEmail(CRAWL_POSTER_EMAIL);
+    if (!posterId) this.logger.warn(`수집 등록 계정(${CRAWL_POSTER_EMAIL})이 없어 작성자 없이 저장합니다`);
     const rows = await this.collectRows(Math.min(options.limit && options.limit > 0 ? options.limit : CONTEST_LIST_PAGE_SIZE, CRAWL_MAX_LIMIT));
     const matched = rows.filter(row => isCompetitionTitle(row.title));
     const summary: CompetitionCrawlSummary = {
@@ -73,7 +79,7 @@ export class ContestCompetitionCrawler {
 
     for (const row of matched) {
       try {
-        const outcome = await this.save(row);
+        const outcome = await this.save(row, posterId);
         if (outcome.kind === 'skipped') summary.skipped.push({ title: row.title, url: row.url, reason: outcome.reason });
         else
           (outcome.kind === 'created' ? summary.created : outcome.kind === 'merged' ? summary.merged : summary.updated).push({
@@ -102,7 +108,10 @@ export class ContestCompetitionCrawler {
     return rows.slice(0, limit);
   }
 
-  private async save(row: ContestListRow): Promise<{ kind: 'created' | 'updated' | 'merged'; id: number } | { kind: 'skipped'; reason: string }> {
+  private async save(
+    row: ContestListRow,
+    posterId: number | null,
+  ): Promise<{ kind: 'created' | 'updated' | 'merged'; id: number } | { kind: 'skipped'; reason: string }> {
     const detail = parseContestDetail(await this.gateway.fetchDetail(row.id));
     if (!detail.openAt || !detail.closeAt) return { kind: 'skipped', reason: '접수기간을 읽지 못함' };
 
@@ -119,17 +128,18 @@ export class ContestCompetitionCrawler {
       heldAt: detail.heldAt,
       resultAt: null,
       fee: null,
-      applyMethod: 'LINK',
-      // 주최 홈페이지가 적혀 있으면 그곳으로, 없으면 원문 페이지로
-      applyLink: detail.homepage ?? row.url,
+      // 접수는 주최 쪽으로만: 홈페이지가 있으면 링크, 없고 이메일이 있으면 이메일, 둘 다 없으면 전화 등 문의. 원문 사이트로는 보내지 않는다
+      applyMethod: detail.homepage ? 'LINK' : detail.email ? 'EMAIL' : 'CONTACT',
+      applyLink: detail.homepage ?? null,
       tel: detail.tel,
       email: detail.email,
       prize: null,
-      // 유의사항 → 관리자 알림 → 본문 순으로 한 글로
-      description: [detail.caution, detail.notice, detail.bodyText].filter(Boolean).join('\n\n') || null,
-      posterUrl: detail.posterUrl,
+      // 유의사항 → 본문 순으로 한 글로 (원 사이트의 '관리자 알림'은 그쪽 서비스 안내라 뺀다)
+      description: [detail.caution, detail.bodyText].filter(Boolean).join('\n\n') || null,
+      // 이미지는 우리 S3 로 복사 — 원 사이트에 묶이지 않게. 실패한 이미지는 뺀다
+      posterUrl: detail.posterUrl ? await this.images.store(detail.posterUrl, row.id) : null,
       documentUrl: null,
-      contentImages: detail.bodyImages,
+      contentImages: await this.images.storeAll(detail.bodyImages, row.id),
     };
     // 1단계: 원문 URL. 이미 들어온 공고면 갱신(삭제됐으면 건너뜀, 직접 등록본에 붙은 URL 이면 합친 것으로)
 
@@ -153,7 +163,7 @@ export class ContestCompetitionCrawler {
       if (dup) return { kind: 'skipped', reason: `같은 대회가 이미 있음 (id ${dup.id}, ${dup.source_url ?? '원문 없음'})` };
     }
 
-    const result = await this.repository.upsertCrawled(input, row.url);
+    const result = await this.repository.upsertCrawled(input, row.url, posterId);
     return { kind: result.created ? 'created' : 'updated', id: result.id };
   }
 }

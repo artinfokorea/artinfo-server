@@ -65,6 +65,7 @@ describe('CompetitionController', () => {
     const response = await controller.list(request);
     expect(service.findPage).toHaveBeenCalledWith({ page: 1, size: 20, keyword: '수원', phases: ['OPEN'], divisions: ['피아노'], areas: [] });
     expect(response.totalCount).toBe(1);
+    expect(response.competitions[0]).not.toHaveProperty('sourceUrl'); // 원 사이트 URL 은 내려주지 않는다
     expect(response.competitions[0]).toMatchObject({
       id: 1,
       title: '제13회 수원시전국음악콩쿠르',
@@ -203,6 +204,8 @@ describe('CompetitionController', () => {
     expect((await validate(badEmail)).map(e => e.property)).toEqual(['email']);
     const postNoLink = plainToInstance(CompetitionWriteRequest, { ...base, applyMethod: 'POST', applyLink: '', email: '' });
     expect(await validate(postNoLink)).toHaveLength(0);
+    const contact = plainToInstance(CompetitionWriteRequest, { ...base, applyMethod: 'CONTACT' });
+    expect(await validate(contact)).toHaveLength(0);
     const optionalBadEmail = plainToInstance(CompetitionWriteRequest, { ...base, applyMethod: 'LINK', applyLink: 'https://x', email: 'nope' });
     expect((await validate(optionalBadEmail)).map(e => e.property)).toEqual(['email']);
   });

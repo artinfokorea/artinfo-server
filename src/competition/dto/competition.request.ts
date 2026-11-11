@@ -108,8 +108,13 @@ export class CompetitionWriteRequest {
   @ApiProperty({ type: String, required: false, description: '참가비', example: '부문당 60,000원' })
   fee?: string | null;
 
-  @IsIn(APPLY_METHODS, { message: '접수 방법은 LINK·EMAIL·POST 중 하나여야 합니다.' })
-  @ApiProperty({ type: String, required: true, description: '접수 방법 LINK(홈페이지·폼) / EMAIL / POST(우편·방문)', example: 'LINK' })
+  @IsIn(APPLY_METHODS, { message: '접수 방법은 LINK·EMAIL·POST·CONTACT 중 하나여야 합니다.' })
+  @ApiProperty({
+    type: String,
+    required: true,
+    description: '접수 방법 LINK(홈페이지·폼) / EMAIL / POST(우편·방문) / CONTACT(전화 등 주최에 문의)',
+    example: 'LINK',
+  })
   applyMethod: ApplyMethod;
 
   @Transform(emptyToNull)

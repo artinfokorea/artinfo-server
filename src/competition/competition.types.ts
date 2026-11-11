@@ -5,8 +5,9 @@ export const COMPETITION_PHASES: CompetitionPhase[] = ['UPCOMING', 'OPEN', 'SOON
 /** 게시 상태 — REVIEW 는 등록자(와 관리자)에게만 보인다 */
 export type CompetitionStatus = 'REVIEW' | 'PUBLISHED' | 'HIDDEN';
 export type CompetitionSource = 'OWNER' | 'CRAWL';
-export type ApplyMethod = 'LINK' | 'EMAIL' | 'POST';
-export const APPLY_METHODS: ApplyMethod[] = ['LINK', 'EMAIL', 'POST'];
+/** LINK 홈페이지·폼 / EMAIL 이메일 / POST 우편·방문 / CONTACT 전화 등 주최에 직접 문의 */
+export type ApplyMethod = 'LINK' | 'EMAIL' | 'POST' | 'CONTACT';
+export const APPLY_METHODS: ApplyMethod[] = ['LINK', 'EMAIL', 'POST', 'CONTACT'];
 
 export interface CompetitionRow {
   id: number;

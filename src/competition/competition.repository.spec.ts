@@ -149,20 +149,22 @@ describe('CompetitionRepository', () => {
       contentImages: [],
     };
     query.mockResolvedValueOnce([{ id: 5, created: true }]);
-    await expect(repository.upsertCrawled(input, 'https://contest.co.kr/contest/view1/1')).resolves.toEqual({ id: 5, created: true });
+    await expect(repository.upsertCrawled(input, 'https://contest.co.kr/contest/view1/1', 4637)).resolves.toEqual({ id: 5, created: true });
     const [sql, params] = lastCall();
-    expect(sql).toContain("'CRAWL', $22, 'PUBLISHED', NULL");
+    expect(sql).toContain("'CRAWL', $22, 'PUBLISHED', $23, $24");
+    expect(sql).toContain('user_id = COALESCE(competitions.user_id, EXCLUDED.user_id)');
     expect(sql).toContain('ON CONFLICT (source_url) WHERE source_url IS NOT NULL DO UPDATE SET');
     expect(sql).toContain('WHERE competitions.deleted_at IS NULL');
     expect(sql).toContain('RETURNING id, (xmax = 0) AS created');
-    expect(params).toHaveLength(23);
+    expect(params).toHaveLength(24);
     expect(params[20]).toEqual([]);
-    expect(params[22]).toBe('t|h');
+    expect(params[22]).toBe(4637);
+    expect(params[23]).toBe('t|h');
     expect(sql).toContain("WHERE competitions.deleted_at IS NULL AND competitions.source = 'CRAWL'");
     expect(params[21]).toBe('https://contest.co.kr/contest/view1/1');
 
     query.mockResolvedValueOnce([]).mockResolvedValueOnce([{ id: 9 }]);
-    await expect(repository.upsertCrawled(input, 'https://contest.co.kr/contest/view1/1')).resolves.toEqual({ id: 9, created: false });
+    await expect(repository.upsertCrawled(input, 'https://contest.co.kr/contest/view1/1', 4637)).resolves.toEqual({ id: 9, created: false });
   });
 
   it('findBySourceUrl / findDuplicates / attachSource', async () => {
@@ -181,5 +183,13 @@ describe('CompetitionRepository', () => {
     await repository.attachSource(9, 'https://x/1', null);
     expect(lastCall()[0]).toContain('SET source_url = COALESCE(source_url, $2), poster_url = COALESCE(poster_url, $3)');
     expect(lastCall()[1]).toEqual([9, 'https://x/1', null]);
+  });
+
+  it('findUserIdByEmail — 탈퇴하지 않은 회원의 id, 없으면 null', async () => {
+    query.mockResolvedValueOnce([{ id: 4637 }]);
+    await expect(repository.findUserIdByEmail('artinfokorea2022@gmail.com')).resolves.toBe(4637);
+    expect(lastCall()[0]).toContain('SELECT id FROM users WHERE email = $1 AND deleted_at IS NULL');
+    query.mockResolvedValueOnce([]);
+    await expect(repository.findUserIdByEmail('x@y.z')).resolves.toBeNull();
   });
 });

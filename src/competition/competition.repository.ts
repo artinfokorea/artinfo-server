@@ -215,18 +215,19 @@ export class CompetitionRepository implements OnModuleInit {
    * 수집 공고 upsert — 원문 URL 이 같으면 일정·장소·포스터·연락처만 갱신하고(제목·부문은 처음 값 유지) 없으면 게시 상태로 새로 만든다.
    * 직접 등록본(OWNER)과 삭제된(deleted_at) 공고는 건드리지 않는다
    */
-  async upsertCrawled(input: CompetitionWrite, sourceUrl: string): Promise<{ id: number; created: boolean }> {
+  async upsertCrawled(input: CompetitionWrite, sourceUrl: string, userId: number | null): Promise<{ id: number; created: boolean }> {
     const rows: { id: number; created: boolean }[] = await this.dataSource.query(
       `INSERT INTO competitions (${WRITE_COLUMNS}, source, source_url, status, user_id, dedupe_key)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, 'CRAWL', $22, 'PUBLISHED', NULL, $23)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, 'CRAWL', $22, 'PUBLISHED', $23, $24)
        ON CONFLICT (source_url) WHERE source_url IS NOT NULL DO UPDATE SET
          open_at = EXCLUDED.open_at, close_at = EXCLUDED.close_at, held_at = COALESCE(EXCLUDED.held_at, competitions.held_at),
          venue = COALESCE(EXCLUDED.venue, competitions.venue), tel = COALESCE(EXCLUDED.tel, competitions.tel), email = COALESCE(EXCLUDED.email, competitions.email),
          poster_url = COALESCE(EXCLUDED.poster_url, competitions.poster_url), description = COALESCE(EXCLUDED.description, competitions.description),
-         content_images = CASE WHEN cardinality(EXCLUDED.content_images) > 0 THEN EXCLUDED.content_images ELSE competitions.content_images END, updated_at = now()
+         content_images = CASE WHEN cardinality(EXCLUDED.content_images) > 0 THEN EXCLUDED.content_images ELSE competitions.content_images END,
+         apply_method = EXCLUDED.apply_method, apply_link = EXCLUDED.apply_link, user_id = COALESCE(competitions.user_id, EXCLUDED.user_id), updated_at = now()
        WHERE competitions.deleted_at IS NULL AND competitions.source = 'CRAWL'
        RETURNING id, (xmax = 0) AS created`,
-      [...writeValues(input), sourceUrl, dedupeKey(input.title, input.host)],
+      [...writeValues(input), sourceUrl, userId, dedupeKey(input.title, input.host)],
     );
     if (!rows[0]) {
       const existing: { id: number }[] = await this.dataSource.query(`SELECT id FROM competitions WHERE source_url = $1`, [sourceUrl]);
@@ -245,6 +246,12 @@ export class CompetitionRepository implements OnModuleInit {
 
   async increaseViewCount(id: number): Promise<void> {
     await this.dataSource.query(`UPDATE competitions SET view_count = view_count + 1 WHERE id = $1`, [id]);
+  }
+
+  /** 수집 공고의 등록 계정 — 이메일로 찾는다 (없으면 null) */
+  async findUserIdByEmail(email: string): Promise<number | null> {
+    const rows: { id: number }[] = await this.dataSource.query(`SELECT id FROM users WHERE email = $1 AND deleted_at IS NULL`, [email]);
+    return rows[0]?.id ?? null;
   }
 
   /** 관리자 여부 — users.type = 'ADMIN' */
