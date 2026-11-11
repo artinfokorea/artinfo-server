@@ -368,7 +368,7 @@ a {
         },function() {
             $(this).removeClass('over-menu').addClass('menu-unit');
         });
-        $('#today_clock').epiclock({format: 'Y년 m월 j일 A h:i:s', mode: $.epiclock.modes.explicit, time: new Date('November 11, 2026  09:11:34'), utc: false});
+        $('#today_clock').epiclock({format: 'Y년 m월 j일 A h:i:s', mode: $.epiclock.modes.explicit, time: new Date('November 11, 2026  10:32:32'), utc: false});
         $('#sform').submit(function() {
             if ($('#q').val() == '') {
                 alert('검색할 단어를 입력해 주세요');
@@ -468,7 +468,7 @@ a {
 		<div class="layout boardlist">
 		<div class="boardtop">
 			<ul>
-								<li onClick = "location.href='1?t=2&limit_=1'" >추천</li>				
+								<li onClick = "location.href='1?t=2&limit_=1'" class='select'>추천</li>				
 				<li onClick = "location.href='1?t=2&limit_=2'" >마감임박</li>				
 				<li onClick = "location.href='1?t=2&limit_=4'" >접수예정</li>
 				<li onClick = "location.href='1?t=2&limit_=5'" >심사대기</li>
@@ -523,119 +523,461 @@ a {
 				</tr>
 			</thead>
 			<tbody>
-						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22575'">
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23133'">
 				<td class="subject">
-				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">음악경연대회</span></p>
-				  <div class="main_contitle">2027 서울아트입시평가회</div>
+				  <p class="category"><span class='bigcate'>인기</span><span style="border: 1px solid #1a9585;color: #1a9585;">전국</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">제4회 샌프란시스코 국제 음악 콩쿠르 2026()The 4th San Francisco International Young Artist Music Competition 202</div>
 				</td>
-				<td class="boardinfo">아마데우스</td>
-				<td class="day">D-59<br><span class="day_date">26.09.01 ~ 27.01.08</span></td>
-				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.09.01 ~ 27.01.08</span></td>
-			  </tr>
-						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22578'">
-				<td class="subject">
-				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">음악경연대회</span></p>
-				  <div class="main_contitle">아르 피아노&현악 실기평가회</div>
-				</td>
-				<td class="boardinfo">한국R&R예술협회</td>
-				<td class="day">D-58<br><span class="day_date">26.08.01 ~ 27.01.07</span></td>
-				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.08.01 ~ 27.01.07</span></td>
-			  </tr>
-						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22610'">
-				<td class="subject">
-				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">음악경연대회</span></p>
-				  <div class="main_contitle">2027 안톤 피아노·현악 입시평가회</div>
-				</td>
-				<td class="boardinfo">안톤홀</td>
-				<td class="day">D-60<br><span class="day_date">26.08.01 ~ 27.01.09</span></td>
-				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.08.01 ~ 27.01.09</span></td>
-			  </tr>
-						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22611'">
-				<td class="subject">
-				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">음악경연대회</span></p>
-				  <div class="main_contitle">2027 안톤 피아노·현악 입시평가회</div>
-				</td>
-				<td class="boardinfo">알톤</td>
-				<td class="day">D-60<br><span class="day_date">26.08.01 ~ 27.01.09</span></td>
-				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.08.01 ~ 27.01.09</span></td>
-			  </tr>
-						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22946'">
-				<td class="subject">
-				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">클래식/실용</span></p>
-				  <div class="main_contitle">아르 피아노&현악 실기평가회</div>
-				</td>
-				<td class="boardinfo">한국R&R예술협회</td>
-				<td class="day">D-60<br><span class="day_date">26.09.01 ~ 27.01.09</span></td>
-				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.09.01 ~ 27.01.09</span></td>
-			  </tr>
-						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22866'">
-				<td class="subject">
-				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">성악</span></p>
-				  <div class="main_contitle">Suono 성악 입시 평가회</div>
-				</td>
-				<td class="boardinfo">suono </td>
-				<td class="day">D-66<br><span class="day_date">26.09.05 ~ 27.01.16</span></td>
-				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.09.05 ~ 27.01.16</span></td>
-			  </tr>
-						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22704'">
-				<td class="subject">
-				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">음악경연대회</span></p>
-				  <div class="main_contitle">MK PIANO PROJECT</div>
-				</td>
-				<td class="boardinfo">MK CLASSIC FORUM</td>
-				<td class="day">D-63<br><span class="day_date">26.08.19 ~ 27.01.12</span></td>
-				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.08.19 ~ 27.01.12</span></td>
+				<td class="boardinfo">Young Friends Society of Arts</td>
+				<td class="day">D-13<br><span class="day_date">26.09.30 ~ 26.11.23</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.09.30 ~ 26.11.23</span></td>
 			  </tr>
 						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22740'">
 				<td class="subject">
-				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">음악경연대회</span></p>
+				  <p class="category"><span class='bigcate'>인기</span><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">음악경연대회</span></p>
 				  <div class="main_contitle">MK PIANO PROJECT</div>
 				</td>
 				<td class="boardinfo">MK CLASSIC FORUM</td>
 				<td class="day">D-63<br><span class="day_date">26.08.19 ~ 27.01.12</span></td>
 				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.08.19 ~ 27.01.12</span></td>
 			  </tr>
-						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23118'">
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22690'">
 				<td class="subject">
-				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">부산</span><span class="bigcate">클래식/실용</span></p>
-				  <div class="main_contitle">동의대학교 부산국제음악콩쿠르</div>
+				  <p class="category"><span class='bigcate'>인기</span><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">음악경연대회</span></p>
+				  <div class="main_contitle">2026 예술세계 전국음악콩쿠르 (서울,경기,인천,고양,부산,대구,대전,전주,평택,천안)</div>
 				</td>
-				<td class="boardinfo">동의대학교 미래교육원</td>
-				<td class="day">D-53<br><span class="day_date">26.11.02 ~ 27.01.02</span></td>
-				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.11.02 ~ 27.01.02</span></td>
-			  </tr>
-						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22440'">
-				<td class="subject">
-				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">음악경연대회</span></p>
-				  <div class="main_contitle">예화입시평가회</div>
-				</td>
-				<td class="boardinfo">서울음악</td>
-				<td class="day">D-67<br><span class="day_date">26.08.01 ~ 27.01.16</span></td>
-				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.08.01 ~ 27.01.16</span></td>
-			  </tr>
-						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23117'">
-				<td class="subject">
-				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">부산</span><span class="bigcate">클래식/실용</span></p>
-				  <div class="main_contitle">2027 음악교육신문 부산지사 상반기 콩쿠르</div>
-				</td>
-				<td class="boardinfo">음악교육신문 부산지사</td>
-				<td class="day">D-99<br><span class="day_date">26.10.30 ~ 27.02.17</span></td>
-				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.10.30 ~ 27.02.17</span></td>
+				<td class="boardinfo">주식회사 예술세계</td>
+				<td class="day"><br><span class="day_date">26.08.14 ~ 26.09.14</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사중</span></span><br><span class="day_date">26.08.14 ~ 26.09.14</span></td>
 			  </tr>
 						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22723'">
 				<td class="subject">
-				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">음악경연대회</span></p>
+				  <p class="category"><span class='bigcate'>인기</span><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">음악경연대회</span></p>
 				  <div class="main_contitle">예화입시평가회</div>
 				</td>
 				<td class="boardinfo">서울음악</td>
 				<td class="day">D-431<br><span class="day_date">27.08.23 ~ 28.01.15</span></td>
 				<td class="stat"><span class=""><span style='background-color:#95b532;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수예정</span></span><br><span class="day_date">27.08.23 ~ 28.01.15</span></td>
 			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23153'">
+				<td class="subject">
+				  <p class="category"><span class='bigcate'>인기</span><span style="border: 1px solid #1a9585;color: #1a9585;">전국</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">장애예술인 콩쿠르</div>
+				</td>
+				<td class="boardinfo">한경국립대학교 / 실용음악학전공</td>
+				<td class="day">D-7<br><span class="day_date">26.11.01 ~ 26.11.17</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.11.01 ~ 26.11.17</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23083'">
+				<td class="subject">
+				  <p class="category"><span class='bigcate'>인기</span><span style="border: 1px solid #1a9585;color: #1a9585;">경기</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">프리모 전국음악콩쿠르</div>
+				</td>
+				<td class="boardinfo">프리모음악예술기획</td>
+				<td class="day">D-19<br><span class="day_date">26.10.16 ~ 26.11.29</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.10.16 ~ 26.11.29</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22282'">
+				<td class="subject">
+				  <p class="category"><span class='bigcate'>인기</span><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">음악경연대회</span></p>
+				  <div class="main_contitle">2027 안톤 피아노·현악 입시평가회</div>
+				</td>
+				<td class="boardinfo">안톤홀</td>
+				<td class="day">D-60<br><span class="day_date">26.07.30 ~ 27.01.09</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.07.30 ~ 27.01.09</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23103'">
+				<td class="subject">
+				  <p class="category"><span class='bigcate'>인기</span><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">한국 주니어 아티스트 콩쿠르</div>
+				</td>
+				<td class="boardinfo">한국주니어음악협회</td>
+				<td class="day">D-7<br><span class="day_date">26.10.25 ~ 26.11.17</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.10.25 ~ 26.11.17</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22919'">
+				<td class="subject">
+				  <p class="category"><span class='bigcate'>인기</span><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">제15회 한·독국제예술문화교류회 온라인 국제음악콩쿠르</div>
+				</td>
+				<td class="boardinfo">재단법인) 국제예술문화재단</td>
+				<td class="day">D-17<br><span class="day_date">26.09.12 ~ 26.11.28</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.09.12 ~ 26.11.28</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22557'">
+				<td class="subject">
+				  <p class="category"><span class='bigcate'>인기</span><span style="border: 1px solid #1a9585;color: #1a9585;">전국</span><span class="bigcate">음악경연대회</span></p>
+				  <div class="main_contitle">제 14회  전국서석 예술제</div>
+				</td>
+				<td class="boardinfo">전국서석문화예술진흥회</td>
+				<td class="day">D-18<br><span class="day_date">26.07.17 ~ 26.11.28</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.07.17 ~ 26.11.28</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22866'">
+				<td class="subject">
+				  <p class="category"><span class='bigcate'>인기</span><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">성악</span></p>
+				  <div class="main_contitle">Suono 성악 입시 평가회</div>
+				</td>
+				<td class="boardinfo">suono </td>
+				<td class="day">D-66<br><span class="day_date">26.09.05 ~ 27.01.16</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.09.05 ~ 27.01.16</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22917'">
+				<td class="subject">
+				  <p class="category"><span class='bigcate'>인기</span><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">제30회 세종오케스트라국제음악콩쿠르</div>
+				</td>
+				<td class="boardinfo">재단법인) 세종국제예술문화재단</td>
+				<td class="day">D-0<br><span class="day_date">26.09.12 ~ 26.11.11</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.09.12 ~ 26.11.11</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22704'">
+				<td class="subject">
+				  <p class="category"><span class='bigcate'>인기</span><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">음악경연대회</span></p>
+				  <div class="main_contitle">MK PIANO PROJECT</div>
+				</td>
+				<td class="boardinfo">MK CLASSIC FORUM</td>
+				<td class="day">D-63<br><span class="day_date">26.08.19 ~ 27.01.12</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.08.19 ~ 27.01.12</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/21724'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">경기</span><span class="bigcate">음악경연대회</span></p>
+				  <div class="main_contitle">2026 뮤직아티스트 콩쿠르 IN 고양 피아노/현악</div>
+				</td>
+				<td class="boardinfo">뮤직아티스트</td>
+				<td class="day"><br><span class="day_date">26.01.01 ~ 26.01.01</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사중</span></span><br><span class="day_date">26.01.01 ~ 26.01.01</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22913'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">대전</span><span class="bigcate">홍보</span></p>
+				  <div class="main_contitle">제4회 DST 찬양페스티벌</div>
+				</td>
+				<td class="boardinfo">대전과학기술대학교</td>
+				<td class="day"><br><span class="day_date">26.09.07 ~ 26.09.11</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사중</span></span><br><span class="day_date">26.09.07 ~ 26.09.11</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22522'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">인천</span><span class="bigcate">음악경연대회</span></p>
+				  <div class="main_contitle">제30회 전국 청소년 실용음악 경연대회</div>
+				</td>
+				<td class="boardinfo">한국연예예술인총연합회 인천광역시지회</td>
+				<td class="day"><br><span class="day_date">26.07.01 ~ 26.09.25</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사대기</span></span><br><span class="day_date">26.07.01 ~ 26.09.25</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22833'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">은평구 어린이 동요대회</div>
+				</td>
+				<td class="boardinfo">은평구</td>
+				<td class="day"><br><span class="day_date">26.09.01 ~ 26.09.30</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사중</span></span><br><span class="day_date">26.09.01 ~ 26.09.30</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22881'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">동요</span></p>
+				  <div class="main_contitle">2026년도 제27회 은평구 어린이 동요대회 </div>
+				</td>
+				<td class="boardinfo">은평구</td>
+				<td class="day"><br><span class="day_date">26.09.01 ~ 26.09.30</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사중</span></span><br><span class="day_date">26.09.01 ~ 26.09.30</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22984'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">홍보</span></p>
+				  <div class="main_contitle">2026 BILLBOARD KOREA X SEOULCon GLOBAL BAND AUDITION - BEGINS THE BAND</div>
+				</td>
+				<td class="boardinfo">BILLBOARD KOREA X SEOULCon</td>
+				<td class="day"><br><span class="day_date">26.09.04 ~ 26.09.30</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사중</span></span><br><span class="day_date">26.09.04 ~ 26.09.30</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22949'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">경기</span><span class="bigcate">동요</span></p>
+				  <div class="main_contitle">제17회 화성시동요대회</div>
+				</td>
+				<td class="boardinfo">화성신문사/화성신문사</td>
+				<td class="day"><br><span class="day_date">26.09.08 ~ 26.10.11</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사중</span></span><br><span class="day_date">26.09.08 ~ 26.10.11</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22961'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">경북</span><span class="bigcate">가요제</span></p>
+				  <div class="main_contitle">2026 K실크로드 푸드 페스티벌 - 2026 젓가락 장단 콘테스트 '가락스타'</div>
+				</td>
+				<td class="boardinfo">경상북도문화관광공사/경상북도문화관광공사</td>
+				<td class="day"><br><span class="day_date">26.09.15 ~ 26.10.18</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사대기</span></span><br><span class="day_date">26.09.15 ~ 26.10.18</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22868'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">경기</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">브릴리언트 뮤직 아카데미 콩쿠르</div>
+				</td>
+				<td class="boardinfo">브릴리언트 뮤직 아카데미 콩쿠르</td>
+				<td class="day"><br><span class="day_date">26.09.03 ~ 26.10.21</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사중</span></span><br><span class="day_date">26.09.03 ~ 26.10.21</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23060'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">전남</span><span class="bigcate">홍보</span></p>
+				  <div class="main_contitle">2026전국청소년평화통일랩경연대회</div>
+				</td>
+				<td class="boardinfo">민주평화통일자문회의 전남지역회의</td>
+				<td class="day"><br><span class="day_date">26.09.23 ~ 26.10.23</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사대기</span></span><br><span class="day_date">26.09.23 ~ 26.10.23</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23001'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">전남</span><span class="bigcate">홍보</span></p>
+				  <div class="main_contitle">2026전국청소년평화통일랩경연대회 </div>
+				</td>
+				<td class="boardinfo">- 주최_민주평화통일자문회의 전남지역회의  - 주관_민주평화통일자문회의 전남청년위원회 </td>
+				<td class="day"><br><span class="day_date">26.09.23 ~ 26.10.23</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사대기</span></span><br><span class="day_date">26.09.23 ~ 26.10.23</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22976'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">동요</span></p>
+				  <div class="main_contitle">2026 통일희망동요제</div>
+				</td>
+				<td class="boardinfo">(사)한국동요문화협회</td>
+				<td class="day"><br><span class="day_date">26.10.01 ~ 26.10.27</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사중</span></span><br><span class="day_date">26.10.01 ~ 26.10.27</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23079'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">가요제</span></p>
+				  <div class="main_contitle">제13회 박재홍 가요축제</div>
+				</td>
+				<td class="boardinfo">금천문화원</td>
+				<td class="day"><br><span class="day_date">26.10.12 ~ 26.10.30</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사중</span></span><br><span class="day_date">26.10.12 ~ 26.10.30</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22847'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">대구</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">코리아음악콩쿠르</div>
+				</td>
+				<td class="boardinfo">시사음악신문 대구지사</td>
+				<td class="day"><br><span class="day_date">26.08.31 ~ 26.10.31</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사대기</span></span><br><span class="day_date">26.08.31 ~ 26.10.31</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23108'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">경북</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">2026 제3회 나화랑 전국가요제</div>
+				</td>
+				<td class="boardinfo">나화랑 전국가요제 운영사무국</td>
+				<td class="day"><br><span class="day_date">26.10.12 ~ 26.11.01</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사중</span></span><br><span class="day_date">26.10.12 ~ 26.11.01</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23105'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">삼성문화재단 피아노 마스터클래스 교육 참가자 선발 안내</div>
+				</td>
+				<td class="boardinfo">삼성문화재단</td>
+				<td class="day"><br><span class="day_date">26.10.02 ~ 26.11.01</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사대기</span></span><br><span class="day_date">26.10.02 ~ 26.11.01</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22877'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">2026 제39회 한국성악콩쿠르</div>
+				</td>
+				<td class="boardinfo">재단법인 도암이대봉재단</td>
+				<td class="day"><br><span class="day_date">26.10.26 ~ 26.11.02</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사중</span></span><br><span class="day_date">26.10.26 ~ 26.11.02</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23132'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">동요</span></p>
+				  <div class="main_contitle">제4회 중랑구 강소천 어린이 동요제</div>
+				</td>
+				<td class="boardinfo">중랑구</td>
+				<td class="day"><br><span class="day_date">26.10.13 ~ 26.11.03</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사대기</span></span><br><span class="day_date">26.10.13 ~ 26.11.03</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23096'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">전국</span><span class="bigcate">가요제</span></p>
+				  <div class="main_contitle">백년동안 포크가요제</div>
+				</td>
+				<td class="boardinfo">주식회사 에프오씨씨</td>
+				<td class="day"><br><span class="day_date">26.10.06 ~ 26.11.06</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사대기</span></span><br><span class="day_date">26.10.06 ~ 26.11.06</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23126'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">전남</span><span class="bigcate">가요제</span></p>
+				  <div class="main_contitle">2026 무안 YD 페스티벌 전국대학가요제</div>
+				</td>
+				<td class="boardinfo">무안군 / 무안군 축제추진위원회</td>
+				<td class="day"><br><span class="day_date">26.10.28 ~ 26.11.06</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사대기</span></span><br><span class="day_date">26.10.28 ~ 26.11.06</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23124'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">경기</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">제1회 여주 뮤직 페스티벌 경연대회</div>
+				</td>
+				<td class="boardinfo">여주세종문화관광재단 / KBA 한국관악협회</td>
+				<td class="day"><br><span class="day_date">26.10.03 ~ 26.11.06</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사대기</span></span><br><span class="day_date">26.10.03 ~ 26.11.06</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23125'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">경북</span><span class="bigcate">가요제</span></p>
+				  <div class="main_contitle">2026 제5회 신바람 낙동가요제 고령편</div>
+				</td>
+				<td class="boardinfo">(사)한국연예예술인총연합회 경상북도지회 / 고령지회</td>
+				<td class="day"><br><span class="day_date">26.10.19 ~ 26.11.07</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사중</span></span><br><span class="day_date">26.10.19 ~ 26.11.07</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23056'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">[11월14일 토] 2026 서울 시티학생음악콩쿠르(세종대학교)</div>
+				</td>
+				<td class="boardinfo">경기아트앤뮤직</td>
+				<td class="day"><br><span class="day_date">26.10.09 ~ 26.11.07</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사대기</span></span><br><span class="day_date">26.10.09 ~ 26.11.07</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23082'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">제1회 보스턴체임버 아마추어 피아노 콩쿠르</div>
+				</td>
+				<td class="boardinfo">보스턴체임버</td>
+				<td class="day"><br><span class="day_date">26.10.01 ~ 26.11.08</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사대기</span></span><br><span class="day_date">26.10.01 ~ 26.11.08</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23123'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">경북</span><span class="bigcate">음악공모전</span></p>
+				  <div class="main_contitle">2026 경북 영양군 밤하늘 음원공모전</div>
+				</td>
+				<td class="boardinfo">문화체육관광부·경상북도·영양군·(재)영양축제관광재단</td>
+				<td class="day"><br><span class="day_date">26.10.16 ~ 26.11.08</span></td>
+				<td class="stat"><span class=""><span style='background-color:#f89076;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>심사중</span></span><br><span class="day_date">26.10.16 ~ 26.11.08</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23128'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">경북</span><span class="bigcate">가요제</span></p>
+				  <div class="main_contitle">제5회 영천 K-POP 청소년 페스티벌</div>
+				</td>
+				<td class="boardinfo">영천시 / 영천감성 별별연구소</td>
+				<td class="day">D-0<br><span class="day_date">26.10.19 ~ 26.11.11</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.10.19 ~ 26.11.11</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22728'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">경기</span><span class="bigcate">음악경연대회</span></p>
+				  <div class="main_contitle">(법인) 노빌레가 주최하는 국제클래식콩쿠르</div>
+				</td>
+				<td class="boardinfo">(법인)노빌레</td>
+				<td class="day">D-1<br><span class="day_date">26.10.01 ~ 26.11.11</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.10.01 ~ 26.11.11</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22958'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">전북</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">2026 이음영재음악콩쿨 하반기</div>
+				</td>
+				<td class="boardinfo">사단법인 이음예술문화원</td>
+				<td class="day">D-1<br><span class="day_date">26.07.01 ~ 26.11.11</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.07.01 ~ 26.11.11</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22972'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">경북</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">구미 김천지역 시사음악신문 콩쿠르 </div>
+				</td>
+				<td class="boardinfo">시사음악신문 경북지사 </td>
+				<td class="day">D-1<br><span class="day_date">26.09.18 ~ 26.11.11</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.09.18 ~ 26.11.11</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22940'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">2026 파르두비체 국제 콩쿠르 서울 예선</div>
+				</td>
+				<td class="boardinfo">Konzervatoř Pardubice / 시티필하모니오케스트라</td>
+				<td class="day">D-2<br><span class="day_date">26.08.28 ~ 26.11.12</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.08.28 ~ 26.11.12</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23061'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">경기</span><span class="bigcate">국악대회</span></p>
+				  <div class="main_contitle">제20회 전국 하남시 국악경연대회</div>
+				</td>
+				<td class="boardinfo">한국예총 하남지회</td>
+				<td class="day">D-2<br><span class="day_date">26.09.24 ~ 26.11.13</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.09.24 ~ 26.11.13</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22935'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">대구</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">제42회전국음악경연대회</div>
+				</td>
+				<td class="boardinfo">한국학원총연합회 대구지회 음악교육협의회</td>
+				<td class="day">D-3<br><span class="day_date">26.09.01 ~ 26.11.13</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.09.01 ~ 26.11.13</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23115'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">다문화 그리고 고려인들을 위한 콘서트 어린이 합창단 모집</div>
+				</td>
+				<td class="boardinfo">A New Entertainment</td>
+				<td class="day">D-3<br><span class="day_date">26.10.29 ~ 26.11.13</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.10.29 ~ 26.11.13</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23116'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">가요제</span></p>
+				  <div class="main_contitle">가수 박일준과 그리고 에어로폰 그리고 성악과 함께 하는 다문화 그리고 고려인 돕기 콘서트</div>
+				</td>
+				<td class="boardinfo">A New Entertainment</td>
+				<td class="day">D-3<br><span class="day_date">26.10.29 ~ 26.11.13</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.10.29 ~ 26.11.13</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/23054'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">경기</span><span class="bigcate">클래식/실용</span></p>
+				  <div class="main_contitle">[11월21일 토] 2026 수원 그랜드아티스트콩쿠르</div>
+				</td>
+				<td class="boardinfo">그랜드아트뮤직</td>
+				<td class="day">D-4<br><span class="day_date">26.10.09 ~ 26.11.14</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.10.09 ~ 26.11.14</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/21959'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">대구</span><span class="bigcate">음악경연대회</span></p>
+				  <div class="main_contitle">2026년도 엘림전국 음악콩쿨</div>
+				</td>
+				<td class="boardinfo">EL Entertainment</td>
+				<td class="day">D-4<br><span class="day_date">26.01.01 ~ 26.11.14</span></td>
+				<td class="stat"><span class=""><span style='background-color:#20b2aa;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수중</span></span><br><span class="day_date">26.01.01 ~ 26.11.14</span></td>
+			  </tr>
+						  <tr style="background-color:#fff;" onClick = "location.href='https://contest.co.kr/contest/view1/22764'">
+				<td class="subject">
+				  <p class="category"><span style="border: 1px solid #1a9585;color: #1a9585;">서울</span><span class="bigcate">음악경연대회</span></p>
+				  <div class="main_contitle">2026 리틀모차르트 한국콩쿨</div>
+				</td>
+				<td class="boardinfo">한국음악교수협의회, (사)세종필하모닉오케스트라</td>
+				<td class="day">D-4<br><span class="day_date">26.11.14 ~ 26.11.14</span></td>
+				<td class="stat"><span class=""><span style='background-color:#95b532;color:#fff;padding:1px 5px;border-radius:8px;font-size: 14px;'>접수예정</span></span><br><span class="day_date">26.11.14 ~ 26.11.14</span></td>
+			  </tr>
 						  
 			</tbody>
 		</table>
 		<div style='text-align:center;' class='paging'>
-			<div><span class='default_t' ><a href='https://contest.co.kr/contest/list_n/1?s_area=&t=2&list_state=&limit_=&ncount=50&pg=1' class='a_class_pa'> <i class='fa fa-angle-double-left'></i></a>&nbsp;</span><span class='default_t'style='color: #ec5666;'><a href='https://contest.co.kr/contest/list_n/1?s_area=&t=2&list_state=&limit_=&ncount=50&pg=1' class='a_class_pa'><i class='fa fa-angle-left'></i></a></span>&nbsp;<span class='default_t'> <a href='https://contest.co.kr/contest/list_n/1?s_area=&t=2&list_state=&limit_=&ncount=50&pg=1' class='a_class_pa' >1</a></span> <span  class='select'>2</span>&nbsp;&nbsp;&nbsp;</div>   
+			<div><span class='default_t' ><a href='https://contest.co.kr/contest/list_n/1?s_area=&t=2&list_state=&limit_=1&ncount=50&pg=1' class='a_class_pa'> <i class='fa fa-angle-double-left'></i></a>&nbsp;</span><span class='default_t'style='color: #ec5666;'><a href='https://contest.co.kr/contest/list_n/1?s_area=&t=2&list_state=&limit_=1&ncount=50&pg=1' class='a_class_pa'><i class='fa fa-angle-left'></i></a></span>&nbsp;<span class='default_t'> <a href='https://contest.co.kr/contest/list_n/1?s_area=&t=2&list_state=&limit_=1&ncount=50&pg=1' class='a_class_pa' >1</a></span> <span  class='select'>2</span><span class='default_t'> <a href='https://contest.co.kr/contest/list_n/1?s_area=&t=2&list_state=&limit_=1&ncount=50&pg=3' class='a_class_pa' >3</a></span> <span class='default_t'> <a href='https://contest.co.kr/contest/list_n/1?s_area=&t=2&list_state=&limit_=1&ncount=50&pg=4' class='a_class_pa' >4</a></span> <span class='default_t'> <a href='https://contest.co.kr/contest/list_n/1?s_area=&t=2&list_state=&limit_=1&ncount=50&pg=5' class='a_class_pa' >5</a></span> <span class='default_t'> <a href='https://contest.co.kr/contest/list_n/1?s_area=&t=2&list_state=&limit_=1&ncount=50&pg=6' class='a_class_pa' >6</a></span> <span class='default_t'> <a href='https://contest.co.kr/contest/list_n/1?s_area=&t=2&list_state=&limit_=1&ncount=50&pg=7' class='a_class_pa' >7</a></span> <span class='default_t'> <a href='https://contest.co.kr/contest/list_n/1?s_area=&t=2&list_state=&limit_=1&ncount=50&pg=8' class='a_class_pa' >8</a></span> <span class='default_t'> <a href='https://contest.co.kr/contest/list_n/1?s_area=&t=2&list_state=&limit_=1&ncount=50&pg=9' class='a_class_pa' >9</a></span> <span class='default_t'> <a href='https://contest.co.kr/contest/list_n/1?s_area=&t=2&list_state=&limit_=1&ncount=50&pg=10' class='a_class_pa' >10</a></span> <a href='https://contest.co.kr/contest/list_n/1?s_area=&t=2&list_state=&limit_=1&ncount=50&pg=11' >...</a> &nbsp;<span class='default_t'style='color: #ec5666;'><a href='https://contest.co.kr/contest/list_n/1?s_area=&t=2&list_state=&limit_=1&ncount=50&pg=3' class='a_class_pa'><i class='fa fa-angle-right'></i></a></span><span class='default_t' ><a href='https://contest.co.kr/contest/list_n/1?s_area=&t=2&list_state=&limit_=1&ncount=50&pg=313'class='a_class_pa' > <i class='fa fa-angle-double-right'></i></a>&nbsp;</span></div>   
 		</div>
 	</div>
 </div>
@@ -645,11 +987,11 @@ a {
 				$("#list_view_area > option[value='']").attr("selected", "true");	
 					$("#list_view_").change(function() {
 						var ncount = $(this).val();
-						location.href = "/contest/list_n/1?t=2&limit_=&ncount="+ncount+"&s_area=&pg=2";
+						location.href = "/contest/list_n/1?t=2&limit_=1&ncount="+ncount+"&s_area=&pg=2";
 					});
 					$("#list_view_area").change(function() {
 						var _area = $(this).val();
-						location.href = "/contest/list_n/1?t=2&limit_=&ncount=50&s_area="+_area+"&pg=2";
+						location.href = "/contest/list_n/1?t=2&limit_=1&ncount=50&s_area="+_area+"&pg=2";
 					});		
 				});
 			</script>		

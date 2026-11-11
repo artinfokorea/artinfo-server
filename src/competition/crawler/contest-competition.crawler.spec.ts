@@ -7,7 +7,7 @@ import { ContestNoticeClient, ContestNoticeGateway } from './contest-notice.clie
 
 /**
  * 스펙 (사이트는 가짜 게이트웨이 — 목록은 실제 픽스처, 상세는 모두 23151 픽스처 — 저장소는 가짜)
- * 1) 목록 50행 중 콩쿠르로 판정된 행만 상세를 읽어 upsertCrawled 로 저장한다 (원문 URL 이 키). 생성/갱신을 나눠 센다
+ * 1) 목록(추천 탭, 50건/페이지) 중 콩쿠르로 판정된 행만 상세를 읽어 upsertCrawled 로 저장한다 (원문 URL 이 키). 생성/갱신을 나눠 센다
  * 2) 저장 입력: 제목·주최(목록)·지역·장소·주관(주최와 다를 때만)·부문(제목 추출)·대상·접수 시작/마감·대회일·전화·이메일·포스터·접수 방법 LINK(원문 URL)
  * 3) 상세를 못 읽은 행은 failed 로 모이고 나머지는 계속된다
  * 4) 중복: 원문 URL 이 삭제된 공고면 건너뜀, 직접 등록본에 붙은 URL 이면 merged. URL 이 새로워도 제목·주최 키+마감 ±3일이 같은
@@ -31,7 +31,7 @@ function build(
   const gateway: ContestNoticeGateway = {
     fetchList: async page => {
       calls.pages.push(page);
-      return page === 1 ? fixture('list-2026-11-11.html') : page === 2 ? fixture('list-2026-11-11-p2.html') : '<html></html>';
+      return page <= 5 ? fixture(`list-2026-11-11-p${page}.html`) : '<html></html>';
     },
     fetchDetail: async id => {
       calls.detail.push(id);
@@ -49,7 +49,7 @@ function build(
     }),
     upsertCrawled: jest.fn(async (input: any, url: string, userId: number | null) => {
       calls.upserts.push({ input, url, userId });
-      const created = url.endsWith('/22917') === false;
+      const created = url.endsWith('/22791') === false;
       return { id: seq++, created };
     }),
   } as unknown as CompetitionRepository;
@@ -67,12 +67,13 @@ describe('ContestCompetitionCrawler', () => {
     const { crawler, calls } = build();
     const summary = await crawler.crawl();
     expect(summary.scanned).toBe(50);
-    expect(summary.matched).toBeGreaterThanOrEqual(30);
+    expect(summary.matched).toBe(32);
     expect(summary.matched).toBeLessThan(50);
     expect(calls.detail).toHaveLength(summary.matched);
     expect(summary.created.length + summary.updated.length).toBe(summary.matched);
-    expect(summary.updated.map(u => u.url)).toEqual(['https://contest.co.kr/contest/view1/22917']);
+    expect(summary.updated.map(u => u.url)).toEqual(['https://contest.co.kr/contest/view1/22791']);
     expect(summary.failed).toEqual([]);
+    expect(calls.detail).not.toContain('23052'); // 신입생 모집
     expect(calls.detail).not.toContain('23165'); // 입시평가회
     expect(calls.detail).not.toContain('22498'); // 마스터 클래스
     expect(calls.detail).toContain('23142'); // 전국성악콩쿨
@@ -81,11 +82,11 @@ describe('ContestCompetitionCrawler', () => {
   it('저장 입력 — 목록 행 + 상세 필드 조합', async () => {
     const { crawler, calls } = build();
     await crawler.crawl();
-    const first = calls.upserts.find(u => u.url.endsWith('/22917'))!;
+    const first = calls.upserts.find(u => u.url.endsWith('/23151'))!;
     expect(first.input).toMatchObject({
       title: '제13회 수원시전국음악콩쿠르', // 상세(픽스처) 제목이 우선
-      host: '재단법인) 세종국제예술문화재단',
-      organizer: '(사)한국음악협회 수원시지부',
+      host: '(사)한국음악협회 수원시지부',
+      organizer: null, // 주관이 주최와 같으면 비운다
       area: '경기',
       venue: '수원문화원 빛누리아트홀',
       divisions: ['종합'],
@@ -116,13 +117,13 @@ describe('ContestCompetitionCrawler', () => {
   it('중복 — 삭제된 원문은 건너뛰고, 직접 등록본에 붙은 원문은 merged', async () => {
     const url = (id: string) => `https://contest.co.kr/contest/view1/${id}`;
     const { crawler, calls } = build({
-      known: { [url('22917')]: { id: 1, source: 'CRAWL', deleted: true }, [url('23063')]: { id: 2, source: 'OWNER', deleted: false } },
+      known: { [url('22791')]: { id: 1, source: 'CRAWL', deleted: true }, [url('23142')]: { id: 2, source: 'OWNER', deleted: false } },
     });
     const summary = await crawler.crawl();
-    expect(summary.skipped).toContainEqual({ title: '제30회 세종오케스트라국제음악콩쿠르', url: url('22917'), reason: '관리자가 삭제한 공고 (id 1)' });
-    expect(summary.merged).toContainEqual({ id: 2, title: '2026 한국 베토벤 음악 콩쿠르', url: url('23063') });
-    expect(calls.upserts.map(u => u.url)).not.toContain(url('22917'));
-    expect(calls.upserts.map(u => u.url)).not.toContain(url('23063'));
+    expect(summary.skipped).toContainEqual({ title: '2026 Asia Young Musicians Competition', url: url('22791'), reason: '관리자가 삭제한 공고 (id 1)' });
+    expect(summary.merged).toContainEqual({ id: 2, title: '2026 한국가창지도지협회 전국성악콩쿨', url: url('23142') });
+    expect(calls.upserts.map(u => u.url)).not.toContain(url('22791'));
+    expect(calls.upserts.map(u => u.url)).not.toContain(url('23142'));
   });
 
   it('중복 — 키가 같은 직접 등록본이 있으면 원문·포스터를 붙이고 새로 만들지 않는다', async () => {
@@ -131,7 +132,7 @@ describe('ContestCompetitionCrawler', () => {
     expect(summary.created).toEqual([]);
     expect(summary.updated).toEqual([]);
     expect(summary.merged).toHaveLength(summary.matched);
-    expect(calls.attached[0]).toEqual({ id: 7, url: 'https://contest.co.kr/contest/view1/22917' });
+    expect(calls.attached[0]).toEqual({ id: 7, url: 'https://contest.co.kr/contest/view1/23151' });
     expect(calls.upserts).toEqual([]);
   });
 
@@ -147,21 +148,23 @@ describe('ContestCompetitionCrawler', () => {
     const summary = await crawler.crawl({ limit: 5 });
     expect(summary.scanned).toBe(5);
     expect(calls.pages).toEqual([1]);
-    expect(calls.detail[0]).toBe('22917');
+    expect(summary.matched).toBe(3);
+    expect(calls.detail[0]).toBe('23151');
 
     const { crawler: all, calls: allCalls } = build();
     expect((await all.crawl()).scanned).toBe(50);
     expect(allCalls.pages).toEqual([1]);
   });
 
-  it('limit 이 50을 넘으면 다음 페이지를 이어 읽고, 50건 미만인 페이지에서 멈춘다', async () => {
+  it('limit 이 50을 넘으면 다음 페이지를 이어 읽고, 종료된 대회는 빼며 살아 있는 행이 없는 페이지에서 멈춘다', async () => {
     const { crawler, calls } = build();
     const summary = await crawler.crawl({ limit: 60 });
     expect(summary.scanned).toBe(60);
     expect(calls.pages).toEqual([1, 2]);
 
     const { crawler: big, calls: bigCalls } = build();
-    expect((await big.crawl({ limit: 200 })).scanned).toBe(62); // 2페이지가 12건이라 거기서 끝
-    expect(bigCalls.pages).toEqual([1, 2]);
+    // 1~3페이지 153건 + 4페이지 활성 17건(종료 33건 제외) − 페이지에 걸쳐 반복된 추천 10건 = 160, 5페이지는 전부 종료라 멈춤
+    expect((await big.crawl({ limit: 200 })).scanned).toBe(160);
+    expect(bigCalls.pages).toEqual([1, 2, 3, 4, 5]);
   });
 });

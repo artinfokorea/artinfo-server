@@ -97,13 +97,18 @@ export class ContestCompetitionCrawler {
     return summary;
   }
 
+  /**
+   * 목록을 앞에서부터 limit 건 모은다. 종료된 대회(대회종료)는 빼고, 한 페이지가 50건 미만이거나 살아 있는 행이 하나도 없으면 끝으로 본다.
+   * 상단 '추천' 행은 매 페이지 반복될 수 있어 id 로 중복 제거
+   */
   private async collectRows(limit: number): Promise<ContestListRow[]> {
     const rows: ContestListRow[] = [];
     const seen = new Set<string>();
     for (let page = 1; rows.length < limit; page++) {
       const pageRows = parseContestList(await this.gateway.fetchList(page));
-      pageRows.forEach(row => seen.has(row.id) || (seen.add(row.id), rows.push(row)));
-      if (pageRows.length < CONTEST_LIST_PAGE_SIZE) break;
+      const active = pageRows.filter(row => !row.closed);
+      active.forEach(row => seen.has(row.id) || (seen.add(row.id), rows.push(row)));
+      if (pageRows.length < CONTEST_LIST_PAGE_SIZE || active.length === 0) break;
     }
     return rows.slice(0, limit);
   }
