@@ -28,8 +28,8 @@ export class CompetitionResponse {
   @ApiProperty({ type: String, nullable: true }) description: string | null;
   @ApiProperty({ type: String, nullable: true }) posterUrl: string | null;
   @ApiProperty({ type: String, nullable: true }) documentUrl: string | null;
+  @ApiProperty({ type: [String], description: '본문 이미지 (포스터와 별개)' }) contentImages: string[];
   @ApiProperty({ type: String, description: 'OWNER(직접 등록) | CRAWL(수집)' }) source: string;
-  @ApiProperty({ type: String, nullable: true, description: '수집 공고의 원문 URL' }) sourceUrl: string | null;
   @ApiProperty({ type: String, description: 'REVIEW | PUBLISHED | HIDDEN' }) status: string;
   @ApiProperty({ type: Number, nullable: true, description: '등록자 회원 ID' }) authorId: number | null;
   @ApiProperty({ type: Boolean, description: '단체 인증 주최' }) verified: boolean;
@@ -61,8 +61,8 @@ export class CompetitionResponse {
     this.description = row.description;
     this.posterUrl = row.poster_url;
     this.documentUrl = row.document_url;
+    this.contentImages = row.content_images ?? [];
     this.source = row.source;
-    this.sourceUrl = row.source_url;
     this.status = row.status;
     this.authorId = row.user_id;
     this.verified = row.verified;

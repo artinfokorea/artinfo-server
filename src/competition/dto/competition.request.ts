@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { ArrayMinSize, IsArray, IsEmail, IsIn, IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min, ValidateIf } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsEmail, IsIn, IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min, ValidateIf } from 'class-validator';
 import { NotBlank } from '@/common/decorator/validator';
 import { List } from '@/common/type/type';
 import { APPLY_METHODS, ApplyMethod, COMPETITION_PHASES, CompetitionListFilter, CompetitionPhase, CompetitionWrite } from '../competition.types';
@@ -108,8 +108,13 @@ export class CompetitionWriteRequest {
   @ApiProperty({ type: String, required: false, description: '참가비', example: '부문당 60,000원' })
   fee?: string | null;
 
-  @IsIn(APPLY_METHODS, { message: '접수 방법은 LINK·EMAIL·POST 중 하나여야 합니다.' })
-  @ApiProperty({ type: String, required: true, description: '접수 방법 LINK(홈페이지·폼) / EMAIL / POST(우편·방문)', example: 'LINK' })
+  @IsIn(APPLY_METHODS, { message: '접수 방법은 LINK·EMAIL·POST·CONTACT 중 하나여야 합니다.' })
+  @ApiProperty({
+    type: String,
+    required: true,
+    description: '접수 방법 LINK(홈페이지·폼) / EMAIL / POST(우편·방문) / CONTACT(전화 등 주최에 문의)',
+    example: 'LINK',
+  })
   applyMethod: ApplyMethod;
 
   @Transform(emptyToNull)
@@ -154,6 +159,13 @@ export class CompetitionWriteRequest {
   @ApiProperty({ type: String, required: false, description: '요강 파일 URL' })
   documentUrl?: string | null;
 
+  @Transform(toArray)
+  @IsArray()
+  @IsString({ each: true })
+  @ArrayMaxSize(20, { message: '본문 이미지는 20장까지 올릴 수 있습니다.' })
+  @ApiProperty({ type: [String], required: false, description: '본문 이미지 URL (포스터와 별개, 최대 20장)' })
+  contentImages: string[] = [];
+
   toWrite(): CompetitionWrite {
     return {
       title: this.title.trim(),
@@ -176,6 +188,7 @@ export class CompetitionWriteRequest {
       description: this.description ?? null,
       posterUrl: this.posterUrl ?? null,
       documentUrl: this.documentUrl ?? null,
+      contentImages: this.contentImages.map(u => u.trim()).filter(Boolean),
     };
   }
 }

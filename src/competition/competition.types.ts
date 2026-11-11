@@ -5,8 +5,9 @@ export const COMPETITION_PHASES: CompetitionPhase[] = ['UPCOMING', 'OPEN', 'SOON
 /** 게시 상태 — REVIEW 는 등록자(와 관리자)에게만 보인다 */
 export type CompetitionStatus = 'REVIEW' | 'PUBLISHED' | 'HIDDEN';
 export type CompetitionSource = 'OWNER' | 'CRAWL';
-export type ApplyMethod = 'LINK' | 'EMAIL' | 'POST';
-export const APPLY_METHODS: ApplyMethod[] = ['LINK', 'EMAIL', 'POST'];
+/** LINK 홈페이지·폼 / EMAIL 이메일 / POST 우편·방문 / CONTACT 전화 등 주최에 직접 문의 */
+export type ApplyMethod = 'LINK' | 'EMAIL' | 'POST' | 'CONTACT';
+export const APPLY_METHODS: ApplyMethod[] = ['LINK', 'EMAIL', 'POST', 'CONTACT'];
 
 export interface CompetitionRow {
   id: number;
@@ -31,6 +32,8 @@ export interface CompetitionRow {
   description: string | null;
   poster_url: string | null;
   document_url: string | null;
+  /** 본문 이미지(공고문·요강 그림) — 포스터와 별개로 여러 장 */
+  content_images: string[];
   source: CompetitionSource;
   source_url: string | null;
   status: CompetitionStatus;
@@ -68,6 +71,7 @@ export interface CompetitionWrite {
   description: string | null;
   posterUrl: string | null;
   documentUrl: string | null;
+  contentImages: string[];
 }
 
 export interface CompetitionListFilter {

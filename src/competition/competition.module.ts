@@ -3,7 +3,9 @@ import { SchedulerLockModule } from '@/common/scheduler/scheduler-lock.module';
 import { CompetitionController } from './competition.controller';
 import { CompetitionRepository } from './competition.repository';
 import { CompetitionService } from './competition.service';
+import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { CompetitionCrawlerScheduler } from './crawler/competition-crawler.scheduler';
+import { CompetitionImageStore } from './crawler/competition-image.store';
 import { ContestCompetitionCrawler } from './crawler/contest-competition.crawler';
 import { ContestNoticeClient } from './crawler/contest-notice.client';
 
@@ -11,7 +13,15 @@ import { ContestNoticeClient } from './crawler/contest-notice.client';
 @Module({
   imports: [SchedulerLockModule],
   controllers: [CompetitionController],
-  providers: [CompetitionRepository, CompetitionService, ContestNoticeClient, ContestCompetitionCrawler, CompetitionCrawlerScheduler],
+  providers: [
+    CompetitionRepository,
+    CompetitionService,
+    ContestNoticeClient,
+    AwsS3Service,
+    CompetitionImageStore,
+    ContestCompetitionCrawler,
+    CompetitionCrawlerScheduler,
+  ],
   exports: [CompetitionRepository, CompetitionService],
 })
 export class CompetitionModule {}

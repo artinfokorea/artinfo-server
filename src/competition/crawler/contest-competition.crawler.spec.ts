@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { CompetitionRepository } from '../competition.repository';
+import { CompetitionImageStore } from './competition-image.store';
 import { ContestCompetitionCrawler } from './contest-competition.crawler';
 import { ContestNoticeClient, ContestNoticeGateway } from './contest-notice.client';
 
@@ -21,7 +22,12 @@ function build(
     duplicateOf?: { id: number; source: 'OWNER' | 'CRAWL'; status: string; source_url: string | null; poster_url: string | null };
   } = {},
 ) {
-  const calls = { detail: [] as string[], upserts: [] as { input: any; url: string }[], attached: [] as { id: number; url: string }[], pages: [] as number[] };
+  const calls = {
+    detail: [] as string[],
+    upserts: [] as { input: any; url: string; userId?: number | null }[],
+    attached: [] as { id: number; url: string }[],
+    pages: [] as number[],
+  };
   const gateway: ContestNoticeGateway = {
     fetchList: async page => {
       calls.pages.push(page);
@@ -35,18 +41,25 @@ function build(
   };
   let seq = 100;
   const repository = {
+    findUserIdByEmail: jest.fn(async () => 4637),
     findBySourceUrl: jest.fn(async (url: string) => opts.known?.[url] ?? null),
     findDuplicates: jest.fn(async () => (opts.duplicateOf ? [opts.duplicateOf] : [])),
     attachSource: jest.fn(async (id: number, url: string) => {
       calls.attached.push({ id, url });
     }),
-    upsertCrawled: jest.fn(async (input: any, url: string) => {
-      calls.upserts.push({ input, url });
+    upsertCrawled: jest.fn(async (input: any, url: string, userId: number | null) => {
+      calls.upserts.push({ input, url, userId });
       const created = url.endsWith('/22917') === false;
       return { id: seq++, created };
     }),
   } as unknown as CompetitionRepository;
-  return { crawler: new ContestCompetitionCrawler({} as ContestNoticeClient, repository, gateway), calls };
+  const images = {
+    store: jest.fn(async (url: string) => `https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/competitions/${url.split('/').pop()}`),
+    storeAll: jest.fn(async (urls: string[]) =>
+      urls.map(url => `https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/competitions/${url.split('/').pop()}`),
+    ),
+  } as unknown as CompetitionImageStore;
+  return { crawler: new ContestCompetitionCrawler({} as ContestNoticeClient, repository, images, gateway), calls };
 }
 
 describe('ContestCompetitionCrawler', () => {
@@ -80,13 +93,15 @@ describe('ContestCompetitionCrawler', () => {
       openAt: '2026-11-01',
       closeAt: '2026-11-25',
       heldAt: '2026-11-28',
-      applyMethod: 'LINK',
-      applyLink: 'https://contest.co.kr/contest/view1/22917',
+      applyMethod: 'EMAIL', // 홈페이지가 없고 이메일이 있으면 이메일 접수 — 원 사이트로는 보내지 않는다
+      applyLink: null,
       tel: '010-5261-8125',
       email: 'nartec@naver.com',
-      posterUrl: 'https://contest.co.kr/data/media/image/contest/202611/imgm_20261107122317400.jpg',
-      description: '본 대회는 주최측 홈페이지에서 접수가 가능합니다.',
+      posterUrl: 'https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/competitions/imgm_20261107122317400.jpg',
+      description: null, // 원 사이트의 '관리자 알림'은 싣지 않는다
+      contentImages: ['https://artinfo.s3.ap-northeast-2.amazonaws.com/prod/upload/competitions/20261107121929782.jpg'],
     });
+    expect(first.userId).toBe(4637);
     const vocal = calls.upserts.find(u => u.url.endsWith('/23142'))!;
     expect(vocal.input.divisions).toEqual(['성악']);
   });

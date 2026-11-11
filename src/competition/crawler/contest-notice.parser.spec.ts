@@ -5,7 +5,8 @@ import { inferAges, inferDivisions, isCompetitionTitle, parseContestDetail, pars
 /**
  * 스펙 (실제 페이지 픽스처, 2026-11-11 contest.co.kr 음악경연 전체 목록·상세 23151)
  * 1) 목록 1페이지 50행(2페이지는 12행): id·원문 URL·제목·주최·지역 배지·분류 배지(추천/인기 제외)·상태(접수중/접수예정/심사대기/심사중)
- * 2) 상세: 제목, 대회기간 → 대회일, 접수기간 "2026.11.01 ~ 2026.11.25 23시59분" → 시작·마감, 지역 [경기] → 경기, 장소·주관·전화·이메일·포스터·관리자 알림
+ * 2) 상세: 제목, 대회기간 → 대회일, 접수기간 "2026.11.01 ~ 2026.11.25 23시59분" → 시작·마감, 지역 [경기] → 경기, 장소·주관·전화·이메일·포스터·관리자 알림,
+ *    홈페이지 링크·유의사항, 본문(.contents_view1)의 텍스트(줄바꿈 유지)와 이미지 목록(아이콘 gif 제외)
  * 3) 제목 판정: 콩쿠르·콩쿨·경연·Competition·콘테스트·예술제는 대상, 평가회·마스터클래스·모의평가·신청서는 제외
  * 4) 부문·대상 추출: 제목(+분류)에서 피아노·성악·현악·관악·작곡·실용음악, 없으면 종합. 청소년/영재는 초·중·고
  */
@@ -52,7 +53,49 @@ describe('parseContestDetail', () => {
       email: 'nartec@naver.com',
       posterUrl: 'https://contest.co.kr/data/media/image/contest/202611/imgm_20261107122317400.jpg',
       notice: '본 대회는 주최측 홈페이지에서 접수가 가능합니다.',
+      homepage: null,
+      caution: null,
+      bodyText: '',
+      bodyImages: ['https://contest.co.kr/data/undefined/20261107121929782.jpg'],
     });
+  });
+
+  it('홈페이지·유의사항·본문 이미지 여러 장 (23091)', () => {
+    const detail = parseContestDetail(fixture('detail-23091.html'));
+    expect(detail).toMatchObject({
+      title: '국제영재음악콩쿠르 부산. 양산대회',
+      heldAt: '2026-10-31',
+      openAt: '2026-10-21',
+      closeAt: '2026-11-20',
+      area: '부산',
+      venue: '양산 쌍벽루 아트홀, 롯데백화점 광복점 문화홀',
+      tel: '010-3203-2027',
+      email: 'igi28@hanmail.net',
+      homepage: 'https://ifpga.co.kr',
+      caution: '본 대회는 홈페이지 접수말고, 카톡 및 문자, 전화로 접수 받습니다.',
+      posterUrl: 'https://contest.co.kr/data/media/image/contest/202610/imgm_20261021132240182.jpg',
+    });
+    expect(detail.bodyImages).toEqual([
+      'https://contest.co.kr/data/undefined/20261021120354620.jpg',
+      'https://contest.co.kr/data/undefined/20261021120442898.jpg',
+      'https://contest.co.kr/data/undefined/20261021120524308.jpg',
+      'https://contest.co.kr/data/undefined/20261021120606298.jpg',
+    ]);
+  });
+
+  it('본문 텍스트 — 줄바꿈을 살리고 엔티티는 풀어서 (23065)', () => {
+    const detail = parseContestDetail(fixture('detail-23065.html'));
+    expect(detail.bodyImages).toEqual([
+      'https://contest.co.kr/data/undefined/20261012191849293.jpg',
+      'https://contest.co.kr/data/undefined/20261012191909999.jpg',
+    ]);
+    const lines = detail.bodyText.split('\n');
+    expect(lines[0]).toBe('2026 8회 예술의 회전목마 국제 콩쿠르');
+    expect(detail.bodyText).toContain('< 콩쿠르 안내 >');
+    expect(detail.bodyText).toContain('[ 참가 부문 ]');
+    expect(detail.bodyText).toContain('카카오톡 채널 로샤문화예술단체 또는 01074042202');
+    expect(detail.bodyText).not.toContain('&lt;');
+    expect(detail.bodyText).not.toMatch(/\n{3,}/);
   });
 
   it('toIsoDate — 두 자리 연도·한 자리 월일도 받는다', () => {
