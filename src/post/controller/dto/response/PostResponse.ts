@@ -44,9 +44,10 @@ export class PostResponse {
 
   constructor(post: PostEntity) {
     this.id = post.id;
-    this.authorId = post.user.id;
-    this.authorName = post.user.nickname;
-    this.authorIconImageUrl = post.user.iconImageUrl;
+    // 작성자가 탈퇴해 조인되지 않아도 글은 보여준다 (탈퇴회원)
+    this.authorId = post.user?.id ?? post.userId;
+    this.authorName = post.user?.nickname ?? '탈퇴회원';
+    this.authorIconImageUrl = post.user?.iconImageUrl ?? null;
     this.category = post.category;
     this.title = post.title;
     this.contents = post.contents;
