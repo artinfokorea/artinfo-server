@@ -1,8 +1,5 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import {
-  IOnchurchUserRepository,
-  ONCHURCH_USER_REPOSITORY,
-} from '@/onchurch/user/domain/repository/onchurch-user.repository.interface';
+import { IOnchurchUserRepository, ONCHURCH_USER_REPOSITORY } from '@/onchurch/user/domain/repository/onchurch-user.repository.interface';
 import { ONCHURCH_USER_ROLE } from '@/onchurch/user/domain/entity/onchurch-user.entity';
 import {
   IOnchurchChurchOverviewRepository,
