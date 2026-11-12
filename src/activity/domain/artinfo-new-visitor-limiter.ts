@@ -23,7 +23,13 @@ export class ArtinfoNewVisitorLimiter {
   /** IP 당 한 시간에 새 방문자 10명까지. IP 를 모르면(프록시가 X-Forwarded-For 를 안 줌) 상한을 걸지 않는다 */
   async allow(ip: string | null, visitorId: string): Promise<boolean> {
     if (!ip) return true;
-    return this.allowInBucket(newVisitorLimitKey(ip, Date.now()), ARTINFO_ACTIVITY_MAX_NEW_VISITORS_PER_IP, ARTINFO_ACTIVITY_NEW_VISITOR_WINDOW_SECONDS, visitorId, `ip ${ip}`);
+    return this.allowInBucket(
+      newVisitorLimitKey(ip, Date.now()),
+      ARTINFO_ACTIVITY_MAX_NEW_VISITORS_PER_IP,
+      ARTINFO_ACTIVITY_NEW_VISITOR_WINDOW_SECONDS,
+      visitorId,
+      `ip ${ip}`,
+    );
   }
 
   /** 같은 User-Agent 문자열당 10분에 새 방문자 30명까지 — IP 를 바꿔 가며 도는 크롤러용 */
