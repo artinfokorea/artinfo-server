@@ -1,0 +1,3335 @@
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+		
+
+
+
+
+
+
+
+
+<title>채용공고 - 춘천시립교향악단 상임단원 선발 전형(정정) 공고 상세화면 | 춘천시립예술단 &gt; 예술단 소식 &gt; 채용공고</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0, maximum-scale=2.0, user-scalable=yes" />
+<meta name="Keywords" content="" />
+<meta name="Description" content="춘천시립예술단 홈페이지" />
+<meta name="Author" content="춘천시립예술단" />
+<meta name="format-detection" content="telephone=no" />
+<link rel="shortcut icon" href="/page/art_favicon.ico">
+<meta property="og:site_name" content="춘천시립예술단" />
+<meta property="og:title" itemprop="name" content="" />
+<meta property="og:description" name="Description" content="춘천시립예술단 홈페이지" />
+
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+        
+    
+    
+
+
+<link rel="stylesheet" href="/page/common/css/jquery-ui.min.css?v=2026111222" />
+<link rel="stylesheet" href="/page/common/css/fonts.css?v=2026111222" />
+<link rel="stylesheet" href="/page/common/css/common.css?v=2026111222" />
+<link rel="stylesheet" href="/page/common/css/common_style.css?v=2026111222" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"/>
+
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+        
+    
+    
+
+
+<script src="/page/common/js/jquery-3.7.1.min.js?v=2026111222"></script>
+<script src="/page/common/js/jquery-ui.min.js?v=2026111222"></script>
+<script src="/page/common/js/jquery.touchSwipe.min.js?v=2026111222"></script>
+<script src="/page/common/js/jquery.cookie.js?v=2026111222"></script>
+<script src="/page/common/js/common.js?v=2026111222"></script>
+<script src="/page/common/js/puble_common.js?v=2026111222"></script>
+<script src="/page/common/js/util.js?v=2026111222"></script>
+<script src="/page/common/js/slick.min.js?v=2026111222"></script>
+<script src="/page/common/js/clipboard.js?v=2026111222"></script>
+
+<script>
+    // csrf token - add by YJ.SON :: 2021-05-16
+    // var csrf_token = $("meta[name='_csrf']").attr("content");
+    // var csrf_token_header = $("meta[name='_csrf_header']").attr("content");
+
+    // 로그인 성공여부, 로그인타입 상수, 2026-07-07 jylee
+    const MOONHWAIN_USER = {
+        isLoggedIn: false,
+        loginType: ''
+    };
+
+    $(document).ready(function() {
+        // page hit
+        var pageUrl  = '/art/company_news/recruit_notice';
+        var pageTitle = '채용공고';
+        if ('/art/company_news/recruit_notice') {
+            $.ajax({
+                type : 'POST'
+                , url  : '/egf/insertPageHit'
+                , data :{
+                    'pageUrl'  : pageUrl
+                    , 'pageTitle' : pageTitle
+                }
+                , dataType:'json'
+                // , beforeSend : function (xhr) {
+                //     // add csrf token - add by YJ.SON :: 2021-05-16
+                //     xhr.setRequestHeader(csrf_token_header, csrf_token);
+                // }
+            });
+        }
+
+        // login
+        // $(".btn-gnb-login").click(function (event) {
+        //     const context = $(this).data("context");
+        //     const loginType = $(this).data("login-type");
+        //
+        //     if("wOpenLogin" === loginType) {
+        //         wOpenLoginAfterProviderLogout(context);
+        //     }
+        //     else {
+        //         wOpenLogin(context);
+        //     }
+        // });
+
+        // 5 iframe 방식
+        $(".btn-gnb-login").click(async function () {
+            // 1. 외부 로그아웃 팝업 열리고 닫힐때까지 대기 : Promise
+            await runExternalLogout();
+
+            wOpenLogin();
+        });
+
+        // logout
+        $(".btn-logout").click(function () {
+            const env = $(this).data("env");
+            fnLogout(env);
+        });
+
+        // 5. iframe 방식
+        function runExternalLogout() {
+            return new Promise((resolve) => {
+                const url = "https://cccf.moonhwain.net:451/inc/logout.html?useAuthCode=0&b_id=cccf&rq_homepy=logout&goUrl=about:blank";
+
+                // 1.화면에 안보이는 iframe 생성
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = url;
+
+                // 2. iframe 내부 로그아웃 처리
+                iframe.onload = function() {
+                    console.log('iframe 내부에서 외부 로그아웃 호출 완료')
+                    // 3. 처리 완료 후 생성한 iframe 제거
+                    document.body.removeChild(iframe);
+                    resolve();
+                };
+
+                // DOM에 추가하는 순간 외부 로그아웃 주소가  백그라운드에서 실행
+                document.body.appendChild(iframe);
+            });
+        }
+
+        // 세션 만료 시 moonhwain(문화인) 자동 로그아웃 처리
+        // 우리 서버 세션이 만료되었지만 moonhwain 세션이 살아있을 수 있으므로
+        // 페이지 로드 시 moonhwain 로그아웃을 백그라운드에서 실행
+        
+            
+                (function() {
+                    var key = 'mw_logout_done';
+                    if (!sessionStorage.getItem(key)) {
+                        sessionStorage.setItem(key, 'true');
+                        var iframe = document.createElement('iframe');
+                        iframe.style.display = 'none';
+                        iframe.src = "https://cccf.moonhwain.net:451/inc/logout.html?useAuthCode=0&b_id=cccf&close=1&rq_homepy=logout&goUrl=about:blank";
+                        document.body.appendChild(iframe);
+                        setTimeout(function() {
+                            if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+                        }, 5000);
+                    }
+                })();
+            
+        
+
+        // 컨텐츠용 버튼값
+        // 대관 신청현황
+        $(".btn-lease-cal").click(function () {
+            wOpenLeaseCal();
+        });
+
+        // 대관 신청공고
+        $(".btn-lease-noti").click(function () {
+            wOpenLeaseNoti();
+        });
+
+        // 아르숲 공고
+        $(".btn-lease-forest").click(function () {
+            const mtIdx = $(this).data("mt-idx");
+            wOpenRsvMeet('', mtIdx);
+        });
+
+        // 정기회원
+        $(".btn-paid-btn").click(function () {
+            wOpenPaidMber('');
+        });
+        
+        // 뒤로가기 ERR_CACHE 방지 — POST 검색 파라미터를 GET URL에 포함시켜 history 치환
+        // pageIndex를 가진 POST form(목록/검색 페이지)은 검색 파라미터 포함, 그 외는 현재 URL 그대로 치환
+        if (window.history.replaceState) {
+            (function () {
+                var ACTION_SKIP = ['_csrf', 'mode', 'articleSeq', 'type', 'expsrYn',
+                                   'resetCondition', 'priInfCltF', 'metaDataID'];
+                try {
+                    var $searchForm = $('form[method="post"], form[method="POST"]')
+                        .filter(function () { return $(this).find('[name="pageIndex"]').length > 0; })
+                        .first();
+                    if ($searchForm.length) {
+                        var params = new URLSearchParams();
+                        $searchForm.find(':input[name]').each(function () {
+                            var $el = $(this);
+                            var name = $el.attr('name');
+                            var val  = ($el.val() || '').trim();
+                            if (!name || !val) return;
+                            if (ACTION_SKIP.indexOf(name) !== -1) return;
+                            if ($el.is('[type="file"],[type="password"],[type="submit"],[type="button"]')) return;
+                            if ($el.is('[type="checkbox"]:not(:checked),[type="radio"]:not(:checked)')) return;
+                            params.set(name, val);
+                        });
+                        var qs = params.toString();
+                        window.history.replaceState(null, null, location.pathname + (qs ? '?' + qs : ''));
+                    } else {
+                        window.history.replaceState(null, null, location.href);
+                    }
+                } catch (e) {
+                    window.history.replaceState(null, null, location.href);
+                }
+            })();
+        }
+    });
+
+    // 뒤로가기 시 bfcache 미복원 → 현재 URL(replaceState로 교체된 GET URL)로 안전 리다이렉트
+    // 브라우저가 POST 페이지를 fresh 요청으로 복원하려 할 때 에러 페이지 대신 GET으로 재진입
+    window.addEventListener('pageshow', function (event) {
+        if (!event.persisted && window.performance) {
+            var navType = (performance.navigation || {}).type;
+            if (navType === 2) {
+                // back/forward 진입인데 bfcache에 없음 → 현재 URL(이미 GET으로 교체됨)로 replace
+                window.location.replace(location.href);
+            }
+        }
+    });
+
+
+    // 클린신고센터 로그인 팝업
+    function wCleanReportLoginCheck() {
+        let isLoggedIn = MOONHWAIN_USER.isLoggedIn;
+        const loginType = MOONHWAIN_USER.loginType;
+
+        if (isLoggedIn) {
+            if (loginType === 'MOONHWAIN_SSO_N') {
+                alert('클린신고센터 이용은 회원가입 후 이용 가능합니다');
+                return false;
+            }
+        } else {
+            alert("로그인 후 이용 가능합니다.");
+            $(".btn-gnb-login").click();
+            return false;
+        }
+
+        window.location.href = "/home/addservice/reporting_center";
+    }
+
+    // logout - Provider(문화인) 로그아웃을 통해 session 정리
+    // 흐름: 1. local 환경에서는 /others/member/logout2로 AJAX 요청 -> Provider 로그아웃 -> session 정리 -> wOpenLogout() 호출
+    //       2. 운영 환경에서는 바로 wOpenLogout() 호출 (Provider 로그아웃 URL로 이동: goUrl)
+    function fnLogout(env) {
+        if (env === 'local') {
+            $.ajax({
+                type: 'POST',
+                url: '/others/member/local/logout',
+                dataType: 'json',
+                data : {siteContext: '/art'},
+                success: function(response) {
+                    if (response.result === "SUCCESS_001") {
+                        alert('[DEV] 로그아웃 완료 (리다이렉트 미지원, 수동 이동 요망)');
+                        wOpenLogout();
+                    } else {
+                        alert('로그아웃에 실패했습니다. 다시 시도해주세요.');
+                    }
+                },
+                error: function() {
+                    alert('로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.');
+                }
+            });
+        } else {
+            wOpenLogout();
+        }
+    }
+</script>
+
+		
+			<!-- Swiper CSS -->
+			<link rel="stylesheet" href="/page/cccf/css/swiper-bundle.min.css">
+			<!-- 공통 CSS -->
+			<link rel="stylesheet" href="/page/cccf/css/app.css">
+			<script src="/page/cccf/js/swiper-bundle.min.js"></script>
+			<script src="/page/cccf/js/lenis.js"></script>
+			<!-- 공통 JS -->
+			<script src="/page/cccf/js/app.js"></script>
+			<script src="/page/cccf/js/moonhwain.js"></script>
+
+			
+			
+				<link rel="stylesheet" href="/page/cccf/css/sub.css">
+				<script src="/page/cccf/js/708e424f8f.js"></script>
+				<script src="/page/cccf/js/jquery.panzoom.min.js"></script>
+				<script src="/page/cccf/js/sub.js"></script>
+				<script charset="UTF-8" class="daum_roughmap_loader_script" src="https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js"></script>
+			
+		
+
+	</head>
+
+	<body>
+		<div id="wrapper" class="page-wrap city-art">
+			<ul class="skipnav">
+				<li><a href="#sub">본문 바로가기</a></li>
+			</ul>
+
+			
+
+
+
+
+
+
+
+
+
+
+
+<header id="header">
+	<div class="header-wrap">
+		<h1>
+			<a href="/art">
+				<img src="/page/cccf/images/common/logo.png" alt="춘천시립예술단">
+			</a>
+		</h1>
+		<div class="nav-bx" data-lenis-prevent>
+			<nav>
+				<ul class="Hdepth01">
+					
+						
+							
+							
+								
+							
+							
+
+							<li>
+								<div class="Htlv01">
+									<a href="/art/performance_info"
+									   target="_self"
+										
+										>
+										<span>공연·예매</span>
+									</a>
+								</div>
+
+									
+								
+									
+									
+										
+											
+										
+									
+										
+											
+										
+									
+										
+											
+										
+									
+
+									
+										<ul class="Hdepth02">
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/performance_info/performance_schedule"
+															   target="_self"
+																
+																>
+																<span>공연안내</span>
+															</a>
+														</div>
+													</li>
+
+
+													
+													
+														
+														
+															
+																
+															
+														
+															
+																
+															
+														
+															
+																
+															
+														
+
+														
+															<ul class="Hdepth03">
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/performance_info/performance_schedule/in_progress"
+																				   target="_self"
+																					
+																					>
+																					<span>진행중</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/performance_info/performance_schedule/done"
+																				   target="_self"
+																					
+																					>
+																					<span>완료</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/performance_info/performance_schedule/previous"
+																				   target="_self"
+																					
+																					>
+																					<span>지난공연</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+															</ul>
+														
+													
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/performance_info/monthly"
+															   target="_self"
+																
+																>
+																<span>월별일정</span>
+															</a>
+														</div>
+													</li>
+
+
+													
+													
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/performance_info/reservation_guide"
+															   target="_self"
+																
+																>
+																<span>예매안내</span>
+															</a>
+														</div>
+													</li>
+
+
+													
+													
+														
+														
+															
+																
+															
+														
+															
+																
+															
+														
+
+														
+															<ul class="Hdepth03">
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/performance_info/reservation_guide/reserve_cancel"
+																				   target="_self"
+																					
+																					>
+																					<span>예매/취소안내</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/performance_info/reservation_guide/etiquette"
+																				   target="_self"
+																					
+																					>
+																					<span>관람예절</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+															</ul>
+														
+													
+												
+											
+										</ul>
+									
+								
+							</li>
+						
+					
+						
+							
+							
+								
+							
+							
+
+							<li>
+								<div class="Htlv01">
+									<a href="/art/introduce_company"
+									   target="_self"
+										
+										>
+										<span>예술단체 소개</span>
+									</a>
+								</div>
+
+									
+								
+									
+									
+										
+											
+										
+									
+										
+											
+										
+									
+										
+											
+										
+									
+										
+											
+										
+									
+										
+											
+										
+									
+										
+											
+										
+									
+
+									
+										<ul class="Hdepth02">
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/introduce_company/city_orchestra"
+															   target="_self"
+																
+																>
+																<span>춘천시립교향악단</span>
+															</a>
+														</div>
+													</li>
+
+
+													
+													
+														
+														
+															
+																
+															
+														
+															
+																
+															
+														
+															
+																
+															
+														
+
+														
+															<ul class="Hdepth03">
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/introduce_company/city_orchestra/group"
+																				   target="_self"
+																					
+																					>
+																					<span>단체소개</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/introduce_company/city_orchestra/conductor_unit"
+																				   target="_self"
+																					
+																					>
+																					<span>상임지휘자 및 단원소개</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/introduce_company/city_orchestra/history"
+																				   target="_self"
+																					
+																					>
+																					<span>연주 History</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+															</ul>
+														
+													
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/introduce_company/city_choir"
+															   target="_self"
+																
+																>
+																<span>춘천시립합창단</span>
+															</a>
+														</div>
+													</li>
+
+
+													
+													
+														
+														
+															
+																
+															
+														
+															
+																
+															
+														
+															
+																
+															
+														
+
+														
+															<ul class="Hdepth03">
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/introduce_company/city_choir/group"
+																				   target="_self"
+																					
+																					>
+																					<span>단체소개</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/introduce_company/city_choir/conductor_unit"
+																				   target="_self"
+																					
+																					>
+																					<span>상임지휘자 및 단원소개</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/introduce_company/city_choir/history"
+																				   target="_self"
+																					
+																					>
+																					<span>연주 History</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+															</ul>
+														
+													
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/introduce_company/city_youth_orchestra"
+															   target="_self"
+																
+																>
+																<span>춘천시립청소년교향악단</span>
+															</a>
+														</div>
+													</li>
+
+
+													
+													
+														
+														
+															
+																
+															
+														
+															
+																
+															
+														
+															
+																
+															
+														
+
+														
+															<ul class="Hdepth03">
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/introduce_company/city_youth_orchestra/group"
+																				   target="_self"
+																					
+																					>
+																					<span>단체소개</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/introduce_company/city_youth_orchestra/conductor_unit"
+																				   target="_self"
+																					
+																					>
+																					<span>지휘자 및 단원소개</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/introduce_company/city_youth_orchestra/history"
+																				   target="_self"
+																					
+																					>
+																					<span>연주 History</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+															</ul>
+														
+													
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/introduce_company/city_youth_choir"
+															   target="_self"
+																
+																>
+																<span>춘천시립청소년합창단</span>
+															</a>
+														</div>
+													</li>
+
+
+													
+													
+														
+														
+															
+																
+															
+														
+															
+																
+															
+														
+															
+																
+															
+														
+
+														
+															<ul class="Hdepth03">
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/introduce_company/city_youth_choir/group"
+																				   target="_self"
+																					
+																					>
+																					<span>단체소개</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/introduce_company/city_youth_choir/conductor_unit"
+																				   target="_self"
+																					
+																					>
+																					<span>지휘자 및 단원소개</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/introduce_company/city_youth_choir/history"
+																				   target="_self"
+																					
+																					>
+																					<span>연주 History</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+															</ul>
+														
+													
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/introduce_company/city_doll_theater"
+															   target="_self"
+																
+																>
+																<span>춘천시립인형극단</span>
+															</a>
+														</div>
+													</li>
+
+
+													
+													
+														
+														
+															
+																
+															
+														
+															
+																
+															
+														
+															
+																
+															
+														
+
+														
+															<ul class="Hdepth03">
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/introduce_company/city_doll_theater/group"
+																				   target="_self"
+																					
+																					>
+																					<span>단체소개</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/introduce_company/city_doll_theater/conductor_unit"
+																				   target="_self"
+																					
+																					>
+																					<span>지휘자 및 단원소개</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/introduce_company/city_doll_theater/history"
+																				   target="_self"
+																					
+																					>
+																					<span>연주 History</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+															</ul>
+														
+													
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/introduce_company/city_gugak_orchestra"
+															   target="_self"
+																
+																>
+																<span>춘천시립국악단</span>
+															</a>
+														</div>
+													</li>
+
+
+													
+													
+														
+														
+															
+																
+															
+														
+															
+																
+															
+														
+															
+																
+															
+														
+
+														
+															<ul class="Hdepth03">
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/introduce_company/city_gugak_orchestra/group"
+																				   target="_self"
+																					
+																					>
+																					<span>단체소개</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/introduce_company/city_gugak_orchestra/conductor_unit"
+																				   target="_self"
+																					
+																					>
+																					<span>예술감독 및 단원소개</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+																	
+																		
+																		
+																			
+																		
+																		
+
+																		<li>
+																			<div class="Htlv03">
+																				<a href="/art/introduce_company/city_gugak_orchestra/history"
+																				   target="_self"
+																					
+																					>
+																					<span>연주 History</span>
+																				</a>
+																			</div>
+																		</li>
+																	
+																
+															</ul>
+														
+													
+												
+											
+										</ul>
+									
+								
+							</li>
+						
+					
+						
+							
+							
+								
+							
+							
+
+							<li>
+								<div class="Htlv01">
+									<a href="/art/company_news"
+									   target="_self"
+										
+										>
+										<span>예술단 소식</span>
+									</a>
+								</div>
+
+									
+								
+									
+									
+										
+											
+										
+									
+										
+											
+										
+									
+										
+											
+										
+									
+
+									
+										<ul class="Hdepth02">
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/company_news/notice"
+															   target="_self"
+																
+																>
+																<span>공지사항</span>
+															</a>
+														</div>
+													</li>
+
+
+													
+													
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/company_news/recruit_notice"
+															   target="_self"
+																
+																>
+																<span>채용공고</span>
+															</a>
+														</div>
+													</li>
+
+
+													
+													
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/company_news/gallery"
+															   target="_self"
+																
+																>
+																<span>갤러리</span>
+															</a>
+														</div>
+													</li>
+
+
+													
+													
+												
+											
+										</ul>
+									
+								
+							</li>
+						
+					
+						
+							
+							
+								
+							
+							
+
+							<li>
+								<div class="Htlv01">
+									<a href="/art/ccarts"
+									   target="_self"
+										
+										>
+										<span>춘천시립예술단</span>
+									</a>
+								</div>
+
+									
+								
+									
+									
+										
+											
+										
+									
+										
+											
+										
+									
+										
+											
+										
+									
+										
+											
+										
+									
+
+									
+										<ul class="Hdepth02">
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/ccarts/greetings"
+															   target="_self"
+																
+																>
+																<span>인사말</span>
+															</a>
+														</div>
+													</li>
+
+
+													
+													
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/ccarts/organization"
+															   target="_self"
+																
+																>
+																<span>조직도 및 운영위원회</span>
+															</a>
+														</div>
+													</li>
+
+
+													
+													
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/ccarts/ci"
+															   target="_self"
+																
+																>
+																<span>CI</span>
+															</a>
+														</div>
+													</li>
+
+
+													
+													
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/ccarts/location"
+															   target="_self"
+																
+																>
+																<span>오시는길</span>
+															</a>
+														</div>
+													</li>
+
+
+													
+													
+												
+											
+										</ul>
+									
+								
+							</li>
+						
+					
+						
+							
+							
+								
+							
+							
+
+							<li>
+								<div class="Htlv01">
+									<a href="/art/membership"
+									   target="_self"
+										
+										>
+										<span>정기회원</span>
+									</a>
+								</div>
+
+									
+								
+							</li>
+						
+					
+				</ul>
+			</nav>
+		</div>
+		<div class="btn-bx">
+			
+				
+				<a href="javascript:;" class="btn-gnb-login">로그인</a>
+				<a href="javascript:wOpenJoin();">회원가입</a>
+			
+			
+			
+		</div>
+	</div>
+
+	<!-- 전체 메뉴 버튼 -->
+	<a href="#" class="menu-btn">
+		<img src="/page/cccf/images/common/ico-allmenu-purple.png" alt="">
+	</a>
+
+	<!-- 사이트맵 (전체메뉴) -->
+	<div id="site-map">
+		<div class="site-bx">
+			<!-- 검색폼 -->
+
+
+			<!-- 전체 메뉴 -->
+			<div class="menu-bx" data-lenis-prevent>
+				<ul class="Hdepth01">
+					
+						
+							
+							
+								
+							
+							
+
+							<li>
+								<div class="Htlv01">
+									<a href="/art/performance_info"
+									   target="_self"
+										
+										>
+										<span>공연·예매</span>
+									</a>
+								</div>
+
+									
+								
+									
+									
+										
+											
+										
+									
+										
+											
+										
+									
+										
+											
+										
+									
+
+									
+										<ul class="Hdepth02">
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/performance_info/performance_schedule"
+															   target="_self"
+																
+																>
+																<span>공연안내</span>
+															</a>
+														</div>
+													</li>
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/performance_info/monthly"
+															   target="_self"
+																
+																>
+																<span>월별일정</span>
+															</a>
+														</div>
+													</li>
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/performance_info/reservation_guide"
+															   target="_self"
+																
+																>
+																<span>예매안내</span>
+															</a>
+														</div>
+													</li>
+												
+											
+										</ul>
+									
+								
+							</li>
+						
+					
+						
+							
+							
+								
+							
+							
+
+							<li>
+								<div class="Htlv01">
+									<a href="/art/introduce_company"
+									   target="_self"
+										
+										>
+										<span>예술단체 소개</span>
+									</a>
+								</div>
+
+									
+								
+									
+									
+										
+											
+										
+									
+										
+											
+										
+									
+										
+											
+										
+									
+										
+											
+										
+									
+										
+											
+										
+									
+										
+											
+										
+									
+
+									
+										<ul class="Hdepth02">
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/introduce_company/city_orchestra"
+															   target="_self"
+																
+																>
+																<span>춘천시립교향악단</span>
+															</a>
+														</div>
+													</li>
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/introduce_company/city_choir"
+															   target="_self"
+																
+																>
+																<span>춘천시립합창단</span>
+															</a>
+														</div>
+													</li>
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/introduce_company/city_youth_orchestra"
+															   target="_self"
+																
+																>
+																<span>춘천시립청소년교향악단</span>
+															</a>
+														</div>
+													</li>
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/introduce_company/city_youth_choir"
+															   target="_self"
+																
+																>
+																<span>춘천시립청소년합창단</span>
+															</a>
+														</div>
+													</li>
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/introduce_company/city_doll_theater"
+															   target="_self"
+																
+																>
+																<span>춘천시립인형극단</span>
+															</a>
+														</div>
+													</li>
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/introduce_company/city_gugak_orchestra"
+															   target="_self"
+																
+																>
+																<span>춘천시립국악단</span>
+															</a>
+														</div>
+													</li>
+												
+											
+										</ul>
+									
+								
+							</li>
+						
+					
+						
+							
+							
+								
+							
+							
+
+							<li>
+								<div class="Htlv01">
+									<a href="/art/company_news"
+									   target="_self"
+										
+										>
+										<span>예술단 소식</span>
+									</a>
+								</div>
+
+									
+								
+									
+									
+										
+											
+										
+									
+										
+											
+										
+									
+										
+											
+										
+									
+
+									
+										<ul class="Hdepth02">
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/company_news/notice"
+															   target="_self"
+																
+																>
+																<span>공지사항</span>
+															</a>
+														</div>
+													</li>
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/company_news/recruit_notice"
+															   target="_self"
+																
+																>
+																<span>채용공고</span>
+															</a>
+														</div>
+													</li>
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/company_news/gallery"
+															   target="_self"
+																
+																>
+																<span>갤러리</span>
+															</a>
+														</div>
+													</li>
+												
+											
+										</ul>
+									
+								
+							</li>
+						
+					
+						
+							
+							
+								
+							
+							
+
+							<li>
+								<div class="Htlv01">
+									<a href="/art/ccarts"
+									   target="_self"
+										
+										>
+										<span>춘천시립예술단</span>
+									</a>
+								</div>
+
+									
+								
+									
+									
+										
+											
+										
+									
+										
+											
+										
+									
+										
+											
+										
+									
+										
+											
+										
+									
+
+									
+										<ul class="Hdepth02">
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/ccarts/greetings"
+															   target="_self"
+																
+																>
+																<span>인사말</span>
+															</a>
+														</div>
+													</li>
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/ccarts/organization"
+															   target="_self"
+																
+																>
+																<span>조직도 및 운영위원회</span>
+															</a>
+														</div>
+													</li>
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/ccarts/ci"
+															   target="_self"
+																
+																>
+																<span>CI</span>
+															</a>
+														</div>
+													</li>
+												
+											
+												
+													
+													
+														
+													
+													
+
+													<li>
+														<div class="Htlv02">
+															<a href="/art/ccarts/location"
+															   target="_self"
+																
+																>
+																<span>오시는길</span>
+															</a>
+														</div>
+													</li>
+												
+											
+										</ul>
+									
+								
+							</li>
+						
+					
+						
+							
+							
+								
+							
+							
+
+							<li>
+								<div class="Htlv01">
+									<a href="/art/membership"
+									   target="_self"
+										
+										>
+										<span>정기회원</span>
+									</a>
+								</div>
+
+									
+								
+							</li>
+						
+					
+				</ul>
+
+				<!-- 바로가기 버튼 리스트 -->
+				<div class="btn-list">
+					<a href="/home/performance/exhibit" target="_blank" title="새창열림" rel="noopener noreferrer">
+						<img src="/page/cccf/images/common/ico-allmenu-reservation.png" alt="">
+						<span>공연예매</span>
+					</a>
+					<a href="/home" target="_blank" title="새창열림" rel="noopener noreferrer">
+						<img src="/page/cccf/images/common/ico-allmenu-archive.png" alt="">
+						<span>춘천문화재단</span>
+					</a>
+					<a href="/ccartedu" target="_blank" title="새창열림" rel="noopener noreferrer">
+						<img src="/page/cccf/images/common/ico-allmenu-artplace.png" alt="">
+						<span>춘천 꿈꾸는예술터</span>
+					</a>
+					<a href="https://arch.cccf.or.kr/" target="_blank" title="새창열림" rel="noopener noreferrer">
+						<img src="/page/cccf/images/common/ico-allmenu-archive.png" alt="">
+						<span>춘천문화아카이브</span>
+					</a>
+					<a href="/moa" target="_blank" title="새창열림" rel="noopener noreferrer">
+						<img src="/page/cccf/images/common/ico-allmenu-moabom.png" alt="">
+						<span>춘천문화예술정보 모아봄</span>
+					</a>
+					<a href="http://www.kimyoujeong.org/" target="_blank" title="새창열림" rel="noopener noreferrer">
+						<img src="/page/cccf/images/common/ico-allmenu-kimyujeong.png" alt="">
+						<span>김유정문학촌</span>
+					</a>
+					<a href="https://www.thehab.co.kr/html/main/index.php" target="_blank" title="새창열림" rel="noopener noreferrer">
+						<img src="/page/cccf/images/common/ico-allmenu-startup.png" alt="">
+						<span>춘천시공연예술창업지원센터</span>
+					</a>
+				</div>
+			</div>
+
+			<!-- SNS 링크 -->
+			<div class="sns-bx">
+				<a href="https://www.facebook.com/cccf2008/?locale=ko_KR" target="_blank" rel="noopener noreferrer" title="페이스북 새창열림">
+					<img src="/page/cccf/images/common/sns-allmenu-facebook.png" alt="페이스북">
+				</a>
+				<a href="https://blog.naver.com/cccf2016" target="_blank" rel="noopener noreferrer" title="블로그 새창열림">
+					<img src="/page/cccf/images/common/sns-allmenu-blog.png" alt="블로그">
+				</a>
+				<a href="https://www.youtube.com/@ccculture" target="_blank" rel="noopener noreferrer" title="유튜브 새창열림">
+					<img src="/page/cccf/images/common/sns-allmenu-youtube.png" alt="유튜브">
+				</a>
+				<a href="https://www.instagram.com/cccf_2008/?hl=ko" target="_blank" rel="noopener noreferrer" title="인스타그램 새창열림">
+					<img src="/page/cccf/images/common/sns-allmenu-instagram.png" alt="인스타그램">
+				</a>
+			</div>
+		</div>
+	</div>
+</header>
+
+			<div id="city-quick">
+				<strong>QUICK MENU</strong>
+				<a href="/art/membership">
+					<img src="/page/cccf/images/common/quick1.png" alt="정기회원">
+				</a>
+				<a href="#" onclick="return wRsvPfmArt('')" target="_blank" title="새창열림" rel="noopener noreferrer">
+					<img src="/page/cccf/images/common/quick2.png" alt="예매하기">
+				</a>
+				<a href="#nolink" class="popup-open">
+					<img src="/page/cccf/images/common/quick3.png" alt="팝업존">
+				</a>
+			</div>
+
+			<main id="sub">
+				<a href="#A-Contents-focus" id="A-Contents-focus" class="blind">본문 시작</a>
+				
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 서브 타이틀 영역 -->
+<div id="sub-title">
+    <div class="inner">
+        <!-- 현재 메뉴 타이틀 -->
+        <h2>
+            
+            
+                
+            
+            
+                
+            
+            채용공고
+        </h2>
+
+        <!-- 브레드크럼(경로 네비게이션) -->
+        <div class="breadcrumb">
+            <a href="/art/">HOME</a>
+
+            
+                <a href="/art/company_news">
+                    예술단 소식
+                </a>
+            
+
+            
+
+            
+
+            <!-- 현재 페이지 -->
+            <a href="/art/company_news/recruit_notice" class="active">
+                채용공고
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 콘텐츠 영역 -->
+<div id="content" class="inner">
+    <div class="contsArea skinContainer" id="contentsArea">
+        <!-- 서브 탭 메뉴 (2depth 또는 3depth children이 있을 경우) -->
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+        
+
+        
+
+        
+
+        
+
+        
+            
+                
+                    
+
+
+
+
+
+
+
+
+
+
+
+
+<form name="pageForm" id="pageForm" method="post" action="/art/company_news/recruit_notice" autocomplete="off">
+	
+	<input type="hidden" name="pageIndex" value="1" />
+	<input type="hidden" name="searchKeyword" value="" />
+	<input type="hidden" name="searchCondition" value="TITLE" />
+	
+	<input type="hidden" name="articleSeq" value="13701" />
+</form>
+
+<form name="replayForm" method="post" action="/art/company_news/recruit_notice" autocomplete="off">
+	
+	<input type="hidden" name="mode" />
+	<input type="hidden" name="articleSeq" value="13701" />
+</form>
+
+<div class="skinBtnBo_box2 skinTxa-right">
+	<a href="#nolink"
+	   data-clipboard-text=""
+	   data-article-seq="13701"
+	   class="skinBtnBo skinBtnBo-data-pos contsBtnSmall2 btn-clipboard">
+		바로가기 복사
+	</a>
+</div>
+
+<!-- 기본게시판 -->
+<div class="skinTb skinTb-data-resList skinTb-data-bgSbj">
+	<div class="skinTb-tr">
+		<div class="skinTb-th col2 skinTxa-center" data-hidden="mob">제목 </div>
+		<div class="skinTb-td skinTb-sbj">
+			
+				[채용진행]
+			
+			춘천시립교향악단 상임단원 선발 전형(정정) 공고
+		</div>
+	</div>
+	<div class="skinTb-tr">
+		<div class="skinTb-th col2 skinTxa-center" data-hidden="mob">작성자</div>
+		<div class="skinTb-td col2 skinTb-name">예술단 인사담당</div>
+		
+		<div class="skinTb-th col2 skinTxa-center" data-hidden="mob">등록일 </div>
+		<div class="skinTb-td col2 skinTb-date">2026-11-09</div>
+		
+		<div class="skinTb-th col2 skinTxa-center" data-hidden="mob">조회수</div>
+		<div class="skinTb-td skinTb-hiddenMob" data-hidden="mob">67</div>
+	</div>
+
+	
+
+
+
+
+
+
+
+
+
+
+	
+		<style>
+			.btn-file-ezview {
+				margin-left: 5px;display: inline-block;width: 81px;height: 24px;border: 3px solid #c1c1c1;border-radius: 10px/50%;line-height: 18px;vertical-align: middle;padding-left: 3px;background: 95% 50% no-repeat url(/page/common/images/ico-preview.gif);color:#000;
+			}
+		</style>
+		<div class="skinTb-tr">
+			
+			<div class="skinTb-th col2 skinTxa-center" data-hidden="mob">첨부파일</div>
+			<div class="skinTb-td col10">
+				
+					<div class="attachFile ">
+
+						<a href="/egf/bp/common/front/15507/download">
+							<span class="icoFile icoFile-data-hwp skinMr-small" data-hidden="mob"></span>
+							응시원서, 개인정보 제공 동의서.hwp
+						</a>
+						
+						
+
+						<span class="attachFile-txt" data-hidden="mob">(다운로드 수: 5)</span>
+					</div>
+				
+					<div class="attachFile  skinMt-xsmall">
+
+						<a href="/egf/bp/common/front/15508/download">
+							<span class="icoFile icoFile-data-pdf skinMr-small" data-hidden="mob"></span>
+							2차 실기 과제곡 악보.pdf
+						</a>
+						
+						
+
+						<span class="attachFile-txt" data-hidden="mob">(다운로드 수: 14)</span>
+					</div>
+				
+			</div>
+		</div>
+	
+
+	
+	<div class="skinTb-tr">
+		<div class="skinTb-th col2 skinTxa-center" data-hidden="mob">내용</div>
+		<div class="skinTb-td skinTb-conts">
+
+			<p><img src="/upload/image_attach/2026/11/%EC%83%81%EC%9E%84%EB%8B%A8%EC%9B%90%20%EC%A0%95%EC%A0%95%20%EA%B3%B5%EA%B3%A0001-vert.jpg" title="%EC%83%81%EC%9E%84%EB%8B%A8%EC%9B%90%20%EC%A0%95%EC%A0%95%20%EA%B3%B5%EA%B3%A0001-vert.jpg" style="max-width: 100%; height: auto;"></p>
+<p></p>
+			
+				
+					<!-- 그림파일이면  -->
+					
+					
+				
+			
+				
+					<!-- 그림파일이면  -->
+					
+					
+				
+			
+
+			
+
+		</div>
+	</div>
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+<!--// 기본게시판 -->
+
+
+
+
+
+
+
+
+
+
+<div class="skinBtnBo_box skinTxa-right">
+	
+	
+	<a href="javascript:;" class="skinBtnBo skinBtnBo-data-pos btn-board-list">목록</a>
+</div>
+
+
+
+
+	
+
+	<div class="skinTb skinTxa-left">
+		<div class="skinTb-tr">
+			<div class="skinTb-th col2">
+				<div class="btnBoPrev
+					
+						btn-board-previous-view" data-seq="13695
+					
+					
+				">
+					<span></span>
+					이전 글
+				</div>
+			</div>
+			<div class="skinTb-td">
+				
+					<a href="#nolink" class="btn-board-previous-view" data-seq="13695">
+						춘천시립예술단(청소년교향악단, 청소년합창단) 비상임 지도강사 선발 전형 공고
+						
+					</a>
+				
+				
+			</div>
+		</div>
+		<div class="skinTb-tr">
+			<div class="skinTb-th col2">
+				<div class="btnBoNext
+					
+						btn-board-next-view" data-seq="13715
+					
+					
+				">
+					<span></span>
+					다음 글
+				</div>
+			</div>
+			<div class="skinTb-td">
+				
+					<a href="#nolink" class="btn-board-next-view" data-seq="13715">
+							춘천시립청소년합창단 2026년도 제3차 비상임단원 모집 공고
+							
+						</a>
+					
+				
+			</div>
+		</div>
+	</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<br><br>
+
+
+
+
+
+
+
+
+
+
+
+<div class="popAlert popAlert-data-passConfirm skinTxa-center" data-alert-name="passConfirm" style="display: none;" id="passConfirmContainer">
+	<div class="popAlert-inner">
+		<div class="popAlert-tit">
+			비밀번호 확인
+		</div>
+
+		<form id="confirmFormCopy" method="post" autocomplete="off">
+			
+		</form>
+
+		<form id="confirmForm" name="confirmForm" method="post" autocomplete="off">
+			
+			<input type="hidden" name="returnUrl" value="/art/company_news/recruit_notice">
+			<input type="hidden" name="boardCode" value="BDCCAT36" />
+			<input type="hidden" name="articleSeq" value="13701" />
+			<label for="PassWord" class="skinMb-small">글 작성 시 입력한 비밀번호를 입력해주세요.</label>
+			<input type="password" id="PassWord" name="password" class="skinIptPass col7 skinMb-small passFormEnterPress"  maxlength="10" autocomplete="off"/>
+		</form>
+
+		<div>
+			<a href="#nolink" class="col5 skinFont-bold skinTxa-center skinBtnBo skinBtnBo-data-neg btn-alert-password-confirm">확인</a>
+			<a href="#nolink" class="col5 skinFont-bold skinTxa-center skinBtnBo skinBtnBo-data-pos btn-alert-password-cancel">취소</a>
+		</div>
+	</div>
+</div>
+
+<script>
+	var userMode = '';
+	var seq = 0;
+	$(document).ready(function() {
+		$('.passFormEnterPress').on('keypress', function(e) {
+			var charCode = (e.which) ? e.which : e.keyCode;
+			if (charCode == 13) {
+				confirmFormCheck();
+				return false;
+			}
+		});
+
+		// password confirm
+		$(".btn-alert-password-confirm").click(function(event) {
+			confirmFormCheck();
+		});
+
+		// password cancel
+		$(".btn-alert-password-cancel").click(function(event) {
+			passConfirmContainerClose();
+		});
+	});
+
+	function showPassConfirmContainer(mode, articleSeq) {
+		var $container = $('#passConfirmContainer');
+		var style = { 'position': 'fixed'
+					, 'top' : '50%'
+					, 'left' : '50%'
+					, 'margin-top' : -$container.outerHeight() / 2 + 'px'
+					, 'margin-left' : -$container.outerWidth() / 2 + 'px'
+					, 'z-index' : 99999};
+		
+		$container.css(style).show();
+		
+		var initCss = {
+			position: 'static' 
+		}
+		$('#Sub').css(initCss);
+		$('#Ftr').css(initCss);
+		
+		userMode = mode;
+		seq = articleSeq;
+		
+	}
+	
+	function passConfirmContainerClose() {
+		var $container = $('#passConfirmContainer');
+		$container.find('input[name="password"]').val('');
+		$container.hide();
+		var initCss = {
+			position: 'relative' 
+		}
+		$('#Sub').css(initCss);
+		$('#Ftr').css(initCss);
+		
+	}
+	
+	function confirmFormCheck() {
+		var $form = $('#confirmForm');
+		
+		if (!$form.find('input[name="password"]').val()) {
+			alert('비밀번호를 입력해주세요.')
+			return;
+		}
+		
+		if (seq > 0) {
+			$form.find('input[name="articleSeq"]').val(seq);
+		}
+		
+		$.ajax({
+			cache: false,
+			type: "post",
+			url: "/egf/bp/board/article/passconfirm",
+			data: $form.serialize(),
+			dataType: "json",
+			// beforeSend : function (xhr) {
+			// 	// add csrf token - add by YJ.SON :: 2021-05-16
+			// 	xhr.setRequestHeader(csrf_token_header, csrf_token);
+			// },
+			success: function(data, textStatus, jqXHR) {
+				seq = data.articleSeq;
+				if (data.result == 'success') {
+					if (userMode == 'edit') {
+						$form.attr('action', '/art/company_news/recruit_notice?mode=edit').submit();
+					}
+					else if (userMode == 'delete') {
+						if (confirm("정말 지우겠습니까?")) {
+							$form.attr('action', '/egf/bp/board/article/actionDelete').submit();
+						}
+					}
+					else if (userMode == 'read') {
+						$form.attr('action', '/art/company_news/recruit_notice').submit();
+					}
+				}
+				else {
+					alert(data.msg);
+				}
+			},
+			error: function(jqXHR, textStatus, errorThrown) {
+			}
+		});
+	}
+</script>
+
+                
+                
+                
+                
+                
+            
+        
+
+        
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<div style="padding-bottom: 20px;"></div>
+
+
+        
+    </div>
+</div>
+			</main>
+
+			<div class="popup-bx">
+				<div class="inner">
+					<h2>
+						<strong>POPUP</strong> ZONE
+					</h2>
+					
+						<div class="title-bx" style="color: #ffffff">
+							<h5>현재 팝업이 없습니다</h5>
+						</div>
+					
+					
+					<a href="#" class="popup-close">
+						<img src="/page/cccf/images/dream-art/popup_close.png" alt="닫기">
+					</a>
+				</div>
+			</div>
+
+			
+
+
+
+
+
+
+
+
+<footer id="footer">
+	<div class="footer-wrap">
+		<div class="footer-top-bx">
+			<div class="link-bx">
+				<a href="/home/addservice/personalinfo_policy" target="_blank">개인정보처리방침</a>
+				<a href="/home/addservice/clause" target="_blank">이용약관</a>
+				<a href="/home/addservice/reporting_center" target="_blank">클린신고센터</a>
+				<a href="/home/foundation/disclosure/administrative_info" target="_blank">정보공개</a>
+				<a href="/home/addservice/deny_unauth" target="_blank">이메일무단수집거부</a>
+				<a href="/home/addservice/safety_policy" target="_blank">안전보건경영방침</a>
+			</div>
+			<div class="family-bx">
+				<button class="select">
+					FAMILY SITE<i>⌵</i>
+				</button>
+				<div>
+					
+						
+							
+								<a href="https://cccf.or.kr/home/" target="_blank" title="새창열림" rel="noopener noreferrer">
+									춘천문화재단
+								</a>
+							
+								<a href="https://cccf.or.kr/ccartedu/" target="_blank" title="새창열림" rel="noopener noreferrer">
+									춘천 꿈꾸는 예술터
+								</a>
+							
+								<a href="https://arch.cccf.or.kr/" target="_blank" title="새창열림" rel="noopener noreferrer">
+									춘천문화아카이브
+								</a>
+							
+								<a href="https://cccf.or.kr/moa" target="_blank" title="새창열림" rel="noopener noreferrer">
+									춘천문화예술정보 모아봄
+								</a>
+							
+								<a href="http://www.kimyoujeong.org/" target="_blank" title="새창열림" rel="noopener noreferrer">
+									김유정문학촌
+								</a>
+							
+								<a href="https://www.thehab.co.kr/html/main/index.php" target="_blank" title="새창열림" rel="noopener noreferrer">
+									춘천시공연예술창업지원센터
+								</a>
+							
+								<a href="https://www.chuncheon.go.kr/cityhall/" target="_blank" title="새창열림" rel="noopener noreferrer">
+									춘천시청
+								</a>
+							
+						
+					
+				</div>
+			</div>
+			<div class="tel-bx">
+				<strong>대표전화 033-259-5869</strong>
+			</div>
+		</div>
+		<div class="footer-bottom-bx">
+			<div class="address-bx">
+				<a href="/art/">
+					<img src="/page/cccf/images/common/footer_logo.png" alt="춘천시립예술단">
+				</a>
+				<div>
+					<span class="one-line">강원특별자치도 춘천시 효자상길 5번길 13(효자동1동 산40-12) 춘천문화예술회관내</span>
+					<span class="one-line">Copyrightⓒ춘천문화재단 2021 All Rights Reserved.</span>
+				</div>
+			</div>
+			<div class="relative-bx">
+				<div>
+					<a href="https://www.facebook.com/cccf.official" target="_blank" rel="noopener noreferrer" title="페이스북 새창열림">
+						<img src="/page/cccf/images/common/footer.png" alt="페이스북">
+					</a>
+					<a href="https://www.instagram.com/prom_cccf" target="_blank" rel="noopener noreferrer" title="인스타그램 새창열림">
+						<img src="/page/cccf/images/common/insta.png" alt="인스타그램">
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</footer>
+
+			
+				<a href="#" id="btn-top">
+					<img src="/page/cccf/images/common/btn-top.png" alt="위로가기">
+				</a>
+			
+		</div>
+
+		
+		
+		
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+		
+			
+
+
+
+
+
+
+
+
+
+
+<script>
+function EzView() {
+	
+	// 상태값 
+	this.STATUS_WAIT = '0';
+	this.STATUS_PDFCONVERTING = '2';
+	this.STATUS_IMAGECONVERTING = '3';
+	this.STATUS_COMPLETE = '4'; 
+	this.STATUS_ERROR = '-1';
+	
+	this.refreshTime= 3000; // 변환 체크 시간 3초 
+	this.call = true; // 변환여부 체크 
+	this.instance = ""; //인스턴스명
+	this.url; // 파일 다운로드 주소
+	this.fileDate; // 파일 생성 날짜 (선택사항: yyyyMMddHHmmss 형식)
+	this.progressUrl = '/ezview/progress.do';
+	this.viewpageUrl = '{이지뷰주소가들어갑니다}/ezview.do'; // 미리보기 페이지 주소 
+	this.outObj; // 결과 출력 엘리먼트
+	this.formObj; // 내부 요청용 폼 엘리먼드
+	
+	this.toggleUI = 0; // 진행상태 UI반전
+
+	// 페이지 미리보기 	
+	this.view = function(fileDate) {
+		
+		fileDate = fileDate || '';
+		
+		var url = this.viewpageUrl + "?url=" + encodeURIComponent(this.url) + "&fileDate=" + fileDate;
+		var width = 1100;
+		var height = 880;
+		var left = (screen.availWidth / 2) - (width / 2);
+		if (left < 0) left = 0;
+		var top = (screen.availHeight / 2) - (height / 2);
+		if (top < 0) top = 0;
+		
+		var popup = jf_popupWindowEx(
+				url, // url
+				'미리보기', // name
+				width, height, left, top, // width, height, left, top
+				'yes', 'yes' // isResizable, isScrollable
+		);
+	}
+	
+	// 이벤트 처리
+	this.viewProc = function(responseXML) {
+		
+		var xml = responseXML.getElementsByTagName("result");
+
+		// 접속 에러 
+		if (xml[0] == null) {
+			this.error(404);
+			return;
+		}
+		
+		var defaultStyle = 'margin-left: 5px;'
+			+ 'display: inline-block;'
+			+ 'width: 81px;'
+			+ 'height: 24px;'
+			+ 'border: 3px solid #c1c1c1;'
+			+ 'border-radius: 10px/50%;'
+			+ 'line-height: 18px;'
+			+ 'vertical-align: middle;'
+			+ 'padding-left: 3px;';
+		var style;
+		
+		var result = xml[0].childNodes[0].nodeValue;
+		
+		//console.log("result = " + result);
+		
+		if (result == '4') {
+			var fileSeq = this.instance.replace('ezview_', '');
+			var url = this.url;
+			$.ajax({
+				//async: false,
+				cache: false,
+				type: "post",
+				url: '/egf/bp/ezview/insertAction',
+				data: {
+					  'url' : url
+					, 'fileSeq' : fileSeq
+				},
+				dataType: "json",
+				// beforeSend : function (xhr) {
+				// 	// add csrf token - add by YJ.SON :: 2021-05-16
+				// 	xhr.setRequestHeader(csrf_token_header, csrf_token);
+				// },
+				success: function(data, textStatus, jqXHR) {
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+				}
+			});
+		}
+		
+		var out;
+		switch (result) {
+			case this.STATUS_WAIT:
+				style = defaultStyle + 'background: 95% 50% no-repeat url(/page/common/images/ico-ezview-download.png);color:#197b30;'; 
+				out = "<span style='" + style + "'>다운로드중</span>";
+				break;
+			case this.STATUS_PDFCONVERTING:
+			case this.STATUS_IMAGECONVERTING:
+				if (this.toggleUI == 0) {
+					this.toggleUI = 1;
+					style = defaultStyle + 'background: 95% 50% no-repeat url(/page/common/images/ico-ezview-change.png);color:#0054a6;';
+					out = "<span style='" + style + "'>변환중</span>";
+				} else {
+					this.toggleUI = 0;
+					style = defaultStyle + 'background: 95% 50% no-repeat url(/page/common/images/ico-ezview-change-b.png);color:#0054a6;font-weight:bold;';
+					out = "<span style='" + style + "'>변환중</span>";
+				}
+				break;
+			case this.STATUS_COMPLETE:
+				style = defaultStyle + 'background: 95% 50% no-repeat url(/page/common/images/ico-preview.gif);color:#000;';
+				out = "<a href=\"#\" onclick=\"";
+				if (this.fileDate == null)
+					out += this.instance + ".view();"; 
+				else
+					out += this.instance + ".view('" + this.fileDate + "');";
+				out += "return false;\" onkeypress=''"
+					+ "style='" + style + "'>미리보기</a>";
+				
+				this.call = false;
+				break;
+			case this.STATUS_ERROR:
+				style = defaultStyle + 'background: 95% 50% no-repeat url(/page/common/images/ico-ezview-error.png);color:#ed1c24;';
+				out = "<span style='" + style + "'>변환오류</span>";
+				this.call = false;
+				break;
+		}
+		
+		if (this.outObj != null && result == this.STATUS_COMPLETE)
+			this.outObj.innerHTML = out;
+	}
+	
+	this.error = function(status) {
+		var defaultStyle = 'margin-left: 5px;'
+			+ 'display: inline-block;'
+			+ 'width: 81px;'
+			+ 'height: 24px;'
+			+ 'border: 3px solid #c1c1c1;'
+			+ 'border-radius: 10px/50%;'
+			+ 'line-height: 18px;'
+			+ 'vertical-align: middle;'
+			+ 'padding-left: 3px;';
+		var style = defaultStyle + 'background: 95% 50% no-repeat url(/page/common/images/ico-convert-error.png);color:#ed1c24;';
+		var out = "<span style='" + style + "'>" + status + "</span>";
+		//this.outObj.innerHTML = out;
+		this.call = false;
+	}
+	
+	this.refresh = function() {
+		
+		if (this.call) {
+			
+			var param = "url=" + encodeURIComponent(this.url) + "&fileDate=" + this.fileDate;  
+			var result = jf_xmlHttpPostUserError(this.progressUrl,
+					param, // submitParameter
+					this.instance + ".viewProc", // resultFunction
+					this.instance + ".error", // errFunction
+					true // isXML
+			);
+	
+			if (result == -1) {
+				//alert("접속 에러");
+				console.log("접속 에러");
+				this.call = false;
+			} else {
+				setTimeout(this.instance + ".refresh()", this.refreshTime);
+			}
+			
+		}
+		
+	}
+}
+
+
+function jf_xmlHttpPostUserError(actionUrl,
+		submitParameter,
+		resultFunction, 
+		errFunction,
+		isXML) {
+	
+	var xmlHttpRequest = false;
+
+	if (window.ActiveXObject) {
+		xmlHttpRequest = new ActiveXObject('Microsoft.XMLHTTP');
+	} else {
+		xmlHttpRequest = new XMLHttpRequest();
+		xmlHttpRequest.overrideMimeType('text/xml');
+	}
+
+	xmlHttpRequest.open('POST', actionUrl, true);
+	xmlHttpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+	xmlHttpRequest.onreadystatechange = function() {
+		
+		if (xmlHttpRequest.readyState == 4) {
+			
+			switch (xmlHttpRequest.status) {
+				case 200: // 사용자 이벤트 처리 함수 지정
+					if (isXML) {
+						eval(resultFunction + '(xmlHttpRequest.responseXML);');
+					} else{
+						eval(resultFunction + '(xmlHttpRequest.responseText);');
+					}
+				break;
+
+				default:
+					eval(errFunction + '(xmlHttpRequest.status);');
+					break;
+			}
+		}
+	}
+	xmlHttpRequest.send(submitParameter);
+}
+
+function jf_popupWindowEx(url, name, width, height, left, top, isResizable, isScrollable, useStatus) {
+	var optArray = new Array();
+	var idx = 0;
+	if (width) optArray[idx++] = "width=" + width;
+	if (height) optArray[idx++] = "height=" + height;
+	if (left) optArray[idx++] = "left=" + left;
+	if (top) optArray[idx++] = "top=" + top;
+	if (isResizable) optArray[idx++] = "resizable=" + isResizable;
+	if (isScrollable) optArray[idx++] = "scrollbars=" + isScrollable;
+	if (useStatus) optArray[idx++] = "status=" + useStatus;
+
+	var opts = "";
+	for (idx = 0; idx < optArray.length; idx++) {
+		if (idx > 0)
+			opts += ",";
+		opts += optArray[idx];
+	}
+
+	return window.open(url, name, opts);
+}
+
+function jf_popupWindowCenter(url, name, width, height, isResizable, isScrollable, useStatus) {
+	var x = (screen.availWidth / 2) - (width / 2);
+	if (x < 0) x = 0;
+	var y = (screen.availHeight / 2) - (height / 2);
+	if (y < 0) y = 0;
+	return jf_popupWindowEx(url, name, width, height, x, y, isResizable, isScrollable, useStatus);
+}
+</script>
+
+
+
+<script>
+	$(document).ready(function() {
+		// ezview
+		$(".btn-file-ezview").click(function(event) {
+			let fileSeq = $(this).data("file-seq");
+			if(fileSeq == undefined) {
+				viewEzview($(this).data("url"));
+			} else {
+				loadEzview($(this).data("url"), fileSeq);
+			}
+		});
+
+		// modify
+		$(".btn-board-modify").click(function(event) {
+			showPassConfirmContainer("edit", 0);
+		});
+
+		// delete
+		$(".btn-board-delete").click(function(event) {
+			showPassConfirmContainer("delete", 0);
+		});
+
+		// reply
+		$(".btn-board-reply").click(function(event) {
+			fncReplyForm($(this).data("seq"));
+		});
+
+		// previous or next view
+		$(".btn-board-previous-view, .btn-board-next-view").click(function(event) {
+			goPage($(this).data("seq"));
+		});
+
+		// previous or next view with password confirm
+		$(".btn-board-previous-view-pass-confirm, .btn-board-next-view-pass-confirm").click(function(event) {
+			showPassConfirmContainer("read", $(this).data("seq"));
+		});
+
+		// certification
+		$(".btn-board-certification").click(function(event) {
+			authForm.submit();
+		});
+
+		// board comment delete
+		$(".btn-board-comment-delete").click(function(event) {
+			fncDeleteCommentProc($(this).data("comment-seq"), $(this).data("comment-index"));
+		});
+
+		// go list
+		$(".btn-board-list").click(function (event) {
+			const form = document.getElementById("pageForm");
+			form.articleSeq.value = "0";
+			form.target = "";
+			form.submit();
+		});
+	});
+
+	//삭제플래그
+	function fncDeleteFlag() {
+		var f = document.confirmForm;
+
+		f.action = "/egf/bp/board/article/actionDelete";
+		if (confirm("정말 삭제겠습니까?")) {
+			f.submit();
+		}
+	}
+
+	// 코멘트 등록
+	function fncWriteCommentProc() {
+		var varForm = document.boardArticle;
+		const isLogin = "true";
+		const selfAuthF = "N";
+
+		// check for login
+		if (!isLogin) {
+			if("Y" === selfAuthF) {
+				const sessionName = "";
+				if (sessionName === "" || sessionName === null || sessionName === undefined) {
+					alert('“본인인증”을 해주세요.');
+					return;
+				}
+			}
+
+			if("N" !== selfAuthF) {
+				if (!recaptchaCheck()) {
+					return;
+				}
+
+				if (!varForm.name.value) {
+					alert('“작성자”를 입력해주세요.');
+					varForm.name.focus();
+					return;
+				}
+			}
+
+			if (!$('#comment_pass').val()) {
+				alert('“비밀번호”를 입력해주세요.');
+				$('#comment_pass').focus();
+				return;
+			}
+
+			if (!$('#comment_pass').val().match(/^(?=.*\d)(?=.*[a-zA-Z])(?=.*[!,@,#,$,%,^,&,*,?,_,~,+,-]).{6,10}$/)) {
+				alert("영문, 숫자, 특수 문자 1자 이상 혼합하여 6~10자 이내로 등록해주세요.");
+				$('#comment_pass').focus();
+				return;
+			}
+
+			varForm.password.value = $('#comment_pass').val();
+		}
+
+		if (!varForm.commentTextarea.value) {
+			alert('“댓글내용”을 입력해주세요.');
+			varForm.comment_content.focus();
+			return;
+		}
+
+		varForm.content.value = $("#commentTextarea").val();
+		varForm.action = "/egf/bp/board/comment/actionWrite";
+		if (confirm("댓글을 등록하시겠습니까?")) {
+			varForm.submit();
+		}
+	}
+
+	// 코멘트 삭제
+	function fncDeleteCommentProc(commentSeq, index) {
+		var varForm = document.boardArticle;
+		const isLogin = "true";
+		// check for login
+		if(!isLogin) {
+			var $commentForm = $('.id-comment').eq(index);
+			var $pass = $commentForm.find(':input[name="pass"]');
+
+			if (!$pass.val()) {
+				alert('비밀번호를 입력해주세요.');
+				$pass.focus();
+				return;
+			}
+			varForm.password.value = $pass.val();
+		}
+
+		varForm.commentSeq.value = commentSeq;
+		varForm.action = "/egf/bp/board/comment/actionDelete";
+		if (confirm("등록한 댓글을 삭제합니다.\n정말 삭제하시겠습니까?")) {
+			varForm.submit();
+		}
+	}
+
+	// 댓글 폼(reply)
+	function fncReplyForm(articleSeq) {
+		var varForm = document.replayForm;
+		varForm.mode.value = "reply";
+		varForm.articleSeq.value = articleSeq;
+		varForm.submit();
+	}
+
+	function goPage(articleSeq) {
+		var f = document.pageForm;
+		f.articleSeq.value = articleSeq;
+		f.target = '';
+		f.submit();
+	}
+
+	var maxCount = 500;
+	function textCounter() {
+		var $content = $('#comment_content');
+		if ($content.val().length > maxCount) {
+			alert('500자 이내로 등록해 주세요');
+			$content.val($content.val().substring(0, maxCount));
+		}
+		$('#comment_content_count').text('(' + $content.val().length + ' / ' + maxCount + ')')
+	}
+
+	// 캡챠 체크
+	function recaptchaCheck() {
+		if (typeof(grecaptcha) != 'undefined') {
+			if (grecaptcha.getResponse() == "") {
+				alert("자동입력방지를 인증해주세요.");
+				return false;
+			}
+		}
+		return true;
+	}
+
+	function viewEzview(url) {
+		var url = '{이지뷰주소가들어갑니다}/ezview.do' + "?url=" + encodeURIComponent(url) + "&fileDate=";
+		var width = 1100;
+		var height = 880;
+		var left = (screen.availWidth / 2) - (width / 2);
+		if (left < 0) left = 0;
+		var top = (screen.availHeight / 2) - (height / 2);
+		if (top < 0) top = 0;
+
+		var popup = pop(
+				url, // url
+				'미리보기', // name
+				width, height, left, top, // width, height, left, top
+				'yes', 'yes' // isResizable, isScrollable
+		);
+	}
+
+	function loadEzview(url,fileSeq) {
+		var eaviewUrl = '{이지뷰주소가들어갑니다}/ezview.do'+"/request?url="+'{첨부파일다운로드주소가들어갑니다}' + encodeURIComponent(url);
+		$.ajax({
+			url: eaviewUrl,
+			dataType: "json",
+			success: function(data, textStatus, jqXHR) {
+
+				var width = 1100;
+				var height = 880;
+				var left = (screen.availWidth / 2) - (width / 2);
+				if (left < 0) left = 0;
+				var top = (screen.availHeight / 2) - (height / 2);
+				if (top < 0) top = 0;
+
+				if((data[0].message).indexOf('완료')>0 ){
+					var popup = pop(
+							'{이지뷰주소가들어갑니다}/ezview.do'+"/viewer?url="+'{첨부파일다운로드주소가들어갑니다}' + encodeURIComponent(url),
+							'미리보기', // name
+							width, height, left, top, // width, height, left, top
+							'yes', 'yes' // isResizable, isScrollable
+					);
+				}
+				else {
+					setTimeout(function (){
+						var popup = pop(
+								'{이지뷰주소가들어갑니다}/ezview.do'+"/viewer?url="+'{첨부파일다운로드주소가들어갑니다}' + encodeURIComponent(url),
+								'미리보기', // name
+								width, height, left, top, // width, height, left, top
+								'yes', 'yes' // isResizable, isScrollable
+						);
+					},1000);
+				}
+
+				$.ajax({
+					url: "/egf/bp/ezview/insertAction",
+					data: {"fileSeq" : fileSeq, "url":url },
+					dataType: "json",
+					success: function(data, textStatus, jqXHR) {
+						console.log(data)
+					}
+				});
+			}
+		});
+	}
+
+	function pop(url, name, width, height, left, top, isResizable, isScrollable, useStatus) {
+		var optArray = new Array();
+		var idx = 0;
+		if (width) optArray[idx++] = "width=" + width;
+		if (height) optArray[idx++] = "height=" + height;
+		if (left) optArray[idx++] = "left=" + left;
+		if (top) optArray[idx++] = "top=" + top;
+		if (isResizable) optArray[idx++] = "resizable=" + isResizable;
+		if (isScrollable) optArray[idx++] = "scrollbars=" + isScrollable;
+		if (useStatus) optArray[idx++] = "status=" + useStatus;
+
+		var opts = "";
+		for (idx = 0; idx < optArray.length; idx++) {
+			if (idx > 0)
+				opts += ",";
+			opts += optArray[idx];
+		}
+
+		return window.open(url, name, opts);
+	}
+</script>
+		
+	
+	
+	
+	
+
+	</body>
+	</html>
