@@ -5,6 +5,7 @@ import {
   ARTINFO_ACTIVITY_MAX_NEW_VISITORS_PER_UA,
   ARTINFO_ACTIVITY_NEW_VISITOR_UA_WINDOW_SECONDS,
   ARTINFO_ACTIVITY_NEW_VISITOR_WINDOW_SECONDS,
+  isDesktopLinuxUserAgent,
   newVisitorLimitKey,
   newVisitorUaLimitKey,
 } from '@/activity/domain/artinfo-activity-policy';
@@ -32,9 +33,12 @@ export class ArtinfoNewVisitorLimiter {
     );
   }
 
-  /** 같은 User-Agent 문자열당 10분에 새 방문자 30명까지 — IP 를 바꿔 가며 도는 크롤러용 */
+  /**
+   * 데스크톱 Linux UA 에 한해, 같은 User-Agent 문자열당 10분에 새 방문자 30명까지 — IP 를 바꿔 가며 도는 크롤러용.
+   * 그 밖의 UA(모바일·Windows·Mac)는 발송 직후 수백 명이 같은 문자열로 들어올 수 있어 상한을 걸지 않는다.
+   */
   async allowByUserAgent(userAgent: string | null | undefined, visitorId: string): Promise<boolean> {
-    if (!userAgent) return true;
+    if (!userAgent || !isDesktopLinuxUserAgent(userAgent)) return true;
     return this.allowInBucket(
       newVisitorUaLimitKey(userAgent, Date.now()),
       ARTINFO_ACTIVITY_MAX_NEW_VISITORS_PER_UA,

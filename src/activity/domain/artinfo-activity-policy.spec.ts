@@ -163,3 +163,19 @@ describe('newVisitorLimitKey', () => {
     expect(ARTINFO_ACTIVITY_NEW_VISITOR_WINDOW_SECONDS).toBe(3600);
   });
 });
+
+describe('isDesktopLinuxUserAgent', () => {
+  const { isDesktopLinuxUserAgent } = jest.requireActual('@/activity/domain/artinfo-activity-policy');
+  it('X11 Linux/Ubuntu 데스크톱 브라우저만 참', () => {
+    expect(isDesktopLinuxUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/142.0.0.0 Safari/537.36')).toBe(true);
+    expect(isDesktopLinuxUserAgent('Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:131.0) Gecko/20100101 Firefox/131.0')).toBe(true);
+  });
+  it('크롬북·Android·Windows·Mac·iPhone·빈 값은 거짓', () => {
+    expect(isDesktopLinuxUserAgent('Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) Chrome/142.0.0.0')).toBe(false);
+    expect(isDesktopLinuxUserAgent('Mozilla/5.0 (Linux; Android 14; SM-S928N) Chrome/142.0.0.0 Mobile')).toBe(false);
+    expect(isDesktopLinuxUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/142.0.0.0')).toBe(false);
+    expect(isDesktopLinuxUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15')).toBe(false);
+    expect(isDesktopLinuxUserAgent('Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) Safari/604.1')).toBe(false);
+    expect(isDesktopLinuxUserAgent(undefined)).toBe(false);
+  });
+});

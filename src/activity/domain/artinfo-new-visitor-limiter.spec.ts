@@ -97,6 +97,20 @@ describe('ArtinfoNewVisitorLimiter', () => {
       await expect(limiter.allowByUserAgent(`${ua} Edg/142.0`, vid(99))).resolves.toBe(true);
     });
 
+    it('데스크톱 Linux 가 아닌 UA(iPhone Safari·카카오톡 인앱·Windows Chrome·크롬북)는 몇 명이 와도 상한이 없다 — 발송 직후 수백 명이 같은 UA 로 들어온다', async () => {
+      const { limiter } = build();
+      const uas = [
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1',
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 KAKAOTALK 11.2.0',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (X11; CrOS x86_64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36',
+        'Mozilla/5.0 (Linux; Android 14; SM-S928N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Mobile Safari/537.36',
+      ];
+      for (const u of uas) {
+        for (let i = 1; i <= 200; i++) await expect(limiter.allowByUserAgent(u, vid(i))).resolves.toBe(true);
+      }
+    });
+
     it('UA 버킷 키는 10분 뒤 사라지고, 상한에 걸리면 로그 표식을 한 번만 남긴다', async () => {
       const { limiter, redis } = build();
       for (let i = 1; i <= 32; i++) await limiter.allowByUserAgent(ua, vid(i));
