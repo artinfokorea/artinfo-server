@@ -138,6 +138,27 @@ export const jobCrawlerConfig = {
     imageUrl: env('JOB_CRAWLER_INCHEON_IMAGE_URL', ''),
     imageFile: 'assets/job-crawler/incheon.png',
   },
+  gimcheon: {
+    /**
+     * 김천시문화예술회관 공지사항 (eGov 게시판 — 시립예술단 단원·지휘자 모집이 여기 올라온다).
+     * 목록 /gcart/bbs/list.do?searchCategory=gcart&ptIdx=1807&mId=0601000000&page=N (작성일 내림차순 10건),
+     * 상세 /gcart/bbs/view.do?bIdx=, 첨부 /cmm/fms/FileDown.do?atchFileId=&fileSn= GET — 쿠키·Referer 없이 받을 수 있다
+     */
+    origin: 'https://www.gc.go.kr',
+    listPath: '/gcart/bbs/list.do',
+    board: { searchCategory: 'gcart', ptIdx: '1807', mId: '0601000000' },
+    maxListPages: Number(env('JOB_CRAWLER_GIMCHEON_MAX_PAGES', '10')),
+    /** 제목 조건: '시립예술단' 과 '모집' 또는 '채용' ("2024 시립예술단(비상임) 신규 단원 모집" 처럼 '김천' 을 뺀 제목도 있다. 예술아카데미 수강생 모집·공연 안내·회관 기간제근로자 채용은 제외) */
+    titleKeywords: ['시립예술단', ['모집', '채용']] as (string | string[])[],
+    /** 전형 단계·일정 안내 공고는 새 채용이 아니다 (합격자 공고는 전역 제외) */
+    excludedTitleKeywords: ['1차', '2차', '3차', '결과', '면접', '공연일정'],
+    companyName: '김천시립예술단',
+    address: '경북 김천시 다삼로 3',
+    addressDetail: '3',
+    /** 채용 대표 이미지 URL. 비어 있으면 imageFile(김천시 로고)을 기동 후 첫 등록 때 S3 에 올려 쓴다 */
+    imageUrl: env('JOB_CRAWLER_GIMCHEON_IMAGE_URL', ''),
+    imageFile: 'assets/job-crawler/gimcheon.png',
+  },
 };
 
 /** 한국 시간 기준 오늘 (YYYY-MM-DD) */
