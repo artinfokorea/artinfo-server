@@ -159,6 +159,32 @@ export const jobCrawlerConfig = {
     imageUrl: env('JOB_CRAWLER_GIMCHEON_IMAGE_URL', ''),
     imageFile: 'assets/job-crawler/gimcheon.png',
   },
+  chuncheon: {
+    /**
+     * 춘천문화재단 누리집의 춘천시립예술단 채용공고 (https://cccf.or.kr/art/company_news/recruit_notice).
+     * 목록 ?pageIndex=N&firstYN=N&searchCondition=TITLE (등록일 내림차순 10건, 고정 글은 1페이지에만), 상세 ?articleSeq=,
+     * 첨부 /egf/bp/common/front/{fileId}/download, 본문 이미지 /upload/image_attach/… — 모두 GET, 쿠키·Referer 불필요.
+     * 공고문은 대개 본문 이미지(jpg)이고 첨부는 응시원서 hwp · 과제곡 pdf 뿐이라 크롤러가 '공고' 첨부 → 본문 이미지 순으로 고른다
+     */
+    origin: 'https://cccf.or.kr',
+    maxListPages: Number(env('JOB_CRAWLER_CHUNCHEON_MAX_PAGES', '10')),
+    /**
+     * 제목 조건: '춘천시립교향악단' 또는 '예술단(교향악단' (다른 단은 "춘천시립예술단(합창단) … 선발 공고" 꼴로도 올라온다) 과
+     * '모집'·'채용'·'선발' 중 하나. '춘천시립청소년교향악단' 은 글자가 이어지지 않아 걸리지 않는다
+     */
+    titleKeywords: [
+      ['춘천시립교향악단', '예술단(교향악단'],
+      ['모집', '채용', '선발'],
+    ] as (string | string[])[],
+    /** 전형 단계·결과 안내 공고는 새 채용이 아니다 (합격자 공고는 전역 제외). 정정 공고는 본문이 바뀐 새 공고라 포함한다 */
+    excludedTitleKeywords: ['1차', '2차', '3차', '결과', '면접'],
+    companyName: '춘천시립교향악단',
+    address: '강원특별자치도 춘천시 효자상길5번길 13',
+    addressDetail: '춘천문화예술회관',
+    /** 채용 대표 이미지 URL. 비어 있으면 imageFile(춘천시립교향악단 로고)을 기동 후 첫 등록 때 S3 에 올려 쓴다 */
+    imageUrl: env('JOB_CRAWLER_CHUNCHEON_IMAGE_URL', ''),
+    imageFile: 'assets/job-crawler/chuncheon.png',
+  },
 };
 
 /** 한국 시간 기준 오늘 (YYYY-MM-DD) */
