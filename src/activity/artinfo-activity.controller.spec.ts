@@ -5,13 +5,18 @@ import { ArtinfoNewVisitorLimiter } from '@/activity/domain/artinfo-new-visitor-
 describe('ArtinfoActivityController.ping — 첫 페이지와 마지막 페이지', () => {
   const addPing = jest.fn().mockResolvedValue(undefined);
   const allow = jest.fn().mockResolvedValue(true);
-  const controller = new ArtinfoActivityController({ addPing } as unknown as ArtinfoActivityRepository, { allow } as unknown as ArtinfoNewVisitorLimiter);
+  const allowByUserAgent = jest.fn().mockResolvedValue(true);
+  const controller = new ArtinfoActivityController(
+    { addPing } as unknown as ArtinfoActivityRepository,
+    { allow, allowByUserAgent } as unknown as ArtinfoNewVisitorLimiter,
+  );
   const visitorId = '3f2b8c1e-9a4d-4e6f-8b2a-1c3d5e7f9a0b';
   const ua = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1';
 
   beforeEach(() => {
     addPing.mockClear();
     allow.mockClear().mockResolvedValue(true);
+    allowByUserAgent.mockClear().mockResolvedValue(true);
   });
 
   it('currentPath 가 있으면 쿼리를 떼고 exitPath 로, path 는 landingPath 로 남긴다', async () => {
@@ -47,6 +52,13 @@ describe('ArtinfoActivityController.ping — 첫 페이지와 마지막 페이�
     await controller.ping(null, ua, '203.0.113.7', { visitorId: visitorId.toUpperCase() });
     expect(allow).toHaveBeenCalledWith('203.0.113.7', visitorId);
     expect(addPing).toHaveBeenCalledWith(expect.objectContaining({ visitorId }));
+  });
+
+  it('같은 UA 의 새 방문자 상한을 넘으면 저장하지 않고 OK 만 돌려준다', async () => {
+    allowByUserAgent.mockResolvedValue(false);
+    await controller.ping(null, ua, '203.0.113.7', { visitorId, newSession: true });
+    expect(allowByUserAgent).toHaveBeenCalledWith(ua, visitorId);
+    expect(addPing).not.toHaveBeenCalled();
   });
 
   it('로봇 UA 는 상한을 따지기도 전에 무시한다', async () => {
