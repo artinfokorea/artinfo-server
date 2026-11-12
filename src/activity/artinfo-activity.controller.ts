@@ -33,6 +33,8 @@ export class ArtinfoActivityController {
     const visitorId = request.visitorId.toLowerCase();
     // 같은 IP 에서 한 시간에 새 방문자가 너무 많이 생기면(매번 새 프로필로 도는 크롤러) 그 뒤는 무시한다
     if (!(await this.newVisitorLimiter.allow(clientIp(forwardedFor), visitorId))) return new OkResponse();
+    // IP 를 바꿔 가며 돌아도 UA 문자열은 하나다 — 같은 UA 로 10분에 새 방문자가 너무 많으면 그 뒤는 무시한다
+    if (!(await this.newVisitorLimiter.allowByUserAgent(userAgent, visitorId))) return new OkResponse();
 
     await this.activityRepository.addPing({
       visitorId,

@@ -74,3 +74,19 @@ export function clientIp(forwardedFor: string | string[] | undefined | null): st
 export function newVisitorLimitKey(ip: string, nowMs: number): string {
   return `ACTIVITY:NEWVIS:${ip}:${Math.floor(nowMs / (ARTINFO_ACTIVITY_NEW_VISITOR_WINDOW_SECONDS * 1000))}`;
 }
+
+/**
+ * 같은 User-Agent 문자열에서 10분 안에 새로 생길 수 있는 방문자 수.
+ * IP 를 바꿔 가며(프록시 풀) 페이지마다 새 프로필로 도는 크롤러는 IP 상한을 피하지만 UA 는 한 문자열로 고정돼 있다 —
+ * 2026-11-12 'Linux · Chrome' 비회원 수십 명이 1분 안에 채용 상세를 한 페이지씩 보고 나간 사례.
+ * 실제 사용자도 같은 Chrome 버전이면 UA 가 같지만, 이 사이트 규모에서 10분에 30명이 새로 오는 일은 없다.
+ */
+export const ARTINFO_ACTIVITY_MAX_NEW_VISITORS_PER_UA = 30;
+export const ARTINFO_ACTIVITY_NEW_VISITOR_UA_WINDOW_SECONDS = 10 * 60;
+
+/** UA × 10분 버킷 키 — UA 문자열은 길어서 짧은 해시로 줄인다 */
+export function newVisitorUaLimitKey(userAgent: string, nowMs: number): string {
+  let hash = 0;
+  for (let i = 0; i < userAgent.length; i++) hash = (hash * 31 + userAgent.charCodeAt(i)) | 0;
+  return `ACTIVITY:NEWVIS:UA:${(hash >>> 0).toString(16)}:${Math.floor(nowMs / (ARTINFO_ACTIVITY_NEW_VISITOR_UA_WINDOW_SECONDS * 1000))}`;
+}

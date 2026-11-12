@@ -1,5 +1,5 @@
 import { ArtinfoNewVisitorLimiter } from '@/activity/domain/artinfo-new-visitor-limiter';
-import { ARTINFO_ACTIVITY_MAX_NEW_VISITORS_PER_IP } from '@/activity/domain/artinfo-activity-policy';
+import { ARTINFO_ACTIVITY_MAX_NEW_VISITORS_PER_IP, ARTINFO_ACTIVITY_MAX_NEW_VISITORS_PER_UA } from '@/activity/domain/artinfo-activity-policy';
 
 /** ioredis 의 SET 명령 네 개만 흉내 낸 가짜 (키별 Set) */
 class FakeRedis {
@@ -72,6 +72,39 @@ describe('ArtinfoNewVisitorLimiter', () => {
     const { limiter, redis } = build();
     await limiter.allow('203.0.113.7', vid(1));
     expect([...redis.expires.values()]).toEqual([3600]);
+  });
+
+  describe('같은 User-Agent 당 10분 상한 — IP 를 바꿔 가며 도는 크롤러', () => {
+    const ua = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36';
+
+    it('UA 를 모르면 항상 허용', async () => {
+      const { limiter } = build();
+      await expect(limiter.allowByUserAgent(undefined, vid(1))).resolves.toBe(true);
+    });
+
+    it('같은 UA 에서 30번째 새 방문자까지 허용, 31번째부터 거절', async () => {
+      const { limiter } = build();
+      for (let i = 1; i <= ARTINFO_ACTIVITY_MAX_NEW_VISITORS_PER_UA; i++) {
+        await expect(limiter.allowByUserAgent(ua, vid(i))).resolves.toBe(true);
+      }
+      await expect(limiter.allowByUserAgent(ua, vid(31))).resolves.toBe(false);
+      await expect(limiter.allowByUserAgent(ua, vid(1))).resolves.toBe(true);
+    });
+
+    it('UA 가 한 글자라도 다르면 따로 센다', async () => {
+      const { limiter } = build();
+      for (let i = 1; i <= 30; i++) await limiter.allowByUserAgent(ua, vid(i));
+      await expect(limiter.allowByUserAgent(`${ua} Edg/142.0`, vid(99))).resolves.toBe(true);
+    });
+
+    it('UA 버킷 키는 10분 뒤 사라지고, 상한에 걸리면 로그 표식을 한 번만 남긴다', async () => {
+      const { limiter, redis } = build();
+      for (let i = 1; i <= 32; i++) await limiter.allowByUserAgent(ua, vid(i));
+      const keys = [...redis.sets.keys()];
+      expect(keys.some(k => k.startsWith('ACTIVITY:NEWVIS:UA:') && !k.endsWith(':logged'))).toBe(true);
+      expect(keys.filter(k => k.endsWith(':logged'))).toHaveLength(1);
+      expect([...redis.expires.values()]).toEqual([600, 600]);
+    });
   });
 
   it('Redis 오류가 나면 허용한다 — 지표 보조 장치가 집계를 막으면 안 된다', async () => {
