@@ -37,7 +37,7 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
         qb.andWhere('church.is_published = :published', { published: true });
       }
       if (keyword) {
-        qb.andWhere('(church.name ILIKE :kw OR pastor.name ILIKE :kw OR owner.name ILIKE :kw OR owner.phone ILIKE :kw)', {
+        qb.andWhere('(church.name ILIKE :kw OR pastor.name ILIKE :kw OR owner.name ILIKE :kw OR owner.phone ILIKE :kw OR church.master_memo ILIKE :kw)', {
           kw: `%${keyword}%`,
         });
       }
@@ -86,6 +86,7 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
       .addSelect('owner.is_test', 'isTest')
       .addSelect('church.naver_verification', 'naverVerification')
       .addSelect('church.google_verification', 'googleVerification')
+      .addSelect('church.master_memo', 'masterMemo')
       .addSelect('church.custom_domain', 'customDomain')
       .addSelect('church.site_template', 'siteTemplate')
       .addSelect('church.referral_code', 'referralCode')
@@ -111,6 +112,7 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
       paidUntil: r.paidUntil ? new Date(r.paidUntil) : null,
       naverVerification: r.naverVerification ?? null,
       googleVerification: r.googleVerification ?? null,
+      masterMemo: r.masterMemo ?? null,
       customDomain: r.customDomain?.trim() || null,
       siteTemplate: r.siteTemplate?.trim() || 'default',
       referralCode: r.referralCode ?? null,
@@ -140,6 +142,11 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
 
   async updateGoogleVerification(churchId: number, googleVerification: string | null): Promise<boolean> {
     const result = await this.churchRepository.update({ id: churchId }, { googleVerification });
+    return (result.affected ?? 0) > 0;
+  }
+
+  async updateMasterMemo(churchId: number, masterMemo: string | null): Promise<boolean> {
+    const result = await this.churchRepository.update({ id: churchId }, { masterMemo });
     return (result.affected ?? 0) > 0;
   }
 
