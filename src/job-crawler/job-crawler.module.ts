@@ -11,6 +11,8 @@ import { BoryeongChoirJobCrawler } from './boryeong/boryeong-choir-job.crawler';
 import { BoryeongNoticeClient } from './boryeong/boryeong-notice.client';
 import { BucheonChoirJobCrawler } from './bucheon/bucheon-choir-job.crawler';
 import { BucheonNoticeClient } from './bucheon/bucheon-notice.client';
+import { GimcheonArtJobCrawler } from './gimcheon/gimcheon-art-job.crawler';
+import { GimcheonNoticeClient } from './gimcheon/gimcheon-notice.client';
 import { JobCrawlerController } from './controller/job-crawler.controller';
 import { IncheonNoticeClient } from './incheon/incheon-notice.client';
 import { IncheonPhilharmonicJobCrawler } from './incheon/incheon-philharmonic-job.crawler';
@@ -51,6 +53,8 @@ import { SchedulerLockModule } from '@/common/scheduler/scheduler-lock.module';
     BucheonChoirJobCrawler,
     IncheonNoticeClient,
     IncheonPhilharmonicJobCrawler,
+    GimcheonNoticeClient,
+    GimcheonArtJobCrawler,
     {
       provide: JOB_SOURCE_CRAWLERS,
       useFactory: (...sources: JobSourceCrawler[]) => sources,
@@ -61,6 +65,7 @@ import { SchedulerLockModule } from '@/common/scheduler/scheduler-lock.module';
         SeosanChoirJobCrawler,
         BucheonChoirJobCrawler,
         IncheonPhilharmonicJobCrawler,
+        GimcheonArtJobCrawler,
       ],
     },
   ],
