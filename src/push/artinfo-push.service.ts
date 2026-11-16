@@ -62,7 +62,7 @@ export class ArtinfoPushService {
   private buildJobDigestMessage(jobCount: number): PushMessage {
     return {
       title: '새로 올라온 채용 공고',
-      body: jobCount > 0 ? `어제 새로 등록된 채용 공고 ${jobCount}건을 확인해 보세요.` : '어제 새로 등록된 채용 공고가 없어요.',
+      body: jobCount > 0 ? `새로 등록된 채용 공고 ${jobCount}건을 확인해 보세요.` : '새로 등록된 채용 공고가 없어요.',
       data: { type: 'jobs' },
     };
   }
