@@ -32,8 +32,10 @@ export interface SejongNoticeDetail {
   title: string;
   /** 작성일 YYYY-MM-DD (작성일 칸 "2026-11-09 13:06" 의 날짜) */
   writtenAt: string;
-  /** 본문 텍스트 — 표는 한 행을 ' | ' 로 이어 한 줄로 */
+  /** 본문 텍스트 — 표는 한 행을 ' | ' 로 이어 한 줄로 (전공 추출용) */
   bodyText: string;
+  /** 본문을 표·문단 구조까지 살린 정리된 HTML (채용 상세 contents 용). 본문이 그림뿐이면 빈 문자열 */
+  bodyHtml: string;
   images: SejongBodyImage[];
   attachments: SejongAttachment[];
 }
@@ -94,6 +96,8 @@ export function parseSejongNoticeDetail(html: string, origin = SEJONG_ORIGIN): S
   const head = view.children('div').first();
   const body = view.children('div[tabindex]').first();
 
+  const bodyHtml = sanitizeSejongBodyHtml($, body.clone());
+
   const images: SejongBodyImage[] = [];
   body.find('img').each((_, img) => {
     const src = $(img).attr('src');
@@ -142,9 +146,104 @@ export function parseSejongNoticeDetail(html: string, origin = SEJONG_ORIGIN): S
     title: clean(head.find('p').first().text()),
     writtenAt,
     bodyText,
+    bodyHtml,
     images,
     attachments,
   };
+}
+
+/** contents 에 남길 태그. 그 밖의 태그는 풀어서 자식만 남긴다 */
+const KEPT_TAGS = new Set([
+  'p',
+  'br',
+  'ul',
+  'ol',
+  'li',
+  'strong',
+  'b',
+  'em',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'table',
+  'thead',
+  'tbody',
+  'tfoot',
+  'tr',
+  'th',
+  'td',
+]);
+/** 통째로 버릴 태그 */
+const DROPPED_TAGS = new Set([
+  'script',
+  'style',
+  'meta',
+  'link',
+  'img',
+  'iframe',
+  'object',
+  'embed',
+  'video',
+  'audio',
+  'svg',
+  'colgroup',
+  'col',
+  'caption',
+  'input',
+  'button',
+  'form',
+]);
+const KEPT_ATTRS = new Set(['rowspan', 'colspan']);
+
+/**
+ * 채용 사이트 템플릿 본문(인라인 스타일 가득한 div·span·table)을 웹·앱 에디터 뷰가 그릴 수 있는 HTML 로 줄인다.
+ * - 문단·줄바꿈·목록·강조·제목·표(rowspan/colspan 유지)만 남기고 속성은 다 뗀다
+ * - 표는 CKEditor 처럼 <figure class="table"> 로 감싼다 (웹 .ck-content .table 스타일이 테두리·전체 폭을 그린다)
+ * - 글자 없는 문단·빈 표 칸의 nbsp 는 지운다. 글자가 하나도 없으면 빈 문자열
+ */
+export function sanitizeSejongBodyHtml($: cheerio.CheerioAPI, body: cheerio.Cheerio<any>): string {
+  body.find(Array.from(DROPPED_TAGS).join(', ')).remove();
+  // 안쪽부터 풀어야 중첩된 div/span 이 모두 사라진다
+  const unwrap = body.find('*').get().reverse();
+  for (const el of unwrap) {
+    const node = $(el);
+    const tag = (el as { tagName?: string }).tagName?.toLowerCase() ?? '';
+    if (!KEPT_TAGS.has(tag)) {
+      node.replaceWith(node.contents());
+      continue;
+    }
+    for (const name of Object.keys((el as { attribs?: Record<string, string> }).attribs ?? {})) {
+      if (!KEPT_ATTRS.has(name)) node.removeAttr(name);
+    }
+  }
+  body.find('p, li, h1, h2, h3, h4, h5, h6').each((_, el) => {
+    const node = $(el);
+    if (
+      node
+        .text()
+        .replace(/\u00a0/g, ' ')
+        .trim() === '' &&
+      node.find('br').length === 0
+    )
+      node.remove();
+  });
+  body.find('table').each((_, el) => {
+    $(el).wrap('<figure class="table"></figure>');
+  });
+  if (
+    body
+      .text()
+      .replace(/\u00a0/g, ' ')
+      .trim() === ''
+  )
+    return '';
+  return (body.html() ?? '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/>\s+</g, '><')
+    .trim();
 }
 
 const compactName = (name: string) => name.replace(/\s+/g, '');

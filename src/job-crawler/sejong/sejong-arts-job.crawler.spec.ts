@@ -110,6 +110,8 @@ describe('SejongArtsJobCrawler', () => {
     expect(reg.images).toEqual([{ name: 'spac_261030001.jpg', buffer: Buffer.from('img:spac_261030001.jpg') }]);
     expect(reg.bodyText.split('\n')[0]).toBe('1 채용개요');
     expect(reg.bodyText).toContain('서울시무용단 (일반단원) | 무용 | 5명');
+    expect(reg.bodyHtml).toContain('<figure class="table"><table>');
+    expect(reg.bodyHtml).toContain('<td rowspan="3">');
   });
 
   it('본문이 그림 한 장뿐인 직책단원 공고는 그 이미지로 등록하고 bodyText 는 비어 있다', async () => {
@@ -118,7 +120,7 @@ describe('SejongArtsJobCrawler', () => {
     expect(summary).toMatchObject({ scanned: 1, matched: 1, skipped: [], failed: [] });
     expect(calls.detail).toEqual(['50176']);
     expect(calls.download).toEqual([IMAGE_50176]);
-    expect(calls.registrations[0]).toMatchObject({ title: TITLE_50176, url: URL_50176, bodyText: '' });
+    expect(calls.registrations[0]).toMatchObject({ title: TITLE_50176, url: URL_50176, bodyText: '', bodyHtml: '' });
     expect(calls.registrations[0].images).toEqual([{ name: 'biz_1_20260929093855371.png', buffer: Buffer.from('img:biz_1_20260929093855371.png') }]);
     expect(calls.registrations[0].file).toBeUndefined();
   });
