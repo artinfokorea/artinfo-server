@@ -185,6 +185,32 @@ export const jobCrawlerConfig = {
     imageUrl: env('JOB_CRAWLER_CHUNCHEON_IMAGE_URL', ''),
     imageFile: 'assets/job-crawler/chuncheon.png',
   },
+  sejong: {
+    /**
+     * 세종문화회관 누리집 채용공고 (https://www.sejongpac.or.kr/portal/bbs/B0000065/list.do?menuNo=200571) — 서울시예술단 단원 모집이 여기 올라온다.
+     * 목록 ?pageIndex=N (날짜 내림차순 10건, 고정 글 없음), 상세 view.do?nttId=, 첨부 /portal/cmmn/file/fileDown.do — 모두 GET, 쿠키·Referer 불필요.
+     * 공고문은 첨부가 아니라 본문(채용 사이트 템플릿 글+표, 또는 incruit 큰 그림 한 장)이고 첨부는 실기 세부사항·직무기술서·가점표·악보뿐이라
+     * 크롤러가 '공고' 첨부 → 본문 이미지 → 보조 문서 순으로 페이지를 고르고 본문 글을 함께 등록한다. 본문 이미지는 외부(career.co.kr·incruit) 에 있다
+     */
+    origin: 'https://www.sejongpac.or.kr',
+    maxListPages: Number(env('JOB_CRAWLER_SEJONG_MAX_PAGES', '10')),
+    /**
+     * 제목 조건: 서울시예술단 전체 또는 소속 단(국악관현악단·무용단·합창단·뮤지컬단·오페라단·극단) 이름 하나와 '모집'·'채용' 중 하나.
+     * '서울시청소년국악단'·'서울시소년소녀합창단' 은 글자가 이어지지 않아 걸리지 않는다 (청소년·어린이 단은 대상이 아니다)
+     */
+    titleKeywords: [
+      ['서울시예술단', '세종문화회관예술단', '서울시국악관현악단', '서울시무용단', '서울시합창단', '서울시뮤지컬단', '서울시오페라단', '서울시극단'],
+      ['모집', '채용'],
+    ] as (string | string[])[],
+    /** 전형 단계·결과 안내, 시민합창단·아역 오디션은 단원 채용이 아니다 (합격자 공고는 전역 제외) */
+    excludedTitleKeywords: ['1차', '2차', '3차', '결과', '면접', '시민', '아역', '오디션'],
+    companyName: '서울시예술단',
+    address: '서울 종로구 세종대로 175',
+    addressDetail: '세종문화회관',
+    /** 채용 대표 이미지 URL. 비어 있으면 imageFile(세종문화회관 로고)을 기동 후 첫 등록 때 S3 에 올려 쓴다 */
+    imageUrl: env('JOB_CRAWLER_SEJONG_IMAGE_URL', ''),
+    imageFile: 'assets/job-crawler/sejong.png',
+  },
 };
 
 /** 한국 시간 기준 오늘 (YYYY-MM-DD) */

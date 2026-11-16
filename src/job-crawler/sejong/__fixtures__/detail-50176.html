@@ -1,0 +1,1481 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <link rel="canonical" href="https://www.sejongpac.or.kr/portal/main/main.do">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width">
+    <meta name="google-signin-client_id" content="113025989816-nnav0npepl2lv7h086hhmrekli0bk1tt.apps.googleusercontent.com">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-D8ZFJ5FN17"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-D8ZFJ5FN17');
+    </script>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-W785HFHB');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Naver Analytics -->
+    <script type="text/javascript" src="//wcs.naver.net/wcslog.js"></script>
+    <script type="text/javascript">
+        if(!wcs_add) var wcs_add = {};
+        wcs_add["wa"] = "1ae475706824f6";
+        if(window.wcs) {
+            wcs_do();
+        }
+    </script>
+    <!-- End Naver Analytics -->
+    <!-- Beusable -->
+    <script type="text/javascript">
+        (function(w, d, a){
+            w.__beusablerumclient__ = {
+                load : function(src){
+                    var b = d.createElement("script");
+                    b.src = src; b.async=true; b.type = "text/javascript";
+                    d.getElementsByTagName("head")[0].appendChild(b);
+                }
+            };w.__beusablerumclient__.load(a + "?url=" + encodeURIComponent(d.URL));
+        })(window, document, "//rum.beusable.net/load/b250626e102648u529");
+    </script>
+    <!-- End Beusable -->
+    
+            <meta property="og:title" content="세종문화회관">
+            <meta property="og:image" content="https://www.sejongpac.or.kr/static/portal/img/main/600315.png">
+        
+    <meta name="google-site-verification" content="23ZMZcBCmgcK1HTav3N14ayawsgFceDHrcgWLij_-A4">
+
+    <title>채용공고(상세) | 세종소식 | 공지사항 | 소식 | </title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/portal/img/mobile/icon.jpg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/portal/img/mobile/icon.jpg">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/portal/img/mobile/icon.jpg">
+    <link rel="stylesheet" type="text/css" href="/static/portal/css/style.css">
+    <link rel="stylesheet" type="text/css" href="/static/portal/css/layout_new.css?ver=1.0">
+    <link rel="stylesheet" type="text/css" href="/static/portal/css/sub_new.css?ver=1.9">
+    <link rel="stylesheet" type="text/css" href="/static/portal/css/responsive_new.css">
+    <link rel="stylesheet" type="text/css" href="/static/portal/css/pop_all.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="/static/commons/js/jquery-3.6.0.min.js"></script>
+    <script src="/static/commons/js/jquery-ui.1.12.1.min.js"></script>
+    <script src="/static/portal/js/slider.js"></script>
+
+    <script>
+        $(() => {
+            $.ajax({
+                url: '/portal/member/user/checkCertifyKeySession.json',
+                type: 'post',
+                success: (res) => {
+                    if (res.errorType === 'nonMatch') {
+                        alert("타 기기에서 정보변경이 되었습니다.\n보안을 위해 로그아웃합니다.\n다시 로그인 부탁드리겠습니다.");
+                        location.href = "/portal/member/user/logout.do";
+                    }
+                }
+            });
+        });
+    </script>
+
+    
+    <script src="/static/portal/js/joinLog.js?key=1c91c36ca7b8d46d72f311a78e2c9b87a4538f72bf842e20300cdf597f8bd0f4"></script>
+
+    <!-- datepicker range -->
+    <link rel="stylesheet" type="text/css" href="/static/portal/css/datepickerRange/daterangepicker.css">
+    <script src="/static/portal/js/datepickerRange/moment.min.js"></script>
+    <script src="/static/portal/js/datepickerRange/daterangepicker.js"></script>
+    <script src="https://assets.emarsys.net/web-emarsys-sdk/4.4.0/web-emarsys-sdk.js" async></script>
+
+    
+    <script>
+        var WebEmarsysSdk = WebEmarsysSdk || []
+        WebEmarsysSdk.push(['init', {
+            applicationCode: 'EMS3E-9D555', // 위 (emarsys에 도메인 설정하기)에서 볼 수 있는 [domain code]
+            safariWebsitePushID: 'web.sejongpac', // Safari 웹 푸시 식별자로, Apple 개발자 포털에서 얻은 고유한 reverse-domain 문자열
+            defaultNotificationTitle: 'SEJONG CENTER', // 푸시 알림의 기본 제목
+            defaultNotificationIcon: '/static/portal/img/mobile/icon.jpg', // 푸시 알림에 사용할 기본 아이콘
+            autoSubscribe: false, // True 설정시 SDK초기화하면 사용자에게 푸시 알림을 구독할 것인지 묻는 팝업이 나타나지만, 권장하지 않는 옵션입니다.
+            serviceWorker: {
+                url: 'service-worker.js',
+                applicationServerPublicKey: 'f55Fe5-h2QUv8CK1PnVUrwKzYX1kFVLond21hVnXDgo'
+            }
+        }]);
+
+        var ScarabQueue = ScarabQueue || [];
+        (function(id) {
+            if (document.getElementById(id)) return;
+            var js = document.createElement('script'); js.id = id;
+            js.src = '//cdn.scarabresearch.com/js/1446EB5D8B34FFEA/scarab-v2.js';
+            var fs = document.getElementsByTagName('script')[0];
+            fs.parentNode.insertBefore(js, fs);
+        })('scarab-js-api');
+    </script>
+    <script>
+        function directionLog() {
+            $.ajax({
+                url: '/portal/main/main/directionLog.json',
+                type: 'POST',
+                complete: function () {
+                    window.open('https://www.sejongstory.or.kr', '_blank');
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W785HFHB"
+                  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<script>
+    function isMobile() {
+        let isMobile = false;
+        let userAgent = navigator.userAgent.toLowerCase();
+        let mobileAgent = ['iphone', 'ipad', 'ipod', 'android', 'blackberry', 'windows ce', 'nokia', 'webos', 'opera mini', 'sonyericsson', 'opera mobi', 'iemobile'];
+        let chklen = mobileAgent.length;
+
+        for (let i = 0; i < chklen; i++) {
+            if (userAgent.indexOf(mobileAgent[i]) > -1) {
+                isMobile = true;
+                break;
+            }
+        }
+
+        return isMobile;
+    }
+
+    //$(window).resize(function(){
+    if (isMobile()) {
+        //모바일일때는 공연.전시.강좌 페이지로 이동하지 못하도록 한다.
+        $("#depth_w .depth a[href$='/portal/subMain/perform.do?menuNo=200001']").attr("href", "/portal/performance/performance/performList.do?menuNo=200320");
+    }
+
+    if ($(window).width() > 1024) {
+        $("#depth_w .rel").hover(function() {
+            $(this).closest("#depth_w").addClass("on")
+            $(this).find(".depth").show();
+        }, function() {
+            $(this).closest("#depth_w").removeClass("on")
+            $(this).find(".depth").hide();
+        })
+        $("#depth_w .rel > a").focus(function() {
+            $(this).closest("#depth_w").addClass("on")
+            $(this).next(".depth").show();
+        })
+        $("#depth_w .depth > li:last-child a").focusout(function() {
+            $(this).closest("#depth_w").removeClass("on")
+            $("#depth_w .depth").stop(true, true).slideUp(150);
+        })
+    } else {
+        $("#depth_w .rel").click(function() {
+            $("#depth_w .depth").not($(this).find(".depth")).hide();
+
+            $(this).closest("#depth_w").toggleClass("on")
+            $(this).find(".depth").toggle();
+        })
+    }
+    //}).resize();
+</script>
+<dl class="accessibilityWrap">
+    <dt class="hide"><strong>바로가기 메뉴</strong></dt>
+    <dd><a href="#content">본문 바로가기</a></dd>
+    <dd><a href="#top_menu">주메뉴 바로가기</a></dd>
+</dl>
+<div id="top">
+    <a href="#none" class="move" title="새창으로 열립니다." onclick="directionLog();">길찾기서비스</a>
+    <a href="/portal/performance/performance/sejongIntro.do?menuNo=200575" class="move" target="_blank" title="새창으로 열립니다.">세종충무공이야기</a>
+    <a href="/dfac/main/main.do" class="move" target="_blank" title="새창으로 열립니다.">꿈의숲아트센터</a>
+    <a href="/portal/member/user/joinAgre.do?menuNo=200144" class="li login_N" style="display:none;">JOIN</a>
+    <a href="/portal/myPage/individual/list.do?menuNo=200479" class="li link login_Y" style="display:none;">MYPAGE</a>
+    <a href="/portal/member/user/forLogin.do?menuNo=200100" class="li login_N" style="display:none;">LOGIN</a>
+    <a href="/portal/member/user/logout.do" class="li link login_Y" style="display:none;">LOGOUT</a>
+</div>
+<div id="wrap">
+    
+
+<span itemscope="" itemtype="http://schema.org/Organization" style="display: none;">
+<link itemprop="url" href="https://www.sejongpac.or.kr">
+<a itemprop="sameAs" href="https://www.youtube.com/channel/UCCqaPJqI5q1kfO51qWWOjrQ"><span class="hide">유튜브</span></a>
+<a itemprop="sameAs" href="https://www.instagram.com/sejongcenter/"><span class="hide">인스타그램</span></a>
+<a itemprop="sameAs" href="https://www.facebook.com/sjcenter"><span class="hide">페이스북</span></a>
+<a itemprop="sameAs" href="https://blog.naver.com/sejongnanum"><span class="hide">블로그</span></a>
+<a itemprop="sameAs" href="https://twitter.com/SEJONG_CENTER"><span class="hide">트위터</span></a>
+</span>
+
+<script src="/static/portal/js/ksearch/top_apc.js"></script>
+<script src="/static/portal/js/jquery.rwdImageMaps.js?ver=1.0"></script>
+<script src="/static/portal/js/layout_2024.js?ver=2.3"></script>
+<script src="/static/portal/js/slick.js"></script>
+<script src="/static/portal/js/main_2024.js?ver=1.8"></script>
+<script src="/static/portal/js/sub_2024.js?ver=6"></script>
+<link rel="stylesheet" type="text/css" href="/static/portal/css/slick.css">
+<link rel="stylesheet" type="text/css" href="/static/portal/css/common_2024.css?ver=3.6">
+<link rel="stylesheet" type="text/css" href="/static/portal/css/layout_2024.css?ver=3.6">
+<link rel="stylesheet" type="text/css" href="/static/portal/css/sub_2024.css?ver=16">
+<script src="/static/jslibrary/jquery.cookie2.js"></script>
+
+
+<script>
+	var interestLoginChk = false; 
+	gnbList(); // 로그인 체크 ajax
+	var interestLoginUserId = '';
+	var interestLoginUserNo = '';
+	function gnbList(){
+		$.ajax({
+			type: "post",
+			url: "/portal/main/loginChk.json",
+			dataType: "json",
+			success: function(data) {
+				if (!data.loginChk) {
+					$(".login_N").show();
+					$(".login_Y").hide();
+				} else {
+					$(".login_Y").show();
+					$(".login_N").hide();
+					interestLoginChk = true;
+					interestLoginUserId = data.userId;
+					interestLoginUserNo = data.memberNo;
+				}
+			}
+		});
+	}
+
+	$(() => {
+		let debounceTimer;
+
+		$(document).on('click', '#searchAll', function () {
+			fnSearchAll();
+		}).on('keyup', '#searchAll', function (e) {
+			if (e.keyCode == 13) {
+				let frm = $('<form></form>');
+				frm.attr('action', '/portal/search/search/list.do');
+				frm.attr('method', 'get');
+				frm.append($('<input>', {type: 'hidden', name: 'searchAllWord', value: $('#searchAll').val()}));
+				frm.append($('<input>', {type: 'hidden', name: 'menuNo', value: '200174'}));
+				frm.appendTo('body').submit();
+			} else {
+				clearTimeout(debounceTimer);
+				debounceTimer = setTimeout(fnSearchAll, 300);
+			}
+		}).on('click', 'html', function (e) {
+			if ($(e.target).attr('id') !== 'searchAll' && $(e.target).attr('id') !== 'searchExList') {
+				$('#searchExList').hide();
+			}
+		}).on('click', '#searchAllBtn', function () {
+			let frm = $('<form></form>');
+			frm.attr('action', '/portal/search/search/list.do');
+			frm.attr('method', 'get');
+			frm.append($('<input>', {type: 'hidden', name: 'searchAllWord', value: $('#searchAll').val()}));
+			frm.append($('<input>', {type: 'hidden', name: 'menuNo', value: '200174'}));
+			frm.appendTo('body').submit();
+		});
+	});
+
+	function fnSearchAll() {
+		if ($('#searchAll').val() === '') {
+			$('#searchExList').hide();
+			return;
+		}
+
+		let obj = {
+            "indices": [
+                "perform_ngram",
+                "notice",
+                "ticket-open",
+                "faq"
+            ],
+			"fields": [
+				"TITLE^20000",
+				"TITLE.edge_ngram^20000.0",
+				// "ENG_SUB_TITLE",
+				// "CONTENTS",
+				// "SYNOPSIS",
+				"NTT_CN",
+				// "PLACE_NM^1500",
+				"KEYWORD^30",
+				"KEYWORD.edge_ngram^30.0"
+				// "PLAN_COMPANY",
+				// "ART_GROUP",
+				// "INTRODUCE_WORK",
+				// "CASE_INTRODUCTION^5",
+				// "_file.nameOrg",
+				// "_FILE.nameOrg",
+				// "_file.content",
+				// "_FILE.content"
+			],
+			"query": {
+				"text": $.trim($('#searchAll').val())
+			},
+			"sort": [
+				{
+					"field": "UPDT_DT",
+					"order": "DESC",
+					"indices": ["perform_ngram"]
+				}
+			],
+			"pagination": {
+				"size": 5
+			},
+			"customOptions": {
+				"useFileSearch": true,
+				"useForbiddenDictionary": false,
+				"useTypoCorrections": true,
+				"useTransformEnglishToKorean": true,
+				"useLogging": false
+			},
+			"highlight": {
+				"sort": "score",
+				"noMatchSize" : 65535,
+				"fragmentSize" : 65535,
+				"preTag": "<mark>",
+				"postTag": "</mark>",
+				"numOfFragments": 0
+			},
+			"distanceFeature": {
+				"used": true,
+				"field": "UPDT_DT",
+				"boost": 400000.0
+			}
+		}
+
+		let html = ``;
+		$.ajax({
+			url: '/portal/search/search/getSearchData.json'
+			,type: 'post'
+			,async: true
+			,data: {
+				data: JSON.stringify(obj)
+			}
+			,success: (res) => {
+				let data = JSON.parse(res['response']);
+				let resultList = data.hits.hits.perform;
+				if (resultList !== undefined && resultList.length > 0) {
+					resultList.forEach(e => {
+						html += `
+							<li>
+								<a href="${e.INFO_URL}">${e.TITLE}</a>
+							</li>
+						`;
+					});
+
+					$('#searchExList').html(html);
+					$('#searchExList').show();
+				} else {
+					$('#searchExList').hide();
+				}
+			}
+			,error: () => {
+				console.log("검색 결과를 가져오던 중 오류가 발생하였습니다.");
+				$('#searchExList').hide();
+			}
+		});
+
+
+	}
+</script>
+
+<div id="header">
+	<h1 id="logo"><a href="/portal/main/main.do">서울특별시 세종문화회관</a></h1>
+	<div id="top_menu" class="all_menu">
+		
+			<div>
+				
+				<a href="/portal/performance/scheduleMng/performanceSchedule.do?menuNo=200280" >프로그램</a>
+				<ul>
+					
+					<li>프로그램</li>
+
+					
+										<li><a href="/portal/performance/scheduleMng/performanceSchedule.do?menuNo=200280" >캘린더</a>
+								
+                                    <li><a href="#none">공연</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/performance/performance/performList.do?menuNo=200320" >공연일정</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200322" >예매안내</a></li>
+                                            
+											    <li><a href="/portal/youthDayTicket/youthDayTicket/userView.do?menuNo=200631" >데이티켓</a></li>
+                                            
+											    <li><a href="/portal/noonTicket/noonTicket/userView.do?menuNo=200668" >정오티켓</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200658" >레퍼토리 공연투어</a></li>
+                                            
+									</ul>
+								
+                                    <li><a href="#none">전시</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/performance/exhibit/performList.do?menuNo=200558" >전시일정</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200587" >예매안내</a></li>
+                                            
+									</ul>
+								
+                                    <li><a href="#none">교육</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/academy/academyProgram/list.do?menuNo=200560" >교육일정</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200561" >교육소개</a></li>
+                                            
+									</ul>
+								
+                                    <li><a href="#none">패키지</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/performance/packageList/showPerformList.do?menuNo=200663" >패키지</a></li>
+                                            
+									</ul>
+								
+                                    <li><a href="#none">세종이야기·충무공이야기</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/performance/performance/sejongIntro.do?menuNo=200575" > 소개</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200334" >전시관 소개</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200340" >전시관 정보</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200345" >프로그램</a></li>
+                                            
+											    <li><a href="/portal/performance/performance/korGallery.do?menuNo=200344" >한글갤러리</a></li>
+                                            
+											    <li><a href="/portal/bbs/B0000062/list.do?menuNo=200333" >공지사항</a></li>
+                                            
+									</ul>
+								
+                                    <li><a href="#none">백스테이지 투어</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/main/contents.do?menuNo=200674" >투어 소개</a></li>
+                                            
+											    <li><a href="/portal/backstage/tourApply/userWrite.do?menuNo=200675" >투어 예약</a></li>
+                                            
+											    <li><a href="/portal/backstage/tourApply/userList.do?menuNo=200676" >예약내역 확인</a></li>
+                                            
+									</ul>
+								
+				</ul>
+			</div>
+		
+			<div>
+				
+				<a href="/portal/main/contents.do?menuNo=200357" >이용안내</a>
+				<ul>
+					
+					<li>이용안내</li>
+
+					
+                                    <li><a href="#none">공간안내</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/main/contents.do?menuNo=200357" >공간소개</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200368" >좌석배치도</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200388" >편의시설</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200352" >오시는길·주차안내</a></li>
+                                            
+									</ul>
+								
+                                    <li><a href="#none">대관안내</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/reservation/reservation/list.do?menuNo=200402" >대관공고</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200404" >세종대극장</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200408" >세종M씨어터</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200412" >세종S씨어터</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200416" >세종체임버홀</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200420" >세종미술관·한글갤러리</a></li>
+                                            
+									</ul>
+								
+                                    <li><a href="#none">대여안내</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/main/contents.do?menuNo=200427" >강의실대여</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200429" >야외공간</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200431" >의상·소품</a></li>
+                                            
+									</ul>
+								
+                                    <li><a href="#none">티켓·광고안내</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/main/contents.do?menuNo=200435" >티켓판매안내</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200436" >배너광고안내</a></li>
+                                            
+									</ul>
+								
+                                    <li><a href="#none">고객문의</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/singl/sound/list.do?menuNo=200355" >FAQ</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200354" >분실물 찾기</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200353" >장애인이용안내</a></li>
+                                            
+									</ul>
+								
+                                    <li><a href="#none">세종S멤버십</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/main/contents.do?menuNo=200437" >멤버십소개</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200438" >멤버십혜택</a></li>
+                                            
+									</ul>
+								
+                                    <li><a href="#none">세종굿즈</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/goods/store/userList.do?menuNo=200660" >굿즈소개</a></li>
+                                            
+											    <li><a href="/portal/goods/store/userWrite.do?menuNo=200661" >입점문의</a></li>
+                                            
+									</ul>
+								
+				</ul>
+			</div>
+		
+			<div>
+				
+				<a href="/portal/bbs/B0000058/list.do?menuNo=200568" >소식</a>
+				<ul>
+					
+					<li>소식</li>
+
+					
+                                    <li><a href="#none">공지사항</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/bbs/B0000058/list.do?menuNo=200568" >세종소식</a></li>
+                                            
+											    <li><a href="/portal/bbs/B0000049/list.do?menuNo=200440" >티켓오픈안내</a></li>
+                                            
+									</ul>
+								
+                                    <li><a href="#none">이벤트</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/qestnar/qustnr/list.do?status=T&amp;menuNo=200670" >진행중 이벤트</a></li>
+                                            
+											    <li><a href="/portal/qestnar/qustnr/list.do?status=F&amp;menuNo=200442" >종료 이벤트</a></li>
+                                            
+											    <li><a href="/portal/bbs/B0000012/list.do?menuNo=200443" >당첨자 발표</a></li>
+                                            
+									</ul>
+								
+										<li><a href="/portal/bbs/B0000056/list.do?menuNo=200299" >뉴스레터</a>
+								
+										<li><a href="/portal/bbs/B0000067/list.do?menuNo=200300" >세종문화N</a>
+								
+				</ul>
+			</div>
+		
+			<div>
+				
+				<a href="/portal/bbs/B0000033/list.do?menuNo=200302" >시즌프로그램</a>
+				<ul>
+					
+					<li>시즌프로그램</li>
+
+					
+                                    <li><a href="#none">세종시즌</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/bbs/B0000033/list.do?menuNo=200302" >세종시즌</a></li>
+                                            
+											    <li><a href="/portal/etc/seasonEtcUser/inspiration.do?menuNo=200639" >세종 인스피레이션</a></li>
+                                            
+									</ul>
+								
+                                    <li><a href="#none">Sync Next</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/bbs/B0000053/list.do?menuNo=200667" >Sync Next</a></li>
+                                            
+									</ul>
+								
+				</ul>
+			</div>
+		
+			<div>
+				
+				<a href="/portal/main/contents.do?menuNo=200446" >모든 누구나</a>
+				<ul>
+					
+					<li>모든 누구나</li>
+
+					
+										<li><a href="/portal/main/contents.do?menuNo=200446" >모든 누구나 소개</a>
+								
+                                    <li><a href="#none">누구나 클래식</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/main/contents.do?menuNo=200450" >소개</a></li>
+                                            
+											    <li><a href="/portal/classic4all/schedule/yearList.do?menuNo=200452" >공연안내</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200455" >행복동행석</a></li>
+                                            
+									</ul>
+								
+                                    <li><a href="#none">누구나 꿈나무오케스트라</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/main/contents.do?menuNo=200464" >소개</a></li>
+                                            
+											    <li><a href="/portal/htmlContents/htmlContents/view.do?menuCd=footprints&amp;menuNo=200463" >발자취</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200465" >후원안내</a></li>
+                                            
+									</ul>
+								
+                                    <li><a href="#none">누구나 세종썸머페스티벌</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/main/contents.do?menuNo=200581" >소개</a></li>
+                                            
+											    <li><a href="/portal/sejongSummer/sejongSummer/list.do?menuNo=200592" >공연안내</a></li>
+                                            
+									</ul>
+								
+				</ul>
+			</div>
+		
+			<div>
+				
+				<a href="/portal/sjartgroups/artMember/list.do?bcode=TRADITION&amp;menuNo=200261" >서울시예술단</a>
+				<ul>
+					
+					<li>서울시예술단</li>
+
+					
+										<li><a href="/portal/sjartgroups/artMember/list.do?bcode=TRADITION&amp;menuNo=200261" >서울시국악관현악단</a>
+								
+										<li><a href="/portal/sjartgroups/artMember/list.do?bcode=DANCE&amp;menuNo=200262" >서울시무용단</a>
+								
+										<li><a href="/portal/sjartgroups/artMember/list.do?bcode=MUSICAL&amp;menuNo=200264" >서울시뮤지컬단</a>
+								
+										<li><a href="/portal/sjartgroups/artMember/list.do?bcode=CHORUS&amp;menuNo=200263" >서울시합창단</a>
+								
+										<li><a href="/portal/sjartgroups/artMember/list.do?bcode=OPERA&amp;menuNo=200266" >서울시오페라단</a>
+								
+										<li><a href="/portal/sjartgroups/artMember/list.do?bcode=THEATER&amp;menuNo=200265" >서울시극단</a>
+								
+										<li><a href="/portal/sjartgroups/artMember/list.do?bcode=BALLET&amp;menuNo=200580" >서울시발레단</a>
+								
+				</ul>
+			</div>
+		
+			<div>
+				
+				<a href="/portal/main/contents.do?menuNo=200505" >세종문화회관</a>
+				<ul>
+					
+					<li>세종문화회관</li>
+
+					
+                                    <li><a href="#none">기관 소개</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/main/contents.do?menuNo=200505" >개요</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200469" >CEO인사말</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200508" >CI소개</a></li>
+                                            
+											    <li><a href="/portal/organizationalList/organizationalList/list.do?menuNo=200471" >조직도</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200514" >후원회∙기업기부협찬</a></li>
+                                            
+									</ul>
+								
+                                    <li><a href="#none">ESG경영</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/main/contents.do?menuNo=200632" >ESG경영체계</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200521" >윤리경영</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200524" >인권경영</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200528" >정보공개</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200551" >윤리규범</a></li>
+                                            
+									</ul>
+								
+                                    <li><a href="#none">부패신고·규제혁신센터</a>
+								
+									<ul>
+										
+											    <li><a href="/portal/main/contents.do?menuNo=200517" >부조리 신고센터</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200518" >클린 신고센터</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200519" >청탁 신고센터</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200520" >청탁금지법 공무수행사인</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200516" >CEO 핫라인 신고센터</a></li>
+                                            
+											    <li><a href="/portal/main/contents.do?menuNo=200665" >규제혁신센터</a></li>
+                                            
+									</ul>
+								
+										<li><a href="http://www.sejongpac.or.kr/dfac/main/main.do" >꿈의숲아트센터</a>
+								
+				</ul>
+			</div>
+		
+	</div>
+	<div id="all_menu">
+		<div>
+			<ul>
+				<li class="login_N" style="display:none;"><a href="/portal/member/user/joinAgre.do?menuNo=200144" class="login_N" style="display:none;">JOIN</a></li>
+				<li class="login_N" style="display:none;"><a href="/portal/member/user/forLogin.do?menuNo=200100" class="login_N" style="display:none;">LOGIN</a></li>
+				<li class="login_Y" style="display:none;"><a href="/portal/myPage/individual/list.do?menuNo=200479" class="login_Y" style="display:none;">MYPAGE</a></li>
+				<li class="login_Y" style="display:none;"><a href="/portal/member/user/logout.do" class="login_Y" style="display:none;">LOGOUT</a></li>
+				<li><a href="/eng/main/main.do">EN</a></li>
+			</ul>
+			<ul>
+				<li><a href="https://www.sejongstory.or.kr" class="move" target="_blank" title="새창으로 열립니다.">길찾기서비스</a></li>
+				<li><a href="/portal/performance/performance/sejongIntro.do?menuNo=200575" class="move" target="_blank" title="새창으로 열립니다.">세종충무공이야기</a></li>
+				<li><a href="/dfac/main/main.do" class="move" target="_blank" title="새창으로 열립니다.">꿈의숲아트센터</a></li>
+			</ul>
+		</div>
+		<div class="all_menu">
+			
+				<div>
+					
+					<a href="#none">프로그램</a>
+					<ul>
+						
+									<li><a href="/portal/performance/scheduleMng/performanceSchedule.do?menuNo=200280" >캘린더</a>
+								
+                                    <li><a href="#none">공연</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/performance/performance/performList.do?menuNo=200320" >공연일정</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200322" >예매안내</a></li>
+                                        
+                                            <li><a href="/portal/youthDayTicket/youthDayTicket/userView.do?menuNo=200631" >데이티켓</a></li>
+                                        
+                                            <li><a href="/portal/noonTicket/noonTicket/userView.do?menuNo=200668" >정오티켓</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200658" >레퍼토리 공연투어</a></li>
+                                        
+								</ul>
+							
+                                    <li><a href="#none">전시</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/performance/exhibit/performList.do?menuNo=200558" >전시일정</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200587" >예매안내</a></li>
+                                        
+								</ul>
+							
+                                    <li><a href="#none">교육</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/academy/academyProgram/list.do?menuNo=200560" >교육일정</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200561" >교육소개</a></li>
+                                        
+								</ul>
+							
+                                    <li><a href="#none">패키지</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/performance/packageList/showPerformList.do?menuNo=200663" >패키지</a></li>
+                                        
+								</ul>
+							
+                                    <li><a href="#none">세종이야기·충무공이야기</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/performance/performance/sejongIntro.do?menuNo=200575" > 소개</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200334" >전시관 소개</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200340" >전시관 정보</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200345" >프로그램</a></li>
+                                        
+                                            <li><a href="/portal/performance/performance/korGallery.do?menuNo=200344" >한글갤러리</a></li>
+                                        
+                                            <li><a href="/portal/bbs/B0000062/list.do?menuNo=200333" >공지사항</a></li>
+                                        
+								</ul>
+							
+                                    <li><a href="#none">백스테이지 투어</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/main/contents.do?menuNo=200674" >투어 소개</a></li>
+                                        
+                                            <li><a href="/portal/backstage/tourApply/userWrite.do?menuNo=200675" >투어 예약</a></li>
+                                        
+                                            <li><a href="/portal/backstage/tourApply/userList.do?menuNo=200676" >예약내역 확인</a></li>
+                                        
+								</ul>
+							
+					</ul>
+				</div>
+			
+				<div>
+					
+					<a href="#none">이용안내</a>
+					<ul>
+						
+                                    <li><a href="#none">공간안내</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/main/contents.do?menuNo=200357" >공간소개</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200368" >좌석배치도</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200388" >편의시설</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200352" >오시는길·주차안내</a></li>
+                                        
+								</ul>
+							
+                                    <li><a href="#none">대관안내</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/reservation/reservation/list.do?menuNo=200402" >대관공고</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200404" >세종대극장</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200408" >세종M씨어터</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200412" >세종S씨어터</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200416" >세종체임버홀</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200420" >세종미술관·한글갤러리</a></li>
+                                        
+								</ul>
+							
+                                    <li><a href="#none">대여안내</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/main/contents.do?menuNo=200427" >강의실대여</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200429" >야외공간</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200431" >의상·소품</a></li>
+                                        
+								</ul>
+							
+                                    <li><a href="#none">티켓·광고안내</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/main/contents.do?menuNo=200435" >티켓판매안내</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200436" >배너광고안내</a></li>
+                                        
+								</ul>
+							
+                                    <li><a href="#none">고객문의</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/singl/sound/list.do?menuNo=200355" >FAQ</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200354" >분실물 찾기</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200353" >장애인이용안내</a></li>
+                                        
+								</ul>
+							
+                                    <li><a href="#none">세종S멤버십</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/main/contents.do?menuNo=200437" >멤버십소개</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200438" >멤버십혜택</a></li>
+                                        
+								</ul>
+							
+                                    <li><a href="#none">세종굿즈</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/goods/store/userList.do?menuNo=200660" >굿즈소개</a></li>
+                                        
+                                            <li><a href="/portal/goods/store/userWrite.do?menuNo=200661" >입점문의</a></li>
+                                        
+								</ul>
+							
+					</ul>
+				</div>
+			
+				<div>
+					
+					<a href="#none">소식</a>
+					<ul>
+						
+                                    <li><a href="#none">공지사항</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/bbs/B0000058/list.do?menuNo=200568" >세종소식</a></li>
+                                        
+                                            <li><a href="/portal/bbs/B0000049/list.do?menuNo=200440" >티켓오픈안내</a></li>
+                                        
+								</ul>
+							
+                                    <li><a href="#none">이벤트</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/qestnar/qustnr/list.do?status=T&amp;menuNo=200670" >진행중 이벤트</a></li>
+                                        
+                                            <li><a href="/portal/qestnar/qustnr/list.do?status=F&amp;menuNo=200442" >종료 이벤트</a></li>
+                                        
+                                            <li><a href="/portal/bbs/B0000012/list.do?menuNo=200443" >당첨자 발표</a></li>
+                                        
+								</ul>
+							
+									<li><a href="/portal/bbs/B0000056/list.do?menuNo=200299" >뉴스레터</a>
+								
+									<li><a href="/portal/bbs/B0000067/list.do?menuNo=200300" >세종문화N</a>
+								
+					</ul>
+				</div>
+			
+				<div>
+					
+					<a href="#none">시즌프로그램</a>
+					<ul>
+						
+                                    <li><a href="#none">세종시즌</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/bbs/B0000033/list.do?menuNo=200302" >세종시즌</a></li>
+                                        
+                                            <li><a href="/portal/etc/seasonEtcUser/inspiration.do?menuNo=200639" >세종 인스피레이션</a></li>
+                                        
+								</ul>
+							
+                                    <li><a href="#none">Sync Next</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/bbs/B0000053/list.do?menuNo=200667" >Sync Next</a></li>
+                                        
+								</ul>
+							
+					</ul>
+				</div>
+			
+				<div>
+					
+					<a href="#none">모든 누구나</a>
+					<ul>
+						
+									<li><a href="/portal/main/contents.do?menuNo=200446" >모든 누구나 소개</a>
+								
+                                    <li><a href="#none">누구나 클래식</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/main/contents.do?menuNo=200450" >소개</a></li>
+                                        
+                                            <li><a href="/portal/classic4all/schedule/yearList.do?menuNo=200452" >공연안내</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200455" >행복동행석</a></li>
+                                        
+								</ul>
+							
+                                    <li><a href="#none">누구나 꿈나무오케스트라</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/main/contents.do?menuNo=200464" >소개</a></li>
+                                        
+                                            <li><a href="/portal/htmlContents/htmlContents/view.do?menuCd=footprints&amp;menuNo=200463" >발자취</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200465" >후원안내</a></li>
+                                        
+								</ul>
+							
+                                    <li><a href="#none">누구나 세종썸머페스티벌</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/main/contents.do?menuNo=200581" >소개</a></li>
+                                        
+                                            <li><a href="/portal/sejongSummer/sejongSummer/list.do?menuNo=200592" >공연안내</a></li>
+                                        
+								</ul>
+							
+					</ul>
+				</div>
+			
+				<div>
+					
+					<a href="#none">서울시예술단</a>
+					<ul>
+						
+									<li><a href="/portal/sjartgroups/artMember/list.do?bcode=TRADITION&amp;menuNo=200261" >서울시국악관현악단</a>
+								
+									<li><a href="/portal/sjartgroups/artMember/list.do?bcode=DANCE&amp;menuNo=200262" >서울시무용단</a>
+								
+									<li><a href="/portal/sjartgroups/artMember/list.do?bcode=MUSICAL&amp;menuNo=200264" >서울시뮤지컬단</a>
+								
+									<li><a href="/portal/sjartgroups/artMember/list.do?bcode=CHORUS&amp;menuNo=200263" >서울시합창단</a>
+								
+									<li><a href="/portal/sjartgroups/artMember/list.do?bcode=OPERA&amp;menuNo=200266" >서울시오페라단</a>
+								
+									<li><a href="/portal/sjartgroups/artMember/list.do?bcode=THEATER&amp;menuNo=200265" >서울시극단</a>
+								
+									<li><a href="/portal/sjartgroups/artMember/list.do?bcode=BALLET&amp;menuNo=200580" >서울시발레단</a>
+								
+					</ul>
+				</div>
+			
+				<div>
+					
+					<a href="#none">세종문화회관</a>
+					<ul>
+						
+                                    <li><a href="#none">기관 소개</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/main/contents.do?menuNo=200505" >개요</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200469" >CEO인사말</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200508" >CI소개</a></li>
+                                        
+                                            <li><a href="/portal/organizationalList/organizationalList/list.do?menuNo=200471" >조직도</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200514" >후원회∙기업기부협찬</a></li>
+                                        
+								</ul>
+							
+                                    <li><a href="#none">ESG경영</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/main/contents.do?menuNo=200632" >ESG경영체계</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200521" >윤리경영</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200524" >인권경영</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200528" >정보공개</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200551" >윤리규범</a></li>
+                                        
+								</ul>
+							
+                                    <li><a href="#none">부패신고·규제혁신센터</a>
+								
+								<ul>
+									
+                                            <li><a href="/portal/main/contents.do?menuNo=200517" >부조리 신고센터</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200518" >클린 신고센터</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200519" >청탁 신고센터</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200520" >청탁금지법 공무수행사인</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200516" >CEO 핫라인 신고센터</a></li>
+                                        
+                                            <li><a href="/portal/main/contents.do?menuNo=200665" >규제혁신센터</a></li>
+                                        
+								</ul>
+							
+									<li><a href="http://www.sejongpac.or.kr/dfac/main/main.do" >꿈의숲아트센터</a>
+								
+					</ul>
+				</div>
+			
+		</div>
+	</div>
+	<a href="/eng/main/main.do" target="_blank" title="새창으로 열립니다." id="en_site">EN</a>
+	<a href="#none" id="all_menu_btn">전체메뉴</a>
+	<div id="search">
+		<label for="searchAll" class="hide">검색어</label>
+		<input type="text" id="searchAll" placeholder="검색어를 입력해주세요.">
+		<button type="button" id="searchAllBtn">검색</button>
+	</div>
+	<ul class="search_layer layer_w" id="searchExList">
+
+	</ul>
+	<a href="#none" id="search_all_btn">검색버튼</a>
+</div>
+<!-- // -->
+
+    <div id="contents">
+        <div class="nav">
+            <ul>
+                <li><a href="#none">홈으로</a></li>
+                
+                    <li>
+                        <a href="#none">소식</a>
+                        <ul>
+                            
+                                    <li >
+                                        <a href="/portal/performance/scheduleMng/performanceSchedule.do?menuNo=200280" >
+                                                프로그램
+                                        </a>
+                                    </li>
+                                
+                                    <li >
+                                        <a href="/portal/main/contents.do?menuNo=200357" >
+                                                이용안내
+                                        </a>
+                                    </li>
+                                
+                                    <li class="on">
+                                        <a href="/portal/bbs/B0000058/list.do?menuNo=200568" >
+                                                소식
+                                        </a>
+                                    </li>
+                                
+                                    <li >
+                                        <a href="/portal/bbs/B0000033/list.do?menuNo=200302" >
+                                                시즌프로그램
+                                        </a>
+                                    </li>
+                                
+                                    <li >
+                                        <a href="/portal/main/contents.do?menuNo=200446" >
+                                                모든 누구나
+                                        </a>
+                                    </li>
+                                
+                                    <li >
+                                        <a href="/portal/sjartgroups/artMember/list.do?bcode=TRADITION&amp;menuNo=200261" >
+                                                서울시예술단
+                                        </a>
+                                    </li>
+                                
+                                    <li >
+                                        <a href="/portal/main/contents.do?menuNo=200505" >
+                                                세종문화회관
+                                        </a>
+                                    </li>
+                                
+                                    <li >
+                                        <a href="/portal/member/user/forLogin.do?menuNo=200100" >
+                                                통합회원서비스
+                                        </a>
+                                    </li>
+                                
+                                    <li >
+                                        <a href="/portal/myPage/individual/list.do?menuNo=200479" >
+                                                마이페이지
+                                        </a>
+                                    </li>
+                                
+                                    <li >
+                                        <a href="/portal/search/search/list.do?menuNo=200174" >
+                                                통합검색
+                                        </a>
+                                    </li>
+                                
+                        </ul>
+                    </li>
+                    
+                        <li>
+                            <a href="#none">공지사항</a>
+                            <ul>
+                                
+                                    <li class="on">
+                                        <a href="/portal/bbs/B0000058/list.do?menuNo=200568" >
+                                                공지사항
+                                        </a>
+                                    </li>
+                                
+                                    <li >
+                                        <a href="/portal/qestnar/qustnr/list.do?status=T&amp;menuNo=200670" >
+                                                이벤트
+                                        </a>
+                                    </li>
+                                
+                                    <li >
+                                        <a href="/portal/bbs/B0000056/list.do?menuNo=200299" >
+                                                뉴스레터
+                                        </a>
+                                    </li>
+                                
+                                    <li >
+                                        <a href="/portal/bbs/B0000067/list.do?menuNo=200300" >
+                                                세종문화N
+                                        </a>
+                                    </li>
+                                
+                            </ul>
+                        </li>
+                    
+                        <li>
+                            <a href="#">세종소식</a>
+                            <ul>
+                                
+                                        <li class="on">
+                                            <a href="/portal/bbs/B0000058/list.do?menuNo=200568" >
+                                                    세종소식
+                                            </a>
+                                        </li>
+                                    
+                                        <li >
+                                            <a href="/portal/bbs/B0000049/list.do?menuNo=200440" >
+                                                    티켓오픈안내
+                                            </a>
+                                        </li>
+                                    
+                            </ul>
+                        </li>
+                    
+                        <li>
+                            <a href="#">채용공고</a>
+                            <ul>
+                                
+                                    <li >
+                                        <a href="/portal/bbs/B0000058/list.do?menuNo=200568" >
+                                                전체
+                                        </a>
+                                    </li>
+                                
+                                    <li >
+                                        <a href="/portal/bbs/B0000063/list.do?menuNo=200569" >
+                                                안내
+                                        </a>
+                                    </li>
+                                
+                                    <li >
+                                        <a href="/portal/bbs/B0000064/list.do?menuNo=200570" >
+                                                입찰공고
+                                        </a>
+                                    </li>
+                                
+                                    <li class="on">
+                                        <a href="/portal/bbs/B0000065/list.do?menuNo=200571" >
+                                                채용공고
+                                        </a>
+                                    </li>
+                                
+                                    <li >
+                                        <a href="/portal/bbs/B0000066/list.do?menuNo=200572" >
+                                                합격자발표
+                                        </a>
+                                    </li>
+                                
+                                    <li >
+                                        <a href="/portal/bbs/B0000047/list.do?menuNo=200595" >
+                                                대관공고
+                                        </a>
+                                    </li>
+                                
+                            </ul>
+                        </li>
+                    
+            </ul>
+        </div>
+        <div id="content">
+            <h2 class="hide">소식</h2>
+            <h3>
+                채용공고
+            </h3>
+            
+
+
+
+
+
+<script>
+
+</script>
+<div class="view">
+    <div>
+        <div>
+            <p>(재)세종문화회관 예술단 직책단원(극단 지도위원, 소년소녀합창 연습지휘자) 공개채용 공고</p>
+        </div>
+        <ul>
+            <li><span>작성일</span>2026-09-28 18:09</li>
+            <li><span>조회수</span>3180</li>
+            
+                <li class="file">
+                    <span>첨부파일</span>
+                    <ul class="file_list">
+                        
+                            <li><a href="/portal/cmmn/file/fileDown.do?atchFileId=e83666ce63474c83821df73f6725c2d9&amp;fileSn=1&amp;bbsId=B0000065">직무기술서_극단 지도위원.hwpx</a></li>
+                        
+                            <li><a href="/portal/cmmn/file/fileDown.do?atchFileId=e83666ce63474c83821df73f6725c2d9&amp;fileSn=2&amp;bbsId=B0000065">직무기술서_합창단,소년소녀합창단 연습 지휘자.hwpx</a></li>
+                        
+                            <li><a href="/portal/cmmn/file/fileDown.do?atchFileId=e83666ce63474c83821df73f6725c2d9&amp;fileSn=3&amp;bbsId=B0000065">전형별 세부평가기준.pdf</a></li>
+                        
+                    </ul>
+                </li>
+            
+        </ul>
+    </div>
+    <div tabindex="0">
+        <p style="font-family: &quot;Noto Sans KR&quot;; font-size: 16px; line-height: normal; margin-top: 0px; margin-bottom: 0px;"><meta http-equiv="Content-Type" content="text/html; charset=euc-kr"></p><div id="templwrap_v3" style="font-family: &quot;Noto Sans KR&quot;; font-size: 16px; line-height: normal; margin-top: 0px; margin-bottom: 0px;"><div style="position: relative; max-width: 900px; margin: 0px auto; font-family: &quot;Noto Sans KR&quot;; font-size: 16px; line-height: normal;"><img src="https://c.incru.it/biz_file/2026/09/biz_1_20260929093855371.png" style="max-width:100%; width:auto; height:auto; display:block; margin:0 auto;" alt=""><a href="https://recruit.incruit.com/sejongpac/" target="_blank" style="position:absolute; left:38.67%; top:39.21%; width:31.22%; height:0.31%; display:block;"></a><a href="https://www.sejongpac.or.kr" target="_blank" style="position:absolute; left:26.67%; top:96.67%; width:17.56%; height:0.31%; display:block;"></a></div></div><p style="font-family: &quot;Noto Sans KR&quot;; font-size: 16px; line-height: normal; margin-top: 0px; margin-bottom: 0px;"><input type="hidden" id="isIncruit" name="" value="Y" class="" title=""><link rel="stylesheet" href="https://c.incru.it/HR/jobtemp/2024/css/job_post_v3_basic3_minify.css"></p>
+    </div>
+</div>
+<div class="view_more">
+    <div>
+        <span>이전글</span>
+        <a href="/portal/bbs/B0000065/view.do?nttId=50172&menuNo=200571&pageIndex=1">(재)세종문화회관 임원(비상임 이사) 공개모집 공고</a>
+    </div>
+    <div>
+        <span>다음글</span>
+        <a href="/portal/bbs/B0000065/view.do?nttId=50182&menuNo=200571&pageIndex=1">세종문화회관 ‘공연장 안내원 51기’ 모집 공고문</a>
+    </div>
+</div>
+<div class="btnAreaC">
+    
+    
+        <a href="/portal/bbs/B0000065/list.do?menuNo=200571&pageIndex=1" class="btn_list">목록</a>
+    
+</div>
+
+        </div>
+    </div>
+    
+<script>
+	function fnFooterMoveSite() {
+		let f = $('#footerSiteList').val();
+		if (f === '') {
+			alert("이동하실 사이트를 선택해주세요.");
+			return false;
+		}
+
+		window.open(f);
+	}
+</script>
+
+<!-- footer -->
+<div id="footer">
+	<ul>
+		<li><a href="/portal/main/contents.do?menuNo=200148">개인정보처리방침</a></li>
+		<li><a href="/portal/main/contents.do?menuNo=200635">이용약관</a></li>
+		<li><a href="/portal/main/contents.do?menuNo=200150">이메일무단수집거부</a></li>
+		<li><a href="/portal/main/contents.do?menuNo=200164">고객서비스헌장</a></li>
+		<li><a href="/portal/main/contents.do?menuNo=200654">인권침해신고센터</a></li>
+		<li><a href="/portal/main/contents.do?menuNo=200352">오시는 길 </a></li>
+
+		<li><a href="/portal/singl/siteMap/list.do?menuNo=200162">사이트 맵</a></li>
+	</ul>
+	<div>
+		<div>
+			<img src="/static/portal/img/main/logo-footer.png" alt="세종문화회관 아이콘 이미지">
+			<address> 재단법인 세종문화회관 서울특별시 종로구 세종대로 175 (세종로) (우)03172<br> 대표자 : 안호상 사업자등록번호 : 101-82-06773<br> 통신판매업신고 : 서울종로-0988호 <a href="http://www.ftc.go.kr/info/bizinfo/communicationViewPopup.jsp?wrkr_no=1018206773" target="_blank" title="새창으로 열립니다.">사업자정보확인</a>
+			</address>
+			<ul class="sns">
+				<li><a href="https://www.facebook.com/sjcenter" target="_blank" title="새창으로 열립니다." class="facebook">페이스북 바로가기</a></li>
+				<li><a href="http://blog.naver.com/sejongnanum" target="_blank" title="새창으로 열립니다." class="blog">블로그 바로가기</a></li>
+				<li><a href="https://twitter.com/SEJONG_CENTER" target="_blank" title="새창으로 열립니다." class="twitter">트위터 바로가기</a></li>
+				<li><a href="https://www.instagram.com/sejongcenter/" target="_blank" title="새창으로 열립니다." class="instagram">인스타그램 바로가기</a></li>
+				<li><a href="https://www.youtube.com/channel/UCCqaPJqI5q1kfO51qWWOjrQ" target="_blank" title="새창으로 열립니다." class="youtube">유튜브 바로가기</a></li>
+			</ul>
+		</div>
+		<div>
+			<p>전화예매 및 문의 <a href="tel:02-399-1000">02.399.1000</a></p>
+			<div class="link">
+				<div>
+					<a href="https://www.seoul.go.kr/main/index.jsp" target="_blank" title="새창으로 열립니다.">
+						<img src="/static/portal/img/main/logo-seoul.png" alt="서울시 로고 SEOUL MY SOUL">
+					</a>
+				</div>
+				<div>
+				</div>
+				<div>
+					<a href="http://webwatch.or.kr/" target="_blank" title="새창으로 열립니다.">
+						<img src="/static/portal/img/main/web-2023-black.png" alt="과학기술정보통신부 WA(WEB접근성) 품질인증 마크, 웹와치(WebWatch) 2026.08.30 ~ 2027.08.29">
+					</a>
+					<img src="/static/portal/img/main/icon-award.png" alt="웹어워드 코리아 수상마크">
+					<img src="/static/portal/img/main/icon-gdaward.png" alt="GDWEB 어워드 수상마크">
+				</div>
+				<div>
+					<div class="site_list">
+						<select title="관련 사이트 링크" id="footerSiteList">
+							<option value="">관련 사이트</option>
+							<option value="http://www.seoul.go.kr/main/index.html">서울특별시</option>
+							<option value="https://www.clean.go.kr/">공공기관 채용비리신고</option>
+							<option value="http://www.acrc.go.kr/acrc/index.do">국민권익 위원회</option>
+							<option value="https://seoulsolution.kr/">서울정책아카이브</option>
+							<option value="https://www.120dasan.or.kr/dsnc/main/main.do">120 다산콜센터</option>
+							<option value="http://eungdapso.seoul.go.kr/">서울특별시 응답소</option>
+							<option value="https://culture.seoul.go.kr/">서울문화포털</option>
+							<option value="https://opengov.seoul.go.kr/">서울정보소통광장</option>
+						</select>
+						<button type="button" title="새창으로 이동합니다." onclick="fnFooterMoveSite();">이동</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<p>COPYRIGHT(C) SEJONG CENTER FOR THE PERFORMING ARTS. ALL RIGHTS RESERVED</p>
+	<button type="button" id="goTop">TOP</button>
+</div>
+<!-- //footer -->
+
+
+
+    <script src="/static/portal/js/common.js?ver=1.1"></script>
+</div>
+</body>
+</html>
