@@ -87,6 +87,7 @@ export class SejongArtsJobCrawler implements JobSourceCrawler {
       title: detail.title || row.title,
       url: row.url,
       bodyText: detail.bodyText,
+      bodyHtml: detail.bodyHtml,
       file,
       images,
       companyName,

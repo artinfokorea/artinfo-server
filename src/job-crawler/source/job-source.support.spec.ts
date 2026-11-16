@@ -185,6 +185,15 @@ describe('buildContentsHtml', () => {
       '<p>가 &lt;b&gt;</p><p>나 &amp; 다</p><figure class="image"><img style="aspect-ratio:10/20;" src="https://x/1.webp" width="10" height="20"></figure>',
     );
   });
+
+  it('bodyHtml 이 있으면 bodyText 문단 대신 그것을 쓰고 이미지는 뒤에 붙인다; 빈 bodyHtml 은 없는 것으로 본다', () => {
+    const html =
+      '<p>안내</p><figure class="table"><table><tbody><tr><td rowspan="2">소속</td><td>대금</td></tr><tr><td>가야금</td></tr></tbody></table></figure>';
+    expect(buildContentsHtml('안내\n소속 | 대금', [{ url: 'https://x/1.webp', width: 10, height: 20 }], html)).toBe(
+      `${html}<figure class="image"><img style="aspect-ratio:10/20;" src="https://x/1.webp" width="10" height="20"></figure>`,
+    );
+    expect(buildContentsHtml('가', [], '  ')).toBe('<p>가</p>');
+  });
 });
 
 describe('JobSourceSupport.logoUrl', () => {

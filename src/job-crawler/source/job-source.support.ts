@@ -28,6 +28,11 @@ export interface NoticeRegistration {
   /** 원문 URL — recruitSiteUrl 이자 중복 판정 키 */
   url: string;
   bodyText: string;
+  /**
+   * 본문을 표·문단 구조까지 살린 HTML (소스가 정리해서 넘긴다 — 태그는 p·br·ul·ol·li·strong·em·h1~h6·figure.table·table 계열만, 속성은 rowspan·colspan 만).
+   * 있으면 contents 에 bodyText 문단 대신 이것을 쓴다. 본문이 표로 된 공고(세종)에서 합쳐진 칸이 깨지지 않게 하려는 것
+   */
+  bodyHtml?: string;
   /** 공고문 파일 (HWP/HWPX/PDF). 없으면 images 가 공고문이다 */
   file?: NoticeFile;
   /** 공고문을 그림으로 올린 글의 본문 이미지 (PNG/JPG 등). 파일 페이지 뒤에 그대로 WebP 로 바꿔 붙인다 */
@@ -90,7 +95,7 @@ export class JobSourceSupport {
         userId,
         type: JOB_TYPE.ART_ORGANIZATION,
         title: input.title,
-        contents: buildContentsHtml(input.bodyText, images),
+        contents: buildContentsHtml(input.bodyText, images, input.bodyHtml),
         companyName: input.companyName,
         recruitSiteUrl: input.url,
         imageUrl: input.imageUrl,
@@ -159,13 +164,15 @@ export class JobSourceSupport {
 }
 
 /** 본문 줄은 <p>, 공고문 페이지는 기존 채용 첨부(FileConverter) 와 같은 <figure class="image"> 마크업 */
-export function buildContentsHtml(bodyText: string, images: { url: string; width: number; height: number }[]): string {
-  const paragraphs = bodyText
-    .split('\n')
-    .map(line => line.trim())
-    .filter(line => line.length > 0)
-    .map(line => `<p>${escapeHtml(line)}</p>`)
-    .join('');
+export function buildContentsHtml(bodyText: string, images: { url: string; width: number; height: number }[], bodyHtml?: string): string {
+  const paragraphs =
+    bodyHtml?.trim() ||
+    bodyText
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .map(line => `<p>${escapeHtml(line)}</p>`)
+      .join('');
   const figures = images
     .map(
       img =>

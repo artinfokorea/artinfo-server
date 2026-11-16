@@ -9,6 +9,7 @@ import { parseSejongNoticeDetail, parseSejongNoticeList, pickSejongFallbackDocum
  * 3) 상세 50240(2026 서울시예술단 일반단원): 제목 · 작성일(목록 날짜 11-10 과 달리 11-09) · 본문 글(표는 ' | ' 로 한 줄) · 본문 이미지 1장(career.co.kr) · 첨부 3개(세부사항 hwpx · 가점 hwpx · 악보 zip)
  * 4) 상세 50176(예술단 직책단원): 본문은 incruit 그림 한 장뿐(bodyText 빈 문자열) · 첨부 3개(직무기술서 hwpx ×2 · 평가기준 pdf)
  * 5) 공고문 첨부 고르기: 보조 자료뿐이면 없음 → '공고' 가 든 HWP/PDF 가 있으면 그것. 보조 문서 폴백은 서식·악보를 뺀 첫 문서
+ * 6) bodyHtml: 표는 <figure class="table"><table> 로 감싸고 rowspan/colspan 만 남긴다. 인라인 스타일·클래스·div·span·img·script 는 없다. 그림뿐인 글은 ''
  */
 const fixture = (name: string) => fs.readFileSync(path.join(__dirname, '__fixtures__', name), 'utf8');
 const FILE = (atch: string, sn: number) => `https://www.sejongpac.or.kr/portal/cmmn/file/fileDown.do?atchFileId=${atch}&fileSn=${sn}&bbsId=B0000065`;
@@ -84,11 +85,25 @@ describe('parseSejongNoticeDetail', () => {
     expect(detail.bodyText).toContain('무용');
   });
 
+  it('50240 — bodyHtml 은 표 구조(rowspan·colspan)를 살리고 스타일·클래스·div·span·img 는 없다', () => {
+    const { bodyHtml } = parseSejongNoticeDetail(fixture('detail-50240.html'));
+    expect(bodyHtml.startsWith('<p><em>1</em> 채용개요</p><p>□ 소속, 분야, 인원 및 담당업무</p><figure class="table"><table><thead><tr><th>')).toBe(true);
+    expect(bodyHtml).toContain('<td rowspan="3">');
+    expect(bodyHtml).toContain('<td rowspan="8"><p>회관이 제작하는 공연작품 및 기타 공연의 연습과 출연에 임하며 예술교육을 담당할 수 있다.</p></td>');
+    expect(bodyHtml).toContain('<td colspan="2">');
+    expect(bodyHtml).toContain('</table></figure><p>※ 채용분야별 중복지원 불가</p>');
+    expect(bodyHtml).not.toMatch(/ style=| class="(?!table")|<div|<span|<img|<script|<meta|<colgroup|&nbsp;/);
+    const tags = new Set((bodyHtml.match(/<([a-z0-9]+)/g) ?? []).map(t => t.slice(1)));
+    expect([...tags].sort()).toEqual(['b', 'br', 'em', 'figure', 'p', 'table', 'tbody', 'td', 'th', 'thead', 'tr']);
+    expect(bodyHtml.endsWith('<p>2026. 11. 10.</p><p>(재)세종문화회관 사장</p>')).toBe(true);
+  });
+
   it('50176 — 본문은 그림 한 장뿐이라 bodyText 는 비고, 첨부는 직무기술서·평가기준', () => {
     const detail = parseSejongNoticeDetail(fixture('detail-50176.html'));
     expect(detail.title).toBe('(재)세종문화회관 예술단 직책단원(극단 지도위원, 소년소녀합창 연습지휘자) 공개채용 공고');
     expect(detail.writtenAt).toBe('2026-09-28');
     expect(detail.bodyText).toBe('');
+    expect(detail.bodyHtml).toBe('');
     expect(detail.images).toEqual([{ name: 'biz_1_20260929093855371.png', url: 'https://c.incru.it/biz_file/2026/09/biz_1_20260929093855371.png' }]);
     expect(detail.attachments.map(a => [a.name, a.ext])).toEqual([
       ['직무기술서_극단 지도위원.hwpx', 'hwpx'],
