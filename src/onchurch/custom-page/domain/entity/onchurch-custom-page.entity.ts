@@ -1,5 +1,11 @@
 import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
+// 공개 범위: 전체공개(public) | 회원공개(member). 회원공개 페이지의 본문은 해당 교회 소속 로그인 사용자에게만 내려준다.
+export enum ONCHURCH_CUSTOM_PAGE_VISIBILITY {
+  PUBLIC = 'public',
+  MEMBER = 'member',
+}
+
 // 커스텀 페이지 본문은 '블록 배열'로 저장한다. HTML을 저장하지 않으므로 렌더 시 sanitize가 필요 없고,
 // 블록 타입이 늘어나도 기존 데이터가 깨지지 않는다. 지원 타입/옵션의 단일 소스는 프론트다.
 export type OnchurchCustomPageBlock = {
@@ -39,6 +45,10 @@ export class OnchurchCustomPage extends BaseEntity {
   // false면 공개 사이트에서 감춘다(네비·직접 접근 모두).
   @Column({ type: 'boolean', name: 'is_active', default: true })
   isActive: boolean;
+
+  // 공개 범위. 회원공개면 네비에는 보이되 본문은 교인 로그인 후에만 열린다.
+  @Column({ type: 'varchar', name: 'visibility', length: 16, default: ONCHURCH_CUSTOM_PAGE_VISIBILITY.PUBLIC })
+  visibility: ONCHURCH_CUSTOM_PAGE_VISIBILITY;
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;

@@ -1,5 +1,7 @@
 import { Param } from '@nestjs/common';
 import { RestApiController, RestApiGet } from '@/common/decorator/rest-api';
+import { Signature } from '@/common/decorator/Signature';
+import { UserSignature } from '@/common/type/type';
 import {
   OnchurchListPublicCustomPagesUseCase,
   OnchurchGetPublicCustomPageUseCase,
@@ -18,8 +20,12 @@ export class OnchurchPublicCustomPageController {
     return new OnchurchCustomPageListResponse(await this.listUseCase.execute(slug));
   }
 
-  @RestApiGet(OnchurchCustomPageResponse, { path: '/:slug/custom-pages/:pageSlug', description: '공개 - 커스텀 페이지 본문' })
-  async getPublic(@Param('slug') slug: string, @Param('pageSlug') pageSlug: string) {
-    return new OnchurchCustomPageResponse(await this.getUseCase.execute(slug, pageSlug));
+  @RestApiGet(OnchurchCustomPageResponse, {
+    path: '/:slug/custom-pages/:pageSlug',
+    description: '공개 - 커스텀 페이지 본문. 회원공개 페이지는 교인 토큰이 있을 때만 본문이 내려가고, 없으면 locked=true 에 blocks=[]',
+  })
+  async getPublic(@Param('slug') slug: string, @Param('pageSlug') pageSlug: string, @Signature() signature: UserSignature | null) {
+    const view = await this.getUseCase.execute(slug, pageSlug, signature?.id ?? null);
+    return new OnchurchCustomPageResponse(view.page, { locked: view.locked });
   }
 }
