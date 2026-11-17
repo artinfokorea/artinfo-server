@@ -165,8 +165,19 @@ export class OnchurchChurchOverviewRepository implements IOnchurchChurchOverview
     return church?.id ?? null;
   }
 
+  // 마스터가 운영 ON 으로 바꾸면 첫 오픈 시각(first_published_at)도 비어 있을 때만 함께 채운다.
+  // is_published=true 인데 first_published_at 이 null 이면 관리자 콘솔이 '시작하기'에 갇히므로 두 값은 항상 같이 움직여야 한다.
   async updatePublished(churchId: number, isPublished: boolean): Promise<boolean> {
-    const result = await this.churchRepository.update({ id: churchId }, { isPublished });
+    const result = await this.churchRepository
+      .createQueryBuilder()
+      .update()
+      .set(
+        isPublished
+          ? { isPublished: true, firstPublishedAt: () => 'COALESCE(first_published_at, NOW())' }
+          : { isPublished: false },
+      )
+      .where('id = :churchId', { churchId })
+      .execute();
     return (result.affected ?? 0) > 0;
   }
 }
