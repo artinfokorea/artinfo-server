@@ -250,12 +250,15 @@ export class OngiCopyPhotosUseCase {
 
     @Inject(ONGI_ALBUM_REPOSITORY)
     private readonly albumRepository: IOngiAlbumRepository,
+
+    private readonly pushService: OngiPushService,
   ) {}
 
   /**
    * 다른 가족 공간에 사진 공유(복사) — 대상 공간에 독립 게시물을 만든다 (파일은 공유, 좋아요·댓글은 분리).
    * 원본 사진은 그 공간의 구성원이면 누가 올렸든 공유할 수 있다 (2026-10-28 정책 변경 — 삭제·이동과 달리 원본이 다치지 않으므로).
    * 대상 공간은 내가 구성원이어야 하며 앨범은 대상 공간 소속이어야 한다.
+   * 복사가 끝나면 업로드와 똑같이 대상 공간 구성원에게 푸시한다 — 받는 쪽에서는 새 게시물이 올라온 것과 같다.
    */
   async execute(userId: number, photoIds: number[], targetGroupId: number, albumId: number | null): Promise<{ copiedIds: number[]; skippedIds: number[] }> {
     const target = await this.memberRepository.findByGroupIdAndUserId(targetGroupId, userId);
@@ -290,8 +293,9 @@ export class OngiCopyPhotosUseCase {
     }
 
     const copiedIds: number[] = [];
+    const created: OngiPhoto[] = [];
     for (const photo of inOriginalOrder(eligible)) {
-      await this.photoRepository.create({
+      const copy = await this.photoRepository.create({
         groupId: targetGroupId,
         authorMemberId: target.id,
         albumId,
@@ -303,7 +307,20 @@ export class OngiCopyPhotosUseCase {
         mediaType: photo.mediaType ?? 'photo',
         durationSeconds: photo.durationSeconds ?? null,
       });
+      created.push(copy);
       copiedIds.push(photo.id);
+    }
+
+    // 대상 공간의 다른 구성원에게 푸시 (fire-and-forget) — 이름은 대상 공간에서의 내 호칭, 탭하면 첫 복사본으로
+    if (created.length > 0) {
+      const count = created.length;
+      const hasVideo = created.some(photo => photo.mediaType === 'video');
+      this.pushService.notifyGroup(targetGroupId, userId, {
+        title: '온기',
+        body: `${target.name}님이 ${hasVideo ? `사진·영상 ${count}개를` : `사진 ${count}장을`} 공유했어요`,
+        data: { type: 'photo', groupId: String(targetGroupId), photoId: String(created[0].id) },
+        category: 'photo',
+      });
     }
 
     return { copiedIds, skippedIds };
