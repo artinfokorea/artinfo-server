@@ -14,10 +14,16 @@ import {
 } from '@/onchurch/community/application/usecase/onchurch-manage-community-posts.usecase';
 import { OnchurchCommunityPostWriteRequest } from '@/onchurch/community/presentation/dto/request/onchurch-community-post-write.request';
 import { OnchurchCommunityPostHideRequest } from '@/onchurch/community/presentation/dto/request/onchurch-community-post-hide.request';
+import { OnchurchCommunityCommentWriteRequest } from '@/onchurch/community/presentation/dto/request/onchurch-community-comment-write.request';
+import {
+  OnchurchCreateMyCommunityCommentUseCase,
+  OnchurchDeleteMyCommunityCommentUseCase,
+} from '@/onchurch/community/application/usecase/onchurch-community-comment.usecase';
 import {
   OnchurchCommunityPostResponse,
   OnchurchCommunityPostManageListResponse,
   OnchurchCommunityPostManageResponse,
+  OnchurchCommunityCommentResponse,
 } from '@/onchurch/community/presentation/dto/response/onchurch-community.response';
 
 @RestApiController('/onchurch/community-posts', 'Onchurch Community')
@@ -29,6 +35,8 @@ export class OnchurchCommunityController {
     private readonly listManageUseCase: OnchurchListManageCommunityPostsUseCase,
     private readonly setHiddenUseCase: OnchurchSetHiddenCommunityPostUseCase,
     private readonly deleteManageUseCase: OnchurchDeleteManageCommunityPostUseCase,
+    private readonly createCommentUseCase: OnchurchCreateMyCommunityCommentUseCase,
+    private readonly deleteCommentUseCase: OnchurchDeleteMyCommunityCommentUseCase,
   ) {}
 
   // ── 성도 본인 작성/수정/삭제 ──────────────────────────
@@ -51,6 +59,23 @@ export class OnchurchCommunityController {
   @RestApiDelete(OkResponse, { path: '/me/:id', description: '성도 - 본인 게시글 삭제', auth: [USER_TYPE.CLIENT] })
   async deleteMine(@AuthSignature() signature: UserSignature, @Param('id', ParseIntPipe) id: number) {
     await this.deleteUseCase.execute(signature.id, id);
+    return new OkResponse();
+  }
+
+  // ── 댓글 ─────────────────────────────────────────────
+  @RestApiPost(OnchurchCommunityCommentResponse, { path: '/me/:postId/comments', description: '성도 - 교제 게시글 댓글 작성', auth: [USER_TYPE.CLIENT] })
+  async createComment(
+    @AuthSignature() signature: UserSignature,
+    @Param('postId', ParseIntPipe) postId: number,
+    @Body() request: OnchurchCommunityCommentWriteRequest,
+  ) {
+    const comment = await this.createCommentUseCase.execute(signature.id, postId, request.content.trim());
+    return new OnchurchCommunityCommentResponse(comment);
+  }
+
+  @RestApiDelete(OkResponse, { path: '/me/comments/:id', description: '성도 - 댓글 삭제 (본인 또는 교회 관리자)', auth: [USER_TYPE.CLIENT] })
+  async deleteComment(@AuthSignature() signature: UserSignature, @Param('id', ParseIntPipe) id: number) {
+    await this.deleteCommentUseCase.execute(signature.id, id);
     return new OkResponse();
   }
 

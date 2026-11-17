@@ -2,6 +2,14 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OnchurchCommunityPost } from '@/onchurch/community/domain/entity/onchurch-community-post.entity';
 import { OnchurchCommunityCategory } from '@/onchurch/community/domain/entity/onchurch-community-category.entity';
+import { OnchurchCommunityComment } from '@/onchurch/community/domain/entity/onchurch-community-comment.entity';
+import { ONCHURCH_COMMUNITY_COMMENT_REPOSITORY } from '@/onchurch/community/domain/repository/onchurch-community-comment.repository.interface';
+import { OnchurchCommunityCommentRepository } from '@/onchurch/community/infrastructure/repository/onchurch-community-comment.repository';
+import {
+  OnchurchListPublicCommunityCommentsUseCase,
+  OnchurchCreateMyCommunityCommentUseCase,
+  OnchurchDeleteMyCommunityCommentUseCase,
+} from '@/onchurch/community/application/usecase/onchurch-community-comment.usecase';
 import { ONCHURCH_COMMUNITY_POST_REPOSITORY } from '@/onchurch/community/domain/repository/onchurch-community-post.repository.interface';
 import { ONCHURCH_COMMUNITY_CATEGORY_REPOSITORY } from '@/onchurch/community/domain/repository/onchurch-community-category.repository.interface';
 import { OnchurchCommunityPostRepository } from '@/onchurch/community/infrastructure/repository/onchurch-community-post.repository';
@@ -33,7 +41,7 @@ import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([OnchurchCommunityPost, OnchurchCommunityCategory]),
+    TypeOrmModule.forFeature([OnchurchCommunityPost, OnchurchCommunityCategory, OnchurchCommunityComment]),
     OnchurchChurchModule,
     OnchurchUserModule,
   ],
@@ -41,6 +49,10 @@ import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
   providers: [
     { provide: ONCHURCH_COMMUNITY_POST_REPOSITORY, useClass: OnchurchCommunityPostRepository },
     { provide: ONCHURCH_COMMUNITY_CATEGORY_REPOSITORY, useClass: OnchurchCommunityCategoryRepository },
+    { provide: ONCHURCH_COMMUNITY_COMMENT_REPOSITORY, useClass: OnchurchCommunityCommentRepository },
+    OnchurchListPublicCommunityCommentsUseCase,
+    OnchurchCreateMyCommunityCommentUseCase,
+    OnchurchDeleteMyCommunityCommentUseCase,
     OnchurchCommunityChurchResolver,
     OnchurchCreateMyCommunityPostUseCase,
     OnchurchUpdateMyCommunityPostUseCase,

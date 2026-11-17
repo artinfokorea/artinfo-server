@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { OnchurchCommunityPost } from '@/onchurch/community/domain/entity/onchurch-community-post.entity';
 import { OnchurchCommunityCategory } from '@/onchurch/community/domain/entity/onchurch-community-category.entity';
+import { OnchurchCommunityComment } from '@/onchurch/community/domain/entity/onchurch-community-comment.entity';
 
 // ── 카테고리 ─────────────────────────────────────────────
 export class OnchurchCommunityCategoryResponse {
@@ -36,9 +37,10 @@ export class OnchurchCommunityPostResponse {
   @ApiProperty({ type: [String] }) photoUrls: string[];
   @ApiProperty({ type: String }) photoRatio: string;
   @ApiProperty({ type: String, nullable: true }) videoUrl: string | null;
+  @ApiProperty({ type: Number, description: '댓글 수' }) commentCount: number;
   @ApiProperty({ type: String }) createdAt: string;
 
-  constructor(post: OnchurchCommunityPost) {
+  constructor(post: OnchurchCommunityPost, commentCount = 0) {
     this.id = post.id;
     this.category = post.category;
     this.authorName = post.authorName;
@@ -48,6 +50,7 @@ export class OnchurchCommunityPostResponse {
     this.photoUrls = post.photoUrls ?? [];
     this.photoRatio = post.photoRatio ?? '1:1';
     this.videoUrl = post.videoUrl;
+    this.commentCount = commentCount;
     this.createdAt = post.createdAt.toISOString();
   }
 }
@@ -59,9 +62,37 @@ export class OnchurchPublicCommunityPostListResponse {
   @ApiProperty({ type: Number })
   totalCount: number;
 
-  constructor(items: OnchurchCommunityPost[], totalCount: number) {
-    this.posts = items.map((p) => new OnchurchCommunityPostResponse(p));
+  constructor(items: OnchurchCommunityPost[], totalCount: number, commentCounts?: Map<number, number>) {
+    this.posts = items.map((p) => new OnchurchCommunityPostResponse(p, commentCounts?.get(p.id) ?? 0));
     this.totalCount = totalCount;
+  }
+}
+
+// ── 댓글 ─────────────────────────────────────────────────
+export class OnchurchCommunityCommentResponse {
+  @ApiProperty({ type: Number }) id: number;
+  @ApiProperty({ type: Number }) postId: number;
+  @ApiProperty({ type: Number }) authorId: number;
+  @ApiProperty({ type: String }) authorName: string;
+  @ApiProperty({ type: String }) content: string;
+  @ApiProperty({ type: String }) createdAt: string;
+
+  constructor(c: OnchurchCommunityComment) {
+    this.id = c.id;
+    this.postId = c.postId;
+    this.authorId = c.authorId;
+    this.authorName = c.authorName;
+    this.content = c.content;
+    this.createdAt = c.createdAt.toISOString();
+  }
+}
+
+export class OnchurchCommunityCommentListResponse {
+  @ApiProperty({ type: [OnchurchCommunityCommentResponse] })
+  comments: OnchurchCommunityCommentResponse[];
+
+  constructor(items: OnchurchCommunityComment[]) {
+    this.comments = items.map((c) => new OnchurchCommunityCommentResponse(c));
   }
 }
 
