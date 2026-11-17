@@ -16,9 +16,10 @@ import {
   OnchurchGetPublicCustomPageUseCase,
 } from '@/onchurch/custom-page/application/usecase/onchurch-custom-page.usecase';
 import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
+import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OnchurchCustomPage]), OnchurchChurchModule],
+  imports: [TypeOrmModule.forFeature([OnchurchCustomPage]), OnchurchChurchModule, OnchurchUserModule],
   controllers: [OnchurchCustomPageController, OnchurchPublicCustomPageController],
   providers: [
     { provide: ONCHURCH_CUSTOM_PAGE_REPOSITORY, useClass: OnchurchCustomPageRepository },

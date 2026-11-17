@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsBoolean, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsArray, IsBoolean, IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
 import { ArrayType } from '@/common/decorator/validator';
 import { OnchurchCustomPageWriteCommand } from '@/onchurch/custom-page/application/command/onchurch-custom-page-write.command';
-import { OnchurchCustomPageBlock } from '@/onchurch/custom-page/domain/entity/onchurch-custom-page.entity';
+import { ONCHURCH_CUSTOM_PAGE_VISIBILITY, OnchurchCustomPageBlock } from '@/onchurch/custom-page/domain/entity/onchurch-custom-page.entity';
 
 export class OnchurchCustomPageWriteRequest {
   @IsString()
@@ -31,6 +31,11 @@ export class OnchurchCustomPageWriteRequest {
   @ApiProperty({ type: Boolean, required: false, default: true, description: '공개 사이트 노출 여부' })
   isActive?: boolean;
 
+  @IsOptional()
+  @IsEnum(ONCHURCH_CUSTOM_PAGE_VISIBILITY)
+  @ApiProperty({ enum: ONCHURCH_CUSTOM_PAGE_VISIBILITY, required: false, description: '공개 범위 (public 전체공개 | member 회원공개, 기본 public)' })
+  visibility?: ONCHURCH_CUSTOM_PAGE_VISIBILITY | null;
+
   toCommand(): OnchurchCustomPageWriteCommand {
     return new OnchurchCustomPageWriteCommand({
       slug: this.slug,
@@ -38,6 +43,7 @@ export class OnchurchCustomPageWriteRequest {
       summary: this.summary?.trim() || null,
       blocks: this.blocks ?? [],
       isActive: this.isActive ?? true,
+      visibility: this.visibility ?? ONCHURCH_CUSTOM_PAGE_VISIBILITY.PUBLIC,
     });
   }
 }

@@ -9,8 +9,11 @@ export class OnchurchCustomPageResponse {
   @ApiProperty({ type: [Object], description: '본문 블록 배열' }) blocks: OnchurchCustomPageBlock[];
   @ApiProperty({ type: Number, description: '커스텀 페이지들끼리의 노출 순서' }) sortOrder: number;
   @ApiProperty({ type: Boolean, description: '공개 사이트 노출 여부' }) isActive: boolean;
+  @ApiProperty({ type: String, description: '공개 범위 (public 전체공개 | member 회원공개)' }) visibility: string;
+  // 공개 조회에서 회원공개 페이지를 교인이 아닌 사람이 열면 true — 본문(blocks)은 비워서 내려간다.
+  @ApiProperty({ type: Boolean, description: '회원공개 페이지인데 열람 권한이 없어 본문이 비워졌는지' }) locked: boolean;
 
-  constructor(p: OnchurchCustomPage) {
+  constructor(p: OnchurchCustomPage, opts?: { locked?: boolean }) {
     this.id = p.id;
     this.slug = p.slug;
     this.title = p.title;
@@ -18,6 +21,9 @@ export class OnchurchCustomPageResponse {
     this.blocks = p.blocks ?? [];
     this.sortOrder = p.sortOrder;
     this.isActive = p.isActive;
+    this.visibility = p.visibility;
+    this.locked = opts?.locked ?? false;
+    if (this.locked) this.blocks = [];
   }
 }
 

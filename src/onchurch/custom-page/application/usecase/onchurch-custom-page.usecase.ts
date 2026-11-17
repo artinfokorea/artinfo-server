@@ -5,7 +5,8 @@ import {
 } from '@/onchurch/custom-page/domain/repository/onchurch-custom-page.repository.interface';
 import { ONCHURCH_CHURCH_REPOSITORY, IOnchurchChurchRepository } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
 import { OnchurchChurchManagerResolver } from '@/onchurch/church/application/service/onchurch-church-manager.resolver';
-import { OnchurchCustomPage } from '@/onchurch/custom-page/domain/entity/onchurch-custom-page.entity';
+import { ONCHURCH_CUSTOM_PAGE_VISIBILITY, OnchurchCustomPage } from '@/onchurch/custom-page/domain/entity/onchurch-custom-page.entity';
+import { ONCHURCH_USER_REPOSITORY, IOnchurchUserRepository } from '@/onchurch/user/domain/repository/onchurch-user.repository.interface';
 import { OnchurchCustomPageWriteCommand } from '@/onchurch/custom-page/application/command/onchurch-custom-page-write.command';
 import {
   OnchurchCustomPageChurchNotConfigured,
@@ -129,6 +130,12 @@ export class OnchurchListPublicCustomPagesUseCase {
   }
 }
 
+export interface PublicCustomPageView {
+  page: OnchurchCustomPage;
+  // 회원공개 페이지를 교인이 아닌 사람이 열었을 때 true. 호출자는 본문을 비워서 내려준다.
+  locked: boolean;
+}
+
 @Injectable()
 export class OnchurchGetPublicCustomPageUseCase {
   constructor(
@@ -136,13 +143,19 @@ export class OnchurchGetPublicCustomPageUseCase {
     private readonly pageRepository: IOnchurchCustomPageRepository,
     @Inject(ONCHURCH_CHURCH_REPOSITORY)
     private readonly churchRepository: IOnchurchChurchRepository,
+    @Inject(ONCHURCH_USER_REPOSITORY)
+    private readonly userRepository: IOnchurchUserRepository,
   ) {}
 
-  async execute(churchSlug: string, pageSlug: string): Promise<OnchurchCustomPage> {
+  async execute(churchSlug: string, pageSlug: string, viewerUserId?: number | null): Promise<PublicCustomPageView> {
     const church = await this.churchRepository.findBySlug(churchSlug);
     if (!church) throw new OnchurchCustomPageNotFound();
     const page = await this.pageRepository.findActiveBySlug(church.id, (pageSlug ?? '').trim().toLowerCase());
     if (!page) throw new OnchurchCustomPageNotFound();
-    return page;
+    if (page.visibility !== ONCHURCH_CUSTOM_PAGE_VISIBILITY.MEMBER) return { page, locked: false };
+
+    // 회원공개 — 갤러리와 같은 기준: 이 교회 소속(역할 무관) 로그인 사용자만 본문을 본다.
+    const isMember = viewerUserId != null && !!(await this.userRepository.findMemberByChurchId(church.id, viewerUserId));
+    return { page, locked: !isMember };
   }
 }

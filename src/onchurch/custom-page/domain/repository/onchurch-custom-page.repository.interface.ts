@@ -1,4 +1,4 @@
-import { OnchurchCustomPage, OnchurchCustomPageBlock } from '@/onchurch/custom-page/domain/entity/onchurch-custom-page.entity';
+import { ONCHURCH_CUSTOM_PAGE_VISIBILITY, OnchurchCustomPage, OnchurchCustomPageBlock } from '@/onchurch/custom-page/domain/entity/onchurch-custom-page.entity';
 
 export const ONCHURCH_CUSTOM_PAGE_REPOSITORY = Symbol('ONCHURCH_CUSTOM_PAGE_REPOSITORY');
 
@@ -8,6 +8,7 @@ export interface OnchurchCustomPageWriteParams {
   summary: string | null;
   blocks: OnchurchCustomPageBlock[];
   isActive: boolean;
+  visibility: ONCHURCH_CUSTOM_PAGE_VISIBILITY;
 }
 
 export interface IOnchurchCustomPageRepository {
