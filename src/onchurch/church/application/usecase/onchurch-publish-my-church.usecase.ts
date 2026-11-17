@@ -71,8 +71,11 @@ export class OnchurchPublishMyChurchUseCase {
 
     let user = await this.userRepository.findOneOrThrowById(ownerId);
 
-    // 첫 publish ON: 7일 무료 체험 자동 부여
-    const isFirstPublish = !existing.firstPublishedAt;
+    // 첫 오픈 시각이 비어 있으면 이번에 채운다.
+    // 단, 이미 운영 중(is_published=true)인데 비어 있는 경우(마스터 ON·과거 데이터)는 '첫 오픈'이 아니므로
+    // 무료 체험 부여와 알림 메일은 건너뛰고 시각만 채운다.
+    const needsFirstPublishedAt = !existing.firstPublishedAt;
+    const isFirstPublish = needsFirstPublishedAt && !existing.isPublished;
     const now = new Date();
     if (isFirstPublish) {
       // 7일 후 날짜의 한국시간 23:59:59까지 무료체험.
@@ -84,7 +87,7 @@ export class OnchurchPublishMyChurchUseCase {
       throw new OnchurchSubscriptionRequired();
     }
 
-    const church = await this.churchRepository.updatePublished(ownerId, true, isFirstPublish ? now : undefined);
+    const church = await this.churchRepository.updatePublished(ownerId, true, needsFirstPublishedAt ? now : undefined);
 
     // 첫 오픈 알림 메일 — 교회 사이트를 처음 공개한 시점에만 운영자에게 발송한다.
     // 실패해도 오픈 자체는 통과시킨다.
