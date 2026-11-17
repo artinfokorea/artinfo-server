@@ -47,3 +47,27 @@ export class OnchurchCommunityForbidden extends HttpException {
     );
   }
 }
+
+export class OnchurchCommunityCommentNotFound extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-COMMUNITY-005',
+        message: '댓글을 찾을 수 없습니다.',
+      },
+      HttpStatus.NOT_FOUND,
+    );
+  }
+}
+
+export class OnchurchCommunityCommentForbidden extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-COMMUNITY-006',
+        message: '본인이 작성한 댓글만 삭제할 수 있습니다.',
+      },
+      HttpStatus.FORBIDDEN,
+    );
+  }
+}
