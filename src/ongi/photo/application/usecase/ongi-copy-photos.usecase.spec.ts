@@ -5,6 +5,7 @@ import { IOngiAlbumRepository } from '@/ongi/album/domain/repository/ongi-album.
 import { OngiPhoto, OngiPhotoCreator } from '@/ongi/photo/domain/entity/ongi-photo.entity';
 import { OngiNotGroupMember } from '@/ongi/group/domain/exception/ongi-group.exception';
 import { OngiAlbumNotInGroup } from '@/ongi/photo/domain/exception/ongi-photo.exception';
+import { OngiPushService } from '@/ongi/push/application/service/ongi-push.service';
 
 /**
  * 사용자: 1 엄마 · 2 할머니 · 9 모르는 사람
@@ -12,15 +13,15 @@ import { OngiAlbumNotInGroup } from '@/ongi/photo/domain/exception/ongi-photo.ex
  * 사진: 100 엄마가 우리 가족에 올림 · 101 할머니가 우리 가족에 올림 · 300 다른 집 사진 · 200 외가 사진
  */
 const MEMBERS = [
-  { id: 101, userId: 1, groupId: 10, role: 'admin' },
-  { id: 102, userId: 2, groupId: 10, role: 'member' },
-  { id: 201, userId: 1, groupId: 20, role: 'member' },
-  { id: 202, userId: 2, groupId: 20, role: 'member' },
+  { id: 101, userId: 1, groupId: 10, role: 'admin', name: '엄마' },
+  { id: 102, userId: 2, groupId: 10, role: 'member', name: '할머니' },
+  { id: 201, userId: 1, groupId: 20, role: 'member', name: '큰딸' },
+  { id: 202, userId: 2, groupId: 20, role: 'member', name: '외할머니' },
   { id: 309, userId: 9, groupId: 30, role: 'admin' },
   { id: 301, userId: 1, groupId: 30, role: 'pending' },
 ];
 const at = (iso: string) => new Date(iso);
-const photo = (id: number, groupId: number, authorMemberId: number, createdAt: string) =>
+const photo = (id: number, groupId: number, authorMemberId: number, createdAt: string, mediaType: 'photo' | 'video' = 'photo') =>
   ({
     id,
     groupId,
@@ -31,13 +32,14 @@ const photo = (id: number, groupId: number, authorMemberId: number, createdAt: s
     aspectRatio: 1,
     caption: null,
     location: null,
-    mediaType: 'photo',
+    mediaType,
     durationSeconds: null,
     createdAt: at(createdAt),
   }) as OngiPhoto;
 const PHOTOS = [
   photo(100, 10, 101, '2026-10-01T00:00:00Z'),
   photo(101, 10, 102, '2026-10-02T00:00:00Z'),
+  photo(102, 10, 101, '2026-10-02T12:00:00Z', 'video'),
   photo(200, 20, 201, '2026-10-03T00:00:00Z'),
   photo(300, 30, 309, '2026-10-04T00:00:00Z'),
 ];
@@ -61,7 +63,9 @@ function build() {
   const albumRepository = {
     findById: async (id: number) => ALBUMS.find(a => a.id === id) ?? null,
   } as unknown as IOngiAlbumRepository;
-  return { useCase: new OngiCopyPhotosUseCase(photoRepository, memberRepository, albumRepository), created };
+  const notifyGroup = jest.fn();
+  const pushService = { notifyGroup } as unknown as OngiPushService;
+  return { useCase: new OngiCopyPhotosUseCase(photoRepository, memberRepository, albumRepository, pushService), created, notifyGroup };
 }
 
 describe('OngiCopyPhotosUseCase — 다른 가족 공간에 사진 공유(복사)', () => {
@@ -109,5 +113,38 @@ describe('OngiCopyPhotosUseCase — 다른 가족 공간에 사진 공유(복사
   it('앨범이 대상 공간 소속이 아니면 거부한다', async () => {
     const { useCase } = build();
     await expect(useCase.execute(1, [100], 20, 3001)).rejects.toBeInstanceOf(OngiAlbumNotInGroup);
+  });
+
+  describe('대상 공간 구성원에게 푸시 — 업로드와 같은 photo 종류, 발신자(나)는 notifyGroup 이 뺀다', () => {
+    it('1장을 공유하면 대상 공간(20)에 "큰딸님이 사진 1장을 공유했어요" 를 보내고 탭하면 새로 만든 사진으로 간다', async () => {
+      const { useCase, notifyGroup } = build();
+      await useCase.execute(1, [100], 20, null);
+      expect(notifyGroup).toHaveBeenCalledTimes(1);
+      expect(notifyGroup).toHaveBeenCalledWith(20, 1, {
+        title: '온기',
+        body: '큰딸님이 사진 1장을 공유했어요',
+        data: { type: 'photo', groupId: '20', photoId: '1001' },
+        category: 'photo',
+      });
+    });
+
+    it('이름은 대상 공간에서의 호칭(외할머니)이고, 여러 장이면 장수를 센다', async () => {
+      const { useCase, notifyGroup } = build();
+      await useCase.execute(2, [101, 100], 20, 2001);
+      expect(notifyGroup).toHaveBeenCalledWith(20, 2, expect.objectContaining({ body: '외할머니님이 사진 2장을 공유했어요' }));
+    });
+
+    it('영상이 섞여 있으면 "사진·영상 N개" 로 쓴다', async () => {
+      const { useCase, notifyGroup } = build();
+      await useCase.execute(1, [100, 102], 20, null);
+      expect(notifyGroup).toHaveBeenCalledWith(20, 1, expect.objectContaining({ body: '큰딸님이 사진·영상 2개를 공유했어요' }));
+    });
+
+    it('한 장도 복사되지 않았으면(전부 건너뜀) 푸시를 보내지 않는다', async () => {
+      const { useCase, notifyGroup } = build();
+      const result = await useCase.execute(1, [999, 200], 20, null);
+      expect(result.copiedIds).toEqual([]);
+      expect(notifyGroup).not.toHaveBeenCalled();
+    });
   });
 });
