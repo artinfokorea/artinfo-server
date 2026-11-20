@@ -27,4 +27,7 @@ export interface IOnchurchUserRepository {
   findMembersByChurchId(churchId: number): Promise<OnchurchUser[]>;
   findMemberByChurchId(churchId: number, id: number): Promise<OnchurchUser | null>;
   softDeleteById(id: number): Promise<void>;
+  // 회원 탈퇴: 로그인 토큰을 지우고, 개인정보(아이디·이름·연락처·비밀번호)를 파기한 뒤 계정을 삭제 처리한다.
+  // 작성한 교제 글·댓글은 남기되 작성자 이름을 지운다.
+  withdraw(id: number): Promise<void>;
 }

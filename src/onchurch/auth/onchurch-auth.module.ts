@@ -15,6 +15,7 @@ import { OnchurchSendVerificationUseCase } from '@/onchurch/auth/application/use
 import { OnchurchVerifyCodeUseCase } from '@/onchurch/auth/application/usecase/onchurch-verify-code.usecase';
 import { OnchurchFindLoginIdsUseCase } from '@/onchurch/auth/application/usecase/onchurch-find-login-ids.usecase';
 import { OnchurchResetPasswordUseCase } from '@/onchurch/auth/application/usecase/onchurch-reset-password.usecase';
+import { OnchurchWithdrawUseCase } from '@/onchurch/auth/application/usecase/onchurch-withdraw.usecase';
 import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
 import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
 import { OnchurchAboutModule } from '@/onchurch/about/onchurch-about.module';
@@ -41,6 +42,7 @@ import { AwsSesService } from '@/aws/ses/aws-ses.service';
     OnchurchCheckLoginIdUseCase,
     OnchurchLoginUseCase,
     OnchurchAppLoginUseCase,
+    OnchurchWithdrawUseCase,
     OnchurchRefreshTokensUseCase,
     OnchurchSendVerificationUseCase,
     OnchurchVerifyCodeUseCase,

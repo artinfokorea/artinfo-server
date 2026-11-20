@@ -143,3 +143,15 @@ export class OnchurchNoChurch extends HttpException {
     );
   }
 }
+
+export class OnchurchWithdrawNotAllowed extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-AUTH-013',
+        message: '교회를 운영 중인 계정은 바로 탈퇴할 수 없습니다. 카카오톡 채널로 문의해주세요.',
+      },
+      HttpStatus.CONFLICT,
+    );
+  }
+}
