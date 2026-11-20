@@ -5,6 +5,8 @@ import { IOnchurchUserRepository } from '@/onchurch/user/domain/repository/onchu
 import { ONCHURCH_USER_ROLE, OnchurchUser } from '@/onchurch/user/domain/entity/onchurch-user.entity';
 import { OnchurchUserNotFound } from '@/onchurch/user/domain/exception/onchurch-user.exception';
 
+const WITHDRAWN_NAME = '탈퇴한 회원';
+
 @Injectable()
 export class OnchurchUserRepository implements IOnchurchUserRepository {
   constructor(
@@ -94,5 +96,21 @@ export class OnchurchUserRepository implements IOnchurchUserRepository {
 
   async softDeleteById(id: number): Promise<void> {
     await this.userRepository.softDelete({ id });
+  }
+
+  async withdraw(id: number): Promise<void> {
+    await this.userRepository.manager.transaction(async manager => {
+      await manager.query(`DELETE FROM onchurch_auths WHERE user_id = $1`, [id]);
+      await manager.query(`UPDATE onchurch_community_posts SET author_name = $2 WHERE author_id = $1`, [id, WITHDRAWN_NAME]);
+      await manager.query(`UPDATE onchurch_community_comments SET author_name = $2 WHERE author_id = $1`, [id, WITHDRAWN_NAME]);
+      // login_id 는 unique 라 값을 비워 같은 아이디로 다시 가입할 수 있게 한다. 비밀번호는 로그인할 수 없는 값으로 바꾼다.
+      await manager.query(
+        `UPDATE onchurch_users
+            SET login_id = $2, name = $3, phone = '', password = '', church_id = NULL, church_name = NULL,
+                marketing_consent = false, deleted_at = now(), updated_at = now()
+          WHERE id = $1`,
+        [id, `withdrawn-${id}-${Date.now()}`, WITHDRAWN_NAME],
+      );
+    });
   }
 }

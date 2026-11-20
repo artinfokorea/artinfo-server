@@ -26,6 +26,11 @@ import { OnchurchFindLoginIdsResponse } from '@/onchurch/auth/presentation/dto/r
 import { OnchurchCheckLoginIdRequest } from '@/onchurch/auth/presentation/dto/request/onchurch-check-login-id.request';
 import { OnchurchCheckLoginIdResponse } from '@/onchurch/auth/presentation/dto/response/onchurch-check-login-id.response';
 import { OkResponse } from '@/common/response/ok.response';
+import { OnchurchWithdrawUseCase } from '@/onchurch/auth/application/usecase/onchurch-withdraw.usecase';
+import { OnchurchWithdrawRequest } from '@/onchurch/auth/presentation/dto/request/onchurch-withdraw.request';
+import { AuthSignature } from '@/common/decorator/AuthSignature';
+import { UserSignature } from '@/common/type/type';
+import { USER_TYPE } from '@/user/entity/user.entity';
 
 @RestApiController('/onchurch/auths', 'Onchurch Auth')
 export class OnchurchAuthController {
@@ -40,6 +45,7 @@ export class OnchurchAuthController {
     private readonly findLoginIdsUseCase: OnchurchFindLoginIdsUseCase,
     private readonly resetPasswordUseCase: OnchurchResetPasswordUseCase,
     private readonly appLoginUseCase: OnchurchAppLoginUseCase,
+    private readonly withdrawUseCase: OnchurchWithdrawUseCase,
   ) {}
 
   @RestApiPost(OnchurchSendVerificationResponse, { path: '/verifications/mobile', description: '온처치 휴대폰 인증번호 발송' })
@@ -108,6 +114,13 @@ export class OnchurchAuthController {
     const { auth, church } = await this.appLoginUseCase.execute({ userId: request.userId, password: request.password });
 
     return new OnchurchAppLoginResponse(auth, church);
+  }
+
+  @RestApiPost(OkResponse, { path: '/withdraw', description: '온처치 회원 탈퇴 (비밀번호 확인 후 계정·개인정보 파기)', auth: [USER_TYPE.CLIENT] })
+  async withdraw(@AuthSignature() signature: UserSignature, @Body() request: OnchurchWithdrawRequest) {
+    await this.withdrawUseCase.execute(signature.id, request.password);
+
+    return new OkResponse();
   }
 
   @RestApiPost(OnchurchAuthTokensResponse, { path: '/refresh', description: '온처치 토큰 재발급' })
