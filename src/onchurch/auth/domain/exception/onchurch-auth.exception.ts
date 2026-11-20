@@ -131,3 +131,15 @@ export class OnchurchNotAdmin extends HttpException {
     );
   }
 }
+
+export class OnchurchNoChurch extends HttpException {
+  constructor() {
+    super(
+      {
+        code: 'ONCHURCH-AUTH-012',
+        message: '소속된 교회가 없는 계정입니다. 교회를 선택해 가입한 계정으로 로그인해주세요.',
+      },
+      HttpStatus.FORBIDDEN,
+    );
+  }
+}

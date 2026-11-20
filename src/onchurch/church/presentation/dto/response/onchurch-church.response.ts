@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { OnchurchChurch, OnchurchHomeCustomLink } from '@/onchurch/church/domain/entity/onchurch-church.entity';
 import { OnchurchUser } from '@/onchurch/user/domain/entity/onchurch-user.entity';
+import type { OnchurchChurchSearchRow } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
 import { OnchurchCustomDomainMapping } from '@/onchurch/church/application/usecase/onchurch-list-custom-domains.usecase';
 import type { OnchurchSiteDesign } from '@/onchurch/church/application/service/onchurch-site-design';
 
@@ -187,6 +188,35 @@ export class OnchurchPublicChurchListResponse {
 
   constructor(churches: OnchurchChurch[]) {
     this.churches = churches.map((c) => new OnchurchPublicChurchListItemResponse(c));
+  }
+}
+
+export class OnchurchChurchSearchItemResponse {
+  @ApiProperty({ type: Number }) id: number;
+  @ApiProperty({ type: String }) slug: string;
+  @ApiProperty({ type: String }) name: string;
+  @ApiProperty({ type: String, nullable: true }) logoUrl: string | null;
+  @ApiProperty({ type: String, nullable: true }) address: string | null;
+  @ApiProperty({ type: String, nullable: true, description: '담임목사 이름 (교회 소개에 등록된 값, 없으면 null)' }) pastorName: string | null;
+  @ApiProperty({ type: String, nullable: true, description: '교회 자체 도메인 대표 호스트 (미연결이면 null)' }) customDomain: string | null;
+
+  constructor(row: OnchurchChurchSearchRow) {
+    this.id = row.church.id;
+    this.slug = row.church.slug;
+    this.name = row.church.name;
+    this.logoUrl = row.church.logoUrl ?? null;
+    this.address = row.church.address ?? null;
+    this.pastorName = row.pastorName;
+    this.customDomain = row.church.customDomain?.trim() || null;
+  }
+}
+
+export class OnchurchChurchSearchResponse {
+  @ApiProperty({ type: [OnchurchChurchSearchItemResponse] })
+  churches: OnchurchChurchSearchItemResponse[];
+
+  constructor(rows: OnchurchChurchSearchRow[]) {
+    this.churches = rows.map((r) => new OnchurchChurchSearchItemResponse(r));
   }
 }
 

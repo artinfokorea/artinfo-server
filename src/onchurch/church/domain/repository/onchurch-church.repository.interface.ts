@@ -25,12 +25,20 @@ export interface OnchurchChurchUpsertParams {
   siteLang: string;
 }
 
+// 교회 이름 검색 결과 한 줄. 담임목사 이름은 교회 소개(onchurch_pastors)에 등록된 값이며 없으면 null.
+export interface OnchurchChurchSearchRow {
+  church: OnchurchChurch;
+  pastorName: string | null;
+}
+
 export interface IOnchurchChurchRepository {
   findByOwnerId(ownerId: number): Promise<OnchurchChurch | null>;
   findById(id: number): Promise<OnchurchChurch | null>;
   findBySlug(slug: string): Promise<OnchurchChurch | null>;
   findPublishedBySlug(slug: string): Promise<OnchurchChurch | null>;
   findAllPublished(): Promise<OnchurchChurch[]>;
+  // 운영 중인 교회를 이름(부분 일치, 대소문자 무시)으로 찾는다. 담임목사 이름을 함께 준다.
+  searchPublishedByName(keyword: string, limit: number): Promise<OnchurchChurchSearchRow[]>;
   // 자체 도메인(custom_domain)이 설정된 교회 전체. 미들웨어의 호스트→교회 매핑에 쓴다.
   // 미공개(is_published=false) 교회도 포함한다 — 라우팅은 되어야 하고, 색인 차단은 robots 단계가 맡는다.
   findAllWithCustomDomain(): Promise<OnchurchChurch[]>;
