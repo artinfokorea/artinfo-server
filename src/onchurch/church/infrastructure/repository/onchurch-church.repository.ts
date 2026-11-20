@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { IOnchurchChurchRepository, OnchurchChurchUpsertParams } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
+import { IOnchurchChurchRepository, OnchurchChurchSearchRow, OnchurchChurchUpsertParams } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
 import { OnchurchChurch } from '@/onchurch/church/domain/entity/onchurch-church.entity';
 import type { OnchurchSiteDesign } from '@/onchurch/church/application/service/onchurch-site-design';
 import { OnchurchUser } from '@/onchurch/user/domain/entity/onchurch-user.entity';
+import { OnchurchPastor } from '@/onchurch/about/domain/entity/onchurch-pastor.entity';
 import { OnchurchChurchNotFound } from '@/onchurch/church/domain/exception/onchurch-church.exception';
 
 @Injectable()
@@ -35,6 +36,22 @@ export class OnchurchChurchRepository implements IOnchurchChurchRepository {
       where: { isPublished: true },
       order: { sortOrder: { direction: 'ASC', nulls: 'LAST' }, createdAt: 'DESC', id: 'DESC' },
     });
+  }
+
+  async searchPublishedByName(keyword: string, limit: number): Promise<OnchurchChurchSearchRow[]> {
+    // 검색어의 %, _ 가 와일드카드로 먹지 않도록 이스케이프한다.
+    const escaped = keyword.replace(/[\\%_]/g, (ch) => `\\${ch}`);
+    const { entities, raw } = await this.churchRepository
+      .createQueryBuilder('church')
+      .leftJoin(OnchurchPastor, 'pastor', 'pastor.church_id = church.id AND pastor.deleted_at IS NULL')
+      .addSelect('pastor.name', 'pastor_name')
+      .where('church.is_published = :pub', { pub: true })
+      .andWhere('church.name ILIKE :kw', { kw: `%${escaped}%` })
+      .orderBy('church.name', 'ASC')
+      .addOrderBy('church.id', 'ASC')
+      .limit(limit)
+      .getRawAndEntities();
+    return entities.map((church, i) => ({ church, pastorName: raw[i]?.pastor_name ?? null }));
   }
 
   async findAllWithCustomDomain(): Promise<OnchurchChurch[]> {

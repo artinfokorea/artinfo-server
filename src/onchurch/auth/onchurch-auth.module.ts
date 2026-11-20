@@ -9,6 +9,7 @@ import { OnchurchSignupUseCase } from '@/onchurch/auth/application/usecase/onchu
 import { OnchurchSignupWithChurchUseCase } from '@/onchurch/auth/application/usecase/onchurch-signup-with-church.usecase';
 import { OnchurchCheckLoginIdUseCase } from '@/onchurch/auth/application/usecase/onchurch-check-login-id.usecase';
 import { OnchurchLoginUseCase } from '@/onchurch/auth/application/usecase/onchurch-login.usecase';
+import { OnchurchAppLoginUseCase } from '@/onchurch/auth/application/usecase/onchurch-app-login.usecase';
 import { OnchurchRefreshTokensUseCase } from '@/onchurch/auth/application/usecase/onchurch-refresh-tokens.usecase';
 import { OnchurchSendVerificationUseCase } from '@/onchurch/auth/application/usecase/onchurch-send-verification.usecase';
 import { OnchurchVerifyCodeUseCase } from '@/onchurch/auth/application/usecase/onchurch-verify-code.usecase';
@@ -39,6 +40,7 @@ import { AwsSesService } from '@/aws/ses/aws-ses.service';
     OnchurchSignupWithChurchUseCase,
     OnchurchCheckLoginIdUseCase,
     OnchurchLoginUseCase,
+    OnchurchAppLoginUseCase,
     OnchurchRefreshTokensUseCase,
     OnchurchSendVerificationUseCase,
     OnchurchVerifyCodeUseCase,

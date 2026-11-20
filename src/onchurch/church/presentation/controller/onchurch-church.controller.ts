@@ -6,6 +6,7 @@ import { USER_TYPE } from '@/user/entity/user.entity';
 import { OnchurchScanMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-scan-my-church.usecase';
 import { OnchurchUpsertMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-upsert-my-church.usecase';
 import { OnchurchPublishMyChurchUseCase } from '@/onchurch/church/application/usecase/onchurch-publish-my-church.usecase';
+import { OnchurchSearchPublicChurchesUseCase } from '@/onchurch/church/application/usecase/onchurch-search-public-churches.usecase';
 import { OnchurchCheckSlugUseCase } from '@/onchurch/church/application/usecase/onchurch-check-slug.usecase';
 import { OnchurchUpdateMySiteTemplateUseCase } from '@/onchurch/church/application/usecase/onchurch-update-my-site-template.usecase';
 import { OnchurchUpdateMySiteDesignUseCase } from '@/onchurch/church/application/usecase/onchurch-update-my-site-design.usecase';
@@ -15,7 +16,7 @@ import { OnchurchPublishMyChurchRequest } from '@/onchurch/church/presentation/d
 import { OnchurchUpdateMySiteTemplateRequest } from '@/onchurch/church/presentation/dto/request/onchurch-update-my-site-template.request';
 import { OnchurchUpdateMySiteDesignRequest } from '@/onchurch/church/presentation/dto/request/onchurch-update-my-site-design.request';
 import { OnchurchApplyReferralCodeRequest } from '@/onchurch/church/presentation/dto/request/onchurch-apply-referral-code.request';
-import { OnchurchChurchResponse, OnchurchMyChurchResponse } from '@/onchurch/church/presentation/dto/response/onchurch-church.response';
+import { OnchurchChurchResponse, OnchurchChurchSearchResponse, OnchurchMyChurchResponse } from '@/onchurch/church/presentation/dto/response/onchurch-church.response';
 import { OnchurchCheckSlugResponse } from '@/onchurch/church/presentation/dto/response/onchurch-check-slug.response';
 import { OnchurchMyReferralResponse } from '@/onchurch/church/presentation/dto/response/onchurch-referral.response';
 
@@ -30,7 +31,13 @@ export class OnchurchChurchController {
     private readonly updateMySiteDesignUseCase: OnchurchUpdateMySiteDesignUseCase,
     private readonly getMyReferralUseCase: OnchurchGetMyReferralUseCase,
     private readonly applyReferralCodeUseCase: OnchurchApplyReferralCodeUseCase,
+    private readonly searchPublicChurchesUseCase: OnchurchSearchPublicChurchesUseCase,
   ) {}
+
+  @RestApiGet(OnchurchChurchSearchResponse, { path: '/search', description: '공개 - 운영 중인 교회 이름 검색 (앱 회원가입의 교회 찾기. 로고·이름·주소·담임목사 이름)' })
+  async search(@Query('q') q?: string) {
+    return new OnchurchChurchSearchResponse(await this.searchPublicChurchesUseCase.execute(q));
+  }
 
   @RestApiGet(OnchurchCheckSlugResponse, { path: '/check-slug', description: '서브도메인 사용 가능 여부 확인 (본인이 이미 점유 중인 경우 사용 가능 처리)', auth: [USER_TYPE.CLIENT] })
   async checkSlug(@AuthSignature() signature: UserSignature, @Query('slug') slug: string) {

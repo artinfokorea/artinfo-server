@@ -18,6 +18,7 @@ import { OnchurchSaintModule } from '@/onchurch/saint/onchurch-saint.module';
 import { OnchurchVisitationModule } from '@/onchurch/visitation/onchurch-visitation.module';
 import { OnchurchAttendanceModule } from '@/onchurch/attendance/onchurch-attendance.module';
 import { OnchurchMasterModule } from '@/onchurch/master/onchurch-master.module';
+import { OnchurchAppVersionModule } from '@/onchurch/app-version/onchurch-app-version.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { OnchurchMasterModule } from '@/onchurch/master/onchurch-master.module';
     OnchurchVisitationModule,
     OnchurchAttendanceModule,
     OnchurchMasterModule,
+    OnchurchAppVersionModule,
   ],
 })
 export class OnchurchModule {}

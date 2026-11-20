@@ -4,6 +4,9 @@ import { OnchurchSignupUseCase } from '@/onchurch/auth/application/usecase/onchu
 import { OnchurchSignupWithChurchUseCase } from '@/onchurch/auth/application/usecase/onchurch-signup-with-church.usecase';
 import { OnchurchCheckLoginIdUseCase } from '@/onchurch/auth/application/usecase/onchurch-check-login-id.usecase';
 import { OnchurchLoginUseCase } from '@/onchurch/auth/application/usecase/onchurch-login.usecase';
+import { OnchurchAppLoginUseCase } from '@/onchurch/auth/application/usecase/onchurch-app-login.usecase';
+import { OnchurchAppLoginRequest } from '@/onchurch/auth/presentation/dto/request/onchurch-app-login.request';
+import { OnchurchAppLoginResponse } from '@/onchurch/auth/presentation/dto/response/onchurch-app-login.response';
 import { OnchurchRefreshTokensUseCase } from '@/onchurch/auth/application/usecase/onchurch-refresh-tokens.usecase';
 import { OnchurchSendVerificationUseCase } from '@/onchurch/auth/application/usecase/onchurch-send-verification.usecase';
 import { OnchurchVerifyCodeUseCase } from '@/onchurch/auth/application/usecase/onchurch-verify-code.usecase';
@@ -36,6 +39,7 @@ export class OnchurchAuthController {
     private readonly verifyCodeUseCase: OnchurchVerifyCodeUseCase,
     private readonly findLoginIdsUseCase: OnchurchFindLoginIdsUseCase,
     private readonly resetPasswordUseCase: OnchurchResetPasswordUseCase,
+    private readonly appLoginUseCase: OnchurchAppLoginUseCase,
   ) {}
 
   @RestApiPost(OnchurchSendVerificationResponse, { path: '/verifications/mobile', description: '온처치 휴대폰 인증번호 발송' })
@@ -97,6 +101,13 @@ export class OnchurchAuthController {
     const auth = await this.loginUseCase.execute(request.toCommand());
 
     return new OnchurchAuthTokensResponse(auth);
+  }
+
+  @RestApiPost(OnchurchAppLoginResponse, { path: '/app-login', description: '온처치 앱 로그인 (교회를 묻지 않고, 계정의 교회를 토큰과 함께 반환)' })
+  async appLogin(@Body() request: OnchurchAppLoginRequest) {
+    const { auth, church } = await this.appLoginUseCase.execute({ userId: request.userId, password: request.password });
+
+    return new OnchurchAppLoginResponse(auth, church);
   }
 
   @RestApiPost(OnchurchAuthTokensResponse, { path: '/refresh', description: '온처치 토큰 재발급' })
