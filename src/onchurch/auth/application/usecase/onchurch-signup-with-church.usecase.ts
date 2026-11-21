@@ -182,15 +182,19 @@ export class OnchurchSignupWithChurchUseCase {
 
 지금부터 7일 무료체험으로 교회 홈페이지 제작과 성도 관리 기능을 모두 이용해 보세요.
 
-홈페이지는 약 5분이면 우리 교회에 맞게 완성할 수 있으며, 컴퓨터(PC)에서 진행하시면 더욱 편리합니다.
+홈페이지는 약 5분이면 우리 교회에 맞게 완성할 수 있습니다.
 
 ▶ 로그인 정보
 · 아이디: ${loginId}
 · 임시 비밀번호: ${tempPassword}
 로그인 후 마이페이지에서 비밀번호를 변경해 주세요.
 
-▶ 지금 시작하기
+▶ 관리자 페이지 (홈페이지 꾸미기·성도 관리)
 https://everychurch.co.kr/admin
+※ 관리자 페이지는 컴퓨터(PC)에서만 이용하실 수 있습니다.
+
+▶ 우리 교회 홈페이지
+https://${loginId}.everychurch.co.kr
 
 이용 중 궁금한 점이나 도움이 필요하시면 언제든 편하게 문의해 주세요.
 http://pf.kakao.com/_slJXX/chat
