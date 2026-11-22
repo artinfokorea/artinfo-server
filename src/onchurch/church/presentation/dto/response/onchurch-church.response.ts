@@ -90,7 +90,11 @@ export class OnchurchChurchResponse {
   @ApiProperty({ type: String, required: false, nullable: true, description: '최초 사이트 오픈(첫 공개) 시각 — 한 번이라도 오픈하면 채워지고 이후 OFF해도 유지' })
   firstPublishedAt: string | null;
 
-  constructor(church: OnchurchChurch) {
+  @ApiProperty({ type: Boolean, required: false, description: '공개 사이트 조회에서만: 소유자가 테스트 계정(is_test)인지 — 시험 기능 노출 판단용' })
+  ownerIsTest?: boolean;
+
+  constructor(church: OnchurchChurch, ownerIsTest?: boolean) {
+    if (ownerIsTest !== undefined) this.ownerIsTest = ownerIsTest;
     this.id = church.id;
     this.slug = church.slug;
     this.name = church.name;
