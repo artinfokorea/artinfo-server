@@ -38,7 +38,7 @@ export class OnchurchPublicChurchController {
 
   @RestApiGet(OnchurchChurchResponse, { path: '/:slug', description: '공개 - 운영 중인 교회 메타데이터 (404 if not found or not published)' })
   async getPublic(@Param('slug') slug: string) {
-    const church = await this.getPublicChurchUseCase.execute(slug);
-    return new OnchurchChurchResponse(church);
+    const { church, ownerIsTest } = await this.getPublicChurchUseCase.executeWithOwner(slug);
+    return new OnchurchChurchResponse(church, ownerIsTest);
   }
 }
