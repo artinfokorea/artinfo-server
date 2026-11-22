@@ -6,6 +6,7 @@ import { OnchurchChurch } from '@/onchurch/church/domain/entity/onchurch-church.
 import { OnchurchPastor } from '@/onchurch/about/domain/entity/onchurch-pastor.entity';
 import { OnchurchWorshipService } from '@/onchurch/worship/domain/entity/onchurch-worship-service.entity';
 import { OnchurchChurchRequiredFieldsMissing } from '@/onchurch/church/domain/exception/onchurch-church.exception';
+import { ONCHURCH_USER_REPOSITORY, IOnchurchUserRepository } from '@/onchurch/user/domain/repository/onchurch-user.repository.interface';
 
 function hasChurchBaseFields(church: OnchurchChurch): boolean {
   return (
@@ -28,10 +29,16 @@ export class OnchurchChurchRequiredService {
 
     @InjectRepository(OnchurchWorshipService)
     private readonly worshipServiceRepository: Repository<OnchurchWorshipService>,
+
+    @Inject(ONCHURCH_USER_REPOSITORY)
+    private readonly userRepository: IOnchurchUserRepository,
   ) {}
 
   async hasAllRequired(church: OnchurchChurch): Promise<boolean> {
     if (!hasChurchBaseFields(church)) return false;
+
+    // 테스트 교회(소유자 is_test)는 교회 소개·예배 안내를 메뉴에서 끌 수 있어 담임목사·예배를 요구하지 않는다.
+    if (await this.isTestOwner(church.ownerId)) return true;
 
     const pastor = await this.pastorRepository.findOneBy({ churchId: church.id });
     if (!pastor || !pastor.name?.trim()) return false;
@@ -40,6 +47,15 @@ export class OnchurchChurchRequiredService {
     if (worshipCount === 0) return false;
 
     return true;
+  }
+
+  private async isTestOwner(ownerId: number): Promise<boolean> {
+    try {
+      const owner = await this.userRepository.findOneOrThrowById(ownerId);
+      return !!owner.isTest;
+    } catch {
+      return false;
+    }
   }
 
   async validateOrThrow(church: OnchurchChurch): Promise<void> {
