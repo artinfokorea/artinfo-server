@@ -191,7 +191,7 @@ export class OnchurchSignupWithChurchUseCase {
 
 ▶ 관리자 페이지 (홈페이지 꾸미기·성도 관리)
 https://everychurch.co.kr/admin
-※ 관리자 페이지는 컴퓨터(PC)에서만 이용하실 수 있습니다.
+※ 관리자 페이지는 컴퓨터(PC)에서 이용하시는 것을 권장합니다.
 
 ▶ 우리 교회 홈페이지
 https://${loginId}.everychurch.co.kr
