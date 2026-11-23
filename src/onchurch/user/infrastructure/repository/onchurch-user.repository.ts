@@ -98,6 +98,20 @@ export class OnchurchUserRepository implements IOnchurchUserRepository {
     await this.userRepository.softDelete({ id });
   }
 
+  async purgeFailedSignup(userId: number): Promise<void> {
+    await this.userRepository.manager.transaction(async manager => {
+      const churches: { id: number }[] = await manager.query(`SELECT id FROM onchurch_churches WHERE owner_id = $1`, [userId]);
+      const churchIds = churches.map(row => row.id);
+      if (churchIds.length > 0) {
+        await manager.query(`DELETE FROM onchurch_worship_services WHERE church_id = ANY($1)`, [churchIds]);
+        await manager.query(`DELETE FROM onchurch_pastors WHERE church_id = ANY($1)`, [churchIds]);
+        await manager.query(`DELETE FROM onchurch_churches WHERE id = ANY($1)`, [churchIds]);
+      }
+      await manager.query(`DELETE FROM onchurch_auths WHERE user_id = $1`, [userId]);
+      await manager.query(`DELETE FROM onchurch_users WHERE id = $1`, [userId]);
+    });
+  }
+
   async withdraw(id: number): Promise<void> {
     await this.userRepository.manager.transaction(async manager => {
       await manager.query(`DELETE FROM onchurch_auths WHERE user_id = $1`, [id]);

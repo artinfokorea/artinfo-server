@@ -87,15 +87,26 @@ export class OnchurchSignupWithChurchUseCase {
       mustChangePassword: true,
     });
 
+    // 교회 기본정보 + 연락처 (여기서 OWNER 승격) → 담임목사 → 대표 예배 → 공개 순으로 저장한다.
+    // 하나라도 실패하면 방금 만든 계정·교회를 모두 지운다 — 남겨 두면 가입은 실패했는데
+    // 같은 서브도메인으로 다시 가입할 때 '이미 사용 중'에 걸린다.
+    try {
+      await this.upsertChurchUseCase.execute(userId, this.buildChurchCommand(command));
+      await this.upsertPastorUseCase.execute(userId, this.buildPastorCommand(command));
+      await this.createWorshipServiceUseCase.execute(userId, this.buildWorshipCommand(command));
+      // 필수 4단계가 모두 채워졌으므로 자동 공개 → 7일 무료체험 즉시 시작.
+      await this.publishChurchUseCase.execute(userId, true);
+    } catch (error) {
+      try {
+        await this.userRepository.purgeFailedSignup(userId);
+      } catch (purgeError) {
+        this.logger.error(`가입 실패 정리 실패: userId=${userId}, slug=${command.slug}`, purgeError as any);
+      }
+      throw error;
+    }
+
+    // 인증 표시는 가입이 끝난 뒤에 지운다 — 중간에 실패하면 다시 인증하지 않고 바로 재시도할 수 있다.
     await this.redisRepository.delete(verifiedKey);
-
-    // 교회 기본정보 + 연락처 (여기서 OWNER 승격) → 담임목사 → 대표 예배 순으로 저장한다.
-    await this.upsertChurchUseCase.execute(userId, this.buildChurchCommand(command));
-    await this.upsertPastorUseCase.execute(userId, this.buildPastorCommand(command));
-    await this.createWorshipServiceUseCase.execute(userId, this.buildWorshipCommand(command));
-
-    // 필수 4단계가 모두 채워졌으므로 자동 공개 → 7일 무료체험 즉시 시작.
-    await this.publishChurchUseCase.execute(userId, true);
 
     // 추천인 코드(선택). 코드가 틀렸다고 가입을 실패시키지는 않는다 — 관리자 결제 화면에서 다시 입력할 수 있다.
     if (command.referralCode) {

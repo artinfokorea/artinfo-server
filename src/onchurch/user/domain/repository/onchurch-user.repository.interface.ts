@@ -30,4 +30,7 @@ export interface IOnchurchUserRepository {
   // 회원 탈퇴: 로그인 토큰을 지우고, 개인정보(아이디·이름·연락처·비밀번호)를 파기한 뒤 계정을 삭제 처리한다.
   // 작성한 교제 글·댓글은 남기되 작성자 이름을 지운다.
   withdraw(id: number): Promise<void>;
+  // 랜딩 통합 가입이 중간에 실패했을 때: 방금 만든 계정과 그 계정이 소유한 교회·담임목사·예배를 완전히 지운다
+  // (서브도메인·아이디를 다시 쓸 수 있게). 가입 흐름 밖에서는 쓰지 않는다.
+  purgeFailedSignup(userId: number): Promise<void>;
 }
