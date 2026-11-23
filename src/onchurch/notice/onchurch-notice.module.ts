@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { OnchurchPushModule } from '@/onchurch/push/onchurch-push.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OnchurchNotice } from '@/onchurch/notice/domain/entity/onchurch-notice.entity';
 import { OnchurchNoticeCategory } from '@/onchurch/notice/domain/entity/onchurch-notice-category.entity';
@@ -25,7 +26,7 @@ import {
 import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OnchurchNotice, OnchurchNoticeCategory]), OnchurchChurchModule],
+  imports: [OnchurchPushModule, TypeOrmModule.forFeature([OnchurchNotice, OnchurchNoticeCategory]), OnchurchChurchModule],
   controllers: [OnchurchNoticeController, OnchurchNoticeCategoryController, OnchurchPublicNoticeController],
   providers: [
     { provide: ONCHURCH_NOTICE_REPOSITORY, useClass: OnchurchNoticeRepository },

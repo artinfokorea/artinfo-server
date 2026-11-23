@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { OnchurchPushModule } from '@/onchurch/push/onchurch-push.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OnchurchCommunityPost } from '@/onchurch/community/domain/entity/onchurch-community-post.entity';
 import { OnchurchCommunityCategory } from '@/onchurch/community/domain/entity/onchurch-community-category.entity';
@@ -41,6 +42,7 @@ import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
 
 @Module({
   imports: [
+    OnchurchPushModule,
     TypeOrmModule.forFeature([OnchurchCommunityPost, OnchurchCommunityCategory, OnchurchCommunityComment]),
     OnchurchChurchModule,
     OnchurchUserModule,

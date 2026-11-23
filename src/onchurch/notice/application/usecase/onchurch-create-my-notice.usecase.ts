@@ -4,6 +4,7 @@ import { OnchurchChurchManagerResolver } from '@/onchurch/church/application/ser
 import { OnchurchNotice } from '@/onchurch/notice/domain/entity/onchurch-notice.entity';
 import { OnchurchNoticeWriteCommand } from '@/onchurch/notice/application/command/onchurch-notice-write.command';
 import { OnchurchNoticeChurchNotConfigured } from '@/onchurch/notice/domain/exception/onchurch-notice.exception';
+import { OnchurchPushService } from '@/onchurch/push/onchurch-push.service';
 
 @Injectable()
 export class OnchurchCreateMyNoticeUseCase {
@@ -12,11 +13,22 @@ export class OnchurchCreateMyNoticeUseCase {
     private readonly noticeRepository: IOnchurchNoticeRepository,
 
     private readonly managerResolver: OnchurchChurchManagerResolver,
+    private readonly push: OnchurchPushService,
   ) {}
 
   async execute(userId: number, command: OnchurchNoticeWriteCommand): Promise<OnchurchNotice> {
     const church = await this.managerResolver.resolveManagedChurch(userId);
     if (!church) throw new OnchurchNoticeChurchNotConfigured();
-    return this.noticeRepository.create(church.id, command);
+    const notice = await this.noticeRepository.create(church.id, command);
+    // 교회 사람들에게 앱 알림 — 응답을 기다리게 하지 않는다 (발송 실패는 서비스가 삼킨다)
+    void this.push.notifyChurchPost({
+      churchId: church.id,
+      authorId: userId,
+      kind: 'notice',
+      title: notice.title,
+      isActive: notice.isActive,
+      publishedAt: notice.publishedAt,
+    });
+    return notice;
   }
 }
