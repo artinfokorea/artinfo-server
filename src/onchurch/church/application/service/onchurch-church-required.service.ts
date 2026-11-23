@@ -1,61 +1,25 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { ONCHURCH_CHURCH_REPOSITORY, IOnchurchChurchRepository } from '@/onchurch/church/domain/repository/onchurch-church.repository.interface';
 import { OnchurchChurch } from '@/onchurch/church/domain/entity/onchurch-church.entity';
-import { OnchurchPastor } from '@/onchurch/about/domain/entity/onchurch-pastor.entity';
-import { OnchurchWorshipService } from '@/onchurch/worship/domain/entity/onchurch-worship-service.entity';
 import { OnchurchChurchRequiredFieldsMissing } from '@/onchurch/church/domain/exception/onchurch-church.exception';
-import { ONCHURCH_USER_REPOSITORY, IOnchurchUserRepository } from '@/onchurch/user/domain/repository/onchurch-user.repository.interface';
 
 function hasChurchBaseFields(church: OnchurchChurch): boolean {
-  return (
-    !!church.slug?.trim() &&
-    !!church.name?.trim() &&
-    !!church.phone?.trim() &&
-    !!church.email?.trim() &&
-    !!church.address?.trim()
-  );
+  return !!church.slug?.trim() && !!church.name?.trim() && !!church.phone?.trim() && !!church.email?.trim() && !!church.address?.trim();
 }
 
+/**
+ * 사이트 공개 필수 조건 — 기본 정보(서브도메인·이름)와 연락처(전화·이메일·주소).
+ * 담임목사·예배 안내는 새 관리자 화면에서 메뉴로 끌 수 있어 요구하지 않는다 (2026-11-23 모든 교회에 적용).
+ */
 @Injectable()
 export class OnchurchChurchRequiredService {
   constructor(
     @Inject(ONCHURCH_CHURCH_REPOSITORY)
     private readonly churchRepository: IOnchurchChurchRepository,
-
-    @InjectRepository(OnchurchPastor)
-    private readonly pastorRepository: Repository<OnchurchPastor>,
-
-    @InjectRepository(OnchurchWorshipService)
-    private readonly worshipServiceRepository: Repository<OnchurchWorshipService>,
-
-    @Inject(ONCHURCH_USER_REPOSITORY)
-    private readonly userRepository: IOnchurchUserRepository,
   ) {}
 
   async hasAllRequired(church: OnchurchChurch): Promise<boolean> {
-    if (!hasChurchBaseFields(church)) return false;
-
-    // 테스트 교회(소유자 is_test)는 교회 소개·예배 안내를 메뉴에서 끌 수 있어 담임목사·예배를 요구하지 않는다.
-    if (await this.isTestOwner(church.ownerId)) return true;
-
-    const pastor = await this.pastorRepository.findOneBy({ churchId: church.id });
-    if (!pastor || !pastor.name?.trim()) return false;
-
-    const worshipCount = await this.worshipServiceRepository.count({ where: { churchId: church.id } });
-    if (worshipCount === 0) return false;
-
-    return true;
-  }
-
-  private async isTestOwner(ownerId: number): Promise<boolean> {
-    try {
-      const owner = await this.userRepository.findOneOrThrowById(ownerId);
-      return !!owner.isTest;
-    } catch {
-      return false;
-    }
+    return hasChurchBaseFields(church);
   }
 
   async validateOrThrow(church: OnchurchChurch): Promise<void> {
