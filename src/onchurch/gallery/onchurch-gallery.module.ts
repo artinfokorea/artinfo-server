@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { OnchurchPushModule } from '@/onchurch/push/onchurch-push.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OnchurchGallery } from '@/onchurch/gallery/domain/entity/onchurch-gallery.entity';
 import { OnchurchGalleryCategory } from '@/onchurch/gallery/domain/entity/onchurch-gallery-category.entity';
@@ -27,7 +28,7 @@ import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
 import { OnchurchUserModule } from '@/onchurch/user/onchurch-user.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OnchurchGallery, OnchurchGalleryCategory]), OnchurchChurchModule, OnchurchUserModule],
+  imports: [OnchurchPushModule, TypeOrmModule.forFeature([OnchurchGallery, OnchurchGalleryCategory]), OnchurchChurchModule, OnchurchUserModule],
   controllers: [OnchurchGalleryController, OnchurchGalleryCategoryController, OnchurchPublicGalleryController],
   providers: [
     { provide: ONCHURCH_GALLERY_REPOSITORY, useClass: OnchurchGalleryRepository },

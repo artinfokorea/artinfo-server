@@ -16,6 +16,7 @@ import {
   OnchurchCommunityCommentNotFound,
   OnchurchCommunityPostNotFound,
 } from '@/onchurch/community/domain/exception/onchurch-community.exception';
+import { OnchurchPushService } from '@/onchurch/push/onchurch-push.service';
 
 // 공개 — 게시글의 댓글 목록(오래된 순). 숨김/삭제된 게시글의 댓글은 내려주지 않는다.
 @Injectable()
@@ -42,13 +43,24 @@ export class OnchurchCreateMyCommunityCommentUseCase {
     @Inject(ONCHURCH_COMMUNITY_COMMENT_REPOSITORY) private readonly commentRepository: IOnchurchCommunityCommentRepository,
     @Inject(ONCHURCH_COMMUNITY_POST_REPOSITORY) private readonly postRepository: IOnchurchCommunityPostRepository,
     private readonly resolver: OnchurchCommunityChurchResolver,
+    private readonly push: OnchurchPushService,
   ) {}
 
   async execute(userId: number, postId: number, content: string): Promise<OnchurchCommunityComment> {
     const { user, churchId } = await this.resolver.resolve(userId);
     const post = await this.postRepository.findVisibleById(churchId, postId);
     if (!post) throw new OnchurchCommunityPostNotFound();
-    return this.commentRepository.create({ churchId, postId, authorId: user.id, authorName: user.name, content });
+    const comment = await this.commentRepository.create({ churchId, postId, authorId: user.id, authorName: user.name, content });
+    // 글쓴이에게 앱 알림 — 응답을 기다리게 하지 않는다 (발송 실패는 서비스가 삼킨다)
+    void this.push.notifyCommunityComment({
+      churchId,
+      postId,
+      postAuthorId: post.authorId,
+      commenterId: user.id,
+      commenterName: user.name,
+      content,
+    });
+    return comment;
   }
 }
 

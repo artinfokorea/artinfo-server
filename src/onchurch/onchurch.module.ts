@@ -20,6 +20,7 @@ import { OnchurchAttendanceModule } from '@/onchurch/attendance/onchurch-attenda
 import { OnchurchMasterModule } from '@/onchurch/master/onchurch-master.module';
 import { OnchurchCommunityBlockModule } from '@/onchurch/community-block/onchurch-community-block.module';
 import { OnchurchAppVersionModule } from '@/onchurch/app-version/onchurch-app-version.module';
+import { OnchurchPushModule } from '@/onchurch/push/onchurch-push.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { OnchurchAppVersionModule } from '@/onchurch/app-version/onchurch-app-ve
     OnchurchMasterModule,
     OnchurchAppVersionModule,
     OnchurchCommunityBlockModule,
+    OnchurchPushModule,
   ],
 })
 export class OnchurchModule {}

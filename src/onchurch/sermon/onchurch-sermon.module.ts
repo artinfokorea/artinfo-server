@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { OnchurchPushModule } from '@/onchurch/push/onchurch-push.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OnchurchSermon } from '@/onchurch/sermon/domain/entity/onchurch-sermon.entity';
 import { OnchurchSermonSeries } from '@/onchurch/sermon/domain/entity/onchurch-sermon-series.entity';
@@ -26,7 +27,7 @@ import { OnchurchListPublicSermonsUseCase } from '@/onchurch/sermon/application/
 import { OnchurchChurchModule } from '@/onchurch/church/onchurch-church.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OnchurchSermon, OnchurchSermonSeries]), OnchurchChurchModule],
+  imports: [OnchurchPushModule, TypeOrmModule.forFeature([OnchurchSermon, OnchurchSermonSeries]), OnchurchChurchModule],
   controllers: [OnchurchSermonController, OnchurchSermonSeriesController, OnchurchPublicSermonController],
   providers: [
     { provide: ONCHURCH_SERMON_REPOSITORY, useClass: OnchurchSermonRepository },
