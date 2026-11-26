@@ -19,6 +19,8 @@ const CHURCH_POST: Record<ChurchPostKind, { label: string; path: string }> = {
 };
 
 const MAX_TEXT = 80;
+/** 앨범은 사진 한 장마다 글이 생기므로, 같은 교회 앨범 알림은 이 시간 안에 한 번만 보낸다 */
+const GALLERY_PUSH_WINDOW_MS = 10 * 60 * 1000;
 const DEFAULT_TITLE = '온교회';
 
 const clip = (text: string): string => {
@@ -37,6 +39,8 @@ const clip = (text: string): string => {
 @Injectable()
 export class OnchurchPushService {
   private readonly logger = new Logger(OnchurchPushService.name);
+  /** 교회별 마지막 앨범 알림 시각 (서버 프로세스 메모리) */
+  private readonly lastGalleryPushAt = new Map<number, number>();
 
   constructor(
     private readonly repository: OnchurchPushRepository,
@@ -55,7 +59,13 @@ export class OnchurchPushService {
     now?: Date;
   }): Promise<number> {
     if (params.isActive === false) return 0;
-    if (params.publishedAt && params.publishedAt.getTime() > (params.now ?? new Date()).getTime()) return 0;
+    const now = (params.now ?? new Date()).getTime();
+    if (params.publishedAt && params.publishedAt.getTime() > now) return 0;
+    if (params.kind === 'gallery') {
+      const last = this.lastGalleryPushAt.get(params.churchId);
+      if (last !== undefined && now - last < GALLERY_PUSH_WINDOW_MS) return 0;
+      this.lastGalleryPushAt.set(params.churchId, now);
+    }
     const { label, path } = CHURCH_POST[params.kind];
     return this.safely(async () => {
       const tokens = await this.repository.scanChurchTokens(params.churchId, params.authorId);

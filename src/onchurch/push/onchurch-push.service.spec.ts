@@ -149,4 +149,36 @@ describe('OnchurchPushService', () => {
     const { service } = build({ sendFails: true });
     await expect(service.notifyChurchPost({ churchId: 10, authorId: 1, kind: 'notice', title: '안내' })).resolves.toBe(0);
   });
+
+  // 앨범은 사진 한 장마다 글이 하나씩 만들어진다 — 여러 장을 올려도 알림은 한 번만 가야 한다.
+  it('같은 교회 앨범은 10분 안에 다시 올려도 한 번만 보낸다', async () => {
+    const { service, sent } = build();
+    const t0 = new Date('2026-11-26T10:00:00+09:00');
+    expect(await service.notifyChurchPost({ churchId: 10, authorId: 1, kind: 'gallery', title: '여름 수련회', now: t0 })).toBe(2);
+    expect(
+      await service.notifyChurchPost({ churchId: 10, authorId: 1, kind: 'gallery', title: '여름 수련회', now: new Date('2026-11-26T10:00:05+09:00') }),
+    ).toBe(0);
+    expect(
+      await service.notifyChurchPost({ churchId: 10, authorId: 1, kind: 'gallery', title: '여름 수련회', now: new Date('2026-11-26T10:09:59+09:00') }),
+    ).toBe(0);
+    expect(sent).toHaveLength(1);
+  });
+
+  it('10분이 지나면 앨범 알림을 다시 보낸다', async () => {
+    const { service, sent } = build();
+    await service.notifyChurchPost({ churchId: 10, authorId: 1, kind: 'gallery', title: '여름 수련회', now: new Date('2026-11-26T10:00:00+09:00') });
+    expect(await service.notifyChurchPost({ churchId: 10, authorId: 1, kind: 'gallery', title: '가을 소풍', now: new Date('2026-11-26T10:10:00+09:00') })).toBe(
+      2,
+    );
+    expect(sent).toHaveLength(2);
+  });
+
+  it('다른 교회 앨범이나 공지는 앨범 알림과 상관없이 보낸다', async () => {
+    const { service, sent } = build();
+    const now = new Date('2026-11-26T10:00:00+09:00');
+    await service.notifyChurchPost({ churchId: 10, authorId: 1, kind: 'gallery', title: '여름 수련회', now });
+    expect(await service.notifyChurchPost({ churchId: 11, authorId: 5, kind: 'gallery', title: '봄 소풍', now })).toBe(2);
+    expect(await service.notifyChurchPost({ churchId: 10, authorId: 1, kind: 'notice', title: '성탄 예배', now })).toBe(2);
+    expect(sent).toHaveLength(3);
+  });
 });
