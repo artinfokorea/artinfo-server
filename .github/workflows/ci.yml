@@ -8,7 +8,7 @@ on:
 
 jobs:
   verify:
-    name: Typecheck · Lint · Test (ongi)
+    name: Typecheck · Lint · Test (ongi · holy365)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,5 +22,9 @@ jobs:
         run: npx tsc --noEmit
       - name: Lint (ongi)
         run: npx eslint "src/ongi/**/*.ts"
+      - name: Lint (holy365)
+        run: npx eslint "src/holy365/**/*.ts"
       - name: Test (ongi)
         run: npx jest src/ongi
+      - name: Test (holy365)
+        run: npx jest src/holy365
