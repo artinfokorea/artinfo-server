@@ -19,6 +19,7 @@ export const Holy365Errors = {
   cannotFollowSelf: () => new Holy365Exception('HOLY365-SOCIAL-002', '자기 자신은 팔로우할 수 없습니다.', HttpStatus.BAD_REQUEST),
   invalidChurch: () => new Holy365Exception('HOLY365-SOCIAL-003', '교회 이름과 지역을 입력해 주세요.', HttpStatus.BAD_REQUEST),
   churchNotFound: () => new Holy365Exception('HOLY365-SOCIAL-004', '교회를 찾을 수 없습니다.', HttpStatus.NOT_FOUND),
+  invalidAvatar: () => new Holy365Exception('HOLY365-USER-002', 'JPG · PNG · WEBP · GIF 이미지(10MB 이하)만 올릴 수 있습니다.', HttpStatus.BAD_REQUEST),
   userNotFound: () => new Holy365Exception('HOLY365-USER-001', '사용자를 찾을 수 없습니다.', HttpStatus.NOT_FOUND),
   versionNotFound: () => new Holy365Exception('HOLY365-BIBLE-001', '번역본을 찾을 수 없습니다.', HttpStatus.NOT_FOUND),
   chapterNotFound: () => new Holy365Exception('HOLY365-BIBLE-002', '본문을 찾을 수 없습니다.', HttpStatus.NOT_FOUND),
