@@ -75,6 +75,9 @@ import { OngiAlbum } from '@/ongi/album/domain/entity/ongi-album.entity';
 import { OngiPhoto } from '@/ongi/photo/domain/entity/ongi-photo.entity';
 import { OngiPhotoLike } from '@/ongi/photo/domain/entity/ongi-photo-like.entity';
 import { OngiPhotoComment } from '@/ongi/photo/domain/entity/ongi-photo-comment.entity';
+import { Holy365Module } from '@/holy365/holy365.module';
+import { Holy365User } from '@/holy365/user/domain/entity/holy365-user.entity';
+import { Holy365Auth } from '@/holy365/auth/domain/entity/holy365-auth.entity';
 
 const entities = [
   User,
@@ -121,6 +124,8 @@ const entities = [
   OngiPhoto,
   OngiPhotoLike,
   OngiPhotoComment,
+  Holy365User,
+  Holy365Auth,
 ];
 const modules = [
   SchedulerModule,
@@ -152,6 +157,7 @@ const modules = [
   ArtinfoPushModule,
   AppVersionModule,
   CompetitionModule,
+  Holy365Module,
 ];
 
 @Module({
