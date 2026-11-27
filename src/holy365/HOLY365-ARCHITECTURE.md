@@ -57,6 +57,11 @@
   지원 형식은 `bible/domain/holy365-bible-import.ts` (권 배열 · `{books}` · 평평한 `{book,chapter,verse,text}`).
 - **저작권**: 개역개정은 대한성서공회 저작물이다. 사용 허락을 받기 전에는 운영 DB 에 넣지 말 것. KJV 는 퍼블릭 도메인.
 
+## 본문 검색 (2026-11-27)
+
+- `GET /holy365/bible/versions/:code/search?q=&offset=` — 띄어 쓴 단어(최대 5개)가 **모두** 들어간 절을 권·장·절 순으로 30절씩. `total` · `terms`(강조용) 포함. `%` `_` 는 글자 그대로 찾는다 (`bible/domain/holy365-search.ts`). 번역본당 3만 절이라 인덱스 없이 ILIKE.
+- 장절 바로 가기("요 3:16", "John 3:16")와 권 이름 찾기는 프론트(`holy365-front/src/lib/bible-ref.ts`)가 한다.
+
 ## 커뮤니티 (2026-11-27)
 
 - `GET /holy365/community/rankings?period=day|week|month&limit=` — 기간(한국 날짜 기준: 오늘 · 이번 주 월요일부터 · 이번 달 1일부터) 필사 절 수 합계 순위. 동점은 같은 순위(1, 2, 2, 4). 토큰이 있으면 `me: { rank, verses }` 포함(로그인은 선택 — `Holy365OptionalUser`).
