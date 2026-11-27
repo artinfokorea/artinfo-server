@@ -93,4 +93,7 @@ export const HOLY365_SCHEMA_STATEMENTS: string[] = [
     seconds INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (user_id, day)
   )`,
+  // 랭킹 · 통계 (2026-11-27) — 기간별 합계와 최근 7일 인기 장 조회용
+  `CREATE INDEX IF NOT EXISTS idx_holy365_daily_activity_day ON holy365_daily_activity (day)`,
+  `CREATE INDEX IF NOT EXISTS idx_holy365_verse_counts_last_at ON holy365_verse_counts (last_at)`,
 ];

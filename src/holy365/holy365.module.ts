@@ -16,11 +16,13 @@ import { Holy365AuthController } from '@/holy365/auth/presentation/holy365-auth.
 import { Holy365UserController } from '@/holy365/user/presentation/holy365-user.controller';
 import { Holy365BibleController } from '@/holy365/bible/presentation/holy365-bible.controller';
 import { Holy365TranscriptionController } from '@/holy365/transcription/presentation/holy365-transcription.controller';
+import { Holy365CommunityController } from '@/holy365/community/presentation/holy365-community.controller';
+import { Holy365CommunityRepository } from '@/holy365/community/infrastructure/holy365-community.repository';
 
 /** 홀리365 — 성경 온라인 필사 웹서비스 (프론트: holy365-front). API 는 전부 /holy365/* */
 @Module({
   imports: [TypeOrmModule.forFeature([Holy365User, Holy365Auth])],
-  controllers: [Holy365AuthController, Holy365UserController, Holy365BibleController, Holy365TranscriptionController],
+  controllers: [Holy365AuthController, Holy365UserController, Holy365BibleController, Holy365TranscriptionController, Holy365CommunityController],
   providers: [
     Holy365SchemaBootstrapService,
     Holy365AuthGuard,
@@ -32,6 +34,7 @@ import { Holy365TranscriptionController } from '@/holy365/transcription/presenta
     Holy365BibleRepository,
     Holy365TranscriptionRepository,
     Holy365TranscriptionUseCase,
+    Holy365CommunityRepository,
   ],
 })
 export class Holy365Module {}

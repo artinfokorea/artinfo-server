@@ -57,8 +57,14 @@
   지원 형식은 `bible/domain/holy365-bible-import.ts` (권 배열 · `{books}` · 평평한 `{book,chapter,verse,text}`).
 - **저작권**: 개역개정은 대한성서공회 저작물이다. 사용 허락을 받기 전에는 운영 DB 에 넣지 말 것. KJV 는 퍼블릭 도메인.
 
+## 커뮤니티 (2026-11-27)
+
+- `GET /holy365/community/rankings?period=day|week|month&limit=` — 기간(한국 날짜 기준: 오늘 · 이번 주 월요일부터 · 이번 달 1일부터) 필사 절 수 합계 순위. 동점은 같은 순위(1, 2, 2, 4). 토큰이 있으면 `me: { rank, verses }` 포함(로그인은 선택 — `Holy365OptionalUser`).
+- `GET /holy365/community/stats` — 오늘·누적 필사자 수와 절 수, 최근 7일 많은 사람이 쓴 장(`popularChapters`).
+- 개발용 계정(`sns_type='dev'`)·탈퇴 계정은 랭킹·통계에서 뺀다. 랭킹에는 사용자 이름(닉네임)이 공개된다.
+
 ## API 요약
 
-- 공개: `GET /holy365/bible/versions` · `GET /holy365/bible/versions/:code/books` · `GET /holy365/bible/versions/:code/books/:book/chapters/:chapter`
+- 공개: `GET /holy365/community/rankings` · `GET /holy365/community/stats` · `GET /holy365/bible/versions` · `GET /holy365/bible/versions/:code/books` · `GET /holy365/bible/versions/:code/books/:book/chapters/:chapter`
 - 로그인: `GET|PUT|DELETE /holy365/users/me` · `POST /holy365/transcriptions/verses` · `GET /holy365/transcriptions/chapter` · `GET /holy365/progress/summary` · `GET /holy365/progress/books?version=` · `GET /holy365/progress/daily?days=`
 - 에러 코드 `HOLY365-{AUTH|USER|BIBLE|TYPING}-{NNN}` — 프론트가 코드로 언어별 문구를 고른다.
