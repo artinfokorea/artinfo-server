@@ -64,9 +64,9 @@
 
 ## 피드 (2026-11-27)
 
-- `holy365_posts` (글 ≤ 2,000자 · `aspect` 1:1 | 4:5 · `images` jsonb 최대 10장 · `verse` jsonb 스냅샷), `holy365_post_likes`, `holy365_post_comments`, `holy365_reports`. `like_count`/`comment_count` 는 비정규화 카운터.
+- `holy365_posts` (글 ≤ 2,000자 · `aspect` 1:1 | 4:5 · `images` jsonb 최대 10장 · `verses` jsonb 스냅샷 배열 — 예전 `verse` 열은 부팅 때 `verses` 로 옮겨진다), `holy365_post_likes`, `holy365_post_comments`, `holy365_reports`. `like_count`/`comment_count` 는 비정규화 카운터.
 - 사진: `POST /holy365/feed/images?aspect=` (multipart `files`, 최대 10장) → sharp 로 가운데 기준 1080×1080 / 1080×1350 WebP, S3 공개 `holy365/feed/{userId}/`. 게시물에는 **그 사용자가 올린 피드 경로 URL 만** 넣을 수 있다 (`isFeedImageUrl`).
-- 구절: `{versionCode, book, chapter, verseStart, verseEnd}` (최대 10절) — 본문은 서버가 DB 에서 가져와 그 시점 그대로 저장한다.
+- 구절: `verses: [{versionCode, book, chapter, verseStart, verseEnd}]` (구절 5개까지, 한 구절은 같은 장의 연속 30절까지) — 본문은 서버가 DB 에서 가져와 그 시점 그대로 저장한다. 응답의 `verses[].text` 에 본문이 들어 있다.
 - `GET /holy365/feed/posts?scope=all|following|user:{id}&before=` (20개씩, 최신 순) · `GET|DELETE /posts/:id` · `POST|DELETE /posts/:id/like` · `GET|POST /posts/:id/comments` · `DELETE /comments/:id`(댓글 쓴 사람·게시물 주인) · `POST /reports`.
 - 시각은 UTC ISO(`...Z`)로 내려준다 (DB 세션 UTC, timestamp 에 시간대가 없어서).
 - 주의: TypeORM(postgres) 는 `UPDATE/DELETE ... RETURNING` 결과를 `[rows, count]` 로 준다 — `returnedRows()` 로 꺼낼 것.

@@ -22,7 +22,7 @@ export interface Holy365PostRow {
   content: string;
   aspect: Holy365Aspect;
   images: string[];
-  verse: Holy365PostVerse | null;
+  verses: Holy365PostVerse[];
   likeCount: number;
   commentCount: number;
   likedByMe: boolean;
@@ -41,7 +41,7 @@ export interface Holy365CommentRow {
 }
 
 const POST_COLUMNS = `p.id, p.user_id AS "userId", u.name, u.icon_image_url AS "iconImageUrl", u.church_id AS "churchId", ch.name AS "churchName",
-  p.content, p.aspect, p.images, p.verse, p.like_count AS "likeCount", p.comment_count AS "commentCount", to_char(p.created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS "createdAt",
+  p.content, p.aspect, p.images, p.verses, p.like_count AS "likeCount", p.comment_count AS "commentCount", to_char(p.created_at, 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS "createdAt",
   EXISTS (SELECT 1 FROM holy365_post_likes l WHERE l.post_id = p.id AND l.user_id = $1) AS "likedByMe"`;
 
 const POST_FROM = `FROM holy365_posts p JOIN holy365_users u ON u.id = p.user_id LEFT JOIN holy365_churches ch ON ch.id = u.church_id
@@ -58,13 +58,13 @@ export type Holy365FeedScope = { kind: 'all' } | { kind: 'following'; userId: nu
 export class Holy365FeedRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
-  async create(input: { userId: number; content: string; aspect: Holy365Aspect; images: string[]; verse: Holy365PostVerse | null }): Promise<number> {
-    const rows = await this.dataSource.query(`INSERT INTO holy365_posts (user_id, content, aspect, images, verse) VALUES ($1, $2, $3, $4, $5) RETURNING id`, [
+  async create(input: { userId: number; content: string; aspect: Holy365Aspect; images: string[]; verses: Holy365PostVerse[] }): Promise<number> {
+    const rows = await this.dataSource.query(`INSERT INTO holy365_posts (user_id, content, aspect, images, verses) VALUES ($1, $2, $3, $4, $5) RETURNING id`, [
       input.userId,
       input.content,
       input.aspect,
       JSON.stringify(input.images),
-      input.verse ? JSON.stringify(input.verse) : null,
+      JSON.stringify(input.verses),
     ]);
     return rows[0].id;
   }

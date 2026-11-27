@@ -62,16 +62,16 @@ describe('validatePostInput — 글·사진·구절 중 하나는 있어야 한�
   });
 });
 
-describe('validateVerseRange — 한 번에 최대 10절', () => {
+describe('validateVerseRange — 한 구절에 최대 30절', () => {
   it('시작 ≤ 끝, 10절까지', () => {
     expect(validateVerseRange(1, 1)).toBe(true);
     expect(validateVerseRange(4, 7)).toBe(true);
-    expect(validateVerseRange(1, 10)).toBe(true);
+    expect(validateVerseRange(1, 30)).toBe(true);
   });
 
   it('거꾸로이거나 너무 길거나 0 이하면 거부', () => {
     expect(validateVerseRange(5, 4)).toBe(false);
-    expect(validateVerseRange(1, 11)).toBe(false);
+    expect(validateVerseRange(1, 31)).toBe(false);
     expect(validateVerseRange(0, 3)).toBe(false);
   });
 });

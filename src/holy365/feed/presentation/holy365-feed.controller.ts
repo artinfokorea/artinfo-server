@@ -8,7 +8,7 @@ import { OkResponse } from '@/common/response/ok.response';
 import { UploadFile } from '@/common/type/type';
 import { Holy365Auth, Holy365OptionalUser, Holy365Signature, Holy365User } from '@/holy365/common/holy365-auth.guard';
 import { Holy365FeedService } from '@/holy365/feed/holy365-feed.service';
-import { HOLY365_ASPECTS, Holy365Aspect, HOLY365_POST_MAX_IMAGES } from '@/holy365/feed/domain/holy365-post-policy';
+import { HOLY365_ASPECTS, Holy365Aspect, HOLY365_POST_MAX_IMAGES, HOLY365_POST_MAX_PASSAGES } from '@/holy365/feed/domain/holy365-post-policy';
 import { HOLY365_AVATAR_MAX_BYTES } from '@/holy365/user/domain/service/holy365-avatar-policy';
 import { Holy365Errors } from '@/holy365/common/holy365.exception';
 
@@ -54,10 +54,12 @@ class Holy365CreatePostRequest {
   images?: string[];
 
   @IsOptional()
-  @ValidateNested()
+  @IsArray()
+  @ArrayMaxSize(HOLY365_POST_MAX_PASSAGES)
+  @ValidateNested({ each: true })
   @Type(() => Holy365VerseInput)
-  @ApiProperty({ required: false, type: Holy365VerseInput })
-  verse?: Holy365VerseInput;
+  @ApiProperty({ required: false, type: [Holy365VerseInput], description: '붙일 구절 (같은 장의 연속 범위, 최대 5개)' })
+  verses?: Holy365VerseInput[];
 }
 
 class Holy365FeedQuery {

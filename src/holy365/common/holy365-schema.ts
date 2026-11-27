@@ -136,6 +136,9 @@ export const HOLY365_SCHEMA_STATEMENTS: string[] = [
     deleted_at    TIMESTAMP
   )`,
   `CREATE INDEX IF NOT EXISTS idx_holy365_posts_user ON holy365_posts (user_id, id DESC)`,
+  // 구절 여러 개 (2026-11-27) — verses 배열로 옮기고, 예전 verse 하나짜리는 배열로 옮겨 둔다 (verse 열은 더 쓰지 않음)
+  `ALTER TABLE holy365_posts ADD COLUMN IF NOT EXISTS verses JSONB NOT NULL DEFAULT '[]'`,
+  `UPDATE holy365_posts SET verses = jsonb_build_array(verse), verse = NULL WHERE verse IS NOT NULL`,
   `CREATE TABLE IF NOT EXISTS holy365_post_likes (
     post_id    INTEGER NOT NULL,
     user_id    INTEGER NOT NULL,
