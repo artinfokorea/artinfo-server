@@ -8,6 +8,8 @@ import { OnchurchBrokenSermonUseCase } from '@/onchurch/importer/onchurch-broken
 import {
   OnchurchBrokenSermonFindRequest,
   OnchurchBrokenSermonFindResponse,
+  OnchurchNoticeAttachmentFixRequest,
+  OnchurchNoticeAttachmentFixResponse,
   OnchurchSermonDeleteRequest,
   OnchurchSermonDeleteResponse,
   OnchurchWordpressCategoriesResponse,
@@ -50,5 +52,20 @@ export class OnchurchImportController {
   @RestApiPost(OnchurchSermonDeleteResponse, { path: '/churches/:id/sermons/delete', description: '교회 설교 삭제(마스터)', auth: [USER_TYPE.CLIENT] })
   async deleteSermons(@AuthSignature() signature: UserSignature, @Param('id', ParseIntPipe) id: number, @Body() request: OnchurchSermonDeleteRequest) {
     return new OnchurchSermonDeleteResponse((await this.brokenSermons.remove(signature.id, id, request.ids)).deleted);
+  }
+
+  @RestApiPost(OnchurchNoticeAttachmentFixResponse, {
+    path: '/churches/:id/wordpress/attachments',
+    description: '이미 옮긴 교회소식에 첨부파일 붙이기(한 번에 limit 개)',
+    auth: [USER_TYPE.CLIENT],
+  })
+  async fixNoticeAttachments(
+    @AuthSignature() signature: UserSignature,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() request: OnchurchNoticeAttachmentFixRequest,
+  ) {
+    return new OnchurchNoticeAttachmentFixResponse(
+      await this.wordpressImport.fixNoticeAttachments(signature.id, id, request.sourceUrl, request.offset, request.limit),
+    );
   }
 }

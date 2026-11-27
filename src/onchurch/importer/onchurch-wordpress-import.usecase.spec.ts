@@ -8,6 +8,8 @@ import { OnchurchWordpressImportUseCase, WordpressPost } from '@/onchurch/import
  * - 마스터가 아니면 403, 교회가 없으면 404
  * - 설교: 제목 날짜, 유튜브, 담임목사 이름, 본문은 평문 요약, 시리즈는 카테고리 이름으로
  * - 교회소식: 카테고리 이름, 게시일은 원래 글 날짜, 사진은 우리 저장소로 옮긴 주소
+ * - 교회소식 첨부파일(pdf 등)도 우리 저장소로 옮겨 첨부로 붙이고 본문의 링크는 지운다 (못 옮긴 파일은 링크를 남긴다)
+ * - 이미 옮긴 교회소식도 원래 글을 다시 읽어 첨부파일을 붙일 수 있다
  * - 갤러리: 사진마다 한 장씩 같은 묶음, 사진이 없으면 건너뜀
  * - 교제: 소유자 이름(요청의 authorName)으로, 원래 날짜로
  * - 만든 시각·게시 시각은 UTC(dateGmt)로 넣는다 (DB 시각은 UTC)
@@ -34,6 +36,7 @@ function build(options: { role?: string; church?: boolean; imported?: string[]; 
     noticeCat: [],
     galleryCat: [],
     communityCat: [],
+    updated: [],
   };
   const imported = new Set(options.imported ?? []);
   const userRepository = { findOneOrThrowById: jest.fn().mockResolvedValue({ id: 1, role: options.role ?? 'master' }) };
@@ -45,6 +48,14 @@ function build(options: { role?: string; church?: boolean; imported?: string[]; 
     insertSermon: jest.fn(async (row: unknown) => (calls.sermon.push(row), 101)),
     ensureNoticeCategory: jest.fn(async (_c: number, name: string) => void calls.noticeCat.push(name)),
     insertNotice: jest.fn(async (row: unknown) => (calls.notice.push(row), 201)),
+    listImportedNotices: jest.fn(async () => ({
+      items: [
+        { sourceKey: 'wp:chambit.org:11', noticeId: 501 },
+        { sourceKey: 'wp:chambit.org:12', noticeId: 502 },
+      ],
+      total: 2,
+    })),
+    updateNoticeAttachments: jest.fn(async (...a: unknown[]) => void calls.updated.push(a)),
     findOrCreateGalleryCategory: jest.fn(async (_c: number, name: string) => (calls.galleryCat.push(name), 7)),
     insertGalleryItems: jest.fn(async (rows: unknown[]) => (calls.gallery.push(rows), [301])),
     ensureCommunityCategory: jest.fn(async (_c: number, name: string) => void calls.communityCat.push(name)),
@@ -53,9 +64,15 @@ function build(options: { role?: string; church?: boolean; imported?: string[]; 
   const source = {
     listCategories: jest.fn(),
     listPosts: jest.fn().mockResolvedValue({ posts: options.posts ?? [], totalPages: options.totalPages ?? 1 }),
+    getPost: jest.fn(async (_site: string, id: number) => (options.posts ?? []).find(p => p.id === id) ?? null),
   };
   const images = {
     copy: jest.fn(async (url: string) => (url === options.failImage ? null : url.replace('http://chambit.org/wp-content/uploads', 'https://cdn/onchurch'))),
+    copyFile: jest.fn(async (url: string, _churchId: number, name: string) =>
+      url === options.failImage
+        ? null
+        : { url: url.replace('http://chambit.org/wp-content/uploads', 'https://cdn/files'), name, size: 1234, mimeType: 'application/pdf' },
+    ),
   };
   const useCase = new OnchurchWordpressImportUseCase(userRepository as any, repository as any, source as any, images as any);
   return { useCase, calls, repository, source };
@@ -131,6 +148,7 @@ describe('OnchurchWordpressImportUseCase', () => {
         title: '11월 22일 주보',
         content: 'https://drive.google.com/x',
         imageUrls: ['https://cdn/onchurch/2026/11/b.jpg'],
+        attachments: [],
         publishedAt: '2026-11-20T00:00:00',
       },
     ]);
@@ -225,5 +243,32 @@ describe('OnchurchWordpressImportUseCase', () => {
     const { useCase } = build({ totalPages: 3 });
     expect((await useCase.importPage(1, 30, { ...REQ, page: 2 })).nextPage).toBe(3);
     expect((await useCase.importPage(1, 30, { ...REQ, page: 3 })).nextPage).toBeNull();
+  });
+
+  const PDF = 'http://chambit.org/wp-content/uploads/2026/10/11-1.pdf';
+  const FILE_POST = `<p>11월 1일 주보입니다</p><div class="wp-block-file"><a href="${PDF}">11월 1일 주보</a><a href="${PDF}" download>다운로드</a></div>`;
+
+  it('교회소식 첨부파일을 옮겨 붙이고 본문 링크는 지운다', async () => {
+    const { useCase, calls } = build({ posts: [post(13, [19], '11월 1일 주보', FILE_POST)] });
+    await useCase.importPage(1, 30, REQ);
+    expect(calls.notice[0]).toMatchObject({
+      content: '11월 1일 주보입니다',
+      attachments: [{ url: 'https://cdn/files/2026/10/11-1.pdf', name: '11월 1일 주보.pdf', size: 1234, mimeType: 'application/pdf' }],
+    });
+  });
+
+  it('못 옮긴 첨부파일은 본문에 링크를 남긴다', async () => {
+    const { useCase, calls } = build({ failImage: PDF, posts: [post(14, [19], '주보', FILE_POST)] });
+    await useCase.importPage(1, 30, REQ);
+    expect(calls.notice[0]).toMatchObject({ attachments: [], content: `11월 1일 주보입니다\n\n11월 1일 주보 (${PDF})다운로드 (${PDF})` });
+  });
+
+  it('이미 옮긴 교회소식에 첨부파일을 붙인다 (파일 없는 글은 그대로)', async () => {
+    const { useCase, calls } = build({ posts: [post(11, [19], '주보', FILE_POST), post(12, [19], '소식', '<p>파일 없음</p>')] });
+    const result = await useCase.fixNoticeAttachments(1, 30, SITE, 0, 20);
+    expect(calls.updated).toEqual([
+      [30, 501, '11월 1일 주보입니다', [{ url: 'https://cdn/files/2026/10/11-1.pdf', name: '11월 1일 주보.pdf', size: 1234, mimeType: 'application/pdf' }]],
+    ]);
+    expect(result).toEqual({ updated: 1, checked: 2, total: 2, nextOffset: null, errors: [] });
   });
 });

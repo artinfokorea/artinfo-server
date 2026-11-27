@@ -1,6 +1,8 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { DataSource, EntityManager } from 'typeorm';
 
+export type NoticeAttachment = { url: string; name: string; size: number; mimeType: string };
+
 /**
  * 다른 사이트 글을 온교회 교회로 옮길 때 쓰는 저장소.
  * 원래 글 날짜를 created_at 으로 살려야 해서 기존 저장소 대신 직접 넣는다(알림도 보내지 않는다).
@@ -118,6 +120,7 @@ export class OnchurchImportRepository implements OnModuleInit {
     title: string;
     content: string | null;
     imageUrls: string[];
+    attachments: NoticeAttachment[];
     publishedAt: string;
   }): Promise<number> {
     return this.dataSource.transaction(async m => {
@@ -125,8 +128,17 @@ export class OnchurchImportRepository implements OnModuleInit {
       const seq: { max: number | null }[] = await m.query(`SELECT MAX(seq_no) AS max FROM onchurch_notices WHERE church_id = $1`, [row.churchId]);
       const r: { id: number }[] = await m.query(
         `INSERT INTO onchurch_notices (church_id, seq_no, category, title, content, image_urls, attachments, is_pinned, is_active, published_at, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6::jsonb, '[]'::jsonb, false, true, $7, $7, $7) RETURNING id`,
-        [row.churchId, (seq[0]?.max ?? 0) + 1, row.category.slice(0, 50), row.title.slice(0, 300), row.content, JSON.stringify(row.imageUrls), row.publishedAt],
+         VALUES ($1, $2, $3, $4, $5, $6::jsonb, $8::jsonb, false, true, $7, $7, $7) RETURNING id`,
+        [
+          row.churchId,
+          (seq[0]?.max ?? 0) + 1,
+          row.category.slice(0, 50),
+          row.title.slice(0, 300),
+          row.content,
+          JSON.stringify(row.imageUrls),
+          row.publishedAt,
+          JSON.stringify(row.attachments),
+        ],
       );
       return r[0].id;
     });
@@ -202,5 +214,41 @@ export class OnchurchImportRepository implements OnModuleInit {
       [churchId, ids],
     );
     return Array.isArray(rows?.[0]) ? rows[0].length : Array.isArray(rows) ? rows.length : 0;
+  }
+
+  // ── 이미 옮긴 교회소식 첨부파일 보강
+
+  async listImportedNotices(
+    churchId: number,
+    keyPrefix: string,
+    offset: number,
+    limit: number,
+  ): Promise<{ items: { sourceKey: string; noticeId: number }[]; total: number }> {
+    const rows: { source_key: string; target_id: number }[] = await this.dataSource.query(
+      `SELECT source_key, target_id FROM onchurch_import_logs WHERE church_id = $1 AND target = 'notice' AND source_key LIKE $2 ORDER BY id LIMIT $3 OFFSET $4`,
+      [churchId, `${keyPrefix}%`, limit, offset],
+    );
+    const count: { n: string }[] = await this.dataSource.query(
+      `SELECT COUNT(*) AS n FROM onchurch_import_logs WHERE church_id = $1 AND target = 'notice' AND source_key LIKE $2`,
+      [churchId, `${keyPrefix}%`],
+    );
+    return { items: rows.map(r => ({ sourceKey: r.source_key, noticeId: r.target_id })), total: Number(count[0]?.n ?? 0) };
+  }
+
+  /** 본문을 바꾸고 첨부파일을 붙인다(이미 같은 주소의 첨부가 있으면 겹치지 않게). */
+  async updateNoticeAttachments(churchId: number, noticeId: number, content: string | null, attachments: NoticeAttachment[]): Promise<void> {
+    const rows: { attachments: NoticeAttachment[] | null }[] = await this.dataSource.query(
+      `SELECT attachments FROM onchurch_notices WHERE id = $1 AND church_id = $2`,
+      [noticeId, churchId],
+    );
+    if (!rows[0]) return;
+    const existing = Array.isArray(rows[0].attachments) ? rows[0].attachments : [];
+    const merged = [...existing, ...attachments.filter(a => !existing.some(e => e.name === a.name && e.size === a.size))];
+    await this.dataSource.query(`UPDATE onchurch_notices SET content = $3, attachments = $4::jsonb WHERE id = $1 AND church_id = $2`, [
+      noticeId,
+      churchId,
+      content,
+      JSON.stringify(merged),
+    ]);
   }
 }

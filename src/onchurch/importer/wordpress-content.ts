@@ -86,3 +86,37 @@ export function sermonDateFromTitle(title: string, postDate: string): string {
   if (!m[1] && month > Number(posted.slice(5, 7))) year -= 1;
   return `${year}-${pad(month)}-${pad(day)}`;
 }
+
+const FILE_EXT = /\.(pdf|hwp|hwpx|docx?|pptx?|xlsx?|zip)$/i;
+
+function fileNameFromUrl(url: string): string {
+  const last = url.split('?')[0].split('/').pop() ?? 'file';
+  try {
+    return decodeURIComponent(last);
+  } catch {
+    return last;
+  }
+}
+
+/** 본문의 첨부파일(pdf·hwp·문서) 링크. 같은 파일은 한 번만, 이름은 링크 글자(확장자 붙임) → 파일 이름. */
+export function extractFileLinks(html: string): { url: string; name: string }[] {
+  const out: { url: string; name: string }[] = [];
+  for (const m of html.matchAll(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)) {
+    const url = decodeEntities(m[1]).trim();
+    if (!/^https?:\/\//i.test(url)) continue;
+    const ext = url.split('?')[0].match(FILE_EXT)?.[1];
+    if (!ext || out.some(f => f.url === url)) continue;
+    const label = decodeEntities(m[2].replace(/<[^>]+>/g, '')).trim();
+    const usable = label && !/^(다운로드|download)$/i.test(label) && !/^https?:\/\//i.test(label);
+    const name = usable ? (FILE_EXT.test(label) ? label : `${label}.${ext.toLowerCase()}`) : fileNameFromUrl(url);
+    out.push({ url, name });
+  }
+  return out;
+}
+
+/** 주어진 주소를 가리키는 링크(<a>…</a>)를 통째로 지운다. */
+export function removeLinks(html: string, urls: string[]): string {
+  if (urls.length === 0) return html;
+  const set = new Set(urls);
+  return html.replace(/<a\b[^>]*href=["']([^"']+)["'][^>]*>[\s\S]*?<\/a>/gi, (whole, href: string) => (set.has(decodeEntities(href).trim()) ? '' : whole));
+}

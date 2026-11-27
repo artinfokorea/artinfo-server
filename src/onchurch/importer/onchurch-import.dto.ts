@@ -147,3 +147,31 @@ export class OnchurchSermonDeleteResponse {
     this.deleted = deleted;
   }
 }
+
+export class OnchurchNoticeAttachmentFixRequest extends OnchurchWordpressSourceRequest {
+  @IsInt()
+  @Min(0)
+  @ApiProperty({ type: Number })
+  offset: number;
+
+  @IsInt()
+  @Min(1)
+  @Max(50)
+  @ApiProperty({ type: Number })
+  limit: number;
+}
+
+export class OnchurchNoticeAttachmentFixResponse {
+  @ApiProperty() updated: number;
+  @ApiProperty() checked: number;
+  @ApiProperty() total: number;
+  @ApiProperty({ type: Number, nullable: true }) nextOffset: number | null;
+  @ApiProperty({ type: [String] }) errors: string[];
+  constructor(r: { updated: number; checked: number; total: number; nextOffset: number | null; errors: string[] }) {
+    this.updated = r.updated;
+    this.checked = r.checked;
+    this.total = r.total;
+    this.nextOffset = r.nextOffset;
+    this.errors = r.errors;
+  }
+}

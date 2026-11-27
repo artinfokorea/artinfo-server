@@ -61,6 +61,28 @@ export class WordpressSource {
     };
   }
 
+  async getPost(sourceUrl: string, id: number): Promise<WordpressPost | null> {
+    const site = normalizeSiteUrl(sourceUrl);
+    const res = await fetch(
+      `${site}/?${new URLSearchParams({ rest_route: `/wp/v2/posts/${id}`, _fields: 'id,date,date_gmt,categories,title,content' }).toString()}`,
+      {
+        headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
+        signal: AbortSignal.timeout(TIMEOUT_MS),
+      },
+    );
+    if (res.status === 404) return null;
+    if (!res.ok) throw new BadRequestException(`워드프레스 글을 읽지 못했습니다 (${res.status}).`);
+    const p = (await res.json()) as {
+      id: number;
+      date: string;
+      date_gmt: string;
+      categories: number[];
+      title: { rendered: string };
+      content: { rendered: string };
+    };
+    return { id: p.id, date: p.date, dateGmt: p.date_gmt, categories: p.categories, title: p.title?.rendered ?? '', content: p.content?.rendered ?? '' };
+  }
+
   private async get<T>(site: string, route: string, params: Record<string, string>): Promise<{ body: T; totalPages: number }> {
     const qs = new URLSearchParams({ rest_route: route, ...params });
     const res = await fetch(`${site}/?${qs.toString()}`, {

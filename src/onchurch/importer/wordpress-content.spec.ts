@@ -5,6 +5,8 @@ import {
   toOriginalImageUrl,
   sermonDateFromTitle,
   decodeEntities,
+  extractFileLinks,
+  removeLinks,
 } from '@/onchurch/importer/wordpress-content';
 
 // 워드프레스 글(HTML)을 온교회 글(평문)로 옮기는 변환.
@@ -58,5 +60,23 @@ describe('wordpress-content', () => {
     // 1월 초에 올린 지난해 12월 설교
     expect(sermonDateFromTitle('송구영신 (12월 31일 예배)', '2026-01-03T08:00:00')).toBe('2025-12-31');
     expect(sermonDateFromTitle('제목에 날짜 없음', '2026-11-17T09:30:00')).toBe('2026-11-17');
+  });
+
+  // 첨부파일(주보 PDF 등): 같은 파일을 가리키는 링크가 여러 개(파일 이름 + '다운로드')여도 하나로, 이름은 링크 글자 → 파일 이름 순
+  const FILE_HTML =
+    '<div class="wp-block-file"><a href="http://chambit.org/wp-content/uploads/sites/697/2026/10/2026%EB%85%84-11%EC%9B%94-1%EC%9D%BC.pdf">2026년-11월-1일</a>' +
+    '<a href="http://chambit.org/wp-content/uploads/sites/697/2026/10/2026%EB%85%84-11%EC%9B%94-1%EC%9D%BC.pdf" class="wp-block-file__button" download>다운로드</a></div>' +
+    '<p><a href="https://drive.google.com/file/d/x/view">주보 보기</a></p><p><a href="http://chambit.org/files/notice.hwp"></a></p>';
+
+  it('본문의 첨부파일 링크(pdf·hwp 등)를 이름과 함께 하나씩 모은다', () => {
+    expect(extractFileLinks(FILE_HTML)).toEqual([
+      { url: 'http://chambit.org/wp-content/uploads/sites/697/2026/10/2026%EB%85%84-11%EC%9B%94-1%EC%9D%BC.pdf', name: '2026년-11월-1일.pdf' },
+      { url: 'http://chambit.org/files/notice.hwp', name: 'notice.hwp' },
+    ]);
+  });
+
+  it('옮긴 첨부파일 링크는 본문에서 지운다', () => {
+    const urls = extractFileLinks(FILE_HTML).map(f => f.url);
+    expect(htmlToText(removeLinks(FILE_HTML, urls))).toBe('주보 보기 (https://drive.google.com/file/d/x/view)');
   });
 });

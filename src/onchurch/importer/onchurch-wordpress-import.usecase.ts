@@ -5,7 +5,16 @@ import { ONCHURCH_USER_ROLE } from '@/onchurch/user/domain/entity/onchurch-user.
 import { OnchurchImportRepository } from '@/onchurch/importer/onchurch-import.repository';
 import { WordpressSource } from '@/onchurch/importer/wordpress-source';
 import { ImportImageCopier } from '@/onchurch/importer/import-image-copier';
-import { decodeEntities, extractImageUrls, extractYoutubeUrl, htmlToText, sermonDateFromTitle } from '@/onchurch/importer/wordpress-content';
+import {
+  decodeEntities,
+  extractFileLinks,
+  extractImageUrls,
+  extractYoutubeUrl,
+  htmlToText,
+  removeLinks,
+  sermonDateFromTitle,
+} from '@/onchurch/importer/wordpress-content';
+import { NoticeAttachment } from '@/onchurch/importer/onchurch-import.repository';
 
 export type ImportTarget = 'sermon' | 'notice' | 'gallery' | 'community';
 
@@ -122,12 +131,14 @@ export class OnchurchWordpressImportUseCase {
       }
       case 'notice': {
         await this.repository.ensureNoticeCategory(church.id, mapping.name);
+        const { content, attachments } = await this.noticeBody(p.content, church.id);
         return this.repository.insertNotice({
           churchId: church.id,
           category: mapping.name,
           title,
-          content: text || null,
+          content,
           imageUrls: await this.copyImages(p.content, church.id),
+          attachments,
           publishedAt: p.dateGmt,
         });
       }
@@ -165,6 +176,52 @@ export class OnchurchWordpressImportUseCase {
         });
       }
     }
+  }
+
+  /**
+   * 이미 옮긴 교회소식에 첨부파일을 붙인다: 원래 글을 다시 읽어 파일을 옮기고, 본문에서 그 링크를 지운다.
+   * 한 번에 limit 개씩, 화면이 nextOffset 으로 이어 부른다. 파일이 없는 글은 건드리지 않는다.
+   */
+  async fixNoticeAttachments(userId: number, churchId: number, sourceUrl: string, offset: number, limit: number) {
+    await this.assertMaster(userId);
+    const church = await this.repository.findChurch(churchId);
+    if (!church) throw new NotFoundException('교회를 찾을 수 없습니다.');
+    const prefix = `wp:${new URL(sourceUrl).host}:`;
+    const { items, total } = await this.repository.listImportedNotices(churchId, prefix, offset, limit);
+    const result = {
+      updated: 0,
+      checked: items.length,
+      total,
+      nextOffset: offset + items.length < total ? offset + items.length : null,
+      errors: [] as string[],
+    };
+    for (const item of items) {
+      try {
+        const post = await this.source.getPost(sourceUrl, Number(item.sourceKey.slice(prefix.length)));
+        if (!post) continue;
+        const { content, attachments } = await this.noticeBody(post.content, churchId);
+        if (attachments.length === 0) continue;
+        await this.repository.updateNoticeAttachments(churchId, item.noticeId, content, attachments);
+        result.updated += 1;
+      } catch (error) {
+        result.errors.push(`${item.sourceKey}: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+    return result;
+  }
+
+  /** 교회소식 본문: 첨부파일은 옮겨 붙이고, 옮긴 파일 링크는 본문에서 지운다(못 옮긴 건 링크를 남긴다). */
+  private async noticeBody(html: string, churchId: number): Promise<{ content: string | null; attachments: NoticeAttachment[] }> {
+    const attachments: NoticeAttachment[] = [];
+    const moved: string[] = [];
+    for (const file of extractFileLinks(html)) {
+      const copied = await this.images.copyFile(file.url, churchId, file.name);
+      if (copied) {
+        attachments.push(copied);
+        moved.push(file.url);
+      }
+    }
+    return { content: htmlToText(removeLinks(html, moved)) || null, attachments };
   }
 
   private async copyImages(html: string, churchId: number): Promise<string[]> {
