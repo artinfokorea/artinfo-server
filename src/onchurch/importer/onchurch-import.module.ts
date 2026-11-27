@@ -6,10 +6,20 @@ import { OnchurchWordpressImportUseCase } from '@/onchurch/importer/onchurch-wor
 import { OnchurchImportRepository } from '@/onchurch/importer/onchurch-import.repository';
 import { WordpressSource } from '@/onchurch/importer/wordpress-source';
 import { ImportImageCopier } from '@/onchurch/importer/import-image-copier';
+import { OnchurchBrokenSermonUseCase } from '@/onchurch/importer/onchurch-broken-sermon.usecase';
+import { YoutubeAvailability } from '@/onchurch/importer/youtube-availability';
 
 @Module({
   imports: [OnchurchUserModule],
   controllers: [OnchurchImportController],
-  providers: [OnchurchWordpressImportUseCase, OnchurchImportRepository, WordpressSource, ImportImageCopier, AwsS3Service],
+  providers: [
+    OnchurchWordpressImportUseCase,
+    OnchurchBrokenSermonUseCase,
+    YoutubeAvailability,
+    OnchurchImportRepository,
+    WordpressSource,
+    ImportImageCopier,
+    AwsS3Service,
+  ],
 })
 export class OnchurchImportModule {}

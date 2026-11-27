@@ -98,3 +98,52 @@ export class OnchurchWordpressImportResponse {
     this.errors = r.errors;
   }
 }
+
+export class OnchurchBrokenSermonFindRequest {
+  @IsInt()
+  @Min(0)
+  @ApiProperty({ type: Number })
+  offset: number;
+
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  @ApiProperty({ type: Number })
+  limit: number;
+}
+
+export class OnchurchBrokenSermonDto {
+  @ApiProperty() id: number;
+  @ApiProperty() title: string;
+  @ApiProperty({ type: String, nullable: true }) date: string | null;
+  @ApiProperty({ type: String, nullable: true }) videoUrl: string | null;
+  @ApiProperty({ enum: ['no-link', 'unavailable'] }) reason: 'no-link' | 'unavailable';
+}
+
+export class OnchurchBrokenSermonFindResponse {
+  @ApiProperty({ type: [OnchurchBrokenSermonDto] }) broken: OnchurchBrokenSermonDto[];
+  @ApiProperty() checked: number;
+  @ApiProperty() total: number;
+  @ApiProperty({ type: Number, nullable: true }) nextOffset: number | null;
+  constructor(r: { broken: OnchurchBrokenSermonDto[]; checked: number; total: number; nextOffset: number | null }) {
+    this.broken = r.broken;
+    this.checked = r.checked;
+    this.total = r.total;
+    this.nextOffset = r.nextOffset;
+  }
+}
+
+export class OnchurchSermonDeleteRequest {
+  @IsArray()
+  @ArrayMaxSize(1000)
+  @IsInt({ each: true })
+  @ApiProperty({ type: [Number] })
+  ids: number[];
+}
+
+export class OnchurchSermonDeleteResponse {
+  @ApiProperty() deleted: number;
+  constructor(deleted: number) {
+    this.deleted = deleted;
+  }
+}

@@ -177,4 +177,30 @@ export class OnchurchImportRepository implements OnModuleInit {
     );
     return r[0].id;
   }
+
+  // ── 설교 정리(마스터 도구)
+
+  async listSermonVideos(
+    churchId: number,
+    offset: number,
+    limit: number,
+  ): Promise<{ items: { id: number; title: string; date: string | null; videoUrl: string | null }[]; total: number }> {
+    const rows: { id: number; title: string; date: string | null; video_url: string | null }[] = await this.dataSource.query(
+      `SELECT id, title, date, video_url FROM onchurch_sermons WHERE church_id = $1 AND deleted_at IS NULL ORDER BY id LIMIT $2 OFFSET $3`,
+      [churchId, limit, offset],
+    );
+    const count: { n: string }[] = await this.dataSource.query(`SELECT COUNT(*) AS n FROM onchurch_sermons WHERE church_id = $1 AND deleted_at IS NULL`, [
+      churchId,
+    ]);
+    return { items: rows.map(r => ({ id: r.id, title: r.title, date: r.date, videoUrl: r.video_url })), total: Number(count[0]?.n ?? 0) };
+  }
+
+  /** 그 교회 설교만 지운다(되살릴 수 있게 deleted_at 표시). 지운 수. */
+  async softDeleteSermons(churchId: number, ids: number[]): Promise<number> {
+    const rows = await this.dataSource.query(
+      `UPDATE onchurch_sermons SET deleted_at = now() WHERE church_id = $1 AND id = ANY($2::int[]) AND deleted_at IS NULL RETURNING id`,
+      [churchId, ids],
+    );
+    return Array.isArray(rows?.[0]) ? rows[0].length : Array.isArray(rows) ? rows.length : 0;
+  }
 }
