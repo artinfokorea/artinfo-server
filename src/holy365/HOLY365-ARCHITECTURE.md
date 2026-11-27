@@ -57,8 +57,26 @@
   지원 형식은 `bible/domain/holy365-bible-import.ts` (권 배열 · `{books}` · 평평한 `{book,chapter,verse,text}`).
 - **저작권**: 개역개정은 대한성서공회 저작물이다. 사용 허락을 받기 전에는 운영 DB 에 넣지 말 것. KJV 는 퍼블릭 도메인.
 
+## 커뮤니티 (2026-11-27)
+
+- `GET /holy365/community/rankings?period=day|week|month&limit=` — 기간(한국 날짜 기준: 오늘 · 이번 주 월요일부터 · 이번 달 1일부터) 필사 절 수 합계 순위. 동점은 같은 순위(1, 2, 2, 4). 토큰이 있으면 `me: { rank, verses }` 포함(로그인은 선택 — `Holy365OptionalUser`).
+- `GET /holy365/community/stats` — 오늘·누적 필사자 수와 절 수, 최근 7일 많은 사람이 쓴 장(`popularChapters`).
+- 개발용 계정(`sns_type='dev'`)·탈퇴 계정은 랭킹·통계에서 뺀다. 랭킹에는 사용자 이름(닉네임)이 공개된다.
+
+## SNS · 교회 (2026-11-27)
+
+- **교회** (`holy365_churches`) — 같은 교회 판단:
+  1. 카카오 장소 검색에서 고르면 `kakao_place_id`(유니크)로 판단 — 이름이 같아도 지점이 다르면 다른 교회.
+  2. 직접 등록은 `church_key` = 정리한 이름 + 지역 (`social/domain/holy365-church-name.ts`): 괄호 속 교단·띄어쓰기·끝의 "교회/church" 제거, 지역은 "서울특별시 서초구" → "서울 서초구" 처럼 시/도 + 시/군/구로 통일.
+  3. 직접 등록한 교회가 나중에 카카오 장소로 들어오면 같은 키의 교회에 `place_id` 를 붙여 합친다. 직접 등록 시 같은 키의 카카오 교회가 있으면 그 교회를 쓴다.
+  - 카카오 키: `HOLY365_KAKAO_REST_KEY`, 없으면 로그인용 REST 키 `HOLY365_KAKAO_CLIENT_ID`. 둘 다 없으면 등록된 교회 검색 + 직접 등록만.
+- `holy365_users.church_id`, `profile_public`(기본 true — false 면 남에게 진행 상황 비공개, 추천에서도 제외).
+- **팔로우** (`holy365_follows`, 단방향). 추천 = ① 같은 교회 ② 나를 팔로우하는데 내가 안 한 사람 ③ 최근 7일 필사한 사람 (나·이미 팔로우·비공개·개발용 제외).
+- API: `GET /holy365/users/:id/profile` (로그인 선택, 비공개면 summary=null) · `GET /holy365/users/:id/progress/books|daily` (비공개면 403 `HOLY365-SOCIAL-001`) · `POST|DELETE /holy365/users/:id/follow` · `GET /holy365/users/:id/followers|following` · `GET /holy365/social/recommendations|feed` · `GET /holy365/social/users?q=` · `GET /holy365/churches/search?q=` · `POST /holy365/churches` · `GET /holy365/churches/:id` · `PUT /holy365/users/me {churchId, profilePublic}`.
+- 탈퇴 시 교회 연결과 팔로우를 지운다.
+
 ## API 요약
 
-- 공개: `GET /holy365/bible/versions` · `GET /holy365/bible/versions/:code/books` · `GET /holy365/bible/versions/:code/books/:book/chapters/:chapter`
+- 공개: `GET /holy365/community/rankings` · `GET /holy365/community/stats` · `GET /holy365/bible/versions` · `GET /holy365/bible/versions/:code/books` · `GET /holy365/bible/versions/:code/books/:book/chapters/:chapter`
 - 로그인: `GET|PUT|DELETE /holy365/users/me` · `POST /holy365/transcriptions/verses` · `GET /holy365/transcriptions/chapter` · `GET /holy365/progress/summary` · `GET /holy365/progress/books?version=` · `GET /holy365/progress/daily?days=`
 - 에러 코드 `HOLY365-{AUTH|USER|BIBLE|TYPING}-{NNN}` — 프론트가 코드로 언어별 문구를 고른다.

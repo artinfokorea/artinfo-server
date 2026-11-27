@@ -36,3 +36,17 @@ export function Holy365Auth(): MethodDecorator {
 }
 
 export const Holy365User = createParamDecorator((_: unknown, ctx: ExecutionContext): Holy365Signature => ctx.switchToHttp().getRequest().holy365User);
+
+/** 로그인은 선택 — 유효한 홀리365 토큰이 있으면 사용자, 없거나 틀리면 null (공개 화면에서 "내 순위" 같은 것에 쓴다) */
+export const Holy365OptionalUser = createParamDecorator((_: unknown, ctx: ExecutionContext): Holy365Signature | null => {
+  const header: string | undefined = ctx.switchToHttp().getRequest().headers['authorization'];
+  if (!header?.startsWith('Bearer ')) return null;
+  try {
+    const payload = jwt.verify(header.slice(7), process.env['JWT_TOKEN_KEY']!) as jwt.JwtPayload;
+    if (payload['svc'] !== HOLY365_TOKEN_SERVICE || typeof payload['id'] !== 'number') return null;
+
+    return { id: payload['id'], name: payload['name'] };
+  } catch {
+    return null;
+  }
+});

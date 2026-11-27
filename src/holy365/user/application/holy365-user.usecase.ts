@@ -13,14 +13,23 @@ export class Holy365UserUseCase {
     return this.userRepository.findOneOrThrow(userId);
   }
 
-  async update(userId: number, patch: { name?: string; locale?: string }): Promise<Holy365User> {
-    const changes: { name?: string; locale?: string } = {};
+  async update(
+    userId: number,
+    patch: { name?: string; locale?: string; churchId?: number | null; profilePublic?: boolean },
+    churchExists: (id: number) => Promise<boolean>,
+  ): Promise<Holy365User> {
+    const changes: { name?: string; locale?: string; churchId?: number | null; profilePublic?: boolean } = {};
     if (patch.name !== undefined) {
       const name = normalizeDisplayName(patch.name);
       if (!name) throw Holy365Errors.invalidName();
       changes.name = name;
     }
     if (patch.locale !== undefined) changes.locale = localeOf(patch.locale);
+    if (patch.churchId !== undefined) {
+      if (patch.churchId !== null && !(await churchExists(patch.churchId))) throw Holy365Errors.churchNotFound();
+      changes.churchId = patch.churchId;
+    }
+    if (patch.profilePublic !== undefined) changes.profilePublic = patch.profilePublic;
 
     await this.userRepository.findOneOrThrow(userId);
     if (Object.keys(changes).length) await this.userRepository.update(userId, changes);

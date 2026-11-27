@@ -38,7 +38,7 @@ export class Holy365UserRepository {
     return this.repository.findOneBy({ snsType, snsId });
   }
 
-  async update(id: number, patch: Partial<Pick<Holy365User, 'name' | 'locale'>>): Promise<void> {
+  async update(id: number, patch: Partial<Pick<Holy365User, 'name' | 'locale' | 'churchId' | 'profilePublic'>>): Promise<void> {
     await this.repository.update({ id }, patch);
   }
 
@@ -55,6 +55,8 @@ export class Holy365UserRepository {
       for (const table of ['holy365_auths', 'holy365_verse_counts', 'holy365_user_versions', 'holy365_daily_activity']) {
         await manager.query(`DELETE FROM ${table} WHERE user_id = $1`, [id]);
       }
+      await manager.query(`UPDATE holy365_users SET church_id = NULL WHERE id = $1`, [id]);
+      await manager.query(`DELETE FROM holy365_follows WHERE follower_id = $1 OR following_id = $1`, [id]);
     });
   }
 }
