@@ -96,4 +96,29 @@ export const HOLY365_SCHEMA_STATEMENTS: string[] = [
   // 랭킹 · 통계 (2026-11-27) — 기간별 합계와 최근 7일 인기 장 조회용
   `CREATE INDEX IF NOT EXISTS idx_holy365_daily_activity_day ON holy365_daily_activity (day)`,
   `CREATE INDEX IF NOT EXISTS idx_holy365_verse_counts_last_at ON holy365_verse_counts (last_at)`,
+  // 교회 (2026-11-27) — 카카오 장소면 place_id 로, 직접 등록이면 정리한 이름+지역(church_key)으로 같은 교회를 판단한다
+  `CREATE TABLE IF NOT EXISTS holy365_churches (
+    id             SERIAL PRIMARY KEY,
+    name           VARCHAR(80) NOT NULL,
+    region         VARCHAR(80) NOT NULL DEFAULT '',
+    address        VARCHAR(200),
+    church_key     VARCHAR(200) NOT NULL,
+    kakao_place_id VARCHAR(32),
+    created_by     INTEGER,
+    created_at     TIMESTAMP NOT NULL DEFAULT now()
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS uidx_holy365_churches_kakao ON holy365_churches (kakao_place_id) WHERE kakao_place_id IS NOT NULL`,
+  `CREATE INDEX IF NOT EXISTS idx_holy365_churches_key ON holy365_churches (church_key)`,
+  // 프로필 — 교회, 진행 상황 공개 여부. 엔티티가 매핑하므로 기동 시 먼저 만든다
+  `ALTER TABLE holy365_users ADD COLUMN IF NOT EXISTS church_id INTEGER`,
+  `ALTER TABLE holy365_users ADD COLUMN IF NOT EXISTS profile_public BOOLEAN NOT NULL DEFAULT true`,
+  `CREATE INDEX IF NOT EXISTS idx_holy365_users_church ON holy365_users (church_id)`,
+  // 팔로우
+  `CREATE TABLE IF NOT EXISTS holy365_follows (
+    follower_id  INTEGER NOT NULL,
+    following_id INTEGER NOT NULL,
+    created_at   TIMESTAMP NOT NULL DEFAULT now(),
+    PRIMARY KEY (follower_id, following_id)
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_holy365_follows_following ON holy365_follows (following_id)`,
 ];

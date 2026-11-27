@@ -29,6 +29,13 @@ export class Holy365User extends BaseEntity {
   @Column({ type: 'varchar', name: 'locale', length: 8, default: HOLY365_LOCALE.KO })
   locale: string;
 
+  @Column({ type: 'int', name: 'church_id', nullable: true })
+  churchId: number | null;
+
+  /** false 면 다른 사람에게 진행 상황(통계·잔디·성경 지도)을 보여주지 않는다 */
+  @Column({ type: 'boolean', name: 'profile_public', default: true })
+  profilePublic: boolean;
+
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   createdAt: Date;
 
