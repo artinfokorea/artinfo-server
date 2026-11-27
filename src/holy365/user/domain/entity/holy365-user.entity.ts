@@ -1,10 +1,8 @@
 import { BaseEntity, Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-export const HOLY365_EMAIL_TYPE = 'email';
-
 export enum HOLY365_LOCALE {
   KO = 'ko',
-  ZH = 'zh',
+  EN = 'en',
 }
 
 @Entity('holy365_users')
@@ -18,10 +16,7 @@ export class Holy365User extends BaseEntity {
   @Column({ type: 'varchar', name: 'email', nullable: true })
   email: string | null;
 
-  @Column({ type: 'varchar', name: 'password_hash', nullable: true, select: false })
-  passwordHash: string | null;
-
-  /** 'email' | google | kakao | naver */
+  /** google | kakao | naver (로컬 개발 로그인은 dev) */
   @Column({ type: 'varchar', name: 'sns_type', length: 16 })
   snsType: string;
 

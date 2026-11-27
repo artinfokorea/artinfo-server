@@ -32,7 +32,7 @@ describe('isAllowedRedirectUri — 허용한 출처의 콜백만', () => {
   const allowed = ['http://localhost:3000', 'https://holy365.kr'];
 
   it('허용 출처의 /auth/callback/ 경로면 통과', () => {
-    expect(isAllowedRedirectUri('https://holy365.kr/zh/auth/callback/naver', allowed)).toBe(true);
+    expect(isAllowedRedirectUri('https://holy365.kr/en/auth/callback/naver', allowed)).toBe(true);
     expect(isAllowedRedirectUri('http://localhost:3000/ko/auth/callback/kakao', allowed)).toBe(true);
   });
 

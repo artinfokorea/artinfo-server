@@ -3,7 +3,7 @@ import { RestApiController, RestApiDelete, RestApiGet, RestApiPut } from '@/comm
 import { OkResponse } from '@/common/response/ok.response';
 import { Holy365Auth, Holy365Signature, Holy365User } from '@/holy365/common/holy365-auth.guard';
 import { Holy365UserUseCase } from '@/holy365/user/application/holy365-user.usecase';
-import { Holy365ChangePasswordRequest, Holy365UpdateMeRequest, Holy365UserResponse } from '@/holy365/user/presentation/dto/holy365-user.dto';
+import { Holy365UpdateMeRequest, Holy365UserResponse } from '@/holy365/user/presentation/dto/holy365-user.dto';
 
 @RestApiController('/holy365/users', 'Holy365 User')
 export class Holy365UserController {
@@ -19,12 +19,6 @@ export class Holy365UserController {
   @RestApiPut(Holy365UserResponse, { path: '/me', description: '이름 · 서비스 언어 변경' })
   async update(@Holy365User() signature: Holy365Signature, @Body() request: Holy365UpdateMeRequest) {
     return new Holy365UserResponse(await this.userUseCase.update(signature.id, request));
-  }
-
-  @Holy365Auth()
-  @RestApiPut(OkResponse, { path: '/me/password', description: '비밀번호 변경 (이메일 가입 계정)' })
-  async changePassword(@Holy365User() signature: Holy365Signature, @Body() request: Holy365ChangePasswordRequest) {
-    await this.userUseCase.changePassword(signature.id, request.currentPassword, request.newPassword);
   }
 
   @Holy365Auth()

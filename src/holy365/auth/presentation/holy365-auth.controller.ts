@@ -6,10 +6,9 @@ import { HOLY365_SNS_PROVIDER } from '@/holy365/auth/domain/service/holy365-oaut
 import {
   Holy365AuthorizeUrlRequest,
   Holy365AuthorizeUrlResponse,
-  Holy365LoginRequest,
+  Holy365DevLoginRequest,
   Holy365LoginResponse,
   Holy365RefreshRequest,
-  Holy365SignupRequest,
   Holy365SnsLoginRequest,
   Holy365TokensResponse,
 } from '@/holy365/auth/presentation/dto/holy365-auth.dto';
@@ -17,20 +16,6 @@ import {
 @RestApiController('/holy365/auths', 'Holy365 Auth')
 export class Holy365AuthController {
   constructor(private readonly authUseCase: Holy365AuthUseCase) {}
-
-  @RestApiPost(Holy365LoginResponse, { path: '/signup', description: '이메일 회원가입 (가입 즉시 로그인)' })
-  async signup(@Body() request: Holy365SignupRequest) {
-    const { user, auth } = await this.authUseCase.signup(request);
-
-    return new Holy365LoginResponse(user, auth);
-  }
-
-  @RestApiPost(Holy365LoginResponse, { path: '/login', description: '이메일 로그인' })
-  async login(@Body() request: Holy365LoginRequest) {
-    const { user, auth } = await this.authUseCase.login(request);
-
-    return new Holy365LoginResponse(user, auth);
-  }
 
   @RestApiPost(Holy365AuthorizeUrlResponse, { path: '/sns/:provider/authorize-url', description: '소셜 로그인 화면 주소 (google · kakao · naver)' })
   async authorizeUrl(@Param('provider', new ParseEnumPipe(HOLY365_SNS_PROVIDER)) provider: HOLY365_SNS_PROVIDER, @Body() request: Holy365AuthorizeUrlRequest) {
@@ -40,6 +25,13 @@ export class Holy365AuthController {
   @RestApiPost(Holy365LoginResponse, { path: '/sns', description: '소셜 로그인 — 콜백의 code 를 교환 (미가입 시 자동 가입)' })
   async snsLogin(@Body() request: Holy365SnsLoginRequest) {
     const { user, auth } = await this.authUseCase.snsLogin(request);
+
+    return new Holy365LoginResponse(user, auth);
+  }
+
+  @RestApiPost(Holy365LoginResponse, { path: '/dev', description: '로컬 개발용 로그인 (HOLY365_DEV_LOGIN=true 일 때만)' })
+  async devLogin(@Body() request: Holy365DevLoginRequest) {
+    const { user, auth } = await this.authUseCase.devLogin(request.locale);
 
     return new Holy365LoginResponse(user, auth);
   }

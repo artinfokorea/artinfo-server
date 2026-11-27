@@ -7,7 +7,6 @@ import { Holy365Errors } from '@/holy365/common/holy365.exception';
 export interface Holy365UserCreator {
   name: string;
   email: string | null;
-  passwordHash: string | null;
   snsType: string;
   snsId: string;
   iconImageUrl: string | null;
@@ -39,22 +38,7 @@ export class Holy365UserRepository {
     return this.repository.findOneBy({ snsType, snsId });
   }
 
-  /** 비밀번호 해시까지 읽는다 (엔티티 기본 조회에서는 빠진다) */
-  findWithPassword(snsType: string, snsId: string): Promise<Holy365User | null> {
-    return this.repository
-      .createQueryBuilder('u')
-      .addSelect('u.passwordHash')
-      .where('u.sns_type = :snsType AND u.sns_id = :snsId AND u.deleted_at IS NULL', { snsType, snsId })
-      .getOne();
-  }
-
-  async findPasswordHash(id: number): Promise<string | null> {
-    const user = await this.repository.createQueryBuilder('u').addSelect('u.passwordHash').where('u.id = :id', { id }).getOne();
-
-    return user?.passwordHash ?? null;
-  }
-
-  async update(id: number, patch: Partial<Pick<Holy365User, 'name' | 'locale' | 'passwordHash'>>): Promise<void> {
+  async update(id: number, patch: Partial<Pick<Holy365User, 'name' | 'locale'>>): Promise<void> {
     await this.repository.update({ id }, patch);
   }
 
@@ -63,7 +47,7 @@ export class Holy365UserRepository {
     await this.repository.manager.transaction(async manager => {
       await manager.query(
         `UPDATE holy365_users
-            SET name = '탈퇴한 사용자', email = NULL, password_hash = NULL, icon_image_url = NULL,
+            SET name = '탈퇴한 사용자', email = NULL, icon_image_url = NULL,
                 sns_id = 'withdrawn-' || id || '-' || extract(epoch from now())::bigint, deleted_at = now(), updated_at = now()
           WHERE id = $1`,
         [id],

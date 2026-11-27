@@ -5,7 +5,7 @@
 
 ## 도메인 모델
 
-- **user** (`holy365_users`) — 이메일 가입은 `sns_type='email'`, `sns_id=소문자 이메일`(bcrypt 해시 `password_hash`). 소셜은 `sns_type=google|kakao|naver`. `(sns_type, sns_id)` 유니크. 같은 이메일이라도 이메일 계정과 소셜 계정은 **별개 계정**(자동 연결하지 않음 — 계정 탈취 방지). 서비스 언어 `locale` = ko | zh.
+- **user** (`holy365_users`) — **소셜 로그인만** (`sns_type=google|kakao|naver`, 로컬 개발 로그인은 `dev`). `(sns_type, sns_id)` 유니크. 같은 이메일이라도 제공자가 다르면 별개 계정(자동 연결하지 않음). 서비스 언어 `locale` = ko | en.
 - **auth** (`holy365_auths`) — 세션. access 1시간 / refresh 60일. access payload `{ id, name, svc: 'holy365' }`.
 - **bible** (`holy365_bible_versions`, `holy365_verses`, `holy365_chapters`) — 번역본 `NKRV`(개역개정) · `KJV`. 본문이 들어온 번역본만 목록에 나온다. `holy365_chapters` 는 가져오기 스크립트가 만드는 장별 절 수.
 - **transcription** (`holy365_verse_counts`, `holy365_user_versions`, `holy365_daily_activity`) — 절마다 몇 번 썼는지, 번역본별 마지막 위치, 하루 필사량(한국 시간).
@@ -24,11 +24,12 @@
 
 ## 인증
 
-- 이메일: `POST /holy365/auths/signup` · `POST /holy365/auths/login`. 비밀번호 8~64자 영문+숫자. 로그인 실패는 "이메일 없음/비밀번호 틀림" 을 구분하지 않는다(더미 해시로 응답 시간도 같게).
+- 가입·로그인은 소셜로만 (이메일 가입·비밀번호 없음). 처음 로그인하면 자동 가입.
 - 소셜(웹 authorization code): 프론트가 `POST /holy365/auths/sns/:provider/authorize-url {redirectUri, state}` 로 받은 주소로 이동 → 제공자가 `{origin}/{locale}/auth/callback/{provider}?code&state` 로 돌려보냄 → 프론트가 state 확인 후 `POST /holy365/auths/sns {provider, code, redirectUri, state}` → 서버가 client secret 으로 code 교환 · 프로필 조회 · 미가입이면 가입.
   - `redirectUri` 는 `HOLY365_WEB_ORIGINS` 출처의 `/{locale}/auth/callback/{provider}` 만 허용.
 - 토큰 재발급 `POST /holy365/auths/refresh {refreshToken}` — refresh token 은 남은 기간이 7일 미만일 때만 교체(여러 탭 동시 갱신 안전). 로그아웃 `POST /holy365/auths/logout` 은 그 세션만 폐기.
 - 가드: `@Holy365Auth()` (`common/holy365-auth.guard.ts`) — 공용 JWT 키를 쓰는 다른 서비스 토큰은 `svc` 가 달라 막힌다. 공용 `RestApi*` 의 `auth` 옵션은 쓰지 않는다.
+- **개발용 로그인** `POST /holy365/auths/dev` — 로컬 `.env` 에 `HOLY365_DEV_LOGIN=true` 가 있을 때만(기본 차단, 배포 워크플로는 주입하지 않음). 프론트는 `next dev` 에서만 버튼을 보인다.
 - 탈퇴 `DELETE /holy365/users/me` — 계정 익명화 + 세션·필사 기록 삭제(재가입 가능).
 
 ## 환경변수
@@ -40,7 +41,7 @@
 | `HOLY365_KAKAO_CLIENT_ID` / `_SECRET` | 카카오 REST API 키 / (사용 시) Client Secret |
 | `HOLY365_NAVER_CLIENT_ID` / `_SECRET` | 네이버 로그인 애플리케이션 |
 
-설정이 없는 제공자는 `HOLY365-AUTH-007`(503) — 프론트는 "준비 중" 으로 안내한다. 각 콘솔에 Redirect URI `https://{도메인}/ko/auth/callback/{provider}` 와 `/zh/...` 를 둘 다 등록할 것.
+설정이 없는 제공자는 `HOLY365-AUTH-007`(503) — 프론트는 "준비 중" 으로 안내한다. 각 콘솔에 Redirect URI `https://{도메인}/ko/auth/callback/{provider}` 와 `/en/...` 를 둘 다 등록할 것.
 
 ## 스키마 · 본문 가져오기
 
@@ -59,5 +60,5 @@
 ## API 요약
 
 - 공개: `GET /holy365/bible/versions` · `GET /holy365/bible/versions/:code/books` · `GET /holy365/bible/versions/:code/books/:book/chapters/:chapter`
-- 로그인: `GET|PUT|DELETE /holy365/users/me` · `PUT /holy365/users/me/password` · `POST /holy365/transcriptions/verses` · `GET /holy365/transcriptions/chapter` · `GET /holy365/progress/summary` · `GET /holy365/progress/books?version=` · `GET /holy365/progress/daily?days=`
+- 로그인: `GET|PUT|DELETE /holy365/users/me` · `POST /holy365/transcriptions/verses` · `GET /holy365/transcriptions/chapter` · `GET /holy365/progress/summary` · `GET /holy365/progress/books?version=` · `GET /holy365/progress/daily?days=`
 - 에러 코드 `HOLY365-{AUTH|USER|BIBLE|TYPING}-{NNN}` — 프론트가 코드로 언어별 문구를 고른다.

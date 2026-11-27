@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
 import { Holy365UserRepository } from '@/holy365/user/infrastructure/holy365-user.repository';
 import { Holy365TokenService } from '@/holy365/auth/infrastructure/holy365-token.service';
 import { Holy365OAuthClient } from '@/holy365/auth/infrastructure/holy365-oauth-client.service';
 import { Holy365Auth } from '@/holy365/auth/domain/entity/holy365-auth.entity';
-import { HOLY365_EMAIL_TYPE, HOLY365_LOCALE, Holy365User } from '@/holy365/user/domain/entity/holy365-user.entity';
-import { isValidPassword, normalizeDisplayName, normalizeEmail } from '@/holy365/auth/domain/service/holy365-credential-policy';
+import { HOLY365_LOCALE, Holy365User } from '@/holy365/user/domain/entity/holy365-user.entity';
+import { normalizeDisplayName, normalizeEmail } from '@/holy365/auth/domain/service/holy365-credential-policy';
 import { buildAuthorizeUrl, HOLY365_SNS_PROVIDER, isAllowedRedirectUri } from '@/holy365/auth/domain/service/holy365-oauth';
 import { Holy365Errors } from '@/holy365/common/holy365.exception';
 
@@ -14,9 +13,7 @@ export interface Holy365LoginResult {
   auth: Holy365Auth;
 }
 
-const BCRYPT_ROUNDS = 10;
-/** 비밀번호가 틀려도 이메일이 없어도 같은 시간만큼 걸리게 — 가입 여부를 응답 시간으로 알 수 없도록 */
-const DUMMY_HASH = '$2b$10$CNdG/L5LaY4gCyefc8Rdu.COjYMGnHvebMVJEP821kHcTuZ6ucM0.';
+export const HOLY365_DEV_TYPE = 'dev';
 
 export function holy365WebOrigins(): string[] {
   return (process.env['HOLY365_WEB_ORIGINS'] ?? 'http://localhost:3000')
@@ -25,10 +22,11 @@ export function holy365WebOrigins(): string[] {
     .filter(Boolean);
 }
 
-function localeOf(value: string | undefined): string {
-  return value === HOLY365_LOCALE.ZH ? HOLY365_LOCALE.ZH : HOLY365_LOCALE.KO;
+export function localeOf(value: string | undefined): string {
+  return value === HOLY365_LOCALE.EN ? HOLY365_LOCALE.EN : HOLY365_LOCALE.KO;
 }
 
+/** 가입·로그인은 소셜(구글·카카오·네이버)로만 — 처음 로그인하면 자동 가입 */
 @Injectable()
 export class Holy365AuthUseCase {
   constructor(
@@ -36,38 +34,6 @@ export class Holy365AuthUseCase {
     private readonly tokenService: Holy365TokenService,
     private readonly oauthClient: Holy365OAuthClient,
   ) {}
-
-  async signup(input: { email: string; password: string; name: string; locale?: string }): Promise<Holy365LoginResult> {
-    const email = normalizeEmail(input.email);
-    if (!email) throw Holy365Errors.invalidEmail();
-    if (!isValidPassword(input.password)) throw Holy365Errors.weakPassword();
-    const name = normalizeDisplayName(input.name);
-    if (!name) throw Holy365Errors.invalidName();
-
-    if (await this.userRepository.findBySns(HOLY365_EMAIL_TYPE, email)) throw Holy365Errors.emailTaken();
-
-    const passwordHash = await bcrypt.hash(input.password, BCRYPT_ROUNDS);
-    const user = await this.userRepository
-      .create({ name, email, passwordHash, snsType: HOLY365_EMAIL_TYPE, snsId: email, iconImageUrl: null, locale: localeOf(input.locale) })
-      .catch(error => {
-        // 동시에 같은 이메일로 가입하면 유니크 인덱스가 막는다
-        if (String(error?.code) === '23505') throw Holy365Errors.emailTaken();
-        throw error;
-      });
-
-    return { user, auth: await this.tokenService.issue(user) };
-  }
-
-  async login(input: { email: string; password: string }): Promise<Holy365LoginResult> {
-    const email = normalizeEmail(input.email);
-    const found = email ? await this.userRepository.findWithPassword(HOLY365_EMAIL_TYPE, email) : null;
-    const matches = await bcrypt.compare(input.password ?? '', found?.passwordHash ?? DUMMY_HASH);
-    if (!found || !matches) throw Holy365Errors.invalidCredentials();
-
-    const user = await this.userRepository.findOneOrThrow(found.id);
-
-    return { user, auth: await this.tokenService.issue(user) };
-  }
 
   authorizeUrl(provider: HOLY365_SNS_PROVIDER, redirectUri: string, state: string): string {
     const credentials = this.oauthClient.credentials(provider);
@@ -85,13 +51,34 @@ export class Holy365AuthUseCase {
     let user = await this.userRepository.findBySns(input.provider, profile.snsId);
     if (!user) {
       user = await this.userRepository.create({
-        name: normalizeDisplayName(profile.name) ?? (input.locale === HOLY365_LOCALE.ZH ? '用户' : '필사자'),
+        name: normalizeDisplayName(profile.name) ?? (input.locale === HOLY365_LOCALE.EN ? 'Writer' : '필사자'),
         email: normalizeEmail(profile.email),
-        passwordHash: null,
         snsType: input.provider,
         snsId: profile.snsId,
         iconImageUrl: profile.iconImageUrl,
         locale: localeOf(input.locale),
+      });
+    }
+
+    return { user, auth: await this.tokenService.issue(user) };
+  }
+
+  /**
+   * 로컬 개발용 로그인 — 소셜 키 없이 화면을 확인할 때. 서버 .env 에 HOLY365_DEV_LOGIN=true 를 명시했을 때만 열린다
+   * (기본 차단, 배포 워크플로는 이 변수를 주입하지 않는다).
+   */
+  async devLogin(locale?: string): Promise<Holy365LoginResult> {
+    if (process.env['HOLY365_DEV_LOGIN'] !== 'true') throw Holy365Errors.devLoginDisabled();
+
+    let user = await this.userRepository.findBySns(HOLY365_DEV_TYPE, 'local');
+    if (!user) {
+      user = await this.userRepository.create({
+        name: 'Dev',
+        email: null,
+        snsType: HOLY365_DEV_TYPE,
+        snsId: 'local',
+        iconImageUrl: null,
+        locale: localeOf(locale),
       });
     }
 

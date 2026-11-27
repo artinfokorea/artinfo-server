@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
-import { HOLY365_EMAIL_TYPE, Holy365User } from '@/holy365/user/domain/entity/holy365-user.entity';
+import { Holy365User } from '@/holy365/user/domain/entity/holy365-user.entity';
 
 export class Holy365UserResponse {
   @ApiProperty()
@@ -12,17 +12,14 @@ export class Holy365UserResponse {
   @ApiProperty({ nullable: true })
   email: string | null;
 
-  @ApiProperty({ description: "'email' | google | kakao | naver" })
+  @ApiProperty({ description: 'google | kakao | naver' })
   provider: string;
 
   @ApiProperty({ nullable: true })
   iconImageUrl: string | null;
 
-  @ApiProperty({ enum: ['ko', 'zh'] })
+  @ApiProperty({ enum: ['ko', 'en'] })
   locale: string;
-
-  @ApiProperty({ description: '비밀번호 변경 가능 여부 (이메일 가입)' })
-  hasPassword: boolean;
 
   @ApiProperty()
   createdAt: Date;
@@ -34,7 +31,6 @@ export class Holy365UserResponse {
     this.provider = user.snsType;
     this.iconImageUrl = user.iconImageUrl;
     this.locale = user.locale;
-    this.hasPassword = user.snsType === HOLY365_EMAIL_TYPE;
     this.createdAt = user.createdAt;
   }
 }
@@ -47,19 +43,7 @@ export class Holy365UpdateMeRequest {
   name?: string;
 
   @IsOptional()
-  @IsIn(['ko', 'zh'])
-  @ApiProperty({ required: false, enum: ['ko', 'zh'] })
+  @IsIn(['ko', 'en'])
+  @ApiProperty({ required: false, enum: ['ko', 'en'] })
   locale?: string;
-}
-
-export class Holy365ChangePasswordRequest {
-  @IsString()
-  @MaxLength(64)
-  @ApiProperty()
-  currentPassword: string;
-
-  @IsString()
-  @MaxLength(64)
-  @ApiProperty()
-  newPassword: string;
 }

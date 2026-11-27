@@ -4,12 +4,11 @@
  * synchronize:false 환경이라 이 목록이 스키마의 원본이다 — 컬럼을 바꿀 땐 ALTER ... IF NOT EXISTS 를 뒤에 덧붙일 것.
  */
 export const HOLY365_SCHEMA_STATEMENTS: string[] = [
-  // 계정 — 이메일 가입은 sns_type='email', sns_id=소문자 이메일
+  // 계정 — 소셜 로그인만 (sns_type = google | kakao | naver, 로컬 개발 로그인은 dev)
   `CREATE TABLE IF NOT EXISTS holy365_users (
     id             SERIAL PRIMARY KEY,
     name           VARCHAR(30) NOT NULL,
     email          VARCHAR(254),
-    password_hash  VARCHAR(100),
     sns_type       VARCHAR(16) NOT NULL,
     sns_id         VARCHAR(255) NOT NULL,
     icon_image_url VARCHAR,

@@ -5,38 +5,11 @@ import { Holy365Auth } from '@/holy365/auth/domain/entity/holy365-auth.entity';
 import { Holy365User } from '@/holy365/user/domain/entity/holy365-user.entity';
 import { Holy365UserResponse } from '@/holy365/user/presentation/dto/holy365-user.dto';
 
-export class Holy365SignupRequest {
-  @IsString()
-  @MaxLength(254)
-  @ApiProperty({ example: 'grace@example.com' })
-  email: string;
-
-  @IsString()
-  @MaxLength(64)
-  @ApiProperty({ example: 'grace2026', description: '8~64자, 영문과 숫자 포함' })
-  password: string;
-
-  @IsString()
-  @MaxLength(60)
-  @ApiProperty({ example: '은혜' })
-  name: string;
-
+export class Holy365DevLoginRequest {
   @IsOptional()
-  @IsIn(['ko', 'zh'])
-  @ApiProperty({ required: false, enum: ['ko', 'zh'] })
+  @IsIn(['ko', 'en'])
+  @ApiProperty({ required: false, enum: ['ko', 'en'] })
   locale?: string;
-}
-
-export class Holy365LoginRequest {
-  @IsString()
-  @MaxLength(254)
-  @ApiProperty({ example: 'grace@example.com' })
-  email: string;
-
-  @IsString()
-  @MaxLength(64)
-  @ApiProperty({ example: 'grace2026' })
-  password: string;
 }
 
 export class Holy365AuthorizeUrlRequest {
@@ -72,8 +45,8 @@ export class Holy365SnsLoginRequest {
   state: string;
 
   @IsOptional()
-  @IsIn(['ko', 'zh'])
-  @ApiProperty({ required: false, enum: ['ko', 'zh'] })
+  @IsIn(['ko', 'en'])
+  @ApiProperty({ required: false, enum: ['ko', 'en'] })
   locale?: string;
 }
 
