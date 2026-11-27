@@ -3,7 +3,10 @@ export type Holy365Aspect = '1:1' | '4:5';
 export const HOLY365_ASPECTS: Holy365Aspect[] = ['1:1', '4:5'];
 export const HOLY365_POST_MAX_IMAGES = 10;
 export const HOLY365_POST_MAX_CONTENT = 2000;
-export const HOLY365_POST_MAX_VERSES = 10;
+/** 구절 하나(같은 장의 연속 범위)에 담을 수 있는 절 수 */
+export const HOLY365_POST_MAX_VERSES = 30;
+/** 게시물 하나에 붙일 수 있는 구절 수 */
+export const HOLY365_POST_MAX_PASSAGES = 5;
 export const HOLY365_COMMENT_MAX_CONTENT = 500;
 
 /** 저장할 사진 크기 — 정사각형 1080×1080, 세로형 1080×1350 (가운데 기준으로 자른다) */

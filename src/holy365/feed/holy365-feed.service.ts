@@ -12,6 +12,7 @@ import {
   feedImagePath,
   Holy365Aspect,
   HOLY365_COMMENT_MAX_CONTENT,
+  HOLY365_POST_MAX_PASSAGES,
   HOLY365_POST_MAX_IMAGES,
   isFeedImageUrl,
   normalizePostContent,
@@ -20,6 +21,8 @@ import {
 } from '@/holy365/feed/domain/holy365-post-policy';
 import { isAllowedAvatar } from '@/holy365/user/domain/service/holy365-avatar-policy';
 import { Holy365Errors } from '@/holy365/common/holy365.exception';
+
+type Holy365VerseInput = { versionCode: string; book: number; chapter: number; verseStart: number; verseEnd: number };
 
 export function postOf(row: Holy365PostRow) {
   return {
@@ -33,7 +36,7 @@ export function postOf(row: Holy365PostRow) {
     content: row.content,
     aspect: row.aspect,
     images: row.images,
-    verse: row.verse,
+    verses: row.verses,
     likeCount: row.likeCount,
     commentCount: row.commentCount,
     likedByMe: row.likedByMe,
@@ -85,25 +88,27 @@ export class Holy365FeedService {
       content?: string;
       aspect: Holy365Aspect;
       images?: string[];
-      verse?: { versionCode: string; book: number; chapter: number; verseStart: number; verseEnd: number };
+      verses?: Holy365VerseInput[];
     },
   ) {
     const content = normalizePostContent(input.content);
     const images = input.images ?? [];
-    const error = validatePostInput({ content, imageCount: images.length, hasVerse: !!input.verse });
+    const error = validatePostInput({ content, imageCount: images.length, hasVerse: !!input.verses?.length });
     if (error === 'empty') throw Holy365Errors.postEmpty();
     if (error === 'tooLong') throw Holy365Errors.postTooLong();
     if (error === 'tooManyImages') throw Holy365Errors.postTooManyImages();
     if (images.some(url => !isFeedImageUrl(url, userId))) throw Holy365Errors.postInvalidImage();
 
-    const verse = input.verse ? await this.resolveVerse(input.verse) : null;
-    const id = await this.feedRepository.create({ userId, content, aspect: input.aspect, images, verse });
+    if ((input.verses?.length ?? 0) > HOLY365_POST_MAX_PASSAGES) throw Holy365Errors.postInvalidVerse();
+    const verses: Holy365PostVerse[] = [];
+    for (const verse of input.verses ?? []) verses.push(await this.resolveVerse(verse));
+    const id = await this.feedRepository.create({ userId, content, aspect: input.aspect, images, verses });
 
     return this.get(id, userId);
   }
 
   /** 구절 본문은 클라이언트가 보낸 것을 믿지 않고 DB 에서 가져와 그 시점 그대로 저장한다 */
-  private async resolveVerse(input: { versionCode: string; book: number; chapter: number; verseStart: number; verseEnd: number }): Promise<Holy365PostVerse> {
+  private async resolveVerse(input: Holy365VerseInput): Promise<Holy365PostVerse> {
     if (!isValidChapter(input.book, input.chapter) || !validateVerseRange(input.verseStart, input.verseEnd)) throw Holy365Errors.postInvalidVerse();
     const verses = (await this.bibleRepository.verses(input.versionCode, input.book, input.chapter)).filter(
       v => v.verse >= input.verseStart && v.verse <= input.verseEnd,

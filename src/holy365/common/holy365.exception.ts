@@ -23,7 +23,8 @@ export const Holy365Errors = {
   postTooLong: () => new Holy365Exception('HOLY365-FEED-002', '글은 2,000자까지 쓸 수 있습니다.', HttpStatus.BAD_REQUEST),
   postTooManyImages: () => new Holy365Exception('HOLY365-FEED-003', '사진은 10장까지 올릴 수 있습니다.', HttpStatus.BAD_REQUEST),
   postInvalidImage: () => new Holy365Exception('HOLY365-FEED-004', '사진을 다시 올려 주세요.', HttpStatus.BAD_REQUEST),
-  postInvalidVerse: () => new Holy365Exception('HOLY365-FEED-005', '성경 구절을 다시 골라 주세요 (한 번에 10절까지).', HttpStatus.BAD_REQUEST),
+  postInvalidVerse: () =>
+    new Holy365Exception('HOLY365-FEED-005', '성경 구절을 다시 골라 주세요 (구절은 5개까지, 한 구절에 30절까지).', HttpStatus.BAD_REQUEST),
   postNotFound: () => new Holy365Exception('HOLY365-FEED-006', '게시물을 찾을 수 없습니다.', HttpStatus.NOT_FOUND),
   notYourPost: () => new Holy365Exception('HOLY365-FEED-007', '내가 쓴 글만 지울 수 있습니다.', HttpStatus.FORBIDDEN),
   commentInvalid: () => new Holy365Exception('HOLY365-FEED-008', '댓글은 1~500자로 써 주세요.', HttpStatus.BAD_REQUEST),
