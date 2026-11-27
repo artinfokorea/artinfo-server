@@ -22,6 +22,7 @@ import { OnchurchCommunityBlockModule } from '@/onchurch/community-block/onchurc
 import { OnchurchAppVersionModule } from '@/onchurch/app-version/onchurch-app-version.module';
 import { OnchurchPushModule } from '@/onchurch/push/onchurch-push.module';
 import { OnchurchImportModule } from '@/onchurch/importer/onchurch-import.module';
+import { OnchurchSalesLeadModule } from '@/onchurch/sales/onchurch-sales-lead.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { OnchurchImportModule } from '@/onchurch/importer/onchurch-import.module
     OnchurchCommunityBlockModule,
     OnchurchPushModule,
     OnchurchImportModule,
+    OnchurchSalesLeadModule,
   ],
 })
 export class OnchurchModule {}
