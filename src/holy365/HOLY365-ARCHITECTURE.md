@@ -74,6 +74,7 @@
 - **팔로우** (`holy365_follows`, 단방향). 추천 = ① 같은 교회 ② 나를 팔로우하는데 내가 안 한 사람 ③ 최근 7일 필사한 사람 (나·이미 팔로우·비공개·개발용 제외).
 - API: `GET /holy365/users/:id/profile` (로그인 선택, 비공개면 summary=null) · `GET /holy365/users/:id/progress/books|daily` (비공개면 403 `HOLY365-SOCIAL-001`) · `POST|DELETE /holy365/users/:id/follow` · `GET /holy365/users/:id/followers|following` · `GET /holy365/social/recommendations|feed` · `GET /holy365/social/users?q=` · `GET /holy365/churches/search?q=` · `POST /holy365/churches` · `GET /holy365/churches/:id` · `PUT /holy365/users/me {churchId, profilePublic}`.
 - 탈퇴 시 교회 연결과 팔로우를 지운다.
+- 프로필 사진 `POST /holy365/users/me/avatar` (multipart `file`, jpg·png·webp·gif ≤ 10MB) → sharp 로 400×400 WebP, S3 공개 `holy365/avatars/{userId}/`. 이전에 올린 사진은 지운다(소셜 프로필 URL 은 건드리지 않음). `DELETE /holy365/users/me/avatar` 로 지우기.
 
 ## API 요약
 

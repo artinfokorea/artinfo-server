@@ -38,7 +38,7 @@ export class Holy365UserRepository {
     return this.repository.findOneBy({ snsType, snsId });
   }
 
-  async update(id: number, patch: Partial<Pick<Holy365User, 'name' | 'locale' | 'churchId' | 'profilePublic'>>): Promise<void> {
+  async update(id: number, patch: Partial<Pick<Holy365User, 'name' | 'locale' | 'churchId' | 'profilePublic' | 'iconImageUrl'>>): Promise<void> {
     await this.repository.update({ id }, patch);
   }
 
