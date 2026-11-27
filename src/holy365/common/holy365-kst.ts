@@ -9,3 +9,9 @@ export function kstDateOf(date: Date): string {
 export function kstDaysAgo(days: number, now: Date = new Date()): string {
   return kstDateOf(new Date(now.getTime() - days * 24 * 60 * 60 * 1000));
 }
+
+/** 그 해 1월 1일 0시(한국 시간)를 UTC 'YYYY-MM-DD HH:MM:SS' 로 — DB 의 timestamp(UTC 로 저장) 와 비교할 때 쓴다 */
+export function kstYearStartUtc(todayKst: string): string {
+  const start = new Date(Date.parse(`${todayKst.slice(0, 4)}-01-01T00:00:00Z`) - KST_OFFSET_MS);
+  return start.toISOString().slice(0, 19).replace('T', ' ');
+}

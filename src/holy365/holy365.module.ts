@@ -23,6 +23,9 @@ import { Holy365KakaoPlaceClient } from '@/holy365/social/infrastructure/holy365
 import { Holy365SocialService } from '@/holy365/social/holy365-social.service';
 import { AwsS3Service } from '@/aws/s3/aws-s3.service';
 import { Holy365ChurchController, Holy365ProfileController, Holy365SocialController } from '@/holy365/social/presentation/holy365-social.controller';
+import { Holy365FeedRepository } from '@/holy365/feed/infrastructure/holy365-feed.repository';
+import { Holy365FeedService } from '@/holy365/feed/holy365-feed.service';
+import { Holy365FeedController } from '@/holy365/feed/presentation/holy365-feed.controller';
 
 /** 홀리365 — 성경 온라인 필사 웹서비스 (프론트: holy365-front). API 는 전부 /holy365/* */
 @Module({
@@ -36,6 +39,7 @@ import { Holy365ChurchController, Holy365ProfileController, Holy365SocialControl
     Holy365ProfileController,
     Holy365SocialController,
     Holy365ChurchController,
+    Holy365FeedController,
   ],
   providers: [
     Holy365SchemaBootstrapService,
@@ -53,6 +57,8 @@ import { Holy365ChurchController, Holy365ProfileController, Holy365SocialControl
     Holy365KakaoPlaceClient,
     Holy365SocialService,
     AwsS3Service,
+    Holy365FeedRepository,
+    Holy365FeedService,
   ],
 })
 export class Holy365Module {}

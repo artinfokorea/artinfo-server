@@ -4,7 +4,7 @@ import { Holy365TranscriptionRepository } from '@/holy365/transcription/infrastr
 import { isValidChapter } from '@/holy365/bible/domain/holy365-books';
 import { isTypedMatch, normalizeVerseText } from '@/holy365/transcription/domain/holy365-typing';
 import { chapterProgress, clampSeconds, completedPasses, Holy365CountBucket, streakOf } from '@/holy365/transcription/domain/holy365-progress';
-import { kstDateOf, kstDaysAgo } from '@/holy365/common/holy365-kst';
+import { kstDateOf, kstDaysAgo, kstYearStartUtc } from '@/holy365/common/holy365-kst';
 import { Holy365Errors } from '@/holy365/common/holy365.exception';
 
 export interface Holy365ChapterState {
@@ -161,6 +161,32 @@ export class Holy365TranscriptionUseCase {
     });
 
     return { completedRounds, books: [...books.values()] };
+  }
+
+  /** 올해(1월 1일, 한국 시간부터) 권별 진행 — 한 번이라도 쓴 절 / 권 전체 절 */
+  async yearBooks(userId: number, versionCode: string) {
+    const version = await this.bibleRepository.findVersion(versionCode);
+    if (!version) throw Holy365Errors.versionNotFound();
+
+    const today = kstDateOf(new Date());
+    const [chapters, typed] = await Promise.all([
+      this.bibleRepository.chapters(versionCode),
+      this.transcriptionRepository.versesTypedSince(userId, versionCode, kstYearStartUtc(today)),
+    ]);
+    const doneOf = new Map(typed.map(row => [row.book, row.done]));
+    const totals = new Map<number, { verseCount: number; chapterCount: number }>();
+    chapters.forEach(row => {
+      const book = totals.get(row.book) ?? { verseCount: 0, chapterCount: 0 };
+      totals.set(row.book, { verseCount: book.verseCount + row.verseCount, chapterCount: book.chapterCount + 1 });
+    });
+
+    const books = [...totals.entries()].map(([book, total]) => ({
+      book,
+      chapterCount: total.chapterCount,
+      verseCount: total.verseCount,
+      done: Math.min(doneOf.get(book) ?? 0, total.verseCount),
+    }));
+    return { year: Number(today.slice(0, 4)), books, totalVerses: version.verseCount, done: books.reduce((sum, book) => sum + book.done, 0) };
   }
 
   daily(userId: number, days: number) {

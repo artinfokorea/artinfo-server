@@ -1,4 +1,4 @@
-import { kstDateOf, kstDaysAgo } from '@/holy365/common/holy365-kst';
+import { kstDateOf, kstDaysAgo, kstYearStartUtc } from '@/holy365/common/holy365-kst';
 
 describe('kstDateOf — 한국 시간 날짜', () => {
   it('UTC 15:00 이후는 한국에서 다음 날이다', () => {
@@ -16,5 +16,12 @@ describe('kstDaysAgo — n일 전 한국 날짜', () => {
     const now = new Date('2026-03-01T01:00:00Z');
     expect(kstDaysAgo(0, now)).toBe('2026-03-01');
     expect(kstDaysAgo(1, now)).toBe('2026-02-28');
+  });
+});
+
+describe('kstYearStartUtc — 올해 1월 1일 0시(한국)를 UTC 로', () => {
+  it('한국 1월 1일 0시 = 전날 UTC 15시', () => {
+    expect(kstYearStartUtc('2026-11-27')).toBe('2025-12-31 15:00:00');
+    expect(kstYearStartUtc('2027-01-01')).toBe('2026-12-31 15:00:00');
   });
 });

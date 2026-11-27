@@ -109,6 +109,15 @@ export class Holy365TranscriptionRepository {
   }
 
   /** 장마다 "n번 쓴 절이 몇 개" — 권·장 진행 현황 계산용 */
+  /** 권마다 그 시각 이후 한 번이라도 쓴 절 수 (last_at 기준) — 올해 진행용 */
+  versesTypedSince(userId: number, versionCode: string, sinceUtc: string): Promise<{ book: number; done: number }[]> {
+    return this.dataSource.query(
+      `SELECT book::int AS book, COUNT(*)::int AS done FROM holy365_verse_counts
+        WHERE user_id = $1 AND version_code = $2 AND last_at >= $3::timestamp GROUP BY book`,
+      [userId, versionCode, sinceUtc],
+    );
+  }
+
   chapterBuckets(userId: number, versionCode: string): Promise<Holy365ChapterBucket[]> {
     return this.dataSource.query(
       `SELECT book::int AS book, chapter::int AS chapter, count::int AS count, COUNT(*)::int AS n
