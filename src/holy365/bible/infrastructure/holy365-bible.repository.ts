@@ -22,6 +22,13 @@ export interface Holy365VerseRow {
   text: string;
 }
 
+export interface Holy365VerseHit {
+  book: number;
+  chapter: number;
+  verse: number;
+  text: string;
+}
+
 const CACHE_MS = 10 * 60 * 1000;
 
 /** 성경 본문은 거의 바뀌지 않으므로 번역본·장 목록은 서버 메모리에 10분 캐시한다 */
@@ -77,6 +84,21 @@ export class Holy365BibleRepository {
       book,
       chapter,
     ]);
+  }
+
+  /** 본문 검색 — 모든 패턴이 들어간 절 (권·장·절 순). 번역본당 31,000절 정도라 인덱스 없이도 수 ms */
+  async search(code: string, patterns: string[], limit: number, offset: number): Promise<{ total: number; hits: Holy365VerseHit[] }> {
+    const conditions = patterns.map((_, index) => `text ILIKE $${index + 2}`).join(' AND ');
+    const params: (string | number)[] = [code, ...patterns];
+    const [count] = await this.dataSource.query(`SELECT COUNT(*)::int AS total FROM holy365_verses WHERE version_code = $1 AND ${conditions}`, params);
+    const hits = await this.dataSource.query(
+      `SELECT book::int AS book, chapter::int AS chapter, verse::int AS verse, text FROM holy365_verses
+        WHERE version_code = $1 AND ${conditions}
+        ORDER BY book, chapter, verse LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+      [...params, limit, offset],
+    );
+
+    return { total: count?.total ?? 0, hits };
   }
 
   async verse(code: string, book: number, chapter: number, verse: number): Promise<string | null> {
