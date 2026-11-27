@@ -1,13 +1,14 @@
-export type Holy365RankingPeriod = 'day' | 'week' | 'month';
+export type Holy365RankingPeriod = 'day' | 'week' | 'month' | 'year';
 
-export const HOLY365_RANKING_PERIODS: Holy365RankingPeriod[] = ['day', 'week', 'month'];
+export const HOLY365_RANKING_PERIODS: Holy365RankingPeriod[] = ['day', 'week', 'month', 'year'];
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** 랭킹 기간의 시작일 (한국 날짜 'YYYY-MM-DD') — 일간: 오늘, 주간: 이번 주 월요일, 월간: 이번 달 1일 */
+/** 랭킹 기간의 시작일 (한국 날짜 'YYYY-MM-DD') — 일간: 오늘, 주간: 이번 주 월요일, 월간: 이번 달 1일, 연간: 올해 1월 1일 */
 export function periodStart(period: Holy365RankingPeriod, today: string): string {
   if (period === 'day') return today;
   if (period === 'month') return `${today.slice(0, 7)}-01`;
+  if (period === 'year') return `${today.slice(0, 4)}-01-01`;
 
   const date = new Date(`${today}T00:00:00Z`);
   const sinceMonday = (date.getUTCDay() + 6) % 7;

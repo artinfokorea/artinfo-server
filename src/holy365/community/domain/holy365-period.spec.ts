@@ -21,6 +21,11 @@ describe('periodStart — 랭킹 기간 시작일 (한국 날짜)', () => {
   it('월간은 이번 달 1일', () => {
     expect(periodStart('month', '2026-11-27')).toBe('2026-11-01');
   });
+
+  it('연간은 올해 1월 1일', () => {
+    expect(periodStart('year', '2026-11-27')).toBe('2026-01-01');
+    expect(periodStart('year', '2027-01-01')).toBe('2027-01-01');
+  });
 });
 
 describe('rankRows — 동점은 같은 순위, 다음 순위는 건너뛴다', () => {

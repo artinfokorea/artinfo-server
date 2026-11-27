@@ -121,4 +121,44 @@ export const HOLY365_SCHEMA_STATEMENTS: string[] = [
     PRIMARY KEY (follower_id, following_id)
   )`,
   `CREATE INDEX IF NOT EXISTS idx_holy365_follows_following ON holy365_follows (following_id)`,
+  // 피드 (2026-11-27) — 글 · 사진(1:1 또는 4:5, 최대 10장) · 성경 구절. like/comment_count 는 비정규화 카운터
+  `CREATE TABLE IF NOT EXISTS holy365_posts (
+    id            SERIAL PRIMARY KEY,
+    user_id       INTEGER NOT NULL,
+    content       TEXT NOT NULL DEFAULT '',
+    aspect        VARCHAR(8) NOT NULL DEFAULT '1:1',
+    images        JSONB NOT NULL DEFAULT '[]',
+    verse         JSONB,
+    like_count    INTEGER NOT NULL DEFAULT 0,
+    comment_count INTEGER NOT NULL DEFAULT 0,
+    created_at    TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at    TIMESTAMP NOT NULL DEFAULT now(),
+    deleted_at    TIMESTAMP
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_holy365_posts_user ON holy365_posts (user_id, id DESC)`,
+  `CREATE TABLE IF NOT EXISTS holy365_post_likes (
+    post_id    INTEGER NOT NULL,
+    user_id    INTEGER NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    PRIMARY KEY (post_id, user_id)
+  )`,
+  `CREATE TABLE IF NOT EXISTS holy365_post_comments (
+    id         SERIAL PRIMARY KEY,
+    post_id    INTEGER NOT NULL,
+    user_id    INTEGER NOT NULL,
+    content    VARCHAR(500) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    deleted_at TIMESTAMP
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_holy365_post_comments_post ON holy365_post_comments (post_id, id)`,
+  // 신고 — 운영자가 확인한다 (status open/resolved)
+  `CREATE TABLE IF NOT EXISTS holy365_reports (
+    id               SERIAL PRIMARY KEY,
+    reporter_user_id INTEGER NOT NULL,
+    target_type      VARCHAR(16) NOT NULL,
+    target_id        INTEGER NOT NULL,
+    reason           VARCHAR(500) NOT NULL,
+    status           VARCHAR(16) NOT NULL DEFAULT 'open',
+    created_at       TIMESTAMP NOT NULL DEFAULT now()
+  )`,
 ];

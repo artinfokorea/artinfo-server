@@ -10,7 +10,7 @@ import { kstDateOf } from '@/holy365/common/holy365-kst';
 
 class Holy365RankingQuery {
   @IsIn(HOLY365_RANKING_PERIODS)
-  @ApiProperty({ enum: HOLY365_RANKING_PERIODS, description: 'day: 오늘 · week: 이번 주(월~) · month: 이번 달' })
+  @ApiProperty({ enum: HOLY365_RANKING_PERIODS, description: 'day: 오늘 · week: 이번 주(월~) · month: 이번 달 · year: 올해' })
   period: Holy365RankingPeriod;
 
   @IsOptional()
@@ -57,7 +57,7 @@ class Holy365CommunityStatsResponse {
 export class Holy365CommunityController {
   constructor(private readonly communityRepository: Holy365CommunityRepository) {}
 
-  @RestApiGet(Holy365RankingResponse, { path: '/rankings', description: '일간 · 주간 · 월간 필사 랭킹 (로그인하면 내 순위 포함)' })
+  @RestApiGet(Holy365RankingResponse, { path: '/rankings', description: '일간 · 주간 · 월간 · 연간 필사 랭킹 (로그인하면 내 순위 포함)' })
   async rankings(@Query() query: Holy365RankingQuery, @Holy365OptionalUser() user: Holy365Signature | null) {
     const since = periodStart(query.period, kstDateOf(new Date()));
     const rows = await this.communityRepository.ranking(since, query.limit ?? 10);

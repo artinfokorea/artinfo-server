@@ -62,9 +62,19 @@
 - `GET /holy365/bible/versions/:code/search?q=&offset=` — 띄어 쓴 단어(최대 5개)가 **모두** 들어간 절을 권·장·절 순으로 30절씩. `total` · `terms`(강조용) 포함. `%` `_` 는 글자 그대로 찾는다 (`bible/domain/holy365-search.ts`). 번역본당 3만 절이라 인덱스 없이 ILIKE.
 - 장절 바로 가기("요 3:16", "John 3:16")와 권 이름 찾기는 프론트(`holy365-front/src/lib/bible-ref.ts`)가 한다.
 
+## 피드 (2026-11-27)
+
+- `holy365_posts` (글 ≤ 2,000자 · `aspect` 1:1 | 4:5 · `images` jsonb 최대 10장 · `verse` jsonb 스냅샷), `holy365_post_likes`, `holy365_post_comments`, `holy365_reports`. `like_count`/`comment_count` 는 비정규화 카운터.
+- 사진: `POST /holy365/feed/images?aspect=` (multipart `files`, 최대 10장) → sharp 로 가운데 기준 1080×1080 / 1080×1350 WebP, S3 공개 `holy365/feed/{userId}/`. 게시물에는 **그 사용자가 올린 피드 경로 URL 만** 넣을 수 있다 (`isFeedImageUrl`).
+- 구절: `{versionCode, book, chapter, verseStart, verseEnd}` (최대 10절) — 본문은 서버가 DB 에서 가져와 그 시점 그대로 저장한다.
+- `GET /holy365/feed/posts?scope=all|following|user:{id}&before=` (20개씩, 최신 순) · `GET|DELETE /posts/:id` · `POST|DELETE /posts/:id/like` · `GET|POST /posts/:id/comments` · `DELETE /comments/:id`(댓글 쓴 사람·게시물 주인) · `POST /reports`.
+- 시각은 UTC ISO(`...Z`)로 내려준다 (DB 세션 UTC, timestamp 에 시간대가 없어서).
+- 주의: TypeORM(postgres) 는 `UPDATE/DELETE ... RETURNING` 결과를 `[rows, count]` 로 준다 — `returnedRows()` 로 꺼낼 것.
+- 탈퇴 시 게시물·댓글 소프트 삭제, 좋아요 삭제.
+
 ## 커뮤니티 (2026-11-27)
 
-- `GET /holy365/community/rankings?period=day|week|month&limit=` — 기간(한국 날짜 기준: 오늘 · 이번 주 월요일부터 · 이번 달 1일부터) 필사 절 수 합계 순위. 동점은 같은 순위(1, 2, 2, 4). 토큰이 있으면 `me: { rank, verses }` 포함(로그인은 선택 — `Holy365OptionalUser`).
+- `GET /holy365/community/rankings?period=day|week|month|year&limit=` — 기간(한국 날짜 기준: 오늘 · 이번 주 월요일부터 · 이번 달 1일부터 · 올해 1월 1일부터) 필사 절 수 합계 순위. 동점은 같은 순위(1, 2, 2, 4). 토큰이 있으면 `me: { rank, verses }` 포함(로그인은 선택 — `Holy365OptionalUser`).
 - `GET /holy365/community/stats` — 오늘·누적 필사자 수와 절 수, 최근 7일 많은 사람이 쓴 장(`popularChapters`).
 - 개발용 계정(`sns_type='dev'`)·탈퇴 계정은 랭킹·통계에서 뺀다. 랭킹에는 사용자 이름(닉네임)이 공개된다.
 

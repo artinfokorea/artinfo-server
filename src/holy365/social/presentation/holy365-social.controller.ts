@@ -28,6 +28,12 @@ export class Holy365ProfileController {
     return this.transcriptionUseCase.books(id, query.version);
   }
 
+  @RestApiGet(Holy365SocialResponse, { path: '/:id/progress/year-books', description: '그 사람의 올해 권별 진행 (공개 프로필만)' })
+  async yearBooks(@Param('id', ParseIntPipe) id: number, @Query() query: Holy365VersionQuery, @Holy365OptionalUser() viewer: Holy365Signature | null) {
+    await this.socialService.assertVisible(id, viewer?.id ?? null);
+    return this.transcriptionUseCase.yearBooks(id, query.version);
+  }
+
   @RestApiGet(Holy365SocialResponse, { path: '/:id/progress/daily', description: '그 사람의 일별 필사량 (공개 프로필만)' })
   async daily(@Param('id', ParseIntPipe) id: number, @Query() query: Holy365DailyQuery, @Holy365OptionalUser() viewer: Holy365Signature | null) {
     await this.socialService.assertVisible(id, viewer?.id ?? null);
