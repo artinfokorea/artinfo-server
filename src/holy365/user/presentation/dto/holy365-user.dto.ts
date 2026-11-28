@@ -66,3 +66,11 @@ export class Holy365UpdateMeRequest {
   @ApiProperty({ required: false })
   profilePublic?: boolean;
 }
+
+export class Holy365WithdrawRequest {
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  @ApiProperty({ required: false, description: '애플 로그인 사용자 — 탈퇴 직전 받은 authorizationCode (애플 연결 해제용)' })
+  appleAuthorizationCode?: string;
+}

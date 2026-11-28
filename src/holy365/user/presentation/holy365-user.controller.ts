@@ -8,7 +8,7 @@ import { OkResponse } from '@/common/response/ok.response';
 import { Holy365Auth, Holy365Signature, Holy365User } from '@/holy365/common/holy365-auth.guard';
 import { Holy365UserUseCase } from '@/holy365/user/application/holy365-user.usecase';
 import { Holy365SocialService } from '@/holy365/social/holy365-social.service';
-import { Holy365UpdateMeRequest, Holy365UserResponse } from '@/holy365/user/presentation/dto/holy365-user.dto';
+import { Holy365UpdateMeRequest, Holy365UserResponse, Holy365WithdrawRequest } from '@/holy365/user/presentation/dto/holy365-user.dto';
 
 @RestApiController('/holy365/users', 'Holy365 User')
 export class Holy365UserController {
@@ -50,7 +50,7 @@ export class Holy365UserController {
 
   @Holy365Auth()
   @RestApiDelete(OkResponse, { path: '/me', description: '회원 탈퇴 — 필사 기록도 함께 삭제' })
-  async withdraw(@Holy365User() signature: Holy365Signature) {
-    await this.userUseCase.withdraw(signature.id);
+  async withdraw(@Holy365User() signature: Holy365Signature, @Body() request: Holy365WithdrawRequest) {
+    await this.userUseCase.withdraw(signature.id, request?.appleAuthorizationCode);
   }
 }

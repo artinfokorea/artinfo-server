@@ -95,9 +95,9 @@ class Holy365CommentRequest {
 }
 
 class Holy365ReportRequest {
-  @IsIn(['post', 'comment'])
+  @IsIn(['post', 'comment', 'user'])
   @ApiProperty({ enum: ['post', 'comment'] })
-  targetType: 'post' | 'comment';
+  targetType: 'post' | 'comment' | 'user';
 
   @IsInt()
   @Min(1)

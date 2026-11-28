@@ -66,6 +66,8 @@
 
 - 게시물 `lang`(ko|en, 쓴 사람의 서비스 언어)으로 웹(ko)·iOS 앱(en) 피드를 나눈다. `GET /feed/posts?lang=en`, `GET /community/rankings?lang=en`.
 - 차단 `holy365_blocks` — `POST|DELETE /users/:id/block`, `GET /users/me/blocks`. 차단한 사람의 게시물·댓글은 보이지 않고 서로 팔로우가 끊긴다.
+- 문의 `POST /inquiries` (로그인 선택, `holy365_inquiries`). 신고 대상에 `user` 추가(랭킹 이름). 랭킹은 보는 사람이 차단한 사용자를 뺀다.
+- 탈퇴 `DELETE /users/me` 에 `appleAuthorizationCode` 를 주면 애플 로그인 연결을 끊는다 (`HOLY365_APPLE_SIWA_KEY_ID` / `_PRIVATE_KEY`, 없으면 건너뜀).
 - iOS 앱 구글 로그인 `POST /auths/google/native` (idToken 을 구글 JWKS 로 검증, 대상 `HOLY365_GOOGLE_IOS_CLIENT_ID` — 웹 구글 계정과 같은 계정).
 - iOS 앱 애플 로그인 `POST /auths/apple` (identityToken 을 애플 JWKS 로 검증, 대상 앱 `HOLY365_APPLE_BUNDLE_IDS` 기본 com.artinfokorea.holy365).
 - `holy365_posts` (글 ≤ 2,000자 · `aspect` 1:1 | 4:5 · `images` jsonb 최대 10장 · `verses` jsonb 스냅샷 배열 — 예전 `verse` 열은 부팅 때 `verses` 로 옮겨진다), `holy365_post_likes`, `holy365_post_comments`, `holy365_reports`. `like_count`/`comment_count` 는 비정규화 카운터.

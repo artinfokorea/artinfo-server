@@ -9,6 +9,8 @@ import { Holy365TokenService } from '@/holy365/auth/infrastructure/holy365-token
 import { Holy365OAuthClient } from '@/holy365/auth/infrastructure/holy365-oauth-client.service';
 import { Holy365AppleVerifier } from '@/holy365/auth/infrastructure/holy365-apple-verifier.service';
 import { Holy365GoogleVerifier } from '@/holy365/auth/infrastructure/holy365-google-verifier.service';
+import { Holy365AppleRevoker } from '@/holy365/auth/infrastructure/holy365-apple-revoker.service';
+import { Holy365InquiryController, Holy365InquiryRepository } from '@/holy365/inquiry/holy365-inquiry.controller';
 import { Holy365AuthUseCase } from '@/holy365/auth/application/holy365-auth.usecase';
 import { Holy365UserUseCase } from '@/holy365/user/application/holy365-user.usecase';
 import { Holy365BibleRepository } from '@/holy365/bible/infrastructure/holy365-bible.repository';
@@ -33,6 +35,7 @@ import { Holy365FeedController } from '@/holy365/feed/presentation/holy365-feed.
 @Module({
   imports: [TypeOrmModule.forFeature([Holy365User, Holy365Auth])],
   controllers: [
+    Holy365InquiryController,
     Holy365AuthController,
     Holy365UserController,
     Holy365BibleController,
@@ -51,6 +54,8 @@ import { Holy365FeedController } from '@/holy365/feed/presentation/holy365-feed.
     Holy365OAuthClient,
     Holy365AppleVerifier,
     Holy365GoogleVerifier,
+    Holy365AppleRevoker,
+    Holy365InquiryRepository,
     Holy365AuthUseCase,
     Holy365UserUseCase,
     Holy365BibleRepository,

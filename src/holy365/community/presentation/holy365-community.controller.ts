@@ -65,7 +65,7 @@ export class Holy365CommunityController {
   @RestApiGet(Holy365RankingResponse, { path: '/rankings', description: '일간 · 주간 · 월간 · 연간 필사 랭킹 (로그인하면 내 순위 포함)' })
   async rankings(@Query() query: Holy365RankingQuery, @Holy365OptionalUser() user: Holy365Signature | null) {
     const since = periodStart(query.period, kstDateOf(new Date()));
-    const rows = await this.communityRepository.ranking(since, query.limit ?? 10, query.lang ?? null);
+    const rows = await this.communityRepository.ranking(since, query.limit ?? 10, query.lang ?? null, user?.id ?? null);
     const me = user ? await this.communityRepository.myRank(user.id, since, query.lang ?? null) : null;
 
     return {

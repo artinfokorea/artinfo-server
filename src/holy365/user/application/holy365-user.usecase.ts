@@ -10,12 +10,15 @@ import { Holy365User } from '@/holy365/user/domain/entity/holy365-user.entity';
 import { normalizeDisplayName } from '@/holy365/auth/domain/service/holy365-credential-policy';
 import { localeOf } from '@/holy365/auth/application/holy365-auth.usecase';
 import { Holy365Errors } from '@/holy365/common/holy365.exception';
+import { Holy365AppleRevoker } from '@/holy365/auth/infrastructure/holy365-apple-revoker.service';
+import { HOLY365_APPLE_TYPE } from '@/holy365/auth/domain/service/holy365-apple';
 
 @Injectable()
 export class Holy365UserUseCase {
   constructor(
     private readonly userRepository: Holy365UserRepository,
     private readonly awsS3Service: AwsS3Service,
+    private readonly appleRevoker: Holy365AppleRevoker,
   ) {}
 
   /** 프로필 사진 — 400×400 WebP 로 줄여 S3(공개)에 올리고, 이전에 올린 사진은 지운다 (소셜 프로필 URL 은 keyOfUrl 이 걸러낸다) */
@@ -80,8 +83,10 @@ export class Holy365UserUseCase {
     return this.userRepository.findOneOrThrow(userId);
   }
 
-  async withdraw(userId: number): Promise<void> {
-    await this.userRepository.findOneOrThrow(userId);
+  /** 탈퇴 — 애플 로그인 사용자는 앱이 보낸 authorization code 로 애플 연결도 끊는다 (실패해도 탈퇴는 진행) */
+  async withdraw(userId: number, appleAuthorizationCode?: string): Promise<void> {
+    const user = await this.userRepository.findOneOrThrow(userId);
+    if (user.snsType === HOLY365_APPLE_TYPE && appleAuthorizationCode) await this.appleRevoker.revoke(appleAuthorizationCode);
     await this.userRepository.withdraw(userId);
   }
 }
