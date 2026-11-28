@@ -74,6 +74,18 @@ export class Holy365AppleLoginRequest {
   locale?: string;
 }
 
+export class Holy365GoogleNativeLoginRequest {
+  @IsString()
+  @MaxLength(4000)
+  @ApiProperty({ description: 'iOS 구글 로그인의 idToken' })
+  idToken: string;
+
+  @IsOptional()
+  @IsIn(['ko', 'en'])
+  @ApiProperty({ required: false, enum: ['ko', 'en'] })
+  locale?: string;
+}
+
 export class Holy365RefreshRequest {
   @IsString()
   @ApiProperty()

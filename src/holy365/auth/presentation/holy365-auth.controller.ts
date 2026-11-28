@@ -8,6 +8,7 @@ import {
   Holy365AuthorizeUrlRequest,
   Holy365AuthorizeUrlResponse,
   Holy365DevLoginRequest,
+  Holy365GoogleNativeLoginRequest,
   Holy365LoginResponse,
   Holy365RefreshRequest,
   Holy365SnsLoginRequest,
@@ -33,6 +34,16 @@ export class Holy365AuthController {
   @RestApiPost(Holy365LoginResponse, { path: '/apple', description: 'iOS 앱 애플 로그인 — identityToken 검증 (미가입 시 자동 가입)' })
   async appleLogin(@Body() request: Holy365AppleLoginRequest) {
     const { user, auth } = await this.authUseCase.appleLogin(request);
+
+    return new Holy365LoginResponse(user, auth);
+  }
+
+  @RestApiPost(Holy365LoginResponse, {
+    path: '/google/native',
+    description: 'iOS 앱 구글 로그인 — idToken 검증 (미가입 시 자동 가입, 웹 구글 계정과 같은 계정)',
+  })
+  async googleNativeLogin(@Body() request: Holy365GoogleNativeLoginRequest) {
+    const { user, auth } = await this.authUseCase.googleNativeLogin(request);
 
     return new Holy365LoginResponse(user, auth);
   }
