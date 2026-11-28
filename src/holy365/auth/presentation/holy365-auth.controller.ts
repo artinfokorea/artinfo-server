@@ -4,6 +4,7 @@ import { OkResponse } from '@/common/response/ok.response';
 import { Holy365AuthUseCase } from '@/holy365/auth/application/holy365-auth.usecase';
 import { HOLY365_SNS_PROVIDER } from '@/holy365/auth/domain/service/holy365-oauth';
 import {
+  Holy365AppleLoginRequest,
   Holy365AuthorizeUrlRequest,
   Holy365AuthorizeUrlResponse,
   Holy365DevLoginRequest,
@@ -25,6 +26,13 @@ export class Holy365AuthController {
   @RestApiPost(Holy365LoginResponse, { path: '/sns', description: '소셜 로그인 — 콜백의 code 를 교환 (미가입 시 자동 가입)' })
   async snsLogin(@Body() request: Holy365SnsLoginRequest) {
     const { user, auth } = await this.authUseCase.snsLogin(request);
+
+    return new Holy365LoginResponse(user, auth);
+  }
+
+  @RestApiPost(Holy365LoginResponse, { path: '/apple', description: 'iOS 앱 애플 로그인 — identityToken 검증 (미가입 시 자동 가입)' })
+  async appleLogin(@Body() request: Holy365AppleLoginRequest) {
+    const { user, auth } = await this.authUseCase.appleLogin(request);
 
     return new Holy365LoginResponse(user, auth);
   }
