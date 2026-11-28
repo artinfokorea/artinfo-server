@@ -3,7 +3,7 @@ export const HOLY365_APPLE_ISSUER = 'https://appleid.apple.com';
 
 /** 애플 로그인 토큰을 받을 앱 번들 ID — HOLY365_APPLE_BUNDLE_IDS (쉼표 구분), 없으면 iOS 앱 기본값 */
 export function holy365AppleAudiences(): string[] {
-  return (process.env['HOLY365_APPLE_BUNDLE_IDS'] ?? 'com.holy365.app')
+  return (process.env['HOLY365_APPLE_BUNDLE_IDS'] ?? 'com.artinfokorea.holy365')
     .split(',')
     .map(id => id.trim())
     .filter(Boolean);
