@@ -25,17 +25,18 @@ export class Holy365CommunityRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
   /** 기간(시작일~오늘) 필사 절 수 합계 순위 */
-  ranking(since: string, limit: number, lang: string | null = null): Promise<Holy365RankingRow[]> {
+  ranking(since: string, limit: number, lang: string | null = null, viewerId: number | null = null): Promise<Holy365RankingRow[]> {
     return this.dataSource.query(
       `SELECT u.id AS "userId", u.name, u.icon_image_url AS "iconImageUrl", SUM(a.verses)::int AS verses, SUM(a.chars)::int AS chars
          FROM holy365_daily_activity a
          JOIN holy365_users u ON u.id = a.user_id
         WHERE a.day >= $1::date AND ${REAL_USERS} AND ($3::text IS NULL OR u.locale = $3)
+          AND u.id NOT IN (SELECT blocked_id FROM holy365_blocks WHERE blocker_id = $4)
         GROUP BY u.id
        HAVING SUM(a.verses) > 0
         ORDER BY verses DESC, chars DESC, u.id
         LIMIT $2`,
-      [since, limit, lang],
+      [since, limit, lang, viewerId ?? 0],
     );
   }
 

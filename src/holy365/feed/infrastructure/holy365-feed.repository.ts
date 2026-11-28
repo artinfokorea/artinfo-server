@@ -164,7 +164,7 @@ export class Holy365FeedRepository {
     });
   }
 
-  async report(reporterId: number, targetType: 'post' | 'comment', targetId: number, reason: string): Promise<void> {
+  async report(reporterId: number, targetType: 'post' | 'comment' | 'user', targetId: number, reason: string): Promise<void> {
     await this.dataSource.query(`INSERT INTO holy365_reports (reporter_user_id, target_type, target_id, reason) VALUES ($1, $2, $3, $4)`, [
       reporterId,
       targetType,

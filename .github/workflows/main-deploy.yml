@@ -47,6 +47,8 @@ jobs:
           echo "HOLY365_KAKAO_CLIENT_SECRET=${{ secrets.HOLY365_KAKAO_CLIENT_SECRET }}" >> .env
           echo "HOLY365_NAVER_CLIENT_ID=${{ secrets.HOLY365_NAVER_CLIENT_ID }}" >> .env
           echo "HOLY365_NAVER_CLIENT_SECRET=${{ secrets.HOLY365_NAVER_CLIENT_SECRET }}" >> .env
+          echo "HOLY365_APPLE_SIWA_KEY_ID=${{ secrets.HOLY365_APPLE_SIWA_KEY_ID }}" >> .env
+          echo "HOLY365_APPLE_SIWA_PRIVATE_KEY=${{ secrets.HOLY365_APPLE_SIWA_PRIVATE_KEY }}" >> .env
           
 
       - name: Cache docker layers

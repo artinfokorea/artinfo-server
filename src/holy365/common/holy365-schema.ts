@@ -174,4 +174,15 @@ export const HOLY365_SCHEMA_STATEMENTS: string[] = [
     status           VARCHAR(16) NOT NULL DEFAULT 'open',
     created_at       TIMESTAMP NOT NULL DEFAULT now()
   )`,
+  // 문의하기 (2026-11-28) — 앱·웹 문의. 로그인은 선택이라 user_id 는 비어 있을 수 있다
+  `CREATE TABLE IF NOT EXISTS holy365_inquiries (
+    id         SERIAL PRIMARY KEY,
+    user_id    INTEGER,
+    category   VARCHAR(16) NOT NULL,
+    message    TEXT NOT NULL,
+    email      VARCHAR(200),
+    client     VARCHAR(100),
+    status     VARCHAR(16) NOT NULL DEFAULT 'open',
+    created_at TIMESTAMP NOT NULL DEFAULT now()
+  )`,
 ];

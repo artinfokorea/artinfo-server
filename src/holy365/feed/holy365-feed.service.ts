@@ -180,7 +180,7 @@ export class Holy365FeedService {
     await this.feedRepository.deleteComment(commentId, comment.postId);
   }
 
-  async report(userId: number, targetType: 'post' | 'comment', targetId: number, reason: string): Promise<void> {
+  async report(userId: number, targetType: 'post' | 'comment' | 'user', targetId: number, reason: string): Promise<void> {
     await this.feedRepository.report(userId, targetType, targetId, normalizePostContent(reason).slice(0, 500) || '-');
   }
 }
