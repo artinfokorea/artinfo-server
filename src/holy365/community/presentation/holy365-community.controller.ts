@@ -20,6 +20,11 @@ class Holy365RankingQuery {
   @Max(50)
   @ApiProperty({ required: false, example: 10 })
   limit?: number;
+
+  @IsOptional()
+  @IsIn(['ko', 'en'])
+  @ApiProperty({ required: false, enum: ['ko', 'en'], description: '이 서비스 언어 사용자만 (영어 앱은 en). 없으면 전체' })
+  lang?: 'ko' | 'en';
 }
 
 class Holy365RankingResponse {
@@ -60,8 +65,8 @@ export class Holy365CommunityController {
   @RestApiGet(Holy365RankingResponse, { path: '/rankings', description: '일간 · 주간 · 월간 · 연간 필사 랭킹 (로그인하면 내 순위 포함)' })
   async rankings(@Query() query: Holy365RankingQuery, @Holy365OptionalUser() user: Holy365Signature | null) {
     const since = periodStart(query.period, kstDateOf(new Date()));
-    const rows = await this.communityRepository.ranking(since, query.limit ?? 10);
-    const me = user ? await this.communityRepository.myRank(user.id, since) : null;
+    const rows = await this.communityRepository.ranking(since, query.limit ?? 10, query.lang ?? null);
+    const me = user ? await this.communityRepository.myRank(user.id, since, query.lang ?? null) : null;
 
     return {
       period: query.period,

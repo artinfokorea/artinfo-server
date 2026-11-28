@@ -125,8 +125,8 @@ export class Holy365FeedService {
     };
   }
 
-  async list(scope: Holy365FeedScope, viewerId: number | null, before: number | null) {
-    const rows = await this.feedRepository.list(scope, viewerId, before, PAGE_SIZE + 1);
+  async list(scope: Holy365FeedScope, viewerId: number | null, before: number | null, lang = 'ko') {
+    const rows = await this.feedRepository.list(scope, viewerId, before, PAGE_SIZE + 1, lang);
     return { posts: rows.slice(0, PAGE_SIZE).map(postOf), hasMore: rows.length > PAGE_SIZE };
   }
 
@@ -152,9 +152,9 @@ export class Holy365FeedService {
     return this.get(postId, userId);
   }
 
-  async comments(postId: number) {
+  async comments(postId: number, viewerId: number | null = null) {
     if ((await this.feedRepository.authorOf(postId)) === null) throw Holy365Errors.postNotFound();
-    const rows = await this.feedRepository.comments(postId);
+    const rows = await this.feedRepository.comments(postId, viewerId);
     return rows.map(row => ({
       id: String(row.id),
       author: { id: String(row.userId), name: row.name, iconImageUrl: row.iconImageUrl },
@@ -168,7 +168,7 @@ export class Holy365FeedService {
     if (!content || content.length > HOLY365_COMMENT_MAX_CONTENT) throw Holy365Errors.commentInvalid();
     if ((await this.feedRepository.authorOf(postId)) === null) throw Holy365Errors.postNotFound();
     await this.feedRepository.addComment(postId, userId, content);
-    return this.comments(postId);
+    return this.comments(postId, userId);
   }
 
   /** 댓글 지우기 — 댓글 쓴 사람 또는 게시물 주인 */

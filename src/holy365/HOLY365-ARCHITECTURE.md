@@ -64,6 +64,9 @@
 
 ## 피드 (2026-11-27)
 
+- 게시물 `lang`(ko|en, 쓴 사람의 서비스 언어)으로 웹(ko)·iOS 앱(en) 피드를 나눈다. `GET /feed/posts?lang=en`, `GET /community/rankings?lang=en`.
+- 차단 `holy365_blocks` — `POST|DELETE /users/:id/block`, `GET /users/me/blocks`. 차단한 사람의 게시물·댓글은 보이지 않고 서로 팔로우가 끊긴다.
+- iOS 앱 애플 로그인 `POST /auths/apple` (identityToken 을 애플 JWKS 로 검증, 대상 앱 `HOLY365_APPLE_BUNDLE_IDS` 기본 com.holy365.app).
 - `holy365_posts` (글 ≤ 2,000자 · `aspect` 1:1 | 4:5 · `images` jsonb 최대 10장 · `verses` jsonb 스냅샷 배열 — 예전 `verse` 열은 부팅 때 `verses` 로 옮겨진다), `holy365_post_likes`, `holy365_post_comments`, `holy365_reports`. `like_count`/`comment_count` 는 비정규화 카운터.
 - 사진: `POST /holy365/feed/images?aspect=` (multipart `files`, 최대 10장) → sharp 로 가운데 기준 1080×1080 / 1080×1350 WebP, S3 공개 `holy365/feed/{userId}/`. 게시물에는 **그 사용자가 올린 피드 경로 URL 만** 넣을 수 있다 (`isFeedImageUrl`).
 - 구절: `verses: [{versionCode, book, chapter, verseStart, verseEnd}]` (구절 5개까지, 한 구절은 같은 장의 연속 30절까지) — 본문은 서버가 DB 에서 가져와 그 시점 그대로 저장한다. 응답의 `verses[].text` 에 본문이 들어 있다.

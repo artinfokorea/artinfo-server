@@ -52,6 +52,24 @@ export class Holy365ProfileController {
     await this.socialRepository.unfollow(viewer.id, id);
   }
 
+  @Holy365Auth()
+  @RestApiGet(Holy365SocialResponse, { path: '/me/blocks', description: '내가 차단한 사람' })
+  async blocks(@Holy365User() viewer: Holy365Signature) {
+    return { users: (await this.socialRepository.blocked(viewer.id)).map(u => ({ id: String(u.id), name: u.name, iconImageUrl: u.iconImageUrl })) };
+  }
+
+  @Holy365Auth()
+  @RestApiPost(OkResponse, { path: '/:id/block', description: '차단 — 그 사람의 게시물·댓글이 보이지 않고 서로 팔로우가 끊긴다' })
+  async block(@Param('id', ParseIntPipe) id: number, @Holy365User() viewer: Holy365Signature) {
+    if (id !== viewer.id) await this.socialRepository.block(viewer.id, id);
+  }
+
+  @Holy365Auth()
+  @RestApiDelete(OkResponse, { path: '/:id/block', description: '차단 해제' })
+  async unblock(@Param('id', ParseIntPipe) id: number, @Holy365User() viewer: Holy365Signature) {
+    await this.socialRepository.unblock(viewer.id, id);
+  }
+
   @RestApiGet(Holy365SocialResponse, { path: '/:id/followers', description: '팔로워 목록' })
   async followers(@Param('id', ParseIntPipe) id: number, @Query() query: Holy365ListQuery) {
     return { users: (await this.socialRepository.followList(id, 'followers', query.limit ?? 50)).map(userCardOf) };
