@@ -57,6 +57,7 @@ export class Holy365UserRepository {
       }
       await manager.query(`UPDATE holy365_users SET church_id = NULL WHERE id = $1`, [id]);
       await manager.query(`DELETE FROM holy365_follows WHERE follower_id = $1 OR following_id = $1`, [id]);
+      await manager.query(`DELETE FROM holy365_blocks WHERE blocker_id = $1 OR blocked_id = $1`, [id]);
       await manager.query(`UPDATE holy365_posts SET deleted_at = now() WHERE user_id = $1 AND deleted_at IS NULL`, [id]);
       await manager.query(`UPDATE holy365_post_comments SET deleted_at = now() WHERE user_id = $1 AND deleted_at IS NULL`, [id]);
       await manager.query(`DELETE FROM holy365_post_likes WHERE user_id = $1`, [id]);

@@ -125,6 +125,29 @@ export class Holy365SocialRepository {
     await this.dataSource.query(`INSERT INTO holy365_follows (follower_id, following_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`, [followerId, followingId]);
   }
 
+  /** 차단 — 서로의 팔로우도 끊는다 */
+  async block(blockerId: number, blockedId: number): Promise<void> {
+    await this.dataSource.transaction(async manager => {
+      await manager.query(`INSERT INTO holy365_blocks (blocker_id, blocked_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`, [blockerId, blockedId]);
+      await manager.query(`DELETE FROM holy365_follows WHERE (follower_id = $1 AND following_id = $2) OR (follower_id = $2 AND following_id = $1)`, [
+        blockerId,
+        blockedId,
+      ]);
+    });
+  }
+
+  async unblock(blockerId: number, blockedId: number): Promise<void> {
+    await this.dataSource.query(`DELETE FROM holy365_blocks WHERE blocker_id = $1 AND blocked_id = $2`, [blockerId, blockedId]);
+  }
+
+  blocked(blockerId: number): Promise<{ id: number; name: string; iconImageUrl: string | null }[]> {
+    return this.dataSource.query(
+      `SELECT u.id, u.name, u.icon_image_url AS "iconImageUrl" FROM holy365_blocks b JOIN holy365_users u ON u.id = b.blocked_id
+        WHERE b.blocker_id = $1 AND u.deleted_at IS NULL ORDER BY b.created_at DESC`,
+      [blockerId],
+    );
+  }
+
   async unfollow(followerId: number, followingId: number): Promise<void> {
     await this.dataSource.query(`DELETE FROM holy365_follows WHERE follower_id = $1 AND following_id = $2`, [followerId, followingId]);
   }

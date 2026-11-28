@@ -74,6 +74,11 @@ class Holy365FeedQuery {
   @Min(1)
   @ApiProperty({ required: false, description: '이 게시물 id 보다 오래된 것부터 (다음 페이지)' })
   before?: number;
+
+  @IsOptional()
+  @IsIn(['ko', 'en'])
+  @ApiProperty({ required: false, enum: ['ko', 'en'], description: '전체·팔로잉 피드 언어 (기본 ko — 영어 앱은 en)' })
+  lang?: 'ko' | 'en';
 }
 
 class Holy365AspectQuery {
@@ -136,10 +141,10 @@ export class Holy365FeedController {
     const scope = query.scope ?? 'all';
     if (scope === 'following') {
       if (!viewer) throw Holy365Errors.unauthorized();
-      return this.feedService.list({ kind: 'following', userId: viewer.id }, viewer.id, query.before ?? null);
+      return this.feedService.list({ kind: 'following', userId: viewer.id }, viewer.id, query.before ?? null, query.lang);
     }
     if (scope.startsWith('user:')) return this.feedService.list({ kind: 'user', userId: Number(scope.slice(5)) }, viewer?.id ?? null, query.before ?? null);
-    return this.feedService.list({ kind: 'all' }, viewer?.id ?? null, query.before ?? null);
+    return this.feedService.list({ kind: 'all' }, viewer?.id ?? null, query.before ?? null, query.lang);
   }
 
   @RestApiGet(Holy365FeedResponse, { path: '/posts/:id', description: '게시물 하나' })
@@ -166,8 +171,8 @@ export class Holy365FeedController {
   }
 
   @RestApiGet(Holy365FeedResponse, { path: '/posts/:id/comments', description: '댓글 목록 (오래된 순)' })
-  async comments(@Param('id', ParseIntPipe) id: number) {
-    return { comments: await this.feedService.comments(id) };
+  async comments(@Param('id', ParseIntPipe) id: number, @Holy365OptionalUser() viewer: Holy365Signature | null) {
+    return { comments: await this.feedService.comments(id, viewer?.id ?? null) };
   }
 
   @Holy365Auth()

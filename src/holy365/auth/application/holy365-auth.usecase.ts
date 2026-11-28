@@ -2,6 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { Holy365UserRepository } from '@/holy365/user/infrastructure/holy365-user.repository';
 import { Holy365TokenService } from '@/holy365/auth/infrastructure/holy365-token.service';
 import { Holy365OAuthClient } from '@/holy365/auth/infrastructure/holy365-oauth-client.service';
+import { Holy365AppleVerifier } from '@/holy365/auth/infrastructure/holy365-apple-verifier.service';
+import { Holy365GoogleVerifier } from '@/holy365/auth/infrastructure/holy365-google-verifier.service';
+import { appleDisplayName, HOLY365_APPLE_TYPE } from '@/holy365/auth/domain/service/holy365-apple';
 import { Holy365Auth } from '@/holy365/auth/domain/entity/holy365-auth.entity';
 import { HOLY365_LOCALE, Holy365User } from '@/holy365/user/domain/entity/holy365-user.entity';
 import { normalizeDisplayName, normalizeEmail } from '@/holy365/auth/domain/service/holy365-credential-policy';
@@ -33,6 +36,8 @@ export class Holy365AuthUseCase {
     private readonly userRepository: Holy365UserRepository,
     private readonly tokenService: Holy365TokenService,
     private readonly oauthClient: Holy365OAuthClient,
+    private readonly appleVerifier: Holy365AppleVerifier,
+    private readonly googleVerifier: Holy365GoogleVerifier,
   ) {}
 
   authorizeUrl(provider: HOLY365_SNS_PROVIDER, redirectUri: string, state: string): string {
@@ -56,6 +61,46 @@ export class Holy365AuthUseCase {
         snsType: input.provider,
         snsId: profile.snsId,
         iconImageUrl: profile.iconImageUrl,
+        locale: localeOf(input.locale),
+      });
+    }
+
+    return { user, auth: await this.tokenService.issue(user) };
+  }
+
+  /** iOS 앱 애플 로그인 — 앱이 받은 identity token 을 검증하고, 처음이면 가입 (이름은 첫 로그인 때만 앱이 보내 준다) */
+  async appleLogin(input: { identityToken: string; givenName?: string; familyName?: string; locale?: string }): Promise<Holy365LoginResult> {
+    const apple = await this.appleVerifier.verify(input.identityToken).catch(() => null);
+    if (!apple) throw Holy365Errors.snsFailed();
+
+    let user = await this.userRepository.findBySns(HOLY365_APPLE_TYPE, apple.sub);
+    if (!user) {
+      user = await this.userRepository.create({
+        name: normalizeDisplayName(appleDisplayName(input.givenName, input.familyName)) ?? (input.locale === HOLY365_LOCALE.EN ? 'Writer' : '필사자'),
+        email: normalizeEmail(apple.email),
+        snsType: HOLY365_APPLE_TYPE,
+        snsId: apple.sub,
+        iconImageUrl: null,
+        locale: localeOf(input.locale),
+      });
+    }
+
+    return { user, auth: await this.tokenService.issue(user) };
+  }
+
+  /** iOS 앱 구글 로그인 — 앱이 받은 ID 토큰을 검증. 구글 사용자 ID 가 웹과 같아서 웹에서 구글로 가입한 계정으로 그대로 들어온다 */
+  async googleNativeLogin(input: { idToken: string; locale?: string }): Promise<Holy365LoginResult> {
+    const google = await this.googleVerifier.verify(input.idToken).catch(() => null);
+    if (!google) throw Holy365Errors.snsFailed();
+
+    let user = await this.userRepository.findBySns(HOLY365_SNS_PROVIDER.GOOGLE, google.sub);
+    if (!user) {
+      user = await this.userRepository.create({
+        name: normalizeDisplayName(google.name) ?? (input.locale === HOLY365_LOCALE.EN ? 'Writer' : '필사자'),
+        email: normalizeEmail(google.email),
+        snsType: HOLY365_SNS_PROVIDER.GOOGLE,
+        snsId: google.sub,
+        iconImageUrl: google.picture,
         locale: localeOf(input.locale),
       });
     }

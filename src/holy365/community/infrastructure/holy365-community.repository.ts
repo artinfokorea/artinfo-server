@@ -25,32 +25,32 @@ export class Holy365CommunityRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
   /** 기간(시작일~오늘) 필사 절 수 합계 순위 */
-  ranking(since: string, limit: number): Promise<Holy365RankingRow[]> {
+  ranking(since: string, limit: number, lang: string | null = null): Promise<Holy365RankingRow[]> {
     return this.dataSource.query(
       `SELECT u.id AS "userId", u.name, u.icon_image_url AS "iconImageUrl", SUM(a.verses)::int AS verses, SUM(a.chars)::int AS chars
          FROM holy365_daily_activity a
          JOIN holy365_users u ON u.id = a.user_id
-        WHERE a.day >= $1::date AND ${REAL_USERS}
+        WHERE a.day >= $1::date AND ${REAL_USERS} AND ($3::text IS NULL OR u.locale = $3)
         GROUP BY u.id
        HAVING SUM(a.verses) > 0
         ORDER BY verses DESC, chars DESC, u.id
         LIMIT $2`,
-      [since, limit],
+      [since, limit, lang],
     );
   }
 
   /** 내 순위 — 나보다 많이 쓴 사람 수 + 1 (기록이 없으면 null) */
-  async myRank(userId: number, since: string): Promise<{ rank: number; verses: number } | null> {
+  async myRank(userId: number, since: string, lang: string | null = null): Promise<{ rank: number; verses: number } | null> {
     const rows = await this.dataSource.query(
       `WITH totals AS (
          SELECT a.user_id, SUM(a.verses)::int AS verses
            FROM holy365_daily_activity a JOIN holy365_users u ON u.id = a.user_id
-          WHERE a.day >= $1::date AND ${REAL_USERS}
+          WHERE a.day >= $1::date AND ${REAL_USERS} AND ($3::text IS NULL OR u.locale = $3)
           GROUP BY a.user_id
        )
        SELECT me.verses, (SELECT COUNT(*)::int FROM totals t WHERE t.verses > me.verses) + 1 AS rank
          FROM totals me WHERE me.user_id = $2 AND me.verses > 0`,
-      [since, userId],
+      [since, userId, lang],
     );
 
     return rows[0] ?? null;

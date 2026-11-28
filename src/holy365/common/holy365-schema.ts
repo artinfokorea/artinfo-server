@@ -139,6 +139,16 @@ export const HOLY365_SCHEMA_STATEMENTS: string[] = [
   // 구절 여러 개 (2026-11-27) — verses 배열로 옮기고, 예전 verse 하나짜리는 배열로 옮겨 둔다 (verse 열은 더 쓰지 않음)
   `ALTER TABLE holy365_posts ADD COLUMN IF NOT EXISTS verses JSONB NOT NULL DEFAULT '[]'`,
   `UPDATE holy365_posts SET verses = jsonb_build_array(verse), verse = NULL WHERE verse IS NOT NULL`,
+  // 게시물 언어 (2026-11-28) — 한국어 웹과 영어 iOS 앱 피드를 나눈다. 쓴 사람의 서비스 언어로 정해진다
+  `ALTER TABLE holy365_posts ADD COLUMN IF NOT EXISTS lang VARCHAR(2) NOT NULL DEFAULT 'ko'`,
+  `CREATE INDEX IF NOT EXISTS idx_holy365_posts_lang ON holy365_posts (lang, id DESC)`,
+  // 차단 (2026-11-28) — 차단한 사람의 게시물·댓글은 보이지 않는다 (앱스토어 UGC 요건)
+  `CREATE TABLE IF NOT EXISTS holy365_blocks (
+    blocker_id INTEGER NOT NULL,
+    blocked_id INTEGER NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    PRIMARY KEY (blocker_id, blocked_id)
+  )`,
   `CREATE TABLE IF NOT EXISTS holy365_post_likes (
     post_id    INTEGER NOT NULL,
     user_id    INTEGER NOT NULL,

@@ -50,6 +50,42 @@ export class Holy365SnsLoginRequest {
   locale?: string;
 }
 
+export class Holy365AppleLoginRequest {
+  @IsString()
+  @MaxLength(4000)
+  @ApiProperty({ description: 'iOS Sign in with Apple 의 identityToken' })
+  identityToken: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(60)
+  @ApiProperty({ required: false, description: '첫 로그인 때만 애플이 주는 이름' })
+  givenName?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(60)
+  @ApiProperty({ required: false })
+  familyName?: string;
+
+  @IsOptional()
+  @IsIn(['ko', 'en'])
+  @ApiProperty({ required: false, enum: ['ko', 'en'] })
+  locale?: string;
+}
+
+export class Holy365GoogleNativeLoginRequest {
+  @IsString()
+  @MaxLength(4000)
+  @ApiProperty({ description: 'iOS 구글 로그인의 idToken' })
+  idToken: string;
+
+  @IsOptional()
+  @IsIn(['ko', 'en'])
+  @ApiProperty({ required: false, enum: ['ko', 'en'] })
+  locale?: string;
+}
+
 export class Holy365RefreshRequest {
   @IsString()
   @ApiProperty()
